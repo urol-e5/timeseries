@@ -3,19 +3,18 @@
 #### Data standards
 
 - 'site'  *(site where sample was collected)*
-	- 'site1' = Marava
+	- 'site1' = Manava
 	- 'site2' = Mahana
 	- 'site3' = Hilton
 
 - 'lon' *(longitude coordinate)*
-	- Use format: *dd°mm.mmm'*
+	- Use decimal degrees: *dd.ddddd°*
 
 - 'lat' *(latitude coordinate)*
-	- Use format: *dd°mm.mmm'*
+	- Use decimal degrees: *dd.ddddd°*
 
 - 'date'
 	- Use format: *YYYYMMDD*
-	- 
 
 - 'time'
 	- Use format: *hh:mm* with 24-hour clock
