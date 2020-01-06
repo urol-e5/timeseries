@@ -50,7 +50,7 @@ rstan_options(auto_write = TRUE)
 
 Data<-read.csv(file = 'output/All_PI_Curve_rates.csv')
 # add a column for site
-Data<-separate(data = Data, col = Fragment.ID, into = "Site", sep =  "-", remove = TRUE)
+Data<-separate(data = Data, col = Site, into = "Site", sep =  "-", remove = TRUE)
 # function to plot PI curves using Baysian analysis
 PICurve_ind<-function(Data = Data, IndividualID, PlotDiagnostics = TRUE, PlotResults = TRUE, n_cores = 4,
                       PAR_col_name = "Light_Value", rate_col_name = "micromol.cm2.h", ind_col_name = "Sample.ID"){
@@ -68,9 +68,9 @@ Individual.selected<-Data # subset the data by individual ID
 # rename the Light and rate columns from the dataframe
 colnames(Data)[colnames(Data)==PAR_col_name]<-"Light_Level"
 colnames(Data)[colnames(Data)==rate_col_name]<-"micromol.cm2.h"
-colnames(Data)[colnames(Data)==ind_col_name]<-"Sample.ID"
+colnames(Data)[colnames(Data)==ind_col_name]<-"Plug.Number"
 # pull out the names of the individual
-spec.name<-unique(Individual.selected$Sample.ID)
+spec.name<-unique(Individual.selected$Plug.Number)
 y<-Individual.selected$micromol.cm2.h
 
 options("scipen"=100,digits=12) # stan doesnt like scientific notation. This fixes that
@@ -112,7 +112,7 @@ if (PlotDiagnostics==TRUE){
 
     # convergence diagnostics -------------------------------------------------
   # plot the traceplots
-  pdf(paste0('RAnalysis/Output/BayesPICurves/traceplots_',spec.name,'.pdf'))
+  pdf(paste0('output/BayesPICurves/traceplots_',spec.name,'.pdf'))
   plot(fit1, ask = FALSE, newpage = FALSE) # all of them
   dev.off()
   
@@ -128,7 +128,7 @@ if (PlotDiagnostics==TRUE){
   title <- ggdraw() + draw_label(spec.name, fontface='italic')
   ppcheckf<-plot_grid(title, ppcheckfig,nrow = 2 , rel_heights=c(0.1, 1))
   
-  ggsave(filename = paste0('RAnalysis/Output/BayesPICurves/ppchecks_',spec.name,'.pdf'),plot = ppcheckf, width = 9, height = 6 )
+  ggsave(filename = paste0('output/BayesPICurves/ppchecks_',spec.name,'.pdf'),plot = ppcheckf, width = 9, height = 6 )
 }
 
 if (PlotResults == TRUE){
@@ -145,7 +145,7 @@ pt2<-ggplot(as.data.frame(pt1$Light_Value))+ # pull pur the fitted data
   ylab(expression(paste('Photosynthetic rate (', mu, "mol cm"^-2, 's'^-1,")")))+
   theme(text = element_text(size=18), title = element_text(face="italic"))
 
-ggsave(filename = paste0('RAnalysis/Output/BayesPICurves/PICurve_',spec.name,'.pdf'),plot = pt2, width = 6, height = 6 )
+ggsave(filename = paste0('output/BayesPICurves/PICurve_',spec.name,'.pdf'),plot = pt2, width = 6, height = 6 )
 
 }
 
@@ -170,17 +170,17 @@ PICurve_ind_noerror <- possibly(PICurve_ind, otherwise = p)
 
 #Run Bayesian PI for all Individuals, export plots, and save the 95% CI of each parameter
 Param.output<-Data %>%
-  group_by(Sample.ID, Species, Site) %>%
-  do(PICurve_ind_noerror(Data = ., IndividualID = unique(.$Sample.ID)))
+  group_by(Plug.Number, Species, Site) %>%
+  do(PICurve_ind_noerror(Data = ., IndividualID = unique(.$Plug.Number)))
 
 # add a column for plotting names
 prettynames<-data.frame(.variable = unique(Param.output$.variable))
 prettynames$varnames<-c("Am","AQY","Rd","Theta", "Sigma", "Ic")
 Param.output<-left_join(Param.output,prettynames)# make the names easier for plotting
-write.csv(file  = 'RAnalysis/Output/BayesPICurves/parameters.csv', x = Param.output)
+write.csv(file  = 'output/BayesPICurves/parameters.csv', x = Param.output)
 
 
-Param.output <- read.csv(file='RAnalysis/Output/BayesPICurves/parameters.csv')
+Param.output <- read.csv(file='output/BayesPICurves/parameters.csv')
 Param.output <- subset(Param.output, varnames!="Theta" & varnames!="Sigma")
 Param.output$group <- paste0() 
 
