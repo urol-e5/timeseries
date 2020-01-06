@@ -48,7 +48,7 @@ rstan_options(auto_write = TRUE)
 
 ################ Read in the Data ##################
 
-Data<-read.csv(file = 'RAnalysis/Data/All_PI_Curve_rates.csv')
+Data<-read.csv(file = 'output/All_PI_Curve_rates.csv')
 # add a column for site
 Data<-separate(data = Data, col = Fragment.ID, into = "Site", sep =  "-", remove = TRUE)
 # function to plot PI curves using Baysian analysis

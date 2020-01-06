@@ -13,7 +13,7 @@ rm(list=ls()) #clears workspace
 
 #Surface area by wax dipping Veal et al 
 
-Data <- read.csv("RAnalysis/Data/Wax_Data.csv", header=TRUE)
+Data <- read.csv("data/1_surface_area.csv", header=TRUE)
 
 Stnds <- read.csv("RAnalysis/Data/wax.standards_1.csv", header=TRUE)
 Stnds$delta.mass.g <- Stnds$weight2.g-Stnds$weight1.g
