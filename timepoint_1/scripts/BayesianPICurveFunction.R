@@ -49,6 +49,8 @@ rstan_options(auto_write = TRUE)
 ################ Read in the Data ##################
 
 Data<-read.csv(file = 'output/All_PI_Curve_rates.csv')
+Data <- Data[1:50,]
+
 # add a column for site
 Data<-separate(data = Data, col = Site, into = "Site", sep =  "-", remove = TRUE)
 # function to plot PI curves using Baysian analysis
@@ -137,7 +139,7 @@ pt1<-marginal_effects(fit1)
 
 #population level 
 pt2<-ggplot(as.data.frame(pt1$Light_Value))+ # pull pur the fitted data
-  geom_line(aes(Light_Value, estimate__))+ # 
+  geom_line(aes(Light_Value, estimate__))+ #
   geom_ribbon(aes(Light_Value, ymin = lower__, ymax = upper__), alpha=0.3)+
   geom_point(data = Individual.selected, aes(x = Light_Value, y = micromol.cm2.h)) +# add the raw data
   theme_bw()+
@@ -174,7 +176,7 @@ Param.output<-Data %>%
   do(PICurve_ind_noerror(Data = ., IndividualID = unique(.$Plug.Number)))
 
 # add a column for plotting names
-prettynames<-data.frame(.variable = unique(Param.output$.variable))
+prettynames<-data.frame(.variable = unique(Param.output$.variable)[-7])
 prettynames$varnames<-c("Am","AQY","Rd","Theta", "Sigma", "Ic")
 Param.output<-left_join(Param.output,prettynames)# make the names easier for plotting
 write.csv(file  = 'output/BayesPICurves/parameters.csv', x = Param.output)
@@ -182,23 +184,26 @@ write.csv(file  = 'output/BayesPICurves/parameters.csv', x = Param.output)
 
 Param.output <- read.csv(file='output/BayesPICurves/parameters.csv')
 Param.output <- subset(Param.output, varnames!="Theta" & varnames!="Sigma")
-Param.output$group <- paste0() 
+#Param.output$group <- paste0() 
 
-ymin <- c(0,0,0)
-ymax <- c(4,0.45,2)
+#ymin <- c(0,0,0)
+#ymax <- c(4,0.45,2)
 
 ## Make a plot of the means
 Param.output%>%
+  filter(Plug.Number != "POR-214") %>%
   group_by(Species, Site, varnames)%>%
   summarise(mean.value = mean(.value), se = std.error(.value)) %>%
   ggplot(aes(x = Site, y = mean.value, group = Species, color = Species))+
   geom_point(size = 3)+
   geom_errorbar(aes(x = Site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
-  facet_wrap(~varnames*Species, scales = "free_y", ncol = 3) +
-  coord_cartesian(ylim = c(ymin, ymax)) 
+  facet_grid(varnames~Species, scales = "free_y")
+  #coord_cartesian(ylim = c(ymin, ymax)) 
   #coord_cartesian(ylim = c(0, 0.45)) +
  # coord_cartesian(ylim = c(0, 2.5))
   
+
+
 
 
 
