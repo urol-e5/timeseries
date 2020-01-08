@@ -73,8 +73,8 @@ for(i in 1:length(file.names)) { # for every file in list start at the first and
   
   for(j in 1:length(lt.levs)){    
     Photo.Data <- as.data.frame(lt.levs[j])
-    n<-dim(Photo.Data)[1] #identify length of data
-    Photo.Data <-Photo.Data [120:(n-3),] #start at data point ~2 minute in to avoid excess noise from start of run and remove last 3 lines containing text
+    #n<-dim(Photo.Data)[1] #identify length of data
+    #Photo.Data <-Photo.Data [120:(n-3),] #start at data point ~2 minute in to avoid excess noise from start of run and remove last 3 lines containing text
     n<-dim(Photo.Data)[1] #list length of trimmed data
     Photo.Data$sec <- as.numeric(1:n) #set seconds by one from start to finish of run
     Photo.Data$Value <- as.numeric(as.character(Photo.Data$Value)) #save O2 data as numeric
