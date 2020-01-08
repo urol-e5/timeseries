@@ -194,7 +194,7 @@ Param.output%>%
   ggplot(aes(x = Site, y = mean.value, group = Species, color = Species))+
   geom_point(size = 3)+
   geom_errorbar(aes(x = Site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
-  facet_wrap(~varnames*Species, scales = "free_y", ncol = 4) +
+  facet_wrap(~varnames*Species, scales = "free_y", ncol = 3) +
   coord_cartesian(ylim = c(ymin, ymax)) 
   #coord_cartesian(ylim = c(0, 0.45)) +
  # coord_cartesian(ylim = c(0, 2.5))
