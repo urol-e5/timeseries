@@ -202,14 +202,14 @@ Pc.S3 <- as.numeric(AP.S3$micromol.cm2.h)
 
 pdf("output/NLLS_Acropora_PICurves.pdf")
 #par(mfrow=c(1,1))
-plot(PAR.S2,Pc.S2, col="red", xlab="", ylab="", xlim=c(0,max(PAR)), ylim=c(-1, 2), cex.lab=0.8,cex.axis=0.8,cex=1, main="A) Acropora", adj = 0.05) #set plot info
-points(PAR.S3,Pc.S3, col="blue", xlab="", ylab="", xlim=c(0,max(PAR)), ylim=c(-1, 2), adj = 0.05) #set plot info
+plot(PAR.S2,Pc.S2, col="red", xlab="", ylab="", xlim=c(0,max(PAR.S2)), ylim=c(-1, 2), cex.lab=0.8,cex.axis=0.8,cex=1, main="A) Acropora", adj = 0.05) #set plot info
+points(PAR.S3,Pc.S3, col="blue", xlab="", ylab="", xlim=c(0,max(PAR.S3)), ylim=c(-1, 2), adj = 0.05) #set plot info
 mtext(expression("Irradiance ("*mu*"mol photons "*m^-2*s^-1*")"),side=1,line=3.3,cex=1) #add labels
 mtext(expression(Rate*" ("*mu*"mol "*O[2]*" "*cm^-2*h^-1*")"),side=2,line=2,cex=1) #add labels
 
 #fit a model using a Nonlinear Least Squares regression of a non-rectangular hyperbola (Marshall & Biscoe, 1980)
 curve.nlslrc.AP.S2 = nls(Pc.S2 ~ (1/(2*theta))*(AQY*PAR.S2+Am-sqrt((AQY*PAR.S2+Am)^2-4*AQY*theta*Am*PAR.S2))-Rd,
-                      start=list(Am=(max(Pc.S2)-min(Pc.S2)),AQY=0.05,Rd=-min(Pc.S2),theta=0.001)) 
+                      start=list(Am=(max(Pc.S2)-min(Pc.S2)),AQY=0.05,Rd=-min(Pc.S2),theta=0.0001)) 
 
 curve.nlslrc.AP.S3 = nls(Pc.S3 ~ (1/(2*theta))*(AQY*PAR.S3+Am-sqrt((AQY*PAR.S3+Am)^2-4*AQY*theta*Am*PAR.S3))-Rd,
                          start=list(Am=(max(Pc.S3)-min(Pc.S3)),AQY=0.05,Rd=-min(Pc.S3),theta=0.001)) 
@@ -267,17 +267,17 @@ Pc.S3 <- as.numeric(PL.S3$micromol.cm2.h)
 
 pdf("output/NLLS_Porites_PICurves.pdf")
 #par(mfrow=c(1,1))
-plot(PAR.S2,Pc.S2, col="red", xlab="", ylab="", xlim=c(0,max(PAR)), ylim=c(-1, 2), cex.lab=0.8,cex.axis=0.8,cex=1, main="B) Porites", adj = 0.05) #set plot info
-points(PAR.S3,Pc.S3, col="blue", xlab="", ylab="", xlim=c(0,max(PAR)), ylim=c(-1, 2), adj = 0.05) #set plot info
+plot(PAR.S2,Pc.S2, col="red", xlab="", ylab="", xlim=c(0,max(PAR.S2)), ylim=c(-1, 2), cex.lab=0.8,cex.axis=0.8,cex=1, main="B) Porites", adj = 0.05) #set plot info
+points(PAR.S3,Pc.S3, col="blue", xlab="", ylab="", xlim=c(0,max(PAR.S3)), ylim=c(-1, 2), adj = 0.05) #set plot info
 mtext(expression("Irradiance ("*mu*"mol photons "*m^-2*s^-1*")"),side=1,line=3.3,cex=1) #add labels
 mtext(expression(Rate*" ("*mu*"mol "*O[2]*" "*cm^-2*h^-1*")"),side=2,line=2,cex=1) #add labels
 
 #fit a model using a Nonlinear Least Squares regression of a non-rectangular hyperbola (Marshall & Biscoe, 1980)
 curve.nlslrc.PL.S2 = nls(Pc.S2 ~ (1/(2*theta))*(AQY*PAR.S2+Am-sqrt((AQY*PAR.S2+Am)^2-4*AQY*theta*Am*PAR.S2))-Rd,
-                         start=list(Am=(max(Pc.S2)-min(Pc.S2)),AQY=0.05,Rd=-min(Pc.S2),theta=0.001)) 
+                         start=list(Am=(max(Pc.S2)-min(Pc.S2)),AQY=0.05,Rd=-min(Pc.S2),theta=0.01)) 
 
 curve.nlslrc.PL.S3 = nls(Pc.S3 ~ (1/(2*theta))*(AQY*PAR.S3+Am-sqrt((AQY*PAR.S3+Am)^2-4*AQY*theta*Am*PAR.S3))-Rd,
-                         start=list(Am=(max(Pc.S3)-min(Pc.S3)),AQY=0.05,Rd=-min(Pc.S3),theta=0.01)) 
+                         start=list(Am=(max(Pc.S3)-min(Pc.S3)),AQY=0.05,Rd=-min(Pc.S3),theta=0.001)) 
 
 my.fit.PL.S2 <- summary(curve.nlslrc.PL.S2 ) #summary of model fit
 my.fit.PL.S3 <- summary(curve.nlslrc.PL.S3 ) #summary of model fit
@@ -331,17 +331,17 @@ Pc.S3 <- as.numeric(PM.S3$micromol.cm2.h)
 
 pdf("output/NLLS_Pocillopora_PICurves.pdf")
 #par(mfrow=c(1,1))
-plot(PAR.S2,Pc.S2, col="red", xlab="", ylab="", xlim=c(0,max(PAR)), ylim=c(-1, 2), cex.lab=0.8,cex.axis=0.8,cex=1, main="C) Pocillopora", adj = 0.05) #set plot info
-points(PAR.S3,Pc.S3, col="blue", xlab="", ylab="", xlim=c(0,max(PAR)), ylim=c(-1, 2), adj = 0.05) #set plot info
+plot(PAR.S2,Pc.S2, col="red", xlab="", ylab="", xlim=c(0,max(PAR.S2)), ylim=c(-1, 2), cex.lab=0.8,cex.axis=0.8,cex=1, main="C) Pocillopora", adj = 0.05) #set plot info
+points(PAR.S3,Pc.S3, col="blue", xlab="", ylab="", xlim=c(0,max(PAR.S3)), ylim=c(-1, 2), adj = 0.05) #set plot info
 mtext(expression("Irradiance ("*mu*"mol photons "*m^-2*s^-1*")"),side=1,line=3.3,cex=1) #add labels
 mtext(expression(Rate*" ("*mu*"mol "*O[2]*" "*cm^-2*h^-1*")"),side=2,line=2,cex=1) #add labels
 
 #fit a model using a Nonlinear Least Squares regression of a non-rectangular hyperbola (Marshall & Biscoe, 1980)
 curve.nlslrc.PM.S2 = nls(Pc.S2 ~ (1/(2*theta))*(AQY*PAR.S2+Am-sqrt((AQY*PAR.S2+Am)^2-4*AQY*theta*Am*PAR.S2))-Rd,
-                         start=list(Am=(max(Pc.S2)-min(Pc.S2)),AQY=0.05,Rd=-min(Pc.S2),theta=0.001)) 
+                         start=list(Am=(max(Pc.S2)-min(Pc.S2)),AQY=0.05,Rd=-min(Pc.S2),theta=0.00001)) 
 
 curve.nlslrc.PM.S3 = nls(Pc.S3 ~ (1/(2*theta))*(AQY*PAR.S3+Am-sqrt((AQY*PAR.S3+Am)^2-4*AQY*theta*Am*PAR.S3))-Rd,
-                         start=list(Am=(max(Pc.S3)-min(Pc.S3)),AQY=0.05,Rd=-min(Pc.S3),theta=0.001)) 
+                         start=list(Am=(max(Pc.S3)-min(Pc.S3)),AQY=0.05,Rd=-min(Pc.S3),theta=0.0001)) 
 
 my.fit.PM.S2 <- summary(curve.nlslrc.PM.S2 ) #summary of model fit
 my.fit.PM.S3 <- summary(curve.nlslrc.PM.S3 ) #summary of model fit
@@ -377,3 +377,4 @@ Ic.S3 <- Rd.S3/AQY.S3
 # Net photosynthetic rates
 Pmax.net.S2 <- Pmax.gross.S2 - Rd.S2
 Pmax.net.S3 <- Pmax.gross.S3 - Rd.S3
+
