@@ -179,6 +179,68 @@ write.csv(Data,"output/All_PI_Curve_rates.csv")
 
 Data <- read.csv("output/All_PI_Curve_rates.csv", sep=",", header=TRUE)
 
+
+# vvv RC vvv
+
+# Define function for PI curve
+nls_PI <- function(Light_Value, micromol.cm2.h, data, start) {
+  nls(micromol.cm2.h ~ (1/(2*theta))*(AQY*Light_Value+Am-sqrt((AQY*Light_Value+Am)^2-4*AQY*theta*Am*Light_Value))-Rd, data = data, start = start)
+}
+
+# Make 'safe' function that will return NA if nls gets an error
+nls_PI_safe <- safely(nls_PI, otherwise = NA_real_)
+
+# Fit the PI curve for each coral, and pull out model parameters
+Data2 <- Data %>%
+  group_by(Plug.Number) %>%
+  nest() %>%
+  mutate(
+    startpars = map(data, ~ list(
+      Am = max(.$micromol.cm2.h) - min(.$micromol.cm2.h),
+      Rd = -min(.$micromol.cm2.h),
+      AQY = 0.005, theta = 0.001)),
+    nls_fit = map2(data, startpars, ~ nls_PI_safe(data = .x, start = .y)),
+    nls_res = map(nls_fit, ~ .$result),
+  nls_class = map_chr(nls_res, ~ class(.)),
+   nls_pars = map(nls_fit, ~ broom::tidy(.$result)))
+
+# Unnest nls parameters and join with sample metadata
+params <- Data2 %>% 
+  unnest(nls_pars) %>%
+  left_join(distinct(select(Data, Plug.Number, Species, Site)))
+
+# Plot parameters for each species at each site
+params %>%
+  ggplot(aes(x = Site, y = estimate, color = Site)) +
+  geom_boxplot() +
+  facet_grid(term ~ Species, scales = "free_y")
+
+# Plot individual PI curves and nls fits
+Data2 <- Data2 %>%
+  filter(nls_class == "nls") %>%
+  mutate(Light_Value = list(Light_Value = seq(0:max(Data$Light_Value))),
+         micromol.cm2.h = map2(nls_res, newdat, ~ predict(.x, newdata = data.frame(Light_Value = seq(0:max(Data$Light_Value))))))
+
+preds <- Data2 %>% unnest(Light_Value, micromol.cm2.h)
+
+Data2 <- Data2 %>%
+  mutate(plot = pmap(list(dat = data, pars = nls_pars), function(dat, pars) {
+    ggplot(dat, aes(x = Light_Value, y = micromol.cm2.h)) +
+      geom_point() +
+      geom_line(data = preds)
+    }))
+
+
+
+Data2 %>% pull(plot)
+
+
+
+# ^^^ RC ^^^
+
+
+
+
 AP.S2 <- subset(Data, Species=="Acropora" & Site =="Site2")
 AP.S3 <- subset(Data, Species=="Acropora" & Site =="Site3")
 PL.S2 <- subset(Data, Species=="Porites" & Site =="Site2")
