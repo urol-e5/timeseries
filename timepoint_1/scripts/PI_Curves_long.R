@@ -32,6 +32,8 @@ library("lubridate")
 library("chron")
 library('plyr')
 library('dplyr')
+library(tidyr)
+library(purrr)
 #library('phytotools')
 
 
