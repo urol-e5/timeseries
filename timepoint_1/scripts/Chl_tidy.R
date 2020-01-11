@@ -47,7 +47,57 @@ df <- df %>%
          adj663 = `663` - blank750)
 
 # calculate chla and chlc2 values based on equations from Jeffrey and Humphrey 1975
+#units µg/ml
 df <- df %>%
   mutate(chla = 11.43 * adj663 - 0.64 * adj630,
         chlc2 = 27.09 * adj630 - 3.63 * adj663)
 
+#Multiply by the homogenate volume
+#Load homogenate volume
+homog.vol <- read.csv("data/1_homogenate_vols.csv", header=TRUE)
+Meta <- read.csv("data/1_Sample_Info.csv")
+Data <-merge(df, Meta, by="colony_id")
+Data <- merge(Data, homog.vol, by="colony_id")
+
+#calculate surface area standard curve
+wax.data <- read.csv("data/1_Wax_dipping.csv", header=TRUE)
+wax.data$delta.mass.g <- wax.data$weight2.g-wax.data$weight1.g
+stnds <- subset(wax.data, Sample=="Standard")
+stnds <- stnds[-1,]
+stnds$rad <- stnds$Diameter/2
+stnds$surface.area.cm2 <- 4*pi*(stnds$rad)^2
+stnd.curve <- lm(surface.area.cm2~delta.mass.g, data=stnds)
+plot(surface.area.cm2~delta.mass.g, data=stnds)
+
+stnd.curve$coefficients
+summary(stnd.curve)$r.squared
+
+#Calculate surface area
+smpls <- subset(wax.data, Sample=="Coral")
+smpls$surface.area.cm2 <- stnd.curve$coefficients[2] * smpls$delta.mass.g + stnd.curve$coefficients[1]
+plot(smpls$surface.area.cm2)
+range(smpls$surface.area.cm2)
+range(stnds$surface.area.cm2)
+
+Data <- merge(Data, smpls, by="colony_id")
+
+Data$chla.cm2 <-  (Data$chla * Data$homog_vol_ml)/Data$surface.area.cm2
+Data$chlc2.cm2 <-  (Data$chlc2 * Data$homog_vol_ml)/Data$surface.area.cm2
+
+Data%>%
+  group_by(Species, Site)%>%
+  summarise(mean.value = mean(chla.cm2), se = std.error(chla.cm2)) %>%
+  ggplot(aes(x = Site, y = mean.value, group = Species, color = Species))+
+  ylab("CHL-a µg cm-2")+
+  geom_point(size = 3)+
+  geom_errorbar(aes(x = Site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
+  facet_grid(~Species, scales = "free_y")
+
+Data%>%
+  group_by(Species, Site)%>%
+  summarise(mean.value = mean(chlc2.cm2 ), se = std.error(chlc2.cm2 )) %>%
+  ggplot(aes(x = Site, y = mean.value, group = Species, color = Species))+
+  ylab("CHL-c2 µg cm-2")+
+  geom_point(size = 3)+
+  geom_errorbar(aes(x = Site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
+  facet_grid(~Species, scales = "free_y")

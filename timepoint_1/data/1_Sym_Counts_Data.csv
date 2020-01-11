@@ -1,4 +1,4 @@
-Plug.Number,Squares.Counted,Count1,Count2,Count3,Count4,Count5,Count6,Count7,Count8,Dilution,Counter,Average,Std. Dev.,CV
+colony_id,Squares.Counted,Count1,Count2,Count3,Count4,Count5,Count6,Count7,Count8,Dilution,Counter,Average,Std. Dev.,CV
 ACR-231,3,146,124,141,139,127,152,,,1,HP,138.1666667,10.83358974,0.078409576
 POC-200,3,160,173,173,163,166,143,,,1,HP,163,11.11755369,0.068205851
 ACR-237,3,287,339,290,265,253,259,,,1,HP,282.1666667,31.61276114,0.112035775

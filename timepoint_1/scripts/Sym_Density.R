@@ -16,7 +16,7 @@ library(ggplot2)
 
 Data <- read.csv("data/1_Sym_Counts_Data.csv")
 Meta <- read.csv("data/1_Sample_Info.csv")
-Data <-merge(Data, Meta, by="Plug.Number")
+Data <-merge(Data, Meta, by="colony_id")
 
 #calculate surface area standard curve
 wax.data <- read.csv("data/1_Wax_dipping.csv", header=TRUE)
@@ -34,16 +34,16 @@ summary(stnd.curve)$r.squared
 #Calculate surface area
 smpls <- subset(wax.data, Sample=="Coral")
 smpls$surface.area.cm2 <- stnd.curve$coefficients[2] * smpls$delta.mass.g + stnd.curve$coefficients[1]
-
+plot(smpls$surface.area.cm2)
 range(smpls$surface.area.cm2)
 range(stnds$surface.area.cm2)
 
-Data <- merge(Data, smpls, by="Plug.Number")
+Data <- merge(Data, smpls, by="colony_id")
 
 #Load homogenate volume
 homog.vol <- read.csv("data/1_homogenate_vols.csv", header=TRUE)
 
-Data <- merge(Data, homog.vol, by="Plug.Number")
+Data <- merge(Data, homog.vol, by="colony_id")
 
 Data$avg.cells <- rowMeans(Data[,3:8])
 #Data$avg.cells[2] <- rowMeans(Data[2,4:7])
@@ -53,8 +53,10 @@ Data$cells <- Data$cells.ml * Data$homog_vol_ml
 Data$cells.cm2 <- Data$cells/Data$surface.area.cm2
 Data$cells.106.cm2 <- Data$cells.cm2/10^6
 Data <- subset(Data, Species!="BK")
-plot(Data$cells.106.cm2 ~Data$Plug.Number, las=2)
-
+plot(Data$cells.106.cm2 ~Data$colony_id, las=2, cex=0.2)
+outs <- max(Data$cells.106.cm2)
+out <- which(Data$cells.106.cm2 ==outs)
+Data[out,]
 
 Data%>%
   group_by(Species, Site)%>%
