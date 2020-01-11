@@ -134,3 +134,6 @@ Data$micromol.cm2.h <- Data$micromol.cm2.s*3600
 Data <- subset(Data, Species!="Blank")
 write.csv(Data,"output/All_PI_Curve_rates.csv")
 
+ggplot(Data, aes(x = Light_Value, y = micromol.cm2.h)) +
+  geom_point() +
+  facet_wrap(~colony_id)
