@@ -218,23 +218,31 @@ params %>%
   facet_grid(term ~ Species, scales = "free_y")
 
 # Plot individual PI curves and nls fits
-Data2 <- Data2 %>%
+dd <- Data2 %>%
   filter(nls_class == "nls") %>%
   mutate(Light_Value = list(Light_Value = seq(0:max(Data$Light_Value))),
-         micromol.cm2.h = map2(nls_res, newdat, ~ predict(.x, newdata = data.frame(Light_Value = seq(0:max(Data$Light_Value))))))
+         micromol.cm2.h = map(nls_res, ~ predict(.x, newdata = data.frame(Light_Value = seq(0:max(Data$Light_Value))))))
 
-preds <- Data2 %>% unnest(Light_Value, micromol.cm2.h)
+preds <- dd %>% unnest(Light_Value, micromol.cm2.h) %>%
+  nest(-Plug.Number, .key = "preds") %>%
+  full_join(select(dd, Plug.Number, data, nls_pars))
 
-Data2 <- Data2 %>%
-  mutate(plot = pmap(list(dat = data, pars = nls_pars), function(dat, pars) {
+preds <- preds %>%
+  mutate(plot = pmap(list(dat = data, pars = nls_pars, preds = preds, id = as.character(Plug.Number)), function(dat, pars, preds, id) {
     ggplot(dat, aes(x = Light_Value, y = micromol.cm2.h)) +
       geom_point() +
-      geom_line(data = preds)
+      geom_line(data = preds) +
+      geom_hline(yintercept = c(0, pull(filter(pars, term == "Am"), estimate)), lty = c(3,2)) +
+      labs(data = id, title = as.character(id))
     }))
 
 
+preds %>% pull(plot)
+###
 
-Data2 %>% pull(plot)
+Data %>%
+  group_by(Plug.Number) %>%
+  do(nls_PI_safe(data = ., start = list(Am = 1, Rd = 0.2, AQY = 0.005, theta = 0.001)))
 
 
 
