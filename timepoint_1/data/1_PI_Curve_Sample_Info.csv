@@ -1,4 +1,4 @@
-Date,Sample.ID,Fragment.ID,Plug.Number,Chamber.Channel,Position,Bin.ID,Run,Species,Site,Fragment.Number,Sample.Type,Temp.Cat,Chamber.Vol.L,Start.time,Stop.time,Light_Dark,Light_Level,Light_Value,Notes
+Date,Sample.ID,Fragment.ID,colony_id,Chamber.Channel,Position,Bin.ID,Run,Species,Site,Fragment.Number,Sample.Type,Temp.Cat,Chamber.Vol.L,Start.time,Stop.time,Light_Dark,Light_Level,Light_Value,Notes
 20201004,ACR-247_20200104,ACR-247,ACR-247,4,6,1,1,Acropora,Site2,1,Sample,28.5,0.615,11:00,11:12,Dark,1,0,
 20201004,POC-219_20200104,POC-219,POC-219,6,3,2,1,Pocillopora,Site2,2,Sample,28.5,0.605,11:00,11:12,Dark,1,0,
 20201004,POR-242_20200104,POR-242,POR-242,8,1,2,1,Porites,Site2,3,Sample,28.5,0.595,11:00,11:12,Dark,1,0,
