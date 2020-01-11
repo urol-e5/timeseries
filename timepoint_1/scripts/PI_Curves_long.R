@@ -43,7 +43,7 @@ path.p<-"data/1_PICurves/" #the location of all your respirometry files
 #bring in the files
 file.names<-list.files(path = path.p, pattern = "csv$") #list all csv file names in the folder
 Photo.R <- data.frame(matrix(NA, nrow=length(file.names)*12, ncol=4)) #generate a 3 column dataframe with specific column names
-colnames(Photo.R) <- c("Fragment.ID","Intercept", "µmol.L.sec", "Temp")
+colnames(Photo.R) <- c("colony_id","Intercept", "µmol.L.sec", "Temp")
 
 #Load Sample meta info Info
 Sample.Info <- read.csv(file="data/1_PI_Curve_Sample_Info.csv", header=T) #read sample.info data
@@ -56,7 +56,7 @@ for(i in 1:length(file.names)) { # for every file in list start at the first and
   colnames(Photo.Data1) <- c("Time", "Value", "Temp")
   Photo.Data1$Time <- as.POSIXct(Photo.Data1$Time,format="%H:%M:%S", "HST") #-7*60*60 #convert time from character to time
   Photo.Data1$Time <-format(strptime(Photo.Data1$Time, format="%Y-%m-%d %H:%M:%S"), "%H:%M:%S")
-  levs <- which(Sample.Info$Plug.Number ==sub("_.*", "", file.names[i]))
+  levs <- which(Sample.Info$colony_id ==sub("_.*", "", file.names[i]))
   brk <- unique(as.POSIXct(Sample.Info$Start.time[levs],format="%H:%M","HST"))
   brk <-format(strptime(brk, format="%Y-%m-%d %H:%M:%S"), "%H:%M:%S")
   Step1 <- subset(Photo.Data1, Photo.Data1$Time > brk[1] & Photo.Data1$Time < brk[2])
@@ -97,7 +97,7 @@ for(i in 1:length(file.names)) { # for every file in list start at the first and
     axis(2, las=1)
     
     #set data reduction thinning parameter
-    thin <- 20
+    thin <- 30
     #save original unthinned data
     Photo.Data.orig<-Photo.Data
     
@@ -169,7 +169,7 @@ smpls$surface.area.cm2 <- stnd.curve$coefficients[2] * smpls$delta.mass.g + stnd
 range(smpls$surface.area.cm2)
 range(stnds$surface.area.cm2)
 
-Data <- merge(Data, smpls, by="Plug.Number")
+Data <- merge(Data, smpls, by="colony_id")
 
 #Correct for surface area
 Data$micromol.cm2.s <- Data$corr.micromol.s/Data$surface.area.cm2
@@ -179,7 +179,7 @@ Data <- subset(Data, Species!="Blank")
 write.csv(Data,"output/All_PI_Curve_rates.csv")
 
 
-Data <- read.csv("output/All_PI_Curve_rates.csv", sep=",", header=TRUE)
+#Data <- read.csv("output/All_PI_Curve_rates.csv", sep=",", header=TRUE)
 
 
 # vvv RC vvv
@@ -194,7 +194,7 @@ nls_PI_safe <- safely(nls_PI, otherwise = NA_real_)
 
 # Fit the PI curve for each coral, and pull out model parameters
 Data2 <- Data %>%
-  group_by(Plug.Number) %>%
+  group_by(colony)id %>%
   nest() %>%
   mutate(
     startpars = map(data, ~ list(
@@ -209,7 +209,7 @@ Data2 <- Data %>%
 # Unnest nls parameters and join with sample metadata
 params <- Data2 %>% 
   unnest(nls_pars) %>%
-  left_join(distinct(select(Data, Plug.Number, Species, Site)))
+  left_join(distinct(select(Data, colony_id, Species, Site)))
 
 # Plot parameters for each species at each site
 params %>%
@@ -276,7 +276,7 @@ curve.nlslrc.AP.S2 = nls(Pc.S2 ~ (1/(2*theta))*(AQY*PAR.S2+Am-sqrt((AQY*PAR.S2+A
                       start=list(Am=(max(Pc.S2)-min(Pc.S2)),AQY=0.05,Rd=-min(Pc.S2),theta=0.0001)) 
 
 curve.nlslrc.AP.S3 = nls(Pc.S3 ~ (1/(2*theta))*(AQY*PAR.S3+Am-sqrt((AQY*PAR.S3+Am)^2-4*AQY*theta*Am*PAR.S3))-Rd,
-                         start=list(Am=(max(Pc.S3)-min(Pc.S3)),AQY=0.05,Rd=-min(Pc.S3),theta=0.001)) 
+                         start=list(Am=(max(Pc.S3)-min(Pc.S3)),AQY=0.05,Rd=-min(Pc.S3),theta=0.0001)) 
 
 my.fit.AP.S2 <- summary(curve.nlslrc.AP.S2 ) #summary of model fit
 my.fit.AP.S3 <- summary(curve.nlslrc.AP.S3 ) #summary of model fit
@@ -338,7 +338,7 @@ mtext(expression(Rate*" ("*mu*"mol "*O[2]*" "*cm^-2*h^-1*")"),side=2,line=2,cex=
 
 #fit a model using a Nonlinear Least Squares regression of a non-rectangular hyperbola (Marshall & Biscoe, 1980)
 curve.nlslrc.PL.S2 = nls(Pc.S2 ~ (1/(2*theta))*(AQY*PAR.S2+Am-sqrt((AQY*PAR.S2+Am)^2-4*AQY*theta*Am*PAR.S2))-Rd,
-                         start=list(Am=(max(Pc.S2)-min(Pc.S2)),AQY=0.05,Rd=-min(Pc.S2),theta=0.01)) 
+                         start=list(Am=(max(Pc.S2)-min(Pc.S2)),AQY=0.05,Rd=-min(Pc.S2),theta=0.001)) 
 
 curve.nlslrc.PL.S3 = nls(Pc.S3 ~ (1/(2*theta))*(AQY*PAR.S3+Am-sqrt((AQY*PAR.S3+Am)^2-4*AQY*theta*Am*PAR.S3))-Rd,
                          start=list(Am=(max(Pc.S3)-min(Pc.S3)),AQY=0.05,Rd=-min(Pc.S3),theta=0.001)) 
@@ -405,7 +405,7 @@ curve.nlslrc.PM.S2 = nls(Pc.S2 ~ (1/(2*theta))*(AQY*PAR.S2+Am-sqrt((AQY*PAR.S2+A
                          start=list(Am=(max(Pc.S2)-min(Pc.S2)),AQY=0.05,Rd=-min(Pc.S2),theta=0.00001)) 
 
 curve.nlslrc.PM.S3 = nls(Pc.S3 ~ (1/(2*theta))*(AQY*PAR.S3+Am-sqrt((AQY*PAR.S3+Am)^2-4*AQY*theta*Am*PAR.S3))-Rd,
-                         start=list(Am=(max(Pc.S3)-min(Pc.S3)),AQY=0.05,Rd=-min(Pc.S3),theta=0.0001)) 
+                         start=list(Am=(max(Pc.S3)-min(Pc.S3)),AQY=0.05,Rd=-min(Pc.S3),theta=0.001)) 
 
 my.fit.PM.S2 <- summary(curve.nlslrc.PM.S2 ) #summary of model fit
 my.fit.PM.S3 <- summary(curve.nlslrc.PM.S3 ) #summary of model fit
