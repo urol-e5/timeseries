@@ -62,6 +62,7 @@ Data%>%
   group_by(Species, Site)%>%
   summarise(mean.value = mean(cells.106.cm2), se = std.error(cells.106.cm2)) %>%
   ggplot(aes(x = Site, y = mean.value, group = Species, color = Species))+
+  ylab("Cells x 10^6 cm-2")+
   geom_point(size = 3)+
   geom_errorbar(aes(x = Site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
   facet_grid(~Species, scales = "free_y")
