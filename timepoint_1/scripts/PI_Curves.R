@@ -117,7 +117,7 @@ Data$micromol.s <- Data$µmol.L.sec * Data$Chamber.Vol.L
 
 #calculate the average of the blanks from each time step
 blnks <- subset(Data, Sample.Type=="Blank")
-blnks <-mean.blnks <- aggregate(micromol.s ~ Light_Level, data=blnks, FUN=mean)
+blnks <- mean.blnks <- aggregate(micromol.s ~ Light_Level, data=blnks, FUN=mean)
 Data <- merge(Data, blnks, by="Light_Level")
 colnames(Data)[colnames(Data) == 'micromol.s.x'] <- 'sample.micromol.s'
 colnames(Data)[colnames(Data) == 'micromol.s.y'] <- 'blank.micromol.s'
@@ -125,29 +125,9 @@ colnames(Data)[colnames(Data) == 'micromol.s.y'] <- 'blank.micromol.s'
 #subtract the average of the blanks from each time step
 Data$corr.micromol.s <- Data$sample.micromol.s - Data$blank.micromol.s
 
-#calculate surface area standard curve
-wax.data <- read.csv("data/1_Wax_dipping.csv", header=TRUE)
-wax.data$delta.mass.g <- wax.data$weight2.g-wax.data$weight1.g
-stnds <- subset(wax.data, Sample=="Standard")
-stnds <- stnds[-1,]
-stnds$rad <- stnds$Diameter/2
-stnds$surface.area.cm2 <- 4*pi*(stnds$rad)^2
-stnd.curve <- lm(surface.area.cm2~delta.mass.g, data=stnds)
-plot(surface.area.cm2~delta.mass.g, data=stnds)
-
-stnd.curve$coefficients
-summary(stnd.curve)$r.squared
-
-#Calculate surface area
-smpls <- subset(wax.data, Sample=="Coral")
-smpls$surface.area.cm2 <- stnd.curve$coefficients[2] * smpls$delta.mass.g + stnd.curve$coefficients[1]
-
-range(smpls$surface.area.cm2)
-range(stnds$surface.area.cm2)
-
-Data <- merge(Data, smpls, by="Plug.Number")
-
 #Correct for surface area
+smpls <- read.csv("output/coral_surface_area.csv")
+Data <- merge(Data, smpls, by="colony_id")
 Data$micromol.cm2.s <- Data$corr.micromol.s/Data$surface.area.cm2
 Data$micromol.cm2.h <- Data$micromol.cm2.s*3600
 

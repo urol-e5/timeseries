@@ -13,24 +13,29 @@ rm(list=ls()) #clears workspace
 
 #Surface area by wax dipping Veal et al 
 
-Data <- read.csv("data/1_surface_area.csv", header=TRUE)
+library(tidyverse)
 
-Stnds <- read.csv("RAnalysis/Data/wax.standards_1.csv", header=TRUE)
-Stnds$delta.mass.g <- Stnds$weight2.g-Stnds$weight1.g
-#Stnds$area.cm2 <- ((pi*(Stnds$diameter.cm)^2) + (2*pi*(Stnds$diameter.cm)))
-stnd.curve <- lm(surface.area.cm2~delta.mass.g, data=Stnds)
-plot(surface.area.cm2~delta.mass.g, data=Stnds)
+wax.data <- read.csv("data/1_Wax_dipping.csv", header=TRUE)
+
+wax.data$delta.mass.g <- wax.data$weight2.g-wax.data$weight1.g
+stnds <- subset(wax.data, Sample=="Standard")
+stnds <- stnds[-1,]
+stnds$rad <- stnds$Diameter/2
+stnds$surface.area.cm2 <- 4*pi*(stnds$rad)^2
+stnd.curve <- lm(surface.area.cm2~delta.mass.g, data=stnds)
+plot(surface.area.cm2~delta.mass.g, data=stnds)
+
 
 stnd.curve$coefficients
+summary(stnd.curve)$r.squared
 
-fecundity <- subset(Data, Sample.Type=="Fecundity")
-fecundity$delta.mass.g <- fecundity$waxedmass.g-fecundity$mass.g
-fecundity$SA.cm2 <- stnd.curve$coefficients[2] * fecundity$delta.mass.g + stnd.curve$coefficients[1]
+#Calculate surface area
+smpls <- subset(wax.data, Sample=="Coral")
+smpls$surface.area.cm2 <- stnd.curve$coefficients[2] * smpls$delta.mass.g + stnd.curve$coefficients[1]
+
+smpls <- smpls %>%
+  select(-Sample, -Diameter)
 
 
-E5.Data <- subset(Data, Sample.Type=="E5")
-E5.Data$delta.mass.g <- E5.Data$waxedmass.g-E5.Data$mass.g
-
-E5.Data$SA.cm2 <- stnd.curve$coefficients[2] * E5.Data$delta.mass.g + stnd.curve$coefficients[1]
-write.csv(E5.Data, "RAnalysis/Data/E5surface_area.csv")
+write.csv(smpls, "output/coral_surface_area.csv")
 
