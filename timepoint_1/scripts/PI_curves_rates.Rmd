@@ -8,6 +8,10 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 ## install packages if you dont already have them in your library
 if (!require("devtools")) install.packages("devtools")
+if (!require("furrr")) install.packages("furrr")
+if (!require("future")) install.packages("future")
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("lubridate")) install.packages("lubridate")
 if (!require("LoLinR")) install_github('colin-olito/LoLinR') 
 
 ## load libraries
