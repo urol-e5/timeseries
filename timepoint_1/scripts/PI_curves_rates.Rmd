@@ -14,140 +14,175 @@ if (!require("LoLinR")) install_github('colin-olito/LoLinR')
 library(devtools)
 library(LoLinR)
 library(tidyverse)
+library(lubridate)
+
+##
+library(future)
+library(furrr)
 ```
 
 ## Import data
 ```{r}
 path.p <- "data/1_PICurves/" #the location of all your respirometry files 
 
-#bring in the files
+# bring in the files
 file.names <- list.files(path = path.p, pattern = "csv$") #list all csv file names in the folder
 Photo.R <- data.frame(matrix(NA, nrow=length(file.names)*12, ncol=4)) #generate a 3 column dataframe with specific column names
 colnames(Photo.R) <- c("Fragment.ID","Intercept", "µmol.L.sec", "Temp")
 
-#Load Sample meta info Info
-Sample.Info <- read.csv(file="data/1_PI_Curve_Sample_Info.csv", header=T) #read sample.info data
-Sample.Info$Fragment.ID <- paste(Sample.Info$Fragment.ID,"_",Sample.Info$Light_Level, sep = "")
+# Load Sample meta info Info
+Sample.Info <- read_csv(file="data/1_PI_Curve_Sample_Info.csv")# %>%
+  # Convert dates and times to correct classes
+#  mutate(Date = as_date(as.character(Date), tz = "HST", format = "%Y%m%d")),
+#         Start.time = as_datetime(paste(Date, Start.time)),
+#         Stop.time = as_datetime(paste(Date, Stop.time)))
+
+# Select only certain columnns, and create new Fragment.ID column including Light Level
+Sample.Info <- Sample.Info %>%
+  select(colony_id, Fragment.ID, Run, Chamber.Vol.L, Date, Start.time, Stop.time, Light_Value)
+
+# Read in all data files
+df <- tibble(file.name = file.names) %>%
+  mutate(colony_id = gsub("_.*", "", file.name),                              # Get colony_id from filename
+         info = map(colony_id, ~filter(Sample.Info, colony_id == .)),         # Get associated sample info
+         data0 = map(file.name, ~read_csv(file.path(path.p, .), skip = 1)))    # Get associated O2 data
+
+# Select only Time, Value, and Temp columns from O2 data
+df <- df %>%
+  mutate(data0 = map(data0, ~select(., Time, Value, Temp)))    
 ```
 
-## Subset the data by light step using time breaks in the data
+## Use the time breaks in the sample info to link O2 data with light levels
+```{r, warning = FALSE}
+df <- df %>%
+  mutate(intervals = map2(data0, info, function(.x, .y) {
+    split(.x, f = cut(as.numeric(.x$Time), breaks = as.numeric(c(.y$Start.time, last(.y$Stop.time))),
+                      labels = as.character(.y$Light_Value)))})) %>%
+  mutate(data = map(intervals, ~ unnest(tibble(.), .id = "Light_Value")))
+
+## 'data' now contains the O2 data with the corresponding light level as another column
+df$data[[1]]
+```
+
+### Thin data
+```{r, fig.height = 12, fig.width = 7}
+# Set thinning parameter
+thin_par <- 20
+
+# Thin data for all samples
+df <- df %>%
+  mutate(thin_data = map(data, ~ slice(., seq(1, nrow(.), thin_par))))
+
+# Create plots for full dataset and thinned data
+df <- df %>%
+  mutate(data_plot = map2(data, colony_id, ~ ggplot(.x, aes(x = Time, y = Value)) + 
+                            facet_wrap(~ as.numeric(Light_Value), scales = "free") +
+                            geom_point() +
+                            labs(title = .y)),
+    thin_data_plot = map2(thin_data, colony_id, ~ ggplot(.x, aes(x = Time, y = Value)) + 
+                            facet_wrap(~ as.numeric(Light_Value), scales = "free") +
+                            geom_point() +
+                            labs(title = .y)))
+
+# Example of plots
+data_plot_1 <- df$data_plot[[1]]
+thin_data_plot_1 <- df$thin_data_plot[[1]]
+
+cowplot::plot_grid(data_plot_1, thin_data_plot_1, nrow = 2)
+```
+
+# Fit regressions to each interval for each sample
 ```{r}
-for(i in 1:length(file.names)) { # for every file in list start at the first and run this following function
-  Photo.Data1 <-read.table(file.path(path.p,file.names[i]),  header=T, sep=",", skip=1, na.string="NA", fill = TRUE, as.is=TRUE, fileEncoding="latin1") #reads in the data files
-  Photo.Data1  <- as.data.frame(cbind(Photo.Data1$Time, Photo.Data1$Value, Photo.Data1$Temp)) #subset columns of interest
-  colnames(Photo.Data1) <- c("Time", "Value", "Temp")
-  Photo.Data1$Time <- as.POSIXct(Photo.Data1$Time,format="%H:%M:%S", "HST") #-7*60*60 #convert time from character to time
-  Photo.Data1$Time <-format(strptime(Photo.Data1$Time, format="%Y-%m-%d %H:%M:%S"), "%H:%M:%S")
-  levs <- which(Sample.Info$colony_id ==sub("_.*", "", file.names[i]))
-  brk <- unique(as.POSIXct(Sample.Info$Start.time[levs],format="%H:%M","HST"))
-  brk <-format(strptime(brk, format="%Y-%m-%d %H:%M:%S"), "%H:%M:%S")
-  Step1 <- subset(Photo.Data1, Photo.Data1$Time > brk[1] & Photo.Data1$Time < brk[2])
-  Step2 <- subset(Photo.Data1, Photo.Data1$Time > brk[2] & Photo.Data1$Time < brk[3])
-  Step3 <- subset(Photo.Data1, Photo.Data1$Time > brk[3] & Photo.Data1$Time < brk[4])
-  Step4 <- subset(Photo.Data1, Photo.Data1$Time > brk[4] & Photo.Data1$Time < brk[5])
-  Step5 <- subset(Photo.Data1, Photo.Data1$Time > brk[5] & Photo.Data1$Time < brk[6])
-  Step6 <- subset(Photo.Data1, Photo.Data1$Time > brk[6] & Photo.Data1$Time < brk[7])
-  Step7 <- subset(Photo.Data1, Photo.Data1$Time > brk[7] & Photo.Data1$Time < brk[8])
-  Step8 <- subset(Photo.Data1, Photo.Data1$Time > brk[8] & Photo.Data1$Time < brk[9])
-  Step9 <- subset(Photo.Data1, Photo.Data1$Time > brk[9] & Photo.Data1$Time < brk[10])
-  Step10 <- subset(Photo.Data1, Photo.Data1$Time > brk[10]) #& Photo.Data1$Time < brk[11])
-  #Step11 <- subset(Photo.Data1, Photo.Data1$Time > brk[11] & Photo.Data1$Time < brk[12])
-  #Step12 <- subset(Photo.Data1, Photo.Data1$Time > brk[12])
-  lt.levs <- list(Step1,Step2,Step3,Step4,Step5,Step6,Step7,Step8,Step9,Step10) #list levels of segmentation
-  
-  for(j in 1:length(lt.levs)){    
-    Photo.Data <- as.data.frame(lt.levs[j])
-    #n<-dim(Photo.Data)[1] #identify length of data
-    #Photo.Data <-Photo.Data [120:(n-3),] #start at data point ~2 minute in to avoid excess noise from start of run and remove last 3 lines containing text
-    n<-dim(Photo.Data)[1] #list length of trimmed data
-    Photo.Data$sec <- as.numeric(1:n) #set seconds by one from start to finish of run
-    Photo.Data$Value <- as.numeric(as.character(Photo.Data$Value)) #save O2 data as numeric
-    Photo.Data$Temp <- as.numeric(as.character(Photo.Data$Temp)) #save O2 data as numeric
-    
-    #Save plot prior to and after data thinning to make sure thinning is not too extreme
-    rename <- sub("_.*", "", file.names[i])
-    pdf(paste0("output/reg_graphs/",rename,"_",j,"thinning.pdf"))
-    par(omi=rep(0.3, 4)) #set size of the outer margins in inches
-    par(mfrow=c(1,2)) #set number of rows and columns in multi plot graphic
-    plot(Value ~ sec, data=Photo.Data , xlab='Time (seconds)', ylab=substitute(' O'[2]~' (µmol/L)'),  axes=FALSE) #plot data as a function of time
-    usr  <-  par('usr')
-    rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
-    whiteGrid()
-    box()
-    points(Photo.Data$Value ~ Photo.Data $sec, pch=16, col=transparentColor('dodgerblue2', 0.6), cex=1.1)
-    axis(1)
-    axis(2, las=1)
-    
-    #set data reduction thinning parameter
-    thin <- 20
-    #save original unthinned data
-    Photo.Data.orig<-Photo.Data
-    
-    Photo.Data   <-  thinData(Photo.Data.orig , by=thin)$newData1 #thin data 
-    Photo.Data $sec <- as.numeric(rownames(Photo.Data)) #maintain numeric values for time
-    Photo.Data$Temp <- NA # add a new column to fill with the thinned data
-    Photo.Data$Temp <-  thinData(Photo.Data.orig, xy=c(2,3),by=thin)$newData1[,2] #thin data  for the temp values
-    plot(Value ~ sec, data=Photo.Data , xlab='Time (seconds)', ylab=substitute(' O'[2]~' (µmol/L)'), type='n', axes=FALSE) #plot thinned data
-    usr  <-  par('usr')
-    rect(usr[1], usr[3], usr[2], usr[4], col='grey90', border=NA)
-    whiteGrid()
-    box()
-    points(Photo.Data $Value ~ Photo.Data $sec, pch=16, col=transparentColor('dodgerblue2', 0.6), cex=1.1)
-    axis(1)
-    axis(2, las=1)
-    dev.off()
-    
-    Regs  <-  rankLocReg(xall=Photo.Data$sec, yall=Photo.Data$Value, alpha=0.2, 
-                         method="pc", verbose=TRUE) 
-    pdf(paste0("output/reg_graphs/",rename,"_",j,"regression.pdf"))
-    plot(Regs)
-    dev.off()
-    
-    s <- seq(0,nrow(Photo.R),length(lt.levs)) #to order the file output sequence in correct order in data frame
-    Photo.R[j+s[i],2:3] <- Regs$allRegs[1,c(4,5)] #inserts slope and intercept in the dataframe
-    Photo.R[j+s[i],1] <- paste0(rename,"_",j) #stores the file name in the Date column
-    Photo.R[j+s[i],4] <- mean(Photo.Data$Temp, na.rm=T)  #stores the Temperature in the Temp.C column
-  }
+# Define function for fitting LoLinR regressions to be applied to all intervals for all samples
+fit_reg <- function(df) {
+  rankLocReg(xall = as.numeric(df$Time), yall = df$Value, 
+             alpha = 0.2, method = "pc", verbose = TRUE)
 }
 
+# Setup for parallel processing
+future::plan(multiprocess)
 
-#view rates
-Photo.R
-write.csv(Photo.R,"output/All_PI_Curve_rates_not_normalized.csv")
+# Map LoLinR function onto all intervals of each sample's thinned dataset
+df <- df %>%
+  mutate(regs = furrr::future_map(thin_data, function(.) {       # future_map executes function in parallel
+    group_by(., Light_Value) %>%
+    do(rankLcRg = fit_reg(.))
+  }))
 
-#Merge rates with sample info
-Data <- merge(Photo.R, Sample.Info, by="Fragment.ID")
+## Now 'regs' contains the fitted local regressions for each interval of each sample's thinned dataset
+## You can plot the diagnostics for any regression using the code below, specifying a sample colony_id and the number of the light curve interval:
 
-#correct for the size of the chamber
-Data$micromol.s <- Data$µmol.L.sec * Data$Chamber.Vol.L
+plot_rankLcRg <- function(colony_id, interval_number) {
+  df %>%
+    filter(colony_id == colony_id) %>%
+    pluck("regs", 1, "rankLcRg", interval_number) %>%
+    plot()
+}
 
-#calculate the average of the blanks from each time step
-#### NEED TO UPDATE TO SUBTRACT BLANK ON RUN-BY-RUN BASIS
-blnks <- subset(Data, Sample.Type=="Blank")
-blnks <- mean.blnks <- aggregate(micromol.s ~ Light_Level, data=blnks, FUN=mean)
-Data <- merge(Data, blnks, by="Light_Level")
-colnames(Data)[colnames(Data) == 'micromol.s.x'] <- 'sample.micromol.s'
-colnames(Data)[colnames(Data) == 'micromol.s.y'] <- 'blank.micromol.s'
+plot_rankLcRg("ACR-225", 1)
+```
 
-#subtract the average of the blanks from each time step
-Data$corr.micromol.s <- Data$sample.micromol.s - Data$blank.micromol.s
+# Pull slope of best regression for each interval for each sample
+```{r}
+df.out <- df %>% 
+  unnest(regs) %>%
+  mutate(micromol.L.s = map_dbl(rankLcRg, ~ pluck(., "allRegs", "b1", 1)))
+```
 
-#Correct for surface area
-smpls <- read.csv("output/coral_surface_area.csv")
-Data <- merge(Data, smpls, by="colony_id")
-Data$micromol.cm2.s <- Data$corr.micromol.s/Data$surface.area.cm2
-Data$micromol.cm2.h <- Data$micromol.cm2.s*3600
+# Merge rates with sample info
+```{r}
+pr <- left_join(
+  select(df.out, colony_id, Light_Value, micromol.L.s),
+  distinct(Sample.Info, colony_id, Run, Chamber.Vol.L)
+)
+```
 
-# Remove blanks
-Data <- subset(Data, Species!="Blank")
+# Correct for chamber volume and blanks
+```{r}
+pr <- pr %>%
+  mutate(micromol.s = micromol.L.s * Chamber.Vol.L)
+
+# Get blank values -- average for each run and light value in case multiple blanks
+blanks <- pr %>%
+  filter(grepl("BK", colony_id)) %>%
+  group_by(Run, Light_Value) %>%
+  summarise(micromol.s.blank = mean(micromol.s))
+
+# Join blank values with rest of data and subtract values from samples for same run and light value
+pr <- left_join(pr, blanks) %>%
+  mutate(micromol.s.adj = micromol.s - micromol.s.blank) %>%
+  # After correcting for blank values, remove blanks from data
+  filter(!grepl("BK", colony_id))
+```
+
+# Correct for surface area
+```{r}
+# Import surface area data
+sa <- read.csv("output/coral_surface_area.csv")
+
+# Average surface area measurements if multiple per coral
+sa <- sa %>%
+  group_by(colony_id) %>%
+  summarise(surface.area.cm2 = mean(surface.area.cm2))
+
+# Join surface area with rest of data
+pr <- left_join(pr, select(sa, colony_id, surface.area.cm2))
+
+# Normalize rates by surface area
+pr <- pr %>%
+  mutate(micromol.cm2.s = micromol.s.adj / surface.area.cm2,
+         micromol.cm2.h = micromol.cm2.s * 3600)
+
+# Select variables to write to file
+pr.out <- pr %>% select(colony_id, Light_Value, Run, micromol.cm2.s, micromol.cm2.h)
 
 # Write to output file
-write.csv(Data,"output/All_PI_Curve_rates.csv")
+write.csv(pr.out, "output/All_PI_Curve_rates.csv")
 ```
 
 # Plot rate vs. light for each sample
 ```{r, fig.height=10, fig.width = 7}
-ggplot(Data, aes(x = Light_Value, y = micromol.cm2.h)) +
+ggplot(pr.out, aes(x = as.numeric(Light_Value), y = micromol.cm2.h)) +
   geom_point() +
-  facet_wrap(~colony_id)
+  facet_wrap(~colony_id, scale = "free_y")
 ```
