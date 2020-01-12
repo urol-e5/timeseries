@@ -3,8 +3,8 @@ title: "Photosynthesis and respiration rate calculations"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 ## install packages if you dont already have them in your library
 if (!require("devtools")) install.packages("devtools")
@@ -16,7 +16,7 @@ library(LoLinR)
 library(tidyverse)
 library(lubridate)
 
-##
+## libraries for parallel processing
 library(future)
 library(furrr)
 ```
@@ -25,17 +25,11 @@ library(furrr)
 ```{r}
 path.p <- "data/1_PICurves/" #the location of all your respirometry files 
 
-# bring in the files
+# List files
 file.names <- list.files(path = path.p, pattern = "csv$") #list all csv file names in the folder
-Photo.R <- data.frame(matrix(NA, nrow=length(file.names)*12, ncol=4)) #generate a 3 column dataframe with specific column names
-colnames(Photo.R) <- c("Fragment.ID","Intercept", "µmol.L.sec", "Temp")
 
-# Load Sample meta info Info
+# Load Sample meta info
 Sample.Info <- read_csv(file="data/1_PI_Curve_Sample_Info.csv")# %>%
-  # Convert dates and times to correct classes
-#  mutate(Date = as_date(as.character(Date), tz = "HST", format = "%Y%m%d")),
-#         Start.time = as_datetime(paste(Date, Start.time)),
-#         Stop.time = as_datetime(paste(Date, Stop.time)))
 
 # Select only certain columnns, and create new Fragment.ID column including Light Level
 Sample.Info <- Sample.Info %>%
@@ -96,7 +90,7 @@ cowplot::plot_grid(data_plot_1, thin_data_plot_1, nrow = 2)
 # Define function for fitting LoLinR regressions to be applied to all intervals for all samples
 fit_reg <- function(df) {
   rankLocReg(xall = as.numeric(df$Time), yall = df$Value, 
-             alpha = 0.2, method = "pc", verbose = TRUE)
+             alpha = 0.2, method = "pc", verbose = FALSE)
 }
 
 # Setup for parallel processing
@@ -181,7 +175,7 @@ write.csv(pr.out, "output/All_PI_Curve_rates.csv")
 ```
 
 # Plot rate vs. light for each sample
-```{r, fig.height=10, fig.width = 7}
+```{r, fig.height=10, fig.width = 10}
 ggplot(pr.out, aes(x = as.numeric(Light_Value), y = micromol.cm2.h)) +
   geom_point() +
   facet_wrap(~colony_id, scale = "free_y")
