@@ -30,7 +30,7 @@ df <- df %>%
 
 ####
 
-# average all technical replicates for each colony/wavelength, including all acetone blanks together
+# average all technical replicates for each plate/sample/wavelength, including all acetone blanks together (per plate)
 df <- df %>%
   unnest(merged) %>%
   filter(!is.na(colony_id)) %>%                         # remove empty wells (colony_id is NA)
@@ -55,9 +55,9 @@ df <- df %>%
 #Multiply by the homogenate volume
 #Load homogenate volume
 homog.vol <- read.csv("data/1_homogenate_vols.csv", header=TRUE)
-Meta <- read.csv("data/1_Sample_Info.csv")
-Data <-merge(df, Meta, by="colony_id")
-Data <- merge(Data, homog.vol, by="colony_id")
+Meta <- read_csv("../metadata/coral_metadata.csv")
+Data <- full_join(df, Meta, by = "colony_id")
+Data <- full_join(Data, homog.vol)
 
 #calculate surface area standard curve
 wax.data <- read.csv("data/1_Wax_dipping.csv", header=TRUE)
@@ -79,25 +79,27 @@ plot(smpls$surface.area.cm2)
 range(smpls$surface.area.cm2)
 range(stnds$surface.area.cm2)
 
-Data <- merge(Data, smpls, by="colony_id")
+Data <- full_join(Data, smpls)
+
+Data <- filter(Data, !colony_id %in% c("NA", "BK"))
 
 Data$chla.cm2 <-  (Data$chla * Data$homog_vol_ml)/Data$surface.area.cm2
 Data$chlc2.cm2 <-  (Data$chlc2 * Data$homog_vol_ml)/Data$surface.area.cm2
 
 Data%>%
-  group_by(Species, Site)%>%
-  summarise(mean.value = mean(chla.cm2), se = std.error(chla.cm2)) %>%
-  ggplot(aes(x = Site, y = mean.value, group = Species, color = Species))+
+  group_by(species, site)%>%
+  summarise(mean.value = mean(chla.cm2, na.rm = TRUE), se = std.error(chla.cm2, na.rm = TRUE)) %>%
+  ggplot(aes(x = site, y = mean.value, group = species, color = species))+
   ylab("CHL-a µg cm-2")+
   geom_point(size = 3)+
-  geom_errorbar(aes(x = Site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
-  facet_grid(~Species, scales = "free_y")
+  geom_errorbar(aes(x = site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
+  facet_grid(~species, scales = "free_y")
 
 Data%>%
-  group_by(Species, Site)%>%
-  summarise(mean.value = mean(chlc2.cm2 ), se = std.error(chlc2.cm2 )) %>%
-  ggplot(aes(x = Site, y = mean.value, group = Species, color = Species))+
+  group_by(species, site)%>%
+  summarise(mean.value = mean(chlc2.cm2, na.rm = TRUE ), se = std.error(chlc2.cm2, na.rm = TRUE )) %>%
+  ggplot(aes(x = site, y = mean.value, group = species, color = species))+
   ylab("CHL-c2 µg cm-2")+
   geom_point(size = 3)+
-  geom_errorbar(aes(x = Site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
-  facet_grid(~Species, scales = "free_y")
+  geom_errorbar(aes(x = site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
+  facet_grid(~species, scales = "free_y")
