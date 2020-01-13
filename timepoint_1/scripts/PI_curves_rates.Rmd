@@ -32,17 +32,24 @@ path.p <- "data/1_PICurves/" #the location of all your respirometry files
 # List files
 file.names <- list.files(path = path.p, pattern = "csv$") #list all csv file names in the folder
 
-# Load Sample meta info
-Sample.Info <- read_csv(file="data/1_PI_Curve_Sample_Info.csv")# %>%
+# Load PI curve sample metadata (i.e., which corals were in which runs)
+sample.info <- read_csv(file = "data/1_PICurves_sample_metadata.csv")
 
-# Select only certain columnns, and create new Fragment.ID column including Light Level
-Sample.Info <- Sample.Info %>%
-  select(colony_id, Fragment.ID, Run, Chamber.Vol.L, Date, Start.time, Stop.time, Light_Value)
+# Load PI curve run metadata (i.e., light levels and interval times for each run)
+run.info <- read_csv(file = "data/1_PICurves_run_metadata.csv")
+
+# Join all coral and run metadata
+metadata <- full_join(sample.info, run.info) %>%
+  mutate(Date = as_date(as.character(Date), format = "%Y%m%d", tz = "Tahiti"))
+
+# Select only certain columnns
+metadata <- metadata %>%
+  select(colony_id, Run, Chamber.Vol.L, Date, Start.time, Stop.time, Light_Value)
 
 # Read in all data files
 df <- tibble(file.name = file.names) %>%
   mutate(colony_id = gsub("_.*", "", file.name),                              # Get colony_id from filename
-         info = map(colony_id, ~filter(Sample.Info, colony_id == .)),         # Get associated sample info
+         info = map(colony_id, ~filter(metadata, colony_id == .)),         # Get associated sample info
          data0 = map(file.name, ~read_csv(file.path(path.p, .), skip = 1)))    # Get associated O2 data
 
 # Select only Time, Value, and Temp columns from O2 data
@@ -131,7 +138,7 @@ df.out <- df %>%
 ```{r}
 pr <- left_join(
   select(df.out, colony_id, Light_Value, micromol.L.s),
-  distinct(Sample.Info, colony_id, Run, Chamber.Vol.L)
+  distinct(metadata, colony_id, Run, Chamber.Vol.L)
 )
 ```
 
