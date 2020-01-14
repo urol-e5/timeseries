@@ -13,7 +13,7 @@ ACR-256,site2,Acropora,-17.4871,-149.88766
 ACR-258,site2,Acropora,-17.4871,-149.88766
 ACR-265,site2,Acropora,-17.4871,-149.88766
 ACR-267,site2,Acropora,-17.4871,-149.88766
-POC-200,site2,Pocillopora,,
+POC-200,site2,Pocillopora,-17.33701667,-149.88785
 POC-201,site2,Pocillopora,-17.48715998,-149.8873
 POC-205,site2,Pocillopora,-17.48732996,-149.88795
 POC-207,site2,Pocillopora,-17.48743004,-149.88823
@@ -52,6 +52,7 @@ ACR-363,site3,Acropora,-17.48150001,-149.84908
 ACR-364,site3,Acropora,-17.48150001,-149.84908
 ACR-368,site3,Acropora,-17.48150001,-149.84908
 ACR-374,site3,Acropora,-17.48150001,-149.84908
+ACR-376,site,Acropora,-17.48150001,-149.84908
 ACR-379,site3,Acropora,-17.48150001,-149.84908
 ACR-389,site3,Acropora,-17.48150001,-149.84908
 ACR-390,site3,Acropora,-17.48150001,-149.84908
@@ -86,7 +87,7 @@ POR-367,site3,Porites,-17.48151996,-149.84941
 POR-381,site3,Porites,-17.48143002,-149.84903
 POR-383,site3,Porites,-17.48192003,-149.84917
 POR-384,site3,Porites,-17.48192003,-149.84924
-POR-385,site3,Porites,NA,NA
+POR-385,site3,Porites,-17.48143333,-149.8487667
 ACR-175,site1,Acropora,,
 ACR-176,site1,Acropora,,
 ACR-187,site1,Acropora,,

@@ -7,10 +7,13 @@ homog_vols <- read_csv("data/1_homogenate_vols.csv") %>%
   pull(colony_id)
 
 surface_area <- read_csv("data/1_Wax_dipping.csv") %>% 
+  filter(!grepl("Standard", Sample)) %>%
   pull(colony_id)
 
 chl <- list.files("data/1_Chl/", "platemap", full.names = TRUE) %>%
   map_df(read_csv) %>%
+  drop_na() %>%
+  filter(!colony_id == "BK") %>%
   pull(colony_id)
 
 afdw <- read_csv("data/1_Biomass.csv") %>%
