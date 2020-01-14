@@ -52,42 +52,33 @@ df <- df %>%
   mutate(chla = 11.43 * adj663 - 0.64 * adj630,
         chlc2 = 27.09 * adj630 - 3.63 * adj663)
 
-#Multiply by the homogenate volume
+
 #Load homogenate volume
-homog.vol <- read.csv("data/1_homogenate_vols.csv", header=TRUE)
-Meta <- read_csv("../metadata/coral_metadata.csv")
-Data <- full_join(df, Meta, by = "colony_id")
-Data <- full_join(Data, homog.vol)
+homog.vol <- read_csv("data/1_homogenate_vols.csv") %>%
+  select(colony_id, homog_vol_ml)
 
-#calculate surface area standard curve
-wax.data <- read.csv("data/1_Wax_dipping.csv", header=TRUE)
-wax.data$delta.mass.g <- wax.data$weight2.g-wax.data$weight1.g
-stnds <- subset(wax.data, Sample=="Standard")
-stnds <- stnds[-1,]
-stnds$rad <- stnds$Diameter/2
-stnds$surface.area.cm2 <- 4*pi*(stnds$rad)^2
-stnd.curve <- lm(surface.area.cm2~delta.mass.g, data=stnds)
-plot(surface.area.cm2~delta.mass.g, data=stnds)
+Data <- full_join(df, homog.vol)
+# Load surface area
+sa <- read_csv("output/coral_surface_area.csv")
+Data <- full_join(Data, sa)
 
-stnd.curve$coefficients
-summary(stnd.curve)$r.squared
-
-#Calculate surface area
-smpls <- subset(wax.data, Sample=="Coral")
-smpls$surface.area.cm2 <- stnd.curve$coefficients[2] * smpls$delta.mass.g + stnd.curve$coefficients[1]
-plot(smpls$surface.area.cm2)
-range(smpls$surface.area.cm2)
-range(stnds$surface.area.cm2)
-
-Data <- full_join(Data, smpls)
-
-Data <- filter(Data, !colony_id %in% c("NA", "BK"))
-
+#Multiply by the homogenate volume
+#Divide by surface area
 Data$chla.cm2 <-  (Data$chla * Data$homog_vol_ml)/Data$surface.area.cm2
 Data$chlc2.cm2 <-  (Data$chlc2 * Data$homog_vol_ml)/Data$surface.area.cm2
 
+Data <- filter(Data, !colony_id %in% c("NA", "BK"))
+
+Data %>%
+  select(colony_id, chla.cm2, chlc2.cm2) %>%
+  write_csv(path = "output/1_chl.csv")
+
+
+Meta <- read_csv("../metadata/coral_metadata.csv")
+Data <- full_join(Data, Meta, by = "colony_id")
+
 Data%>%
-  group_by(species, site)%>%
+  group_by(species, site) %>%
   summarise(mean.value = mean(chla.cm2, na.rm = TRUE), se = std.error(chla.cm2, na.rm = TRUE)) %>%
   ggplot(aes(x = site, y = mean.value, group = species, color = species))+
   ylab("CHL-a µg cm-2")+
@@ -96,7 +87,7 @@ Data%>%
   facet_grid(~species, scales = "free_y")
 
 Data%>%
-  group_by(species, site)%>%
+  group_by(species, site) %>%
   summarise(mean.value = mean(chlc2.cm2, na.rm = TRUE ), se = std.error(chlc2.cm2, na.rm = TRUE )) %>%
   ggplot(aes(x = site, y = mean.value, group = species, color = species))+
   ylab("CHL-c2 µg cm-2")+
