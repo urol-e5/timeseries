@@ -52,13 +52,17 @@ std_curve <- df %>%
   mutate(abs562.adj = abs562 - abs562[std == "I"]) %>%       # subtract blank absorbace value from all
   left_join(standards)
 
-std_curve %>%
-  ggplot(aes(x = abs562, y = BSA_ug.mL)) +
-  geom_point()
-  
 
-mod <- lm(BSA_ug.mL ~ abs562, data = std_curve)
-coef(mod)
+#mod <- lm(BSA_ug.mL ~ abs562, data = std_curve)
+#coef(mod)
+
+mod <- nls(formula = BSA_ug.mL ~ z + a * exp(b * abs562.adj), start = list(z = 0, a = 1, b = 1), data = std_curve)
+fitted <- mod %>% broom::augment()
+
+std_curve %>%
+  ggplot(aes(x = abs562.adj, y = BSA_ug.mL)) +
+  geom_point() +
+  geom_line(data = fitted, aes(x = abs562.adj, y = .fitted))
 ```
 
 *Note: the standard curve should be updated to be a non-linear fit and/or force the intercept to be zero.*
@@ -71,7 +75,7 @@ prot <- df %>%
   group_by(colony_id) %>%
   summarise(abs562 = mean(abs562)) %>%
   mutate(abs562.adj = abs562 - std_curve$abs562[std_curve$std == "I"],
-         prot_ug.mL = coef(mod)[2] * abs562.adj + coef(mod)[1])
+         prot_ug.mL = map_dbl(abs562.adj, ~ predict(mod, newdata = data.frame(abs562.adj = .))))
 ```
 
 ```{r}
@@ -110,6 +114,8 @@ prot %>%
 ```
 
 ```{r}
-write_csv(prot, path = "output/1_Protein.csv")
+prot %>%
+  select(colony_id, prot_ug, prot_ug.cm2) %>%
+  write_csv(., path = "output/1_Protein.csv")
 ```
 
