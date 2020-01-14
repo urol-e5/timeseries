@@ -59,18 +59,85 @@ std_curve <- df %>%
   mutate(std = as.numeric(str_sub(std, 9, 10))) %>%
   spread(readtime, absorbance) %>%
   mutate(net = final - initial) %>%
+  group_by(std) %>%
+  summarise(net = mean(net)) %>%
+  mutate(net.adj = net - net[std == 10]) %>%
   left_join(standards)
 
+mod <- nls(formula = conc_mM ~ z + a * exp(b * net.adj), start = list(z = 0, a = 1, b = 1), data = std_curve)
+fitted <- mod %>% broom::augment()
+
 std_curve %>%
-  ggplot(aes(y = net, x = conc_mM)) +
+  ggplot(aes(x = net.adj, y = conc_mM)) +
+  geom_point() +
+  geom_line(data = fitted, aes(x = net.adj, y = .fitted))
+```
+*Note: the standard curve should be updated to be a non-linear fit and/or force the intercept to be zero.*
+
+```{r}
+tac <- df %>%
+  unnest(merged) %>%
+  filter(!grepl("Standard", colony_id)) %>%
+  select(plate, well, colony_id, wavelength, absorbance, readtime) %>%
+  spread(readtime, absorbance) %>%
+  mutate(net = final - initial,
+         net.adj = net - std_curve$net[std_curve$std == 10],
+         uae.mmol.L = map_dbl(net.adj, ~ predict(mod, newdata = data.frame(net.adj = .))))
+```
+
+```{r}
+# Surface area data
+sa <- read.csv("output/coral_surface_area.csv") %>%
+  group_by(colony_id) %>%                                  # Average surface area measurements if multiple per coral 
+  summarise(surface.area.cm2 = mean(surface.area.cm2))
+
+# Tissue homogenate volume data
+homog_vols <- read_csv("data/1_homogenate_vols.csv") %>% select(1:2)
+
+# Coral sample metadata
+metadata <- read_csv("../metadata/coral_metadata.csv") %>% select(1:3)
+
+# Join homogenate volumes and surface area with sample metadata
+metadata <- full_join(metadata, homog_vols) %>%
+  full_join(sa)
+
+# Join TAC data with metadata
+tac <- left_join(tac, metadata) %>%
+  mutate(uae.mmol = uae.mmol.L * (homog_vol_ml / 1000),
+         uae.mmol.cm2 = uae.mmol / surface.area.cm2)
+```
+
+```{r}
+tac %>%
+  filter(!is.na(species)) %>%
+  ggplot(aes(x = site, y = uae.mmol.cm2, color = species)) +
+  geom_hline(yintercept = 0) +
+  facet_wrap(~species) +
+  geom_boxplot() +
   geom_point()
-  
 
-mod <- lm(net ~ conc_mM, data = std_curve)
-coef(mod)
+tac %>%
+  group_by(species, site) %>%
+  summarise(mean_tac = mean(uae.mmol.cm2, na.rm = T))
+```
+
+```{r}
+# Normalize TAC to protein
+
+prot <- read_csv("output/1_Protein.csv")
+
+tac <- tac %>%
+  select(colony_id, uae.mmol, uae.mmol.cm2) %>%
+  left_join(prot) %>%
+  mutate(uae_mmol.ugprot = uae.mmol / prot_ug)
 
 
-
-
+tac %>%
+  drop_na() %>%
+  left_join(metadata) %>%
+  ggplot(aes(x = site, y = uae_mmol.ugprot, color = species)) +
+  facet_wrap(~species) +
+  geom_boxplot() +
+  geom_point()
 ```
 
