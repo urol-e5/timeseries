@@ -1,0 +1,76 @@
+---
+title: "TAC analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+# Function to read in TAC data
+read_tac <- function(file) {
+  tac_data <- read_csv(file, skip = 23, n_max = 24) %>%
+    select(-1) %>%
+    magrittr::set_colnames(c("row", 1:12, "wavelength")) %>%
+    gather("col", "absorbance", -wavelength, -row) %>%
+    unite("well", c(row, col), sep = "")
+}
+
+# List chlorophyll data files
+tac_path = "data/1_TAC/"                                                 # Path to TAC data directory
+all_tac_files <- list.files(path = tac_path, pattern = "*.csv")          # List all files in directory
+tac_platemaps <- list.files(path = tac_path, pattern = "platemap")       # List platemap files
+tac_data_files <- setdiff(all_tac_files, tac_platemaps)                  # List data files
+
+# Read in all files into tibble
+df <- tibble(file = tac_data_files) %>%
+  separate(file, into = c("trip", "date", "plate", "readtime"), remove = FALSE) %>%
+  unite(plate, trip, date, plate) %>%
+  mutate(platemap = map(plate, ~read_csv(paste0(tac_path, ., "_TAC_platemap.csv"))),
+         tac_data = map( file, ~read_tac(paste0(tac_path, .))))
+
+# Merge platemap and data for each plate
+df <- df %>%
+  mutate(merged = map2(platemap, tac_data, ~ right_join(.x, .y)))
+```
+
+```{r}
+standards <- tribble(
+  ~std, ~conc_mM,
+  1,           1,
+  2,         0.5,
+  3,        0.25,
+  4,       0.125,
+  5,      0.0625,
+  6,     0.03125,
+  7,     0.01560,
+  8,     0.00780,
+  9,     0.00390,
+ 10,           0
+)
+
+std_curve <- df %>%
+  unnest(merged) %>%
+  filter(grepl("Standard", colony_id)) %>%
+  select(plate, well, colony_id, wavelength, absorbance, readtime) %>%
+  rename(std = colony_id) %>%
+  mutate(std = as.numeric(str_sub(std, 9, 10))) %>%
+  spread(readtime, absorbance) %>%
+  mutate(net = final - initial) %>%
+  left_join(standards)
+
+std_curve %>%
+  ggplot(aes(y = net, x = conc_mM)) +
+  geom_point()
+  
+
+mod <- lm(net ~ conc_mM, data = std_curve)
+coef(mod)
+
+
+
+
+```
+
