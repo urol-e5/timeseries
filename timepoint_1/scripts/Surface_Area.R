@@ -36,6 +36,8 @@ smpls$surface.area.cm2 <- stnd.curve$coefficients[2] * smpls$delta.mass.g + stnd
 smpls <- smpls %>%
   select(-Sample, -Diameter)
 
+range(smpls$surface.area.cm2)
+range(stnds$surface.area.cm2)
 
 write.csv(smpls, "output/coral_surface_area.csv")
 

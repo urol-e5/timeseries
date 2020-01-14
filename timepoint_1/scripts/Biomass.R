@@ -15,8 +15,6 @@ library(plotrix)
 library(ggplot2)
 
 Data <- read.csv("data/1_Biomass.csv")
-Meta <- read.csv("data/1_Sample_Info.csv")
-Data <-merge(Data, Meta, by="colony_id")
 
 Data$delta.mass.g <- Data$dry.pan.mass.g - Data$initial.mass.g
 
@@ -62,11 +60,25 @@ Data$drymass.mg.cm2 <- Data$drymass.g.cm2 * 1000
 Data$AFDW.g.cm2 <- Data$AFDW.g / Data$surface.area.cm2
 Data$AFDW.mg.cm2 <- Data$AFDW.g.cm2 * 1000
 
+Meta <- read_csv("../metadata/coral_metadata.csv")
+Data <- full_join(Data, Meta, by = "colony_id")
+
 Data%>%
-  group_by(Species, Site)%>%
+  group_by(species, site, partner)%>%
   summarise(mean.value = mean(drymass.mg.cm2), se = std.error(drymass.mg.cm2)) %>%
-  ggplot(aes(x = Site, y = mean.value, group = Species, color = Species))+
+  ggplot(aes(x = site, y = mean.value, group = species, color = partner))+
   ylab("Dry Biomass mg cm-2")+
   geom_point(size = 3)+
-  geom_errorbar(aes(x = Site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
-  facet_grid(~Species, scales = "free_y")
+  geom_errorbar(aes(x = site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
+  facet_grid(~species, scales = "free_y")
+
+Data%>%
+  group_by(species, site, partner)%>%
+  summarise(mean.value = mean(AFDW.mg.cm2), se = std.error(AFDW.mg.cm2)) %>%
+  ggplot(aes(x = site, y = mean.value, group = species, color = partner))+
+  ylab("AFDW mg cm-2")+
+  geom_point(size = 3)+
+  geom_errorbar(aes(x = site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
+  facet_grid(~species, scales = "free_y")
+
+
