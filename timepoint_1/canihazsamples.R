@@ -1,6 +1,7 @@
 
 # Which samples are represented in which datasets?
 coral_metadata <- read_csv("../metadata/coral_metadata.csv") %>% 
+  filter(!colony_id %in% c("POC-215", "POC-232", "ACR-360", "ACR-370", "ACR-376")) %>%   # know we didn't collect!
   pull(colony_id)
 
 homog_vols <- read_csv("data/1_homogenate_vols.csv") %>% 
