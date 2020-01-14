@@ -1,0 +1,115 @@
+---
+title: "PROTEIN analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+# List protein data files
+prot_path = "data/1_Protein/"                                                 # Path to prot data directory
+all_prot_files <- list.files(path = prot_path, pattern = "*.csv")          # List all files in directory
+prot_platemaps <- list.files(path = prot_path, pattern = "platemap")       # List platemap files
+prot_data_files <- setdiff(all_prot_files, prot_platemaps)                  # List data files
+
+# Read in all files into tibble
+df <- tibble(file = prot_data_files) %>%
+  separate(file, into = c("trip", "date", "plate"), remove = FALSE) %>%
+  unite(plate, trip, date, plate) %>%
+  mutate(platemap = map(plate, ~read_csv(paste0(prot_path, ., "_BCA_platemap.csv"))),
+         prot_data = map(file, ~read_csv(paste0(prot_path, .)) %>% rename(well = Well)))
+
+# Merge platemap and data for each plate
+df <- df %>%
+  mutate(merged = map2(platemap, prot_data, ~ right_join(.x, .y)))
+```
+
+```{r}
+standards <- tribble(
+  ~std, ~BSA_ug.mL,
+  "A",        2000,
+  "B",        1500,
+  "C",        1000,
+  "D",         750,
+  "E",         500,
+  "F",         250,
+  "G",         125,
+  "H",          25,
+  "I",           0
+)
+
+std_curve <- df %>%
+  unnest(merged) %>%
+  filter(grepl("Standard", colony_id)) %>%
+  select(plate, well, colony_id, abs562 = `562:562`) %>%
+  rename(std = colony_id) %>%
+  mutate(std = str_sub(std, 9, 9)) %>%
+  group_by(std) %>%
+  summarise(abs562 = mean(abs562)) %>%                       # calculate mean of standard duplicates
+  mutate(abs562.adj = abs562 - abs562[std == "I"]) %>%       # subtract blank absorbace value from all
+  left_join(standards)
+
+std_curve %>%
+  ggplot(aes(x = abs562, y = BSA_ug.mL)) +
+  geom_point()
+  
+
+mod <- lm(BSA_ug.mL ~ abs562, data = std_curve)
+coef(mod)
+```
+
+*Note: the standard curve should be updated to be a non-linear fit and/or force the intercept to be zero.*
+
+```{r}
+prot <- df %>%
+  unnest(merged) %>%
+  filter(!grepl("Standard", colony_id)) %>%
+  select(plate, well, colony_id, abs562 = `562:562`) %>%
+  group_by(colony_id) %>%
+  summarise(abs562 = mean(abs562)) %>%
+  mutate(abs562.adj = abs562 - std_curve$abs562[std_curve$std == "I"],
+         prot_ug.mL = coef(mod)[2] * abs562.adj + coef(mod)[1])
+```
+
+```{r}
+# Surface area data
+sa <- read.csv("output/coral_surface_area.csv") %>%
+  group_by(colony_id) %>%                                  # Average surface area measurements if multiple per coral 
+  summarise(surface.area.cm2 = mean(surface.area.cm2))
+
+# Tissue homogenate volume data
+homog_vols <- read_csv("data/1_homogenate_vols.csv") %>% select(1:2)
+
+# Coral sample metadata
+metadata <- read_csv("../metadata/coral_metadata.csv") %>% select(1:3)
+
+# Join homogenate volumes and surface area with sample metadata
+metadata <- full_join(metadata, homog_vols) %>%
+  full_join(sa)
+
+# Join prot data with metadata
+prot <- left_join(prot, metadata) %>%
+  mutate(prot_ug = prot_ug.mL * homog_vol_ml,
+         prot_ug.cm2 = prot_ug / surface.area.cm2)
+```
+
+```{r}
+prot %>%
+  filter(!is.na(species)) %>%
+  ggplot(aes(x = site, y = prot_ug.cm2, color = species)) +
+  facet_wrap(~species) +
+  geom_boxplot() +
+  geom_point()
+
+prot %>%
+  group_by(species, site) %>%
+  summarise(mean_prot = mean(prot_ug.cm2, na.rm = T))
+```
+
+```{r}
+write_csv(prot, path = "output/1_Protein.csv")
+```
+
