@@ -1,7 +1,23 @@
+---
+title: "Chlorophyll analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("plotrix")) install.packages("plotrix")
+
+# load packages
 library(tidyverse)
+library(plotrix)
+```
 
-
-# Function to read in chl data
+# Import data
+```{r}
+# Define function to read in chl data
 read_chl <- function(file) {
   chl_data <- read_csv(file, skip = 24, n_max = 24) %>%
     select(-1) %>%
@@ -19,17 +35,16 @@ chl_data_files <- setdiff(all_chl_files, chl_platemaps)                  # List 
 
 # Read in all files into tibble
 df <- tibble(file = chl_data_files) %>%
-  #filter(chl_data_files == "1_20200106_Chl.csv") %>%
   mutate(platemap = map(file, ~ read_csv(paste0(chl_path, tools::file_path_sans_ext(.), "_platemap.csv"))),
          chl_data = map(file, ~ read_chl(paste0(chl_path, .))))
 
 # Merge platemap and data for each plate
 df <- df %>%
   mutate(merged = map2(platemap, chl_data, ~ right_join(.x, .y)))
+```
 
-
-####
-
+# Calculate chlorophyll concentrations
+```{r}
 # average all technical replicates for each plate/sample/wavelength, including all acetone blanks together (per plate)
 df <- df %>%
   unnest(merged) %>%
@@ -51,8 +66,10 @@ df <- df %>%
 df <- df %>%
   mutate(chla = 11.43 * adj663 - 0.64 * adj630,
         chlc2 = 27.09 * adj630 - 3.63 * adj663)
+```
 
-
+# Normalize to surface area
+```{r}
 #Load homogenate volume
 homog.vol <- read_csv("data/1_homogenate_vols.csv") %>%
   select(colony_id, homog_vol_ml)
@@ -62,18 +79,22 @@ Data <- full_join(df, homog.vol)
 sa <- read_csv("output/coral_surface_area.csv")
 Data <- full_join(Data, sa)
 
-#Multiply by the homogenate volume
-#Divide by surface area
+#Multiply by the homogenate volume and divide by surface area
 Data$chla.cm2 <-  (Data$chla * Data$homog_vol_ml)/Data$surface.area.cm2
 Data$chlc2.cm2 <-  (Data$chlc2 * Data$homog_vol_ml)/Data$surface.area.cm2
 
+# remove blanks and NAs
 Data <- filter(Data, !colony_id %in% c("NA", "BK"))
 
+# write chlorophyll data to file
 Data %>%
   select(colony_id, chla.cm2, chlc2.cm2) %>%
   write_csv(path = "output/1_chl.csv")
+```
 
-
+# Plot
+```{r, eval = TRUE}
+# Join with sample metadata
 Meta <- read_csv("../metadata/coral_metadata.csv")
 Data <- full_join(Data, Meta, by = "colony_id")
 
@@ -94,3 +115,6 @@ Data%>%
   geom_point(size = 3)+
   geom_errorbar(aes(x = site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
   facet_grid(~species, scales = "free_y")
+```
+
+
