@@ -4,7 +4,13 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+
+# load packages
+library(tidyverse)
 ```
 
 
@@ -67,12 +73,13 @@ std_curve <- df %>%
 mod <- nls(formula = conc_mM ~ z + a * exp(b * net.adj), start = list(z = 0, a = 1, b = 1), data = std_curve)
 fitted <- mod %>% broom::augment()
 
-std_curve %>%
+std_curve_plot <- std_curve %>%
   ggplot(aes(x = net.adj, y = conc_mM)) +
-  geom_point() +
-  geom_line(data = fitted, aes(x = net.adj, y = .fitted))
+  geom_point(color = "red")
+
+std_curve_plot + geom_line(data = fitted, aes(x = net.adj, y = .fitted))
 ```
-*Note: the standard curve should be updated to be a non-linear fit and/or force the intercept to be zero.*
+
 
 ```{r}
 tac <- df %>%
@@ -83,6 +90,11 @@ tac <- df %>%
   mutate(net = final - initial,
          net.adj = net - std_curve$net[std_curve$std == 10],
          uae.mmol.L = map_dbl(net.adj, ~ predict(mod, newdata = data.frame(net.adj = .))))
+
+std_curve_plot +
+  geom_point(data = tac, aes(x = net.adj, y = uae.mmol.L), pch = "X", cex = 3, alpha = 0.3) 
+  #geom_segment(data = tac, aes(x = 0, xend = net.adj, y = uae.mmol.L, yend = uae.mmol.L), lwd = 0.1) +
+  #geom_segment(data = tac, aes(x = net.adj, xend = net.adj, y = 0, yend = uae.mmol.L), lwd = 0.1)
 ```
 
 ```{r}
@@ -135,7 +147,7 @@ tac <- tac %>%
 tac %>%
   drop_na() %>%
   left_join(metadata) %>%
-  ggplot(aes(x = site, y = uae_mmol.ugprot, color = species)) +
+  ggplot(aes(x = site, y = log10(uae_mmol.ugprot), color = species)) +
   facet_wrap(~species) +
   geom_boxplot() +
   geom_point()

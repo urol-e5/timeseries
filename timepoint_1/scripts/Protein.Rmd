@@ -4,7 +4,13 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+
+# load packages
+library(tidyverse)
 ```
 
 
@@ -59,10 +65,11 @@ std_curve <- df %>%
 mod <- nls(formula = BSA_ug.mL ~ z + a * exp(b * abs562.adj), start = list(z = 0, a = 1, b = 1), data = std_curve)
 fitted <- mod %>% broom::augment()
 
-std_curve %>%
+std_curve_plot <- std_curve %>%
   ggplot(aes(x = abs562.adj, y = BSA_ug.mL)) +
-  geom_point() +
-  geom_line(data = fitted, aes(x = abs562.adj, y = .fitted))
+  geom_point(color = "red") 
+
+std_curve_plot + geom_line(data = fitted, aes(x = abs562.adj, y = .fitted))
 ```
 
 *Note: the standard curve should be updated to be a non-linear fit and/or force the intercept to be zero.*
@@ -76,6 +83,9 @@ prot <- df %>%
   summarise(abs562 = mean(abs562)) %>%
   mutate(abs562.adj = abs562 - std_curve$abs562[std_curve$std == "I"],
          prot_ug.mL = map_dbl(abs562.adj, ~ predict(mod, newdata = data.frame(abs562.adj = .))))
+
+std_curve_plot + 
+  geom_point(data = prot, aes(x = abs562.adj, y = prot_ug.mL), pch = "X", cex = 3, alpha = 0.3) 
 ```
 
 ```{r}
