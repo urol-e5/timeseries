@@ -64,8 +64,8 @@ df <- df %>%
 # calculate chla and chlc2 values based on equations from Jeffrey and Humphrey 1975
 # units µg/ml
 df <- df %>%
-  mutate(chla = 11.43 * adj663 - 0.64 * adj630,
-        chlc2 = 27.09 * adj630 - 3.63 * adj663)
+  mutate(chla.ug.ml = 11.43 * adj663 - 0.64 * adj630,
+        chlc2.ug.ml = 27.09 * adj630 - 3.63 * adj663)
 
 # path length adjustments for chlorophyll?
 ```
@@ -83,15 +83,15 @@ chl <- full_join(chl, sa)
 
 # Multiply chlorophyll by the homogenate volume and divide by surface area
 chl <- chl %>%
-  mutate(chla.cm2 = chla * homog_vol_ml / surface.area.cm2,
-         chlc2.cm2 = chlc2 * homog_vol_ml / surface.area.cm2)
+  mutate(chla.ug.cm2 = chla.ug.ml * homog_vol_ml / surface.area.cm2,
+         chlc2.ug.cm2 = chlc2.ug.ml * homog_vol_ml / surface.area.cm2)
 
 # remove blanks and NAs
 chl <- filter(chl, !colony_id %in% c("NA", "BK"))
 
 # write chlorophyll data to file
 chl %>%
-  select(colony_id, chla.cm2, chlc2.cm2) %>%
+  select(colony_id, chla.ug.cm2, chlc2.ug.cm2) %>%
   write_csv(path = "output/1_chlorophyll.csv")
 ```
 
@@ -101,23 +101,22 @@ chl %>%
 meta <- read_csv("../metadata/coral_metadata.csv")
 chl <- right_join(chl, meta, by = "colony_id")
 
-chl %>%
-  group_by(species, site) %>%
-  summarise(mean.value = mean(chla.cm2, na.rm = TRUE), se = std.error(chla.cm2, na.rm = TRUE)) %>%
-  ggplot(aes(x = site, y = mean.value, group = species, color = species))+
-  labs(x = "", y = "chl a (µg/cm2)") +
-  geom_point(size = 3)+
-  geom_errorbar(aes(x = site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
-  facet_grid(~species, scales = "free_y")
+# Summarize for plotting
+chl.summ <- chl %>%
+  select(colony_id, species, site, chla.ug.cm2, chlc2.ug.cm2) %>%
+  gather(metric, value, -colony_id, -species, -site) %>%
+  group_by(species, site, metric) %>%
+  summarise(mean.value = mean(value, na.rm = TRUE),
+            std.error = plotrix::std.error(value, na.rm = TRUE))
 
-chl %>%
-  group_by(species, site) %>%
-  summarise(mean.value = mean(chlc2.cm2, na.rm = TRUE ), se = std.error(chlc2.cm2, na.rm = TRUE )) %>%
-  ggplot(aes(x = site, y = mean.value, group = species, color = species))+
-  labs(x = "", y = "chl c2 (µg/cm2)") +
-  geom_point(size = 3)+
-  geom_errorbar(aes(x = site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
-  facet_grid(~species, scales = "free_y")
+# Plot
+ggplot(chl.summ, aes(x = site, y = mean.value, shape = metric, color = species)) +
+  facet_grid(~species) +
+  geom_point(size = 3, position = position_dodge(width = 0.5)) +
+  geom_errorbar(width = 0.5, 
+                aes(ymin = mean.value - std.error, ymax = mean.value + std.error),
+                position = position_dodge(width = 0.5)) +
+  labs(x = "", y = "µg/cm2")
 ```
 
 
