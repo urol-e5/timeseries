@@ -15,7 +15,7 @@ library(tidyverse)
 library(broom)
 ```
 
-
+# Import data
 ```{r}
 # List protein data files
 prot_path = "data/1_protein/"                                              # Path to prot data directory
@@ -35,6 +35,7 @@ df <- df %>%
   mutate(merged = map2(platemap, prot_data, ~ right_join(.x, .y)))
 ```
 
+# Plot standard curve
 ```{r}
 # Create standard curve following kit instructions
 standards <- tribble(
@@ -79,7 +80,7 @@ std_curve_plot +
   labs(title = "Standard curve")
 ```
 
-
+# Calculate protein concentrations
 ```{r}
 # Calculate protein concentration for all samples using standard curve
 prot <- df %>%
@@ -98,6 +99,7 @@ std_curve_plot +
   labs(title = "All samples projected on standard curve")
 ```
 
+# Normalize to surface area
 ```{r}
 # Surface area data
 sa <- read.csv("output/1_surface_area.csv") %>%
@@ -120,18 +122,21 @@ prot <- left_join(prot, metadata) %>%
          prot_ug.cm2 = prot_ug / surface.area.cm2)
 ```
 
+# Plot results by species and site
 ```{r}
 # Plot all data points with mean ± se
 prot %>%
   filter(!is.na(species)) %>%
   ggplot(aes(x = site, y = prot_ug.cm2, color = species)) +
   facet_wrap(~species) +
+  labs(x = "", y = "Total protein (µg/cm2)") +
   geom_jitter(width = 0.1) +                                            # Plot all points
   stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
                geom = "errorbar", color = "black", width = 0.5) +
   stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
 ```
 
+# Write data to output file
 ```{r}
 # Write protein data to output file
 prot %>%
