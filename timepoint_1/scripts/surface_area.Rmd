@@ -42,6 +42,9 @@ smpls$surface.area.cm2 <- stnd.curve$coefficients[2] * smpls$delta.mass.g + stnd
 smpls <- smpls %>%
   select(-Sample, -Diameter)
 
+smpls %>%
+  count(colony_id) %>% arrange(n)
+
 #check the range to make sure your samples fall within the range of the standards
 range(smpls$surface.area.cm2)
 range(stnds$surface.area.cm2)
