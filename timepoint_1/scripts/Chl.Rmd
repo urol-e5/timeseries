@@ -28,8 +28,8 @@ read_chl <- function(file) {
 }
 
 # List chlorophyll data files
-chl_path = "/data/1_Chl/"                                                 # Path to chl data directory
-all_chl_files <- list.files(path =chl_path, pattern = "*.csv")          # List all files in directory
+chl_path <- "data/1_chlorophyll/"                                        # Path to chlorophyll data directory
+all_chl_files <- list.files(path = chl_path, pattern = "*.csv")          # List all files in directory
 chl_platemaps <- list.files(path = chl_path, pattern = "platemap")       # List platemap files
 chl_data_files <- setdiff(all_chl_files, chl_platemaps)                  # List absorbance data files
 
@@ -62,56 +62,59 @@ df <- df %>%
          adj663 = `663` - blank750)
 
 # calculate chla and chlc2 values based on equations from Jeffrey and Humphrey 1975
-#units µg/ml
+# units µg/ml
 df <- df %>%
   mutate(chla = 11.43 * adj663 - 0.64 * adj630,
         chlc2 = 27.09 * adj630 - 3.63 * adj663)
+
+# path length adjustments for chlorophyll?
 ```
 
 # Normalize to surface area
 ```{r}
-#Load homogenate volume
-homog.vol <- read_csv("data/1_homogenate_vols.csv") %>%
+# Load homogenate volume
+homog.vol <- read_csv("data/1_homogenate_vols/1_homogenate_vols.csv") %>%
   select(colony_id, homog_vol_ml)
+chl <- full_join(df, homog.vol)
 
-Data <- full_join(df, homog.vol)
 # Load surface area
-sa <- read_csv("output/coral_surface_area.csv")
-Data <- full_join(Data, sa)
+sa <- read_csv("output/1_surface_area.csv")
+chl <- full_join(chl, sa)
 
-#Multiply by the homogenate volume and divide by surface area
-Data$chla.cm2 <-  (Data$chla * Data$homog_vol_ml)/Data$surface.area.cm2
-Data$chlc2.cm2 <-  (Data$chlc2 * Data$homog_vol_ml)/Data$surface.area.cm2
+# Multiply chlorophyll by the homogenate volume and divide by surface area
+chl <- chl %>%
+  mutate(chla.cm2 = chla * homog_vol_ml / surface.area.cm2,
+         chlc2.cm2 = chlc2 * homog_vol_ml / surface.area.cm2)
 
 # remove blanks and NAs
-Data <- filter(Data, !colony_id %in% c("NA", "BK"))
+chl <- filter(chl, !colony_id %in% c("NA", "BK"))
 
 # write chlorophyll data to file
-Data %>%
+chl %>%
   select(colony_id, chla.cm2, chlc2.cm2) %>%
-  write_csv(path = "output/1_chl.csv")
+  write_csv(path = "output/1_chlorophyll.csv")
 ```
 
 # Plot
 ```{r, eval = TRUE}
 # Join with sample metadata
-Meta <- read_csv("../metadata/coral_metadata.csv")
-Data <- full_join(Data, Meta, by = "colony_id")
+meta <- read_csv("../metadata/coral_metadata.csv")
+chl <- right_join(chl, meta, by = "colony_id")
 
-Data%>%
+chl %>%
   group_by(species, site) %>%
   summarise(mean.value = mean(chla.cm2, na.rm = TRUE), se = std.error(chla.cm2, na.rm = TRUE)) %>%
   ggplot(aes(x = site, y = mean.value, group = species, color = species))+
-  ylab("CHL-a µg cm-2")+
+  labs(x = "", y = "chl a (µg/cm2)") +
   geom_point(size = 3)+
   geom_errorbar(aes(x = site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
   facet_grid(~species, scales = "free_y")
 
-Data%>%
+chl %>%
   group_by(species, site) %>%
   summarise(mean.value = mean(chlc2.cm2, na.rm = TRUE ), se = std.error(chlc2.cm2, na.rm = TRUE )) %>%
   ggplot(aes(x = site, y = mean.value, group = species, color = species))+
-  ylab("CHL-c2 µg cm-2")+
+  labs(x = "", y = "chl c2 (µg/cm2)") +
   geom_point(size = 3)+
   geom_errorbar(aes(x = site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
   facet_grid(~species, scales = "free_y")
