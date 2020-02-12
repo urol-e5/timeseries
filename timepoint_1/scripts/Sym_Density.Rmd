@@ -24,9 +24,7 @@ library(tidyverse)
 sym_counts <- read_csv("/data/1_Sym_Counts_Data.csv")
 
 # Surface area data
-sa <- read.csv("output/coral_surface_area.csv") %>%
-  group_by(colony_id) %>%                                  # Average surface area measurements if multiple per coral 
-  summarise(surface.area.cm2 = mean(surface.area.cm2))
+sa <- read.csv("output/coral_surface_area.csv")
 
 # Tissue homogenate volume data
 homog_vols <- read_csv("data/1_homogenate_vols.csv") %>% select(1:2)

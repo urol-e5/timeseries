@@ -174,11 +174,6 @@ pr <- left_join(pr, blanks) %>%
 # Import surface area data
 sa <- read.csv("output/1_surface_area.csv")
 
-# Average surface area measurements if multiple per coral
-sa <- sa %>%
-  group_by(colony_id) %>%
-  summarise(surface.area.cm2 = mean(surface.area.cm2))
-
 # Join surface area with rest of data
 pr <- left_join(pr, select(sa, colony_id, surface.area.cm2))
 
