@@ -1,0 +1,69 @@
+---
+title: "biomass.Rmd"
+author: "HM Putnam"
+date: "2/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+
+# load packages
+library(tidyverse)
+library(plotrix)
+
+```
+
+```{r }
+#Read in biomass data
+Data <- read.csv("../data/1_biomass/1_biomass_data.csv")
+Data <- na.omit(Data)
+  
+# calculated mass per ml
+#different volumes for sym (4ml) and host (5ml)
+sym <- 5
+host <- 4
+Data <- Data %>%
+  mutate(dry.pan.mass.g.ml = case_when(partner=="Host" ~ dry.pan.mass.g/sym, partner=="Sym" ~dry.pan.mass.g/host),
+         burnt.pan.mass.g.ml = case_when(partner=="Host" ~ burnt.pan.mass.g/sym, partner=="Sym" ~burnt.pan.mass.g/host))
+
+#Load tissue homogenate volume
+homog_vol <- read.csv("../data/1_homogenate_vols/1_homogenate_vols.csv", header=TRUE)
+
+# Load Surface area data
+sa <- read.csv("../output/1_surface_area.csv") %>%
+  group_by(colony_id) %>%                                  # Average surface area measurements if multiple per coral 
+  summarise(surface.area.cm2 = mean(surface.area.cm2))
+
+# Coral sample metadata
+metadata <- read_csv("../../metadata/coral_metadata.csv") %>% select(1:3)
+
+# Join homogenate volumes and surface area with sample metadata
+metadata <- full_join(metadata, homog_vol) %>%
+  full_join(sa)
+
+# Join AFDW data with metadata
+afdw <- left_join(Data, metadata) %>%
+  mutate(dry.bioimass.g.ml = (dry.pan.mass.g.ml - burnt.pan.mass.g.ml),
+         dry.bioimass.g = dry.pan.mass.g.ml * homog_vol_ml,
+         burnt.bioimass.g = burnt.pan.mass.g.ml * homog_vol_ml,
+         AFDW.mg.cm2 = ((dry.bioimass.g-burnt.bioimass.g)*1000) / surface.area.cm2)
+
+```
+
+```{r}
+#summarize mean and sem by site, species, and partner and plot
+afdw %>% na.omit(afdw) %>%
+  group_by(species, site, partner)%>%
+  summarise(mean.value = mean(AFDW.mg.cm2), se = std.error(AFDW.mg.cm2)) %>%
+  ggplot(aes(x = site, y = mean.value, group = species, color = partner))+
+  ylab("AFDW mg cm-2")+
+  geom_point(size = 3)+
+  geom_errorbar(aes(x = site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
+  facet_grid(~species, scales = "free_y")
+
+
+```
