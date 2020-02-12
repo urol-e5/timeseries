@@ -25,7 +25,7 @@ read_tac <- function(file) {
 }
 
 # List chlorophyll data files
-tac_path = "data/1_TAC/"                                                 # Path to TAC data directory
+tac_path = "../data/1_TAC/"                                                 # Path to TAC data directory
 all_tac_files <- list.files(path = tac_path, pattern = "*.csv")          # List all files in directory
 tac_platemaps <- list.files(path = tac_path, pattern = "platemap")       # List platemap files
 tac_data_files <- setdiff(all_tac_files, tac_platemaps)                  # List data files
@@ -99,15 +99,15 @@ std_curve_plot +
 
 ```{r}
 # Surface area data
-sa <- read.csv("output/coral_surface_area.csv") %>%
+sa <- read.csv("../output/coral_surface_area.csv") %>%
   group_by(colony_id) %>%                                  # Average surface area measurements if multiple per coral 
   summarise(surface.area.cm2 = mean(surface.area.cm2))
 
 # Tissue homogenate volume data
-homog_vols <- read_csv("data/1_homogenate_vols.csv") %>% select(1:2)
+homog_vols <- read_csv("../data/1_homogenate_vols.csv") %>% select(1:2)
 
 # Coral sample metadata
-metadata <- read_csv("../metadata/coral_metadata.csv") %>% select(1:3)
+metadata <- read_csv("../../metadata/coral_metadata.csv") %>% select(1:3)
 
 # Join homogenate volumes and surface area with sample metadata
 metadata <- full_join(metadata, homog_vols) %>%
@@ -136,7 +136,7 @@ tac %>%
 ```{r}
 # Normalize TAC to protein
 
-prot <- read_csv("output/1_Protein.csv")
+prot <- read_csv("../output/1_Protein.csv")
 
 tac <- tac %>%
   select(colony_id, uae.mmol, uae.mmol.cm2) %>%
@@ -147,7 +147,7 @@ tac <- tac %>%
 tac %>%
   drop_na() %>%
   left_join(metadata) %>%
-  ggplot(aes(x = site, y = log10(uae_mmol.ugprot), color = species)) +
+  ggplot(aes(x = site, y = (uae_mmol.ugprot), color = species)) +
   facet_wrap(~species) +
   geom_boxplot() +
   geom_point()

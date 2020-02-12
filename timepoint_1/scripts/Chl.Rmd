@@ -28,8 +28,8 @@ read_chl <- function(file) {
 }
 
 # List chlorophyll data files
-chl_path = "data/1_Chl/"                                                 # Path to chl data directory
-all_chl_files <- list.files(path = chl_path, pattern = "*.csv")          # List all files in directory
+chl_path = "/data/1_Chl/"                                                 # Path to chl data directory
+all_chl_files <- list.files(path =chl_path, pattern = "*.csv")          # List all files in directory
 chl_platemaps <- list.files(path = chl_path, pattern = "platemap")       # List platemap files
 chl_data_files <- setdiff(all_chl_files, chl_platemaps)                  # List absorbance data files
 

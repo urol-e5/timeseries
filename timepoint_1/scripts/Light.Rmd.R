@@ -1,9 +1,22 @@
-#Title: Protein Data
-#Project: E5
-#Author: HM Putnam 
-#Edited by: HM Putnam
-#Date Last Modified: 20191104
-#See Readme file for details
+---
+  title: "Symbiont density analysis"
+output: html_document
+---
+  
+  #Title: Protein Data
+  #Project: E5
+  #Author: HM Putnam 
+  #Edited by: HM Putnam
+  #Date Last Modified: 20200117
+  #See Readme file for details
+
+```{r setup, include = FALSE}
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+
+# load packages
+library(tidyverse)
+```
 
 rm(list=ls()) #clears workspace 
 
