@@ -95,28 +95,31 @@ chl %>%
   write_csv(path = "output/1_chlorophyll.csv")
 ```
 
-# Plot
+# Plot results by species and site
 ```{r, eval = TRUE}
 # Join with sample metadata
 meta <- read_csv("../metadata/coral_metadata.csv")
 chl <- right_join(chl, meta, by = "colony_id")
 
-# Summarize for plotting
-chl.summ <- chl %>%
-  select(colony_id, species, site, chla.ug.cm2, chlc2.ug.cm2) %>%
-  gather(metric, value, -colony_id, -species, -site) %>%
-  group_by(species, site, metric) %>%
-  summarise(mean.value = mean(value, na.rm = TRUE),
-            std.error = plotrix::std.error(value, na.rm = TRUE))
+# Plot chlorophyll a
+chl %>%
+  ggplot(aes(x = site, y = chla.ug.cm2, color = species)) +
+  facet_wrap(~species) +
+  labs(x = "", y = "chlorophyll a (µg/cm2)") +
+  geom_jitter(width = 0.1) +                                            # Plot all points
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", color = "black", width = 0.5) +
+  stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
 
-# Plot
-ggplot(chl.summ, aes(x = site, y = mean.value, shape = metric, color = species)) +
-  facet_grid(~species) +
-  geom_point(size = 3, position = position_dodge(width = 0.5)) +
-  geom_errorbar(width = 0.5, 
-                aes(ymin = mean.value - std.error, ymax = mean.value + std.error),
-                position = position_dodge(width = 0.5)) +
-  labs(x = "", y = "µg/cm2")
+# Plot chlorophyll c2
+chl %>%
+  ggplot(aes(x = site, y = chlc2.ug.cm2, color = species)) +
+  facet_wrap(~species) +
+  labs(x = "", y = "chlorophyll c2 (µg/cm2)") +
+  geom_jitter(width = 0.1) +                                            # Plot all points
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", color = "black", width = 0.5) +
+  stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
 ```
 
 
