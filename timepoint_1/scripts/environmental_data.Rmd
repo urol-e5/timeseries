@@ -1,0 +1,38 @@
+---
+title: "Environmental Data"
+author: "HM Putnam"
+date: "2/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+
+# load packages
+library(tidyverse)
+
+```
+
+```{r}
+#Light
+
+```
+
+```{r}
+#Temperature
+
+```
+
+```{r}
+#pH
+
+```
+
+```{r}
+#Salinity
+
+```
+
