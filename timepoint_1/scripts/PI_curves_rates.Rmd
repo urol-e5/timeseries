@@ -12,6 +12,7 @@ if (!require("furrr")) install.packages("furrr")
 if (!require("future")) install.packages("future")
 if (!require("tidyverse")) install.packages("tidyverse")
 if (!require("lubridate")) install.packages("lubridate")
+if (!require("cowplot")) install.packages("cowplot")
 if (!require("LoLinR")) install_github('colin-olito/LoLinR') 
 
 ## load libraries
@@ -19,6 +20,7 @@ library(devtools)
 library(LoLinR)
 library(tidyverse)
 library(lubridate)
+library(cowplot)
 
 ## libraries for parallel processing
 library(future)
@@ -27,16 +29,17 @@ library(furrr)
 
 ## Import data
 ```{r}
-path.p <- "data/1_PICurves/" #the location of all your respirometry files 
+path.p <- "data/1_pi_curves/" #the location of all your respirometry files 
 
-# List files
-file.names <- list.files(path = path.p, pattern = "csv$") #list all csv file names in the folder
+# List data files
+file.names <- list.files(path = path.p, pattern = "csv$")  # list all csv file names in the folder
+file.names <- file.names[!grepl("metadata", file.names)]   # omit metadata from files to be read in as data
 
 # Load PI curve sample metadata (i.e., which corals were in which runs)
-sample.info <- read_csv(file = "data/1_PICurves_sample_metadata.csv")
+sample.info <- read_csv(file = "data/1_pi_curves/1_pi_curves_sample_metadata.csv")
 
 # Load PI curve run metadata (i.e., light levels and interval times for each run)
-run.info <- read_csv(file = "data/1_PICurves_run_metadata.csv")
+run.info <- read_csv(file = "data/1_pi_curves/1_pi_curves_run_metadata.csv")
 
 # Join all coral and run metadata
 metadata <- full_join(sample.info, run.info) %>%
@@ -49,8 +52,8 @@ metadata <- metadata %>%
 # Read in all data files
 df <- tibble(file.name = file.names) %>%
   mutate(colony_id = gsub("_.*", "", file.name),                              # Get colony_id from filename
-         info = map(colony_id, ~filter(metadata, colony_id == .)),         # Get associated sample info
-         data0 = map(file.name, ~read_csv(file.path(path.p, .), skip = 1)))    # Get associated O2 data
+          info = map(colony_id, ~filter(metadata, colony_id == .)),           # Get associated sample info
+         data0 = map(file.name, ~read_csv(file.path(path.p, .), skip = 1)))   # Get associated O2 data
 
 # Select only Time, Value, and Temp columns from O2 data
 df <- df %>%
@@ -66,11 +69,12 @@ df <- df %>%
   mutate(data = map(intervals, ~ unnest(tibble(.), .id = "Light_Value")))
 
 ## 'data' now contains the O2 data with the corresponding light level as another column
-df$data[[1]]
+## Example of what 'data' for each sample looks like:
+# df$data[[1]]
 ```
 
 ### Thin data
-```{r, fig.height = 12, fig.width = 7}
+```{r, fig.height = 8, fig.width = 8}
 # Set thinning parameter
 thin_par <- 20
 
@@ -90,10 +94,15 @@ df <- df %>%
                             labs(title = .y)))
 
 # Example of plots
-data_plot_1 <- df$data_plot[[1]]
-thin_data_plot_1 <- df$thin_data_plot[[1]]
+cowplot::plot_grid(df$data_plot[[1]], df$thin_data_plot[[1]], nrow = 2,
+                   labels = c("Example plot: all data", "Example plot: thinned data"))
+```
 
-cowplot::plot_grid(data_plot_1, thin_data_plot_1, nrow = 2)
+#### The full or thinned data plot for any sample can be accessed like this:
+```
+df %>%
+  filter(colony_id == "ACR-185") %>%
+  pull(thin_data_plot)
 ```
 
 # Fit regressions to each interval for each sample
@@ -115,35 +124,37 @@ df <- df %>%
   }))
 
 ## Now 'regs' contains the fitted local regressions for each interval of each sample's thinned dataset
-## You can plot the diagnostics for any regression using the code below, specifying a sample colony_id and the number of the light curve interval:
 
+# Define function to pull out and plot regression diagnostics
 plot_rankLcRg <- function(colony_id, interval_number) {
   df %>%
     filter(colony_id == colony_id) %>%
     pluck("regs", 1, "rankLcRg", interval_number) %>%
     plot()
 }
+```
 
+#### The diagnostics for any regression can be plotted like this, specifying a colony_id and the number of the light curve interval:
+```
 plot_rankLcRg("ACR-225", 1)
 ```
 
-# Pull slope of best regression for each interval for each sample
+### Extract slope of best regression for each interval for each sample
 ```{r}
 df.out <- df %>% 
   unnest(regs) %>%
   mutate(micromol.L.s = map_dbl(rankLcRg, ~ pluck(., "allRegs", "b1", 1)))
 ```
 
-# Merge rates with sample info
+# Adjust by chamber volume and normalize to surface area
 ```{r}
+### Merge rates with sample info
 pr <- left_join(
   select(df.out, colony_id, Light_Value, micromol.L.s),
   distinct(metadata, colony_id, Run, Chamber.Vol.L)
 )
-```
 
-# Correct for chamber volume and blanks
-```{r}
+### Correct for chamber volume and blanks
 pr <- pr %>%
   mutate(micromol.s = micromol.L.s * Chamber.Vol.L)
 
@@ -158,17 +169,10 @@ pr <- left_join(pr, blanks) %>%
   mutate(micromol.s.adj = micromol.s - micromol.s.blank) %>%
   # After correcting for blank values, remove blanks from data
   filter(!grepl("BK", colony_id))
-```
 
-# Correct for surface area
-```{r}
+
 # Import surface area data
-sa <- read.csv("output/coral_surface_area.csv")
-
-# Average surface area measurements if multiple per coral
-sa <- sa %>%
-  group_by(colony_id) %>%
-  summarise(surface.area.cm2 = mean(surface.area.cm2))
+sa <- read.csv("output/1_surface_area.csv")
 
 # Join surface area with rest of data
 pr <- left_join(pr, select(sa, colony_id, surface.area.cm2))
@@ -177,17 +181,21 @@ pr <- left_join(pr, select(sa, colony_id, surface.area.cm2))
 pr <- pr %>%
   mutate(micromol.cm2.s = micromol.s.adj / surface.area.cm2,
          micromol.cm2.h = micromol.cm2.s * 3600)
+```
 
+# Plot rates vs. irradiance for each sample
+```{r, fig.height=15, fig.width = 10}
+ggplot(pr.out, aes(x = as.numeric(Light_Value), y = micromol.cm2.h)) +
+  geom_point() +
+  facet_wrap(~colony_id, scale = "free_y", ncol = 9)
+```
+
+# Write to output file
+```{r}
 # Select variables to write to file
 pr.out <- pr %>% select(colony_id, Light_Value, Run, micromol.cm2.s, micromol.cm2.h)
 
 # Write to output file
-write.csv(pr.out, "output/All_PI_Curve_rates.csv")
+write.csv(pr.out, "output/1_pi_curve_rates.csv")
 ```
 
-# Plot rate vs. light for each sample
-```{r, fig.height=10, fig.width = 10}
-ggplot(pr.out, aes(x = as.numeric(Light_Value), y = micromol.cm2.h)) +
-  geom_point() +
-  facet_wrap(~colony_id, scale = "free_y")
-```

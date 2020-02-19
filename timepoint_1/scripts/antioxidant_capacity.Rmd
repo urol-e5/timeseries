@@ -1,5 +1,5 @@
 ---
-title: "TAC analysis"
+title: "Total Antioxidant Capacity (TAC) analysis"
 output: html_document
 ---
 
@@ -8,12 +8,14 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 ## install packages if you dont already have them
 if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("broom")) install.packages("broom")
 
 # load packages
 library(tidyverse)
+library(broom)
 ```
 
-
+# Import data
 ```{r}
 # Function to read in TAC data
 read_tac <- function(file) {
@@ -25,7 +27,7 @@ read_tac <- function(file) {
 }
 
 # List chlorophyll data files
-tac_path = "../data/1_TAC/"                                                 # Path to TAC data directory
+tac_path = "data/1_antioxidant_capacity/"                                                 # Path to TAC data directory
 all_tac_files <- list.files(path = tac_path, pattern = "*.csv")          # List all files in directory
 tac_platemaps <- list.files(path = tac_path, pattern = "platemap")       # List platemap files
 tac_data_files <- setdiff(all_tac_files, tac_platemaps)                  # List data files
@@ -42,7 +44,9 @@ df <- df %>%
   mutate(merged = map2(platemap, tac_data, ~ right_join(.x, .y)))
 ```
 
+# Plot standard curve
 ```{r}
+# Create standards following kit instructions
 standards <- tribble(
   ~std, ~conc_mM,
   1,           1,
@@ -70,17 +74,21 @@ std_curve <- df %>%
   mutate(net.adj = net - net[std == 10]) %>%
   left_join(standards)
 
+# Fit nonlinear model
 mod <- nls(formula = conc_mM ~ z + a * exp(b * net.adj), start = list(z = 0, a = 1, b = 1), data = std_curve)
-fitted <- mod %>% broom::augment()
+# Get fitted values
+fitted <- mod %>% 
+  broom::augment(newdata = tibble(net.adj = seq(0, max(std_curve$net.adj), 0.005)))
 
 std_curve_plot <- std_curve %>%
   ggplot(aes(x = net.adj, y = conc_mM)) +
-  geom_point(color = "red")
+  geom_point(color = "red", size = 3)
 
-std_curve_plot + geom_line(data = fitted, aes(x = net.adj, y = .fitted))
+std_curve_plot + geom_line(data = fitted, aes(x = net.adj, y = .fitted)) +
+  labs(title = "Standard curve")
 ```
 
-
+# Calculate total antioxidant capacity
 ```{r}
 tac <- df %>%
   unnest(merged) %>%
@@ -92,64 +100,68 @@ tac <- df %>%
          uae.mmol.L = map_dbl(net.adj, ~ predict(mod, newdata = data.frame(net.adj = .))))
 
 std_curve_plot +
-  geom_point(data = tac, aes(x = net.adj, y = uae.mmol.L), pch = "X", cex = 3, alpha = 0.3) 
-  #geom_segment(data = tac, aes(x = 0, xend = net.adj, y = uae.mmol.L, yend = uae.mmol.L), lwd = 0.1) +
-  #geom_segment(data = tac, aes(x = net.adj, xend = net.adj, y = 0, yend = uae.mmol.L), lwd = 0.1)
+  geom_point(data = tac, aes(x = net.adj, y = uae.mmol.L), pch = "X", cex = 3, alpha = 0.3) +
+    labs(title = "All samples projected on standard curve")
 ```
 
+# Normalize to surface area and protein
 ```{r}
 # Surface area data
-sa <- read.csv("../output/coral_surface_area.csv") %>%
-  group_by(colony_id) %>%                                  # Average surface area measurements if multiple per coral 
-  summarise(surface.area.cm2 = mean(surface.area.cm2))
+sa <- read.csv("output/1_surface_area.csv")
 
 # Tissue homogenate volume data
-homog_vols <- read_csv("../data/1_homogenate_vols.csv") %>% select(1:2)
+homog_vols <- read_csv("data/1_homogenate_vols/1_homogenate_vols.csv") %>% select(1:2)
+
+# Protein data
+prot <- read_csv("output/1_protein.csv")
 
 # Coral sample metadata
-metadata <- read_csv("../../metadata/coral_metadata.csv") %>% select(1:3)
+metadata <- read_csv("../metadata/coral_metadata.csv") %>% select(1:3)
 
 # Join homogenate volumes and surface area with sample metadata
 metadata <- full_join(metadata, homog_vols) %>%
-  full_join(sa)
+  full_join(sa) %>%
+  full_join(prot)
 
 # Join TAC data with metadata
 tac <- left_join(tac, metadata) %>%
   mutate(uae.mmol = uae.mmol.L * (homog_vol_ml / 1000),
-         uae.mmol.cm2 = uae.mmol / surface.area.cm2)
+         uae.mmol.cm2 = uae.mmol / surface.area.cm2,
+         uae.mmol.ugprot = uae.mmol.cm2 / prot_ug.cm2)
 ```
 
+# Plot results by species and site
 ```{r}
+# Plot all data points with mean ± se
 tac %>%
   filter(!is.na(species)) %>%
   ggplot(aes(x = site, y = uae.mmol.cm2, color = species)) +
-  geom_hline(yintercept = 0) +
   facet_wrap(~species) +
-  geom_boxplot() +
-  geom_point()
+  labs(x = "", y = "uae.mmol.cm2",
+       title = "Total antixodidant capacity per unit surface area") +
+  geom_jitter(width = 0.1) +                                            # Plot all points
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", color = "black", width = 0.5) +
+  stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
 
 tac %>%
-  group_by(species, site) %>%
-  summarise(mean_tac = mean(uae.mmol.cm2, na.rm = T))
+  filter(!is.na(species)) %>%
+  ggplot(aes(x = site, y = uae.mmol.ugprot, color = species)) +
+  facet_wrap(~species) +
+  labs(x = "", y = "uae.mmol.ugprot",
+       title = "Total antixodidant capacity per unit protein") +
+  geom_jitter(width = 0.1) +                                            # Plot all points
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", color = "black", width = 0.5) +
+  stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
 ```
 
+# Write data to output file
 ```{r}
-# Normalize TAC to protein
-
-prot <- read_csv("../output/1_Protein.csv")
-
-tac <- tac %>%
-  select(colony_id, uae.mmol, uae.mmol.cm2) %>%
-  left_join(prot) %>%
-  mutate(uae_mmol.ugprot = uae.mmol / prot_ug)
-
-
 tac %>%
-  drop_na() %>%
-  left_join(metadata) %>%
-  ggplot(aes(x = site, y = (uae_mmol.ugprot), color = species)) +
-  facet_wrap(~species) +
-  geom_boxplot() +
-  geom_point()
+  filter(!is.na(species)) %>%
+  select(colony_id, uae.mmol, uae.mmol.cm2, uae.mmol.ugprot) %>%
+  write_csv(., path = "output/1_antioxidant_capacity.csv")
 ```
+
 
