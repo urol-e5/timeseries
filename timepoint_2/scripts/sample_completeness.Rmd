@@ -31,7 +31,7 @@ chl <- list.files("data/2_chlorophyll/", "platemap", full.names = TRUE) %>%
   filter(!colony_id == "BK") %>%
   pull(colony_id)
 
-afdw <- read_csv("data/1_biomass/2_biomass_data.csv") %>%
+afdw <- read_csv("data/2_biomass/2_biomass_data.csv") %>%
   drop_na() %>%
   pull(colony_id)
 
