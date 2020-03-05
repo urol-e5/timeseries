@@ -36,7 +36,7 @@ file.names <- list.files(path = path.p, pattern = "csv$")  # list all csv file n
 file.names <- file.names[!grepl("metadata", file.names)]   # omit metadata from files to be read in as data
 
 # Load PI curve sample metadata (i.e., which corals were in which runs)
-sample.info <- read_csv(file = "data/2_pi_curves/1_pi_curves_sample_metadata.csv")
+sample.info <- read_csv(file = "data/2_pi_curves/2_pi_curves_sample_metadata.csv")
 
 # Load PI curve run metadata (i.e., light levels and interval times for each run)
 run.info <- read_csv(file = "data/2_pi_curves/2_pi_curves_run_metadata.csv")
@@ -172,7 +172,7 @@ pr <- left_join(pr, blanks) %>%
 
 
 # Import surface area data
-sa <- read.csv("output/2_surface_area.csv")
+sa <- read.csv("output/2_surface_area_junk.csv")
 
 # Join surface area with rest of data
 pr <- left_join(pr, select(sa, colony_id, surface.area.cm2))
@@ -183,11 +183,22 @@ pr <- pr %>%
          micromol.cm2.h = micromol.cm2.s * 3600)
 ```
 
+# Write to output file
+```{r}
+# Select variables to write to file
+pr.out <- pr %>% select(colony_id, Light_Value, Run, micromol.cm2.s, micromol.cm2.h)
+
+# Write to output file
+write.csv(pr.out, "output/2_pi_curve_rates.csv")
+```
+
 # Plot rates vs. irradiance for each sample
-```{r, fig.height=15, fig.width = 10}
-ggplot(pr.out, aes(x = as.numeric(Light_Value), y = micromol.cm2.h)) +
+```{r, fig.height=10, fig.width = 5}
+ ggplot(pr.out, aes(x = as.numeric(Light_Value), y = micromol.cm2.h)) +
   geom_point() +
-  facet_wrap(~colony_id, scale = "free_y", ncol = 9)
+  facet_wrap(~colony_id, scale = "free_y", ncol = 4)
+
+ggsave("output/2_pi_curve_vis.pdf", plot = last_plot(), width = 5, height = 10, units ="in")
 ```
 
 # Write to output file
