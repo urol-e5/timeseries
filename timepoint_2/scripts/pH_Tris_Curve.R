@@ -1,6 +1,6 @@
 setwd("~/MyProjects/urol-e5/timeseries/timepoint_2/tris_calibrations") #set working directory
 
-Calib.Data <-read.table("20200305.csv", header=TRUE, sep=",", na.string="NA", as.is=TRUE) #reads in the data files
+Calib.Data <-read.table("20200307.csv", header=TRUE, sep=",", na.string="NA", as.is=TRUE) #reads in the data files
 model <-lm(mVTris ~ TTris, data=Calib.Data) #runs a linear regression of mV as a function of temperature
 coe <- coef(model) #extracts the coeffecients
 R2<-summary(model)$r.squared
