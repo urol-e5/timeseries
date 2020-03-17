@@ -19,7 +19,7 @@ library(broom)
 ```{r}
 # List protein data files
 prot_path = "data/2_protein/"                                              # Path to prot data directory
-all_prot_files <- list.files(path = prot_path, pattern = "*_2.csv")          # List all files in directory
+all_prot_files <- list.files(path = prot_path, pattern = "*.csv")          # List all files in directory
 prot_platemaps <- list.files(path = prot_path, pattern = "platemap")       # List platemap files
 prot_data_files <- setdiff(all_prot_files, prot_platemaps)                 # List data files
 
@@ -54,7 +54,7 @@ standards <- tribble(
 std_curve <- df %>%
   unnest(merged) %>%
   filter(grepl("Standard", colony_id)) %>%
-  select(plate, well, colony_id, abs562 = `562:562`) %>%
+  select(plate, Well, colony_id, abs562 = `562:562`) %>%
   rename(std = colony_id) %>%
   mutate(std = str_sub(std, 9, 9)) %>%
   group_by(std) %>%
