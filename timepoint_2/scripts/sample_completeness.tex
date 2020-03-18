@@ -1,0 +1,494 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Check completeness of datasets},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Check completeness of datasets}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{}
+    \preauthor{}\postauthor{}
+    \date{}
+    \predate{}\postdate{}
+  
+
+\begin{document}
+\maketitle
+
+\subsubsection{\texorpdfstring{Import \texttt{colony\_id} from each
+dataset}{Import colony\_id from each dataset}}\label{import-colony_id-from-each-dataset}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{coral_metadata <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(}\StringTok{"../metadata/coral_metadata.csv"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{pull}\NormalTok{(colony_id)}
+
+\NormalTok{homog_vols <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(}\StringTok{"data/2_homogenate_vols/2_homogenate_vols.csv"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{pull}\NormalTok{(colony_id)}
+
+\NormalTok{surface_area <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(}\StringTok{"data/2_surface_area/2_surface_area_data.csv"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}\OperatorTok{!}\KeywordTok{grepl}\NormalTok{(}\StringTok{"Standard"}\NormalTok{, Sample)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{pull}\NormalTok{(colony_id)}
+
+\NormalTok{chl <-}\StringTok{ }\KeywordTok{list.files}\NormalTok{(}\StringTok{"data/2_chlorophyll/"}\NormalTok{, }\StringTok{"platemap"}\NormalTok{, }\DataTypeTok{full.names =} \OtherTok{TRUE}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{map_df}\NormalTok{(read_csv) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{drop_na}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}\OperatorTok{!}\NormalTok{colony_id }\OperatorTok{==}\StringTok{ "BK"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{pull}\NormalTok{(colony_id)}
+
+\NormalTok{afdw <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(}\StringTok{"data/2_biomass/2_biomass_data.csv"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{drop_na}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{pull}\NormalTok{(colony_id)}
+
+\NormalTok{molec <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(}\StringTok{"data/2_molecular_backups/2_molecular_backups.csv"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{distinct}\NormalTok{(colony_id) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{pull}\NormalTok{()}
+
+\NormalTok{picurve <-}\StringTok{ }\KeywordTok{list.files}\NormalTok{(}\StringTok{"data/2_pi_curves/"}\NormalTok{, }\StringTok{"*.csv"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{gsub}\NormalTok{(}\StringTok{"_.*.csv"}\NormalTok{, }\StringTok{""}\NormalTok{, .) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{subset}\NormalTok{(}\OperatorTok{!}\KeywordTok{grepl}\NormalTok{(}\StringTok{"BK"}\NormalTok{, .))}
+
+\NormalTok{sym_counts <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(}\StringTok{"data/2_sym_counts/2_sym_counts_data.csv"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{pull}\NormalTok{(colony_id)}
+
+\CommentTok{#tac}
+
+\NormalTok{tac <-}\StringTok{ }\KeywordTok{list.files}\NormalTok{(}\StringTok{"data/2_antioxidant_capacity/"}\NormalTok{, }\StringTok{"platemap"}\NormalTok{, }\DataTypeTok{full.names =} \OtherTok{TRUE}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{map_df}\NormalTok{(read_csv) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{drop_na}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}\OperatorTok{!}\NormalTok{colony_id }\OperatorTok{==}\StringTok{ "BK"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{pull}\NormalTok{(colony_id)}
+
+\CommentTok{#protein}
+
+\NormalTok{protein <-}\StringTok{ }\KeywordTok{list.files}\NormalTok{(}\StringTok{"data/2_protein/"}\NormalTok{, }\StringTok{"platemap"}\NormalTok{, }\DataTypeTok{full.names =} \OtherTok{TRUE}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{map_df}\NormalTok{(read_csv) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{drop_na}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}\OperatorTok{!}\NormalTok{colony_id }\OperatorTok{==}\StringTok{ "BK"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{pull}\NormalTok{(colony_id)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{\texorpdfstring{Filter out \texttt{colony\_id} of any
+corals we know were \emph{not
+collected}}{Filter out colony\_id of any corals we know were not collected}}\label{filter-out-colony_id-of-any-corals-we-know-were-not-collected}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{coral_metadata <-}\StringTok{ }\NormalTok{coral_metadata }\OperatorTok{%>%}
+\StringTok{  }\NormalTok{.[}\OperatorTok{!}\NormalTok{. }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"POC-215"}\NormalTok{, }\StringTok{"POC-232"}\NormalTok{, }\StringTok{"ACR-360"}\NormalTok{, }\StringTok{"ACR-370"}\NormalTok{, }\StringTok{"ACR-376"}\NormalTok{, }\StringTok{"ACR-178"}\NormalTok{, }\StringTok{"ACR-347"}\NormalTok{)]}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Are there mystery samples in any of the datasets that are
+not part of the metadata? (data entry
+error?)}\label{are-there-mystery-samples-in-any-of-the-datasets-that-are-not-part-of-the-metadata-data-entry-error}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mysteries <-}\StringTok{ }\KeywordTok{list}\NormalTok{(}\DataTypeTok{molec =}\NormalTok{ molec, }\DataTypeTok{homog_vols =}\NormalTok{ homog_vols, }
+                  \DataTypeTok{surface_area =}\NormalTok{ surface_area, }\DataTypeTok{chl =}\NormalTok{ chl, }
+                  \DataTypeTok{afdw =}\NormalTok{ afdw, }\DataTypeTok{picurve =}\NormalTok{ picurve, }\DataTypeTok{sym_counts =}\NormalTok{ sym_counts, }
+                  \DataTypeTok{tac =}\NormalTok{ tac, }\DataTypeTok{protein =}\NormalTok{ protein) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{map}\NormalTok{(}\OperatorTok{~}\StringTok{ }\NormalTok{.[}\OperatorTok{!}\NormalTok{. }\OperatorTok{%in%}\StringTok{ }\NormalTok{coral_metadata])}
+
+\NormalTok{mysteries}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $molec
+## [1] NA        "POC-215" "POR-206" "ACR-347" "ACR-360" "ACR-178" "POR-387"
+## 
+## $homog_vols
+## [1] "ACR-360" "POR-206" "POC-215" "ACR-347" "ACR-178"
+## 
+## $surface_area
+## [1] "ACR-178" "ACR-347" "ACR-360" "POC-215" "POC-69"  "POR-206"
+## 
+## $chl
+##  [1] "Blank"   "Blank"   "ACR-360" "ACR-360" "POC-215" "POC-215" "POR-206"
+##  [8] "POR-206" "ACR-347" "ACR-347" "Blank"   "Blank"   "ACR-391" "ACR-391"
+## [15] "Blank"   "Blank"   "ACR-178" "ACR-178"
+## 
+## $afdw
+##  [1] "ACR-178" "ACR-360" "ACR-347" "POC-341" "POR-206" "ACR-347" "POC-215"
+##  [8] "POC-215" "ACR-360" "POC-385" "POR-50"  "ACR-178" "POR-206"
+## 
+## $picurve
+## [1] "2"       "2"       "ACR-178" "ACR-347" "ACR-360" "Blank-9" "POC-215"
+## [8] "POR-206"
+## 
+## $sym_counts
+## character(0)
+## 
+## $tac
+##  [1] "Standard1"  "Standard1"  "Standard2"  "Standard2"  "Standard3" 
+##  [6] "Standard3"  "Standard4"  "Standard4"  "Standard5"  "Standard5" 
+## [11] "Standard6"  "Standard6"  "Standard7"  "Standard7"  "Standard8" 
+## [16] "Standard8"  "Standard9"  "Standard9"  "Standard10" "Standard10"
+## [21] "ACR-360"    "ACR-360"    "POC-215"    "POC-215"    "POR-206"   
+## [26] "POR-206"    "ACR-347"    "ACR-347"    "ACR-178"    "ACR-178"   
+## 
+## $protein
+##  [1] "StandardA" "StandardA" "StandardB" "StandardB" "StandardC"
+##  [6] "StandardC" "StandardD" "StandardD" "StandardE" "StandardE"
+## [11] "StandardF" "StandardF" "StandardG" "StandardG" "StandardH"
+## [16] "StandardH" "StandardI" "StandardI" "Blank1"    "Blank1"   
+## [21] "ACR-360"   "ACR-360"   "POC-215"   "POC-215"   "POR-206"  
+## [26] "POR-206"   "POR-265"   "POR-265"   "POR-258"   "POR-258"  
+## [31] "Blank-1"   "Blank-2"   "ACR-347"   "ACR-347"   "Blank-1"  
+## [36] "Blank-2"   "ACR-178"   "ACR-178"
+\end{verbatim}
+
+\subsection{Which samples in metadata are missing from each
+dataset?}\label{which-samples-in-metadata-are-missing-from-each-dataset}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{completeness <-}\StringTok{ }\KeywordTok{list}\NormalTok{(}\DataTypeTok{molec =}\NormalTok{ molec, }\DataTypeTok{homog_vols =}\NormalTok{ homog_vols, }
+                     \DataTypeTok{surface_area =}\NormalTok{ surface_area, }\DataTypeTok{chl =}\NormalTok{ chl, }
+                     \DataTypeTok{afdw =}\NormalTok{ afdw, }\DataTypeTok{picurve =}\NormalTok{ picurve, }\DataTypeTok{sym_counts =}\NormalTok{ sym_counts, }
+                     \DataTypeTok{tac =}\NormalTok{ tac, }\DataTypeTok{protein =}\NormalTok{ protein) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{map}\NormalTok{(}\OperatorTok{~}\StringTok{ }\NormalTok{coral_metadata }\OperatorTok{%in%}\StringTok{ }\NormalTok{.) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{as_tibble}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{colony_id =}\NormalTok{ coral_metadata) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{select}\NormalTok{(colony_id, }\KeywordTok{everything}\NormalTok{())}
+
+\NormalTok{completeness }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{map}\NormalTok{(}\OperatorTok{~}\StringTok{ }\NormalTok{coral_metadata[. }\OperatorTok{==}\StringTok{ }\OtherTok{FALSE}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $molec
+##  [1] "ACR-165" "ACR-176" "ACR-187" "ACR-185" "ACR-193" "ACR-180" "ACR-175"
+##  [8] "ACR-267" "ACR-231" "ACR-243" "ACR-234" "ACR-228" "ACR-256" "ACR-246"
+## [15] "ACR-247" "ACR-390" "ACR-389" "ACR-379" "ACR-374" "ACR-345" "ACR-363"
+## [22] "POR-251" "POR-362" "POR-385"
+## 
+## $homog_vols
+##  [1] "ACR-165" "ACR-176" "ACR-187" "ACR-185" "ACR-193" "ACR-180" "ACR-175"
+##  [8] "ACR-267" "ACR-231" "ACR-243" "ACR-234" "ACR-228" "ACR-256" "ACR-246"
+## [15] "ACR-247" "ACR-390" "ACR-389" "ACR-379" "ACR-374" "ACR-345" "ACR-363"
+## [22] "POC-358" "POR-251" "POR-362"
+## 
+## $surface_area
+##  [1] "ACR-165" "ACR-176" "ACR-187" "ACR-185" "ACR-193" "ACR-180" "ACR-175"
+##  [8] "ACR-267" "ACR-231" "ACR-243" "ACR-234" "ACR-228" "ACR-256" "ACR-246"
+## [15] "ACR-247" "ACR-390" "ACR-389" "ACR-379" "ACR-374" "ACR-345" "ACR-363"
+## [22] "POC-56"  "POC-358" "POR-251" "POR-362"
+## 
+## $chl
+##  [1] "ACR-165" "ACR-176" "ACR-187" "ACR-185" "ACR-193" "ACR-180" "ACR-175"
+##  [8] "ACR-267" "ACR-231" "ACR-243" "ACR-234" "ACR-228" "ACR-256" "ACR-246"
+## [15] "ACR-247" "ACR-390" "ACR-389" "ACR-379" "ACR-374" "ACR-345" "ACR-363"
+## [22] "POC-358" "POC-391" "POR-251" "POR-362"
+## 
+## $afdw
+##  [1] "ACR-165" "ACR-176" "ACR-187" "ACR-185" "ACR-193" "ACR-180" "ACR-175"
+##  [8] "ACR-267" "ACR-231" "ACR-243" "ACR-234" "ACR-228" "ACR-256" "ACR-246"
+## [15] "ACR-247" "ACR-390" "ACR-389" "ACR-379" "ACR-374" "ACR-345" "ACR-363"
+## [22] "POC-358" "POR-251" "POR-362"
+## 
+## $picurve
+##  [1] "ACR-165" "ACR-176" "ACR-187" "ACR-185" "ACR-193" "ACR-180" "ACR-175"
+##  [8] "ACR-51"  "ACR-140" "ACR-267" "ACR-231" "ACR-243" "ACR-234" "ACR-228"
+## [15] "ACR-256" "ACR-246" "ACR-247" "ACR-390" "ACR-389" "ACR-379" "ACR-374"
+## [22] "ACR-345" "ACR-363" "POC-41"  "POC-43"  "POC-47"  "POC-52"  "POC-53" 
+## [29] "POC-57"  "POC-358" "POR-72"  "POR-74"  "POR-75"  "POR-76"  "POR-82" 
+## [36] "POR-83"  "POR-251" "POR-362"
+## 
+## $sym_counts
+##   [1] "ACR-165" "ACR-176" "ACR-187" "ACR-185" "ACR-193" "ACR-180" "ACR-139"
+##   [8] "ACR-175" "ACR-51"  "ACR-145" "ACR-186" "ACR-173" "ACR-140" "ACR-190"
+##  [15] "ACR-150" "ACR-267" "ACR-231" "ACR-243" "ACR-234" "ACR-228" "ACR-256"
+##  [22] "ACR-246" "ACR-265" "ACR-229" "ACR-247" "ACR-237" "ACR-225" "ACR-244"
+##  [29] "ACR-258" "ACR-390" "ACR-389" "ACR-379" "ACR-374" "ACR-345" "ACR-364"
+##  [36] "ACR-396" "ACR-368" "ACR-350" "ACR-351" "ACR-363" "ACR-343" "ACR-393"
+##  [43] "POC-40"  "POC-41"  "POC-42"  "POC-43"  "POC-44"  "POC-45"  "POC-47" 
+##  [50] "POC-48"  "POC-50"  "POC-52"  "POC-53"  "POC-55"  "POC-56"  "POC-57" 
+##  [57] "POC-68"  "POC-200" "POC-201" "POC-205" "POC-207" "POC-217" "POC-219"
+##  [64] "POC-222" "POC-238" "POC-239" "POC-248" "POC-254" "POC-255" "POC-257"
+##  [71] "POC-259" "POC-346" "POC-358" "POC-359" "POC-366" "POC-369" "POC-371"
+##  [78] "POC-372" "POC-373" "POC-375" "POC-377" "POC-378" "POC-386" "POC-391"
+##  [85] "POC-394" "POC-395" "POR-69"  "POR-70"  "POR-71"  "POR-72"  "POR-73" 
+##  [92] "POR-74"  "POR-75"  "POR-76"  "POR-77"  "POR-78"  "POR-79"  "POR-80" 
+##  [99] "POR-81"  "POR-82"  "POR-83"  "POR-209" "POR-214" "POR-216" "POR-221"
+## [106] "POR-224" "POR-235" "POR-236" "POR-240" "POR-242" "POR-245" "POR-251"
+## [113] "POR-253" "POR-260" "POR-262" "POR-266" "POR-338" "POR-340" "POR-341"
+## [120] "POR-349" "POR-353" "POR-354" "POR-355" "POR-357" "POR-362" "POR-365"
+## [127] "POR-367" "POR-381" "POR-383" "POR-384" "POR-385"
+## 
+## $tac
+##  [1] "ACR-165" "ACR-176" "ACR-187" "ACR-185" "ACR-193" "ACR-180" "ACR-175"
+##  [8] "ACR-267" "ACR-231" "ACR-243" "ACR-234" "ACR-228" "ACR-256" "ACR-246"
+## [15] "ACR-247" "ACR-390" "ACR-389" "ACR-379" "ACR-374" "ACR-345" "ACR-363"
+## [22] "POC-358" "POR-251" "POR-362"
+## 
+## $protein
+##  [1] "ACR-165" "ACR-176" "ACR-187" "ACR-185" "ACR-193" "ACR-180" "ACR-175"
+##  [8] "ACR-267" "ACR-231" "ACR-243" "ACR-234" "ACR-228" "ACR-256" "ACR-246"
+## [15] "ACR-265" "ACR-247" "ACR-258" "ACR-390" "ACR-389" "ACR-379" "ACR-374"
+## [22] "ACR-345" "ACR-363" "POC-358" "POR-251" "POR-355" "POR-362"
+\end{verbatim}
+
+\section{Full completeness table}\label{full-completeness-table}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{completeness }\OperatorTok{%>%}\StringTok{ }\KeywordTok{print}\NormalTok{(}\DataTypeTok{n =} \KeywordTok{nrow}\NormalTok{(.))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 131 x 10
+##     colony_id molec homog_vols surface_area chl   afdw  picurve sym_counts
+##     <chr>     <lgl> <lgl>      <lgl>        <lgl> <lgl> <lgl>   <lgl>     
+##   1 ACR-165   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##   2 ACR-176   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##   3 ACR-187   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##   4 ACR-185   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##   5 ACR-193   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##   6 ACR-180   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##   7 ACR-139   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##   8 ACR-175   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##   9 ACR-51    TRUE  TRUE       TRUE         TRUE  TRUE  FALSE   FALSE     
+##  10 ACR-145   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  11 ACR-186   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  12 ACR-173   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  13 ACR-140   TRUE  TRUE       TRUE         TRUE  TRUE  FALSE   FALSE     
+##  14 ACR-190   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  15 ACR-150   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  16 ACR-267   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##  17 ACR-231   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##  18 ACR-243   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##  19 ACR-234   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##  20 ACR-228   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##  21 ACR-256   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##  22 ACR-246   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##  23 ACR-265   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  24 ACR-229   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  25 ACR-247   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##  26 ACR-237   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  27 ACR-225   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  28 ACR-244   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  29 ACR-258   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  30 ACR-390   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##  31 ACR-389   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##  32 ACR-379   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##  33 ACR-374   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##  34 ACR-345   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##  35 ACR-364   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  36 ACR-396   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  37 ACR-368   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  38 ACR-350   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  39 ACR-351   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  40 ACR-363   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##  41 ACR-343   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  42 ACR-393   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  43 POC-40    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  44 POC-41    TRUE  TRUE       TRUE         TRUE  TRUE  FALSE   FALSE     
+##  45 POC-42    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  46 POC-43    TRUE  TRUE       TRUE         TRUE  TRUE  FALSE   FALSE     
+##  47 POC-44    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  48 POC-45    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  49 POC-47    TRUE  TRUE       TRUE         TRUE  TRUE  FALSE   FALSE     
+##  50 POC-48    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  51 POC-50    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  52 POC-52    TRUE  TRUE       TRUE         TRUE  TRUE  FALSE   FALSE     
+##  53 POC-53    TRUE  TRUE       TRUE         TRUE  TRUE  FALSE   FALSE     
+##  54 POC-55    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  55 POC-56    TRUE  TRUE       FALSE        TRUE  TRUE  TRUE    FALSE     
+##  56 POC-57    TRUE  TRUE       TRUE         TRUE  TRUE  FALSE   FALSE     
+##  57 POC-68    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  58 POC-200   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  59 POC-201   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  60 POC-205   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  61 POC-207   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  62 POC-217   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  63 POC-219   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  64 POC-222   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  65 POC-238   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  66 POC-239   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  67 POC-248   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  68 POC-254   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  69 POC-255   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  70 POC-257   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  71 POC-259   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  72 POC-346   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  73 POC-358   TRUE  FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+##  74 POC-359   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  75 POC-366   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  76 POC-369   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  77 POC-371   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  78 POC-372   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  79 POC-373   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  80 POC-375   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  81 POC-377   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  82 POC-378   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  83 POC-386   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  84 POC-391   TRUE  TRUE       TRUE         FALSE TRUE  TRUE    FALSE     
+##  85 POC-394   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  86 POC-395   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  87 POR-69    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  88 POR-70    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  89 POR-71    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  90 POR-72    TRUE  TRUE       TRUE         TRUE  TRUE  FALSE   FALSE     
+##  91 POR-73    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  92 POR-74    TRUE  TRUE       TRUE         TRUE  TRUE  FALSE   FALSE     
+##  93 POR-75    TRUE  TRUE       TRUE         TRUE  TRUE  FALSE   FALSE     
+##  94 POR-76    TRUE  TRUE       TRUE         TRUE  TRUE  FALSE   FALSE     
+##  95 POR-77    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  96 POR-78    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  97 POR-79    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  98 POR-80    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+##  99 POR-81    TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 100 POR-82    TRUE  TRUE       TRUE         TRUE  TRUE  FALSE   FALSE     
+## 101 POR-83    TRUE  TRUE       TRUE         TRUE  TRUE  FALSE   FALSE     
+## 102 POR-209   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 103 POR-214   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 104 POR-216   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 105 POR-221   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 106 POR-224   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 107 POR-235   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 108 POR-236   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 109 POR-240   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 110 POR-242   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 111 POR-245   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 112 POR-251   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+## 113 POR-253   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 114 POR-260   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 115 POR-262   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 116 POR-266   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 117 POR-338   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 118 POR-340   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 119 POR-341   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 120 POR-349   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 121 POR-353   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 122 POR-354   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 123 POR-355   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 124 POR-357   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 125 POR-362   FALSE FALSE      FALSE        FALSE FALSE FALSE   FALSE     
+## 126 POR-365   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 127 POR-367   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 128 POR-381   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 129 POR-383   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 130 POR-384   TRUE  TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## 131 POR-385   FALSE TRUE       TRUE         TRUE  TRUE  TRUE    FALSE     
+## # ... with 2 more variables: tac <lgl>, protein <lgl>
+\end{verbatim}
+
+
+\end{document}
