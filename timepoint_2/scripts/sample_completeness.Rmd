@@ -69,7 +69,7 @@ protein <- list.files("data/2_protein/", "platemap", full.names = TRUE) %>%
 ### Filter out `colony_id` of any corals we know were *not collected*
 ```{r}
 coral_metadata <- coral_metadata %>%
-  .[!. %in% c("POC-215", "POC-232", "ACR-360", "ACR-370", "ACR-376", "ACR-178", "ACR-347")]
+  .[!. %in% c("ACR-246", "ACR-175", "ACR-165", "ACR-176", "ACR-180", "ACR-185", "ACR-187", "ACR-193", "ACR-228", "ACR-231", "ACR-234", "ACR-243", "ACR-247", "ACR-256", "ACR-267", "POC-232", "ACR-345", "ACR-363", "ACR-370", "ACR-374", "ACR-376", "ACR-379", "ACR-389", "ACR-390", "POR-362")]
 ```
 
 ## Are there mystery samples in any of the datasets that are not part of the metadata? (data entry error?)
@@ -102,6 +102,7 @@ completeness %>%
 # Full completeness table
 ```{r}
 completeness %>% print(n = nrow(.))
+write.table(completeness, file="~/MyProjects/urol-e5/timeseries/timepoint_2/output/completeness.csv", sep=",")
 ```
 
 
