@@ -1,0 +1,120 @@
+---
+title: "Photographic_Bleaching"
+author: "EL Strand"
+date: "4/30/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Clear workspace and load required packages. 
+```{r}
+rm(list=ls()) #clears workspace 
+
+if ("vegan" %in% rownames(installed.packages()) == 'FALSE') install.packages('vegan') 
+if ("ggpubr" %in% rownames(installed.packages()) == 'FALSE') install.packages('ggpubr') 
+if ("gridExtra" %in% rownames(installed.packages()) == 'FALSE') install.packages('gridExtra') 
+if ("plyr" %in% rownames(installed.packages()) == 'FALSE') install.packages('plyr') 
+if ("lsmeans" %in% rownames(installed.packages()) == 'FALSE') install.packages('lsmeans') 
+if ("multcompView" %in% rownames(installed.packages()) == 'FALSE') install.packages('multcompView') 
+
+library("vegan")
+library("ggpubr")
+library("gridExtra")
+library("plyr") 
+library("lsmeans")
+library("multcompView")
+```
+
+Load the bleaching color score datasheet. 
+```{r}
+E5_bleaching <- read.csv("data/Moorea_ImageJ_E5.csv", header=T, sep=",", na.string="NA") #read in data file
+E5_bleaching <-na.omit(E5_bleaching) # takes out the rows with NA value
+E5_bleaching$Red.Standard <- as.numeric(E5_bleaching$Red.Standard) # changing Red Standard values to numeric instead of factor
+```
+
+Normalize to color standard
+= Coral color value / Standard color value
+```{r}
+E5_bleaching$Red.Norm.Coral <- E5_bleaching$Red.Coral/E5_bleaching$Red.Standard 
+E5_bleaching$Green.Norm.Coral <- E5_bleaching$Green.Coral/E5_bleaching$Green.Standard
+E5_bleaching$Blue.Norm.Coral <- E5_bleaching$Blue.Coral/E5_bleaching$Blue.Standard 
+```
+
+Creating a matrix of the normalized coral color score values
+```{r}
+blch.scor <- as.matrix(cbind(E5_bleaching$Red.Norm.Coral,E5_bleaching$Green.Norm.Coral,E5_bleaching$Blue.Norm.Coral))
+rownames(blch.scor) <- E5_bleaching$Coral.ID # name columns in dataframe
+```
+
+Calculating a distance matrix based on color scores and running a principal components analysis (PCA)
+```{r}
+dist <- vegdist(blch.scor, method="euclidean") #calculate distance matrix of color scores
+PCA.color <- princomp(dist) # PCA
+summary(PCA.color) # view variance explained by PCs
+```
+
+Building a dataframe from PCA Eigenvalues. 
+```{r}
+Blch <- as.data.frame(PCA.color$scores[,1]) #extract PC1
+Blch$Coral.ID <- rownames(blch.scor)
+Blch  <- cbind(Blch, E5_bleaching$Species, E5_bleaching$Timepoint, E5_bleaching$Site) #make a dataframe of PC1 and experiment factors
+colnames(Blch) <- c("Bleaching.Score", "Coral.ID", "Species", "Timepoint", "Site")
+Blch$Group <- paste(Blch$Species, Blch$Timepoint, Blch$Site)
+Blch$SpGroup <- paste(Blch$Timepoint, Blch$Site)
+```
+
+Exporting datatable of bleaching score values
+```{r}
+write.table(Blch, file = "data/E5_Bleaching_Score.csv", append = FALSE, quote = TRUE, sep = ",",
+            eol = "\n", na = "NA", dec = ".", row.names = TRUE,
+            col.names = TRUE, qmethod = c("escape", "double"),
+            fileEncoding = "")
+```
+
+Visualzing data by species and Group (Species name, Timepoint, Site)
+```{r}
+x<- Blch #assign values to test data frame to look for outliers
+par(mar=c(10,4,2,2)) #bottom, left, top and right margins respectively
+boxplot(Bleaching.Score ~ Group, data = x, lwd = 1, ylab = 'PC1Color', las=2, cex=0.8) #plot boxplot of PC1 color score by Group: Species, Timepoint, Site 
+```
+
+Reading in the bleaching score dataframe created above.
+```{r}
+Bleaching.Score <- read.csv("data/E5_Bleaching_Score.csv", header=T, sep=",", na.string="NA") #read in data file
+```
+
+Calculating means of the groups.  
+```{r}
+All.Means <- ddply(Blch, c('Species','Timepoint', 'Site'), summarize,
+                    mean= mean(Bleaching.Score, na.rm=T), #mean pnet
+                    N = sum(!is.na(Bleaching.Score)), # sample size
+                    se = sd(Bleaching.Score, na.rm=T)/sqrt(N)) #SE
+All.Means
+All.Means$se[is.na(All.Means$se)] <- 0
+All.Means$Group <- paste(All.Means$Species, All.Means$Timepoint, All.Means$Site)
+All.Means$SpGroup <- paste(All.Means$Timepoint, All.Means$Site)
+```
+
+Plotting the bleaching score. 
+```{r}
+ACR <- subset(All.Means, Species=="Acropora")
+POC <- subset(All.Means, Species=="Pocillopora")
+POR <- subset(All.Means, Species=="Porites")
+
+ACR.blch <- ggplot(mean~Timepoint , type="b" , bty="l" , xlab="Timepoint" , ylab="Bleaching Score" , col=rgb(0.2,0.4,0.1,0.7) , lwd=3 , pch=17 , ylim=c(1,5)) 
+
+
+# + lines(~a , col=rgb(0.8,0.4,0.1,0.7) , lwd=3 , pch=19 , type="b" )
+
+```
+
+Statistics 
+```{r}
+mod1 <- aov(sqrt(Bleaching.Score+200) ~ Species*Timepoint*Site, data=Blch) #run an ANOVA by Genotype
+hist(residuals(mod1)) #look at normality of data
+boxplot(residuals(mod1)) #look at normality of data
+summary(mod1)
+```
