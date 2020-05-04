@@ -46,7 +46,7 @@ E5_bleaching$Blue.Norm.Coral <- E5_bleaching$Blue.Coral/E5_bleaching$Blue.Standa
 Creating a matrix of the normalized coral color score values
 ```{r}
 blch.scor <- as.matrix(cbind(E5_bleaching$Red.Norm.Coral,E5_bleaching$Green.Norm.Coral,E5_bleaching$Blue.Norm.Coral))
-rownames(blch.scor) <- E5_bleaching$Coral.ID # name columns in dataframe
+rownames(blch.scor) <- E5_bleaching$Coral.ID # name rows in dataframe
 ```
 
 Calculating a distance matrix based on color scores and running a principal components analysis (PCA)
@@ -89,7 +89,7 @@ Bleaching.Score <- read.csv("data/E5_Bleaching_Score.csv", header=T, sep=",", na
 Calculating means of the groups.  
 ```{r}
 All.Means <- ddply(Blch, c('Species','Timepoint', 'Site'), summarize,
-                    mean= mean(Bleaching.Score, na.rm=T), #mean pnet
+                    mean= mean(Bleaching.Score, na.rm=T), #mean 
                     N = sum(!is.na(Bleaching.Score)), # sample size
                     se = sd(Bleaching.Score, na.rm=T)/sqrt(N)) #SE
 All.Means
@@ -101,13 +101,16 @@ All.Means$SpGroup <- paste(All.Means$Timepoint, All.Means$Site)
 Plotting the bleaching score. 
 ```{r}
 ACR <- subset(All.Means, Species=="Acropora")
+ACR$Timepoint <- as.factor(ACR$Timepoint)
 POC <- subset(All.Means, Species=="Pocillopora")
 POR <- subset(All.Means, Species=="Porites")
 
 ACR.blch <- ggplot(mean~Timepoint , type="b" , bty="l" , xlab="Timepoint" , ylab="Bleaching Score" , col=rgb(0.2,0.4,0.1,0.7) , lwd=3 , pch=17 , ylim=c(1,5)) 
++ lines(~a , col=rgb(0.8,0.4,0.1,0.7) , lwd=3 , pch=19 , type="b" )
 
+ggplot(data=ACR, aes(x = Timepoint, y = mean, fill=Site)) + geom_boxplot() + theme_classic()
 
-# + lines(~a , col=rgb(0.8,0.4,0.1,0.7) , lwd=3 , pch=19 , type="b" )
+ggplot(ACR, aes(x=Timepoint, y=mean, fill=Site)) + geom_boxplot() + theme_classic()
 
 ```
 
