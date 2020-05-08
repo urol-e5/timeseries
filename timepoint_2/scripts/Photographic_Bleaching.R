@@ -126,7 +126,7 @@ CLD <- CLD[order(CLD$Timepoint, CLD$Treatment, CLD$Species),]
 CLD
 
 All.Means <- ddply(Blch, c('Timepoint','Species', 'Treatment'), summarize,
-                    mean= mean(Bleaching.Score, na.rm=T), #mean pnet
+                    mean= mean(Bleaching.Score, na.rm=T), #mean 
                     N = sum(!is.na(Bleaching.Score)), # sample size
                     se = sd(Bleaching.Score, na.rm=T)/sqrt(N)) #SE
 All.Means
@@ -181,7 +181,7 @@ Mcap.Blch <- subset(Blch, Species=="Montipora")
 Pact.Blch <- subset(Blch, Species=="Pocillopora")
 
 Mcap.Means <- ddply(Mcap.Blch, c('Timepoint','Species', 'Treatment'), summarize,
-                  mean= mean(Bleaching.Score, na.rm=T), #mean pnet
+                  mean= mean(Bleaching.Score, na.rm=T), #mean 
                   N = sum(!is.na(Bleaching.Score)), # sample size
                   se = sd(Bleaching.Score, na.rm=T)/sqrt(N)) #SE
 Mcap.Means
