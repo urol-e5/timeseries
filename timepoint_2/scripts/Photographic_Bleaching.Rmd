@@ -171,10 +171,60 @@ Summary Statistics
 if ("tidyverse" %in% rownames(installed.packages()) == 'FALSE') install.packages('tidyverse') 
 if ("ggpubr" %in% rownames(installed.packages()) == 'FALSE') install.packages('ggpubr') 
 if ("rstatix" %in% rownames(installed.packages()) == 'FALSE') install.packages('rstatix') 
+if ("xml2" %in% rownames(installed.packages()) == 'FALSE') install.packages('xml2') 
+install.packages("xml2")
 
 library(tidyverse)
 library(ggpubr)
 library(rstatix)
 
 Blch %>% group_by(Species, Site, Timepoint) %>% get_summary_stats(Bleaching.Score, type = "mean_sd")
+## this can also be seen with the All.Means table created in previous steps
 ```
+
+
+Checking assumptions 
+https://www.datanovia.com/en/lessons/repeated-measures-anova-in-r/
+
+```{r}
+## Outlier check
+Blch %>% group_by(Species, Site, Timepoint) %>% identify_outliers(Bleaching.Score)
+
+## Normality check (checking for a normal distribution) - Shapiro Wilk's Test of Normality
+## Normal distribution is indictated by p>0.05
+Blch %>% group_by(Species) %>% shapiro_test(Bleaching.Score)
+
+ACR_blch <- subset(Blch, Species=="Acropora")
+POR_blch <- subset(Blch, Species=="Porites")
+POC_blch <- subset(Blch, Species=="Pocillopora")
+
+## QQ plot 
+## Normality is assumed when all of the points fall approximately on the reference line (aka don't want tails on either end)
+ggqqplot(ACR_blch, "Bleaching.Score", ggtheme = theme_classic()) + facet_grid(Site ~ Timepoint, labeller = "label_both")
+ggqqplot(POR_blch, "Bleaching.Score", ggtheme = theme_classic()) + facet_grid(Site ~ Timepoint, labeller = "label_both")
+ggqqplot(POC_blch, "Bleaching.Score", ggtheme = theme_classic()) + facet_grid(Site ~ Timepoint, labeller = "label_both")
+
+## Repeated measures two way ANOVA 
+ACR.aov <- anova_test(data = ACR_blch, dv=Bleaching.Score, wid = Coral.ID, within = c(Site, Timepoint))
+get_anova_table(ACR.aov)
+
+## Tukey Post-Hoc test
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
