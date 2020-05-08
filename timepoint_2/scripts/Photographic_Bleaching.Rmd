@@ -104,52 +104,6 @@ All.Means$Site <- as.factor(All.Means$Site)
 
 Plotting the bleaching score. 
 ```{r}
-ACR <- subset(All.Means, Species=="Acropora")
-  ACR$Timepoint <- as.factor(ACR$Timepoint)
-  ACR$Site <- as.factor(ACR$Site)
-POC <- subset(All.Means, Species=="Pocillopora")
-  POC$Timepoint <- as.factor(POC$Timepoint)
-  POC$Site <- as.factor(POC$Site)
-POR <- subset(All.Means, Species=="Porites")
-  POR$Timepoint <- as.factor(POR$Timepoint)
-  POR$Site <- as.factor(POR$Site)
-  
-## Acropora
-ACR_bleaching <- ggplot(ACR, aes(x=Timepoint, y=mean, group=Site)) + 
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), colour="black", width=0.1, position = position_dodge(width = 0.1)) +
-  geom_point(aes(colour=Site), size = 2, position = position_dodge(width = 0.1)) +
-  theme_classic() + 
-  xlab("Timepoint") +
-  ylab(expression(paste("Bleaching Score"))) + 
-  ggtitle("Acropora") + theme(plot.title = element_text(hjust = 0.5)) + 
-  geom_line(aes(colour=Site, group=Site), position = position_dodge(width = 0.1), alpha=0.4) # colour, group both depend on cond2
-ACR_bleaching
-
-POC_bleaching <- ggplot(POC, aes(x=Timepoint, y=mean, group=Site)) + 
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), colour="black", width=0.1, position = position_dodge(width = 0.1)) +
-  geom_point(aes(colour=Site), size = 2, position = position_dodge(width = 0.1)) +
-  theme_classic() + 
-  xlab("Timepoint") +
-  ylab(expression(paste("Bleaching Score"))) + 
-  ggtitle("Pocillopora") + theme(plot.title = element_text(hjust = 0.5)) + 
-  geom_line(aes(colour=Site, group=Site), position = position_dodge(width = 0.1), alpha=0.4) # colour, group both depend on cond2
-POC_bleaching
-
-POR_bleaching <- ggplot(POR, aes(x=Timepoint, y=mean, group=Site)) + 
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), colour="black", width=0.1, position = position_dodge(width = 0.1)) +
-  geom_point(aes(colour=Site), size = 2, position = position_dodge(width = 0.1)) +
-  theme_classic() + 
-  xlab("Timepoint") +
-  ylab(expression(paste("Bleaching Score"))) + 
-  ggtitle("Porites") + theme(plot.title = element_text(hjust = 0.5)) + 
-  geom_line(aes(colour=Site, group=Site), position = position_dodge(width = 0.1), alpha=0.4) # colour, group both depend on cond2
-POR_bleaching
-
-Bch.Figs <- arrangeGrob(ACR_bleaching, POC_bleaching, POR_bleaching, ncol=3)
-ggsave(file="output/Bleaching.pdf", Bch.Figs, width = 10, height = 3, units = c("in"))
-
-
-## Realizing that all of the above code can be done with one function: facet_grid
 bleaching <- ggplot(All.Means, aes(x=Timepoint, y=mean, group=Site)) + 
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), colour="black", width=0.1, position = position_dodge(width = 0.1)) +
   geom_point(aes(colour=Site), size = 2, position = position_dodge(width = 0.1)) +
