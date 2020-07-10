@@ -24,6 +24,8 @@ Data <- read.csv("data/1_biomass/1_biomass_data.csv")
 Data <- na.omit(Data)
 # Change POC-42 pan 221 from Sym to Host -- was recorded twice as Sym, assuming pan with more mass is host
 Data[Data$Pan.ID == 221, "partner"] <- "Host"
+# Remove pan 73 -- from lab notebook, material was stuck in pipet tip, and result is outlier
+Data[Data$Pan.ID == 73, ] <- NA
   
 # set sample volumes to calculated mass per ml of sample added to pans
 #different volumes for sym (4ml) and host (5ml)
@@ -103,7 +105,8 @@ sh <- tibble(afdw) %>%
   drop_na() %>%
   select(colony_id, site, species, partner, AFDW.mg.cm2) %>%
   pivot_wider(names_from = partner, values_from = AFDW.mg.cm2) %>%
-  mutate(SH = Sym / Host)
+  mutate(SH = Sym / Host) %>%
+  filter(SH < 0.5)   # removes ones outlier sample POC-375 that had S/H = 0.7.... somethings wrong with that sample.
 
 sh %>%
   ggplot(aes(x = site, y = SH, color = species)) +
@@ -114,5 +117,21 @@ sh %>%
                geom = "errorbar", width = 0.25) +
   stat_summary(fun.y = mean, geom = "point", size = 3, pch = 1)           # Plot mean
 
+```
+
+
+```{r}
+#QC
+afdw %>%
+  filter(AFDW.mg.cm2 < 0) %>%
+  select(colony_id, Pan.ID, partner, initial.mass.g, dry.pan.mass.g, burnt.pan.mass.g, dry.biomass.g, burnt.biomass.g,
+         homog_vol_ml, surface.area.cm2, DW.mg.cm2, AFDW.mg.cm2)
+
+sh %>%
+  filter(SH > 0.4) %>%
+  left_join(afdw) %>%
+  select(colony_id, Pan.ID, partner, initial.mass.g, dry.pan.mass.g, burnt.pan.mass.g, dry.biomass.g, burnt.biomass.g,
+         homog_vol_ml, surface.area.cm2, DW.mg.cm2, AFDW.mg.cm2) %>%
+  arrange(partner)
 ```
 
