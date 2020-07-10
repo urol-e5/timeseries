@@ -1,4 +1,4 @@
-﻿colony_id,homog_vol_ml,note,date_airbrushed
+colony_id,homog_vol_ml,note,date_airbrushed
 test_1,34,,20200105
 ACR-244,32,,20200105
 ACR-256,25,,20200105
@@ -100,7 +100,6 @@ POC-48,28,,20200110
 POR-69,45,,20200110
 POC-47,38,,20200110
 ACR-193,24,,20200110
-ACR-140,20,,20200110
 POR-70,38,,20200110
 ACR-176,38,,20200110
 ACR-187,25,,20200111
