@@ -49,19 +49,26 @@ afdw <- left_join(Data, metadata) %>%
   mutate(dry.bioimass.g.ml = (dry.pan.mass.g.ml - burnt.pan.mass.g.ml),
          dry.bioimass.g = dry.pan.mass.g.ml * homog_vol_ml,
          burnt.bioimass.g = burnt.pan.mass.g.ml * homog_vol_ml,
+         DW.mg.cm2 = ((dry.bioimass.g)*1000) / surface.area.cm2,
          AFDW.mg.cm2 = ((dry.bioimass.g-burnt.bioimass.g)*1000) / surface.area.cm2)
 
-# Calculate Dry Biomass
-dw <- left_join(Data, metadata) %>%
-  mutate(dry.bioimass.g.ml = (dry.pan.mass.g.ml - burnt.pan.mass.g.ml),
-         dry.bioimass.g = dry.pan.mass.g.ml * homog_vol_ml,
-         DW.mg.cm2 = ((dry.bioimass.g)*1000) / surface.area.cm2)
+# Filter out samples that are duplicated in the dataset (one of them might have been different sample with a data entry error, but no way to know for sure)
+afdw <- afdw %>%
+  group_by(colony_id) %>%
+  summarise(n = n()) %>%
+  filter(n == 2) %>%
+  left_join(afdw) %>%
+  ungroup()
 
+# Change POC-42 pan 221 from Sym to Host -- was recorded twice as Sym, assuming pan with more mass is host
+afdw[afdw$Pan.ID == 221, "partner"] <- "Host"
 ```
+
 
 ```{r}
 #summarize Dry Biomass mean and sem by site, species, and partner and plot
-dw %>% na.omit(dw) %>%
+afdw %>% 
+  drop_na() %>%
   group_by(species, site, partner)%>%
   summarise(mean.value = mean(DW.mg.cm2), se = std.error(DW.mg.cm2)) %>%
   ggplot(aes(x = site, y = mean.value, group = species, color = partner))+
@@ -75,14 +82,34 @@ dw %>% na.omit(dw) %>%
 
 ```{r}
 #summarize AFDW mean and sem by site, species, and partner and plot
-afdw %>% na.omit(afdw) %>%
-  group_by(species, site, partner)%>%
-  summarise(mean.value = mean(AFDW.mg.cm2), se = std.error(AFDW.mg.cm2)) %>%
-  ggplot(aes(x = site, y = mean.value, group = species, color = partner))+
-  ylab("AFDW mg cm-2")+
-  geom_point(size = 3)+
-  geom_errorbar(aes(x = site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
-  facet_grid(~species, scales = "free_y")
-
+afdw %>%
+  drop_na() %>%
+  ggplot(aes(x = site, y = AFDW.mg.cm2, color = partner, group = partner)) +
+  facet_wrap(~species, scales = "free") +
+  labs(x = "", y = "AFDW (mg/cm2)") +
+  geom_point(position = position_jitterdodge(dodge.width = 0.75, jitter.width = 0.1), alpha = 0.6) +            # Plot all points
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", width = 0.5, position = position_dodge(width = 0.75)) +
+  stat_summary(fun.y = mean, geom = "point", size = 3, pch = 1, position = position_dodge(width = 0.75))           # Plot mean
 
 ```
+
+```{r}
+# Symbiont to host biomass ratio for each sample
+sh <- tibble(afdw) %>%
+  drop_na() %>%
+  select(colony_id, site, species, partner, AFDW.mg.cm2) %>%
+  pivot_wider(names_from = partner, values_from = AFDW.mg.cm2) %>%
+  mutate(SH = Sym / Host)
+
+sh %>%
+  ggplot(aes(x = site, y = SH, color = species)) +
+  facet_wrap(~species) +
+  labs(x = "", y = "S/H biomass ratio") +
+  geom_point(position = position_jitter(width = 0.1), alpha = 0.6) +            # Plot all points
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", width = 0.25) +
+  stat_summary(fun.y = mean, geom = "point", size = 3, pch = 1)           # Plot mean
+
+```
+
