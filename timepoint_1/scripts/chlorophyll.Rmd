@@ -15,6 +15,14 @@ library(tidyverse)
 library(plotrix)
 ```
 
+```{r}
+chl_data <- read_csv("data/1_chlorophyll/1_20200106_Chl", skip = 24, n_max = 24) %>%
+    select(-1) %>%
+    magrittr::set_colnames(c("row", 1:12, "wavelength")) %>%
+    fill(row) %>%
+    gather("col", "absorbance", -wavelength, -row) %>%
+    unite("well", c(row, col), sep = "")
+```
 # Import data
 ```{r}
 # Define function to read in chl data

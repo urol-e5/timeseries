@@ -54,7 +54,7 @@ standards <- tribble(
 std_curve <- df %>%
   unnest(merged) %>%
   filter(grepl("Standard", colony_id)) %>%
-  select(plate, Well, colony_id, abs562 = `562:562`) %>%
+  select(plate, well, colony_id, abs562 = `562:562`) %>%
   rename(std = colony_id) %>%
   mutate(std = str_sub(std, 9, 9)) %>%
   group_by(std) %>%
@@ -102,9 +102,9 @@ std_curve_plot +
 # Normalize to surface area
 ```{r}
 # Surface area data
-sa <- read.csv("output/2_surface_area.csv")
+sa <- read.csv("output/1_surface_area.csv")
 # Tissue homogenate volume data
-homog_vols <- read_csv("data/2_homogenate_vols/1_homogenate_vols.csv") %>% select(1:2)
+homog_vols <- read_csv("data/2_homogenate_vols/2_homogenate_vols.csv") %>% select(1:2)
 
 # Coral sample metadata
 metadata <- read_csv("../metadata/coral_metadata.csv") %>% select(1:3)
