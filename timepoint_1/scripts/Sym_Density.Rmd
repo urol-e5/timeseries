@@ -66,6 +66,7 @@ sym_counts %>% filter(is.na(site))
 sym_counts %>%
   filter(!is.na(site)) %>%
   ggplot(aes(x = site, y = cells.cm2 / 10^6, color = species)) +
+  labs(x = "",y = "Cell Density (Cells/cm2 * 10^6)") +
   facet_wrap(~ species) +
 geom_jitter(width = 0.1) +                                            # Plot all points
   stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error

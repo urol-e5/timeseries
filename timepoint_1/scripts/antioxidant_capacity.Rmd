@@ -137,7 +137,7 @@ tac %>%
   filter(!is.na(species)) %>%
   ggplot(aes(x = site, y = uae.mmol.cm2, color = species)) +
   facet_wrap(~species) +
-  labs(x = "", y = "uae.mmol.cm2",
+  labs(x = "", y = "uae.mmol/cm2",
        title = "Total antixodidant capacity per unit surface area") +
   geom_jitter(width = 0.1) +                                            # Plot all points
   stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
@@ -148,9 +148,10 @@ tac %>%
   filter(!is.na(species)) %>%
   ggplot(aes(x = site, y = uae.mmol.ugprot, color = species)) +
   facet_wrap(~species) +
-  labs(x = "", y = "uae.mmol.ugprot",
+  labs(x = "", y = "uae.mmol/ugprot",
        title = "Total antixodidant capacity per unit protein") +
   geom_jitter(width = 0.1) +                                            # Plot all points
+  ylim(0,0.0000004) +
   stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
                geom = "errorbar", color = "black", width = 0.5) +
   stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean

@@ -28,6 +28,7 @@ df <- left_join(pars, md)
 # Plot data with mean ± SE for each species/site
 ```{r, fig.height = 8}
 # Facet grid with common y-scale for each variable
+pdf("output/PI_metrics.pdf")
 df %>%
   filter(!.variable %in% c("sigma", "b_theta_Intercept", NA)) %>%
   ggplot(aes(x = site, y = .value, color = species)) +
@@ -36,8 +37,11 @@ df %>%
   stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
                geom = "errorbar", color = "black", width = 0.5) +
   stat_summary(fun.y = mean, geom = "point", color = "black")   
+dev.off()
 
 # Facet wrap for free y-scale on each facet
+df <- df[-706,]
+pdf("output/PI_metrics.pdf")
 df %>%
   filter(!.variable %in% c("sigma", "b_theta_Intercept", NA)) %>%
   ggplot(aes(x = site, y = .value, color = species)) +
@@ -45,7 +49,8 @@ df %>%
   geom_jitter(width = 0.1) +
   stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
                geom = "errorbar", color = "black", width = 0.5) +
-  stat_summary(fun.y = mean, geom = "point", color = "black")    
+  stat_summary(fun.y = mean, geom = "point", color = "black")  
+dev.off()
 ```
 
 # Plot species average PI curve for each site using mean parameter values
