@@ -1,0 +1,278 @@
+---
+title: "Total Antioxidant Capacity (TAC) analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("broom")) install.packages("broom")
+
+# load packages
+library(tidyverse)
+library(broom)
+```
+
+# Import data
+```{r}
+# Function to read in TAC data
+read_tac <- function(file) {
+  tac_data <- read_csv(file, skip = 23, n_max = 24) %>%
+    select(-1) %>%
+    magrittr::set_colnames(c("row", 1:12, "wavelength")) %>%
+    gather("col", "absorbance", -wavelength, -row) %>%
+    unite("well", c(row, col), sep = "")
+}
+
+# List chlorophyll data files
+tac_path = "data/2_antioxidant_capacity/"                                                 # Path to TAC data directory
+all_tac_files <- list.files(path = tac_path, pattern = "*.csv")          # List all files in directory
+tac_platemaps <- list.files(path = tac_path, pattern = "platemap")       # List platemap files
+tac_data_files <- setdiff(all_tac_files, tac_platemaps)                  # List data files
+
+# Read in all files into tibble
+df <- tibble(file = tac_data_files) %>%
+  separate(file, into = c("trip", "date", "plate", "readtime"), remove = FALSE) %>%
+  unite(plate, trip, date, plate) %>%
+  mutate(platemap = map(plate, ~read_csv(paste0(tac_path, ., "_TAC_platemap.csv"))),
+         tac_data = map( file, ~read_tac(paste0(tac_path, .))))
+
+# Merge platemap and data for each plate
+df <- df %>%
+  mutate(merged = map2(platemap, tac_data, ~ right_join(.x, .y)))
+```
+
+# Plot standard curve
+```{r}
+# Create standards following kit instructions
+standards <- tribble(
+  ~std, ~conc_mM,
+  1,           1,
+  2,         0.5,
+  3,        0.25,
+  4,       0.125,
+  5,      0.0625,
+  6,     0.03125,
+  7,     0.01560,
+  8,     0.00780,
+  9,     0.00390,
+ 10,           0
+)
+
+std_curve <- df %>%
+  unnest(merged) %>%
+  filter(grepl("Standard", colony_id)) %>%
+  select(plate, well, colony_id, wavelength, absorbance, readtime) %>%
+  rename(std = colony_id) %>%
+  mutate(std = as.numeric(str_sub(std, 9, 10))) %>%
+  spread(readtime, absorbance) %>%
+  mutate(net = final - initial) %>%
+  group_by(std) %>%
+  summarise(net = mean(net)) %>%
+  mutate(net.adj = net - net[std == 10]) %>%
+  left_join(standards)
+
+# Fit nonlinear model
+mod <- nls(formula = conc_mM ~ z + a * exp(b * net.adj), start = list(z = 0, a = 1, b = 1), data = std_curve)
+# Get fitted values
+fitted <- mod %>% 
+  broom::augment(newdata = tibble(net.adj = seq(0, max(std_curve$net.adj), 0.005)))
+
+std_curve_plot <- std_curve %>%
+  ggplot(aes(x = net.adj, y = conc_mM)) +
+  geom_point(color = "red", size = 3)
+
+std_curve_plot + geom_line(data = fitted, aes(x = net.adj, y = .fitted)) +
+  labs(title = "Standard curve")
+```
+
+# Calculate total antioxidant capacity
+```{r}
+tac <- df %>%
+  unnest(merged) %>%
+  filter(!grepl("Standard", colony_id)) %>%
+  select(plate, well, colony_id, wavelength, absorbance, readtime) %>%
+  spread(readtime, absorbance) %>%
+  mutate(net = final - initial,
+         net.adj = net - std_curve$net[std_curve$std == 10],
+         uae.mmol.L = map_dbl(net.adj, ~ predict(mod, newdata = data.frame(net.adj = .))))
+
+std_curve_plot +
+  geom_point(data = tac, aes(x = net.adj, y = uae.mmol.L), pch = "X", cex = 3, alpha = 0.3) +
+    labs(title = "All samples projected on standard curve")
+```
+
+# Normalize to surface area and protein
+```{r}
+# Surface area data
+sa <- read.csv("output/2_surface_area.csv")
+
+# Tissue homogenate volume data
+homog_vols <- read_csv("data/2_homogenate_vols/1_homogenate_vols.csv") %>% select(1:2)
+
+# Protein data
+prot <- read_csv("output/2_protein.csv")
+
+# Coral sample metadata
+metadata <- read_csv("../metadata/coral_metadata.csv") %>% select(1:3)
+
+# Join homogenate volumes and surface area with sample metadata
+metadata <- full_join(metadata, homog_vols) %>%
+  full_join(sa) %>%
+  full_join(prot)
+
+# Join TAC data with metadata
+tac <- left_join(tac, metadata) %>%
+  mutate(uae.mmol = uae.mmol.L * (homog_vol_ml / 1000),
+         uae.mmol.cm2 = uae.mmol / surface.area.cm2,
+         uae.mmol.ugprot = uae.mmol.cm2 / prot_ug.cm2)
+```
+
+# Plot results by species and site
+```{r}
+# Plot all data points with mean ± se
+tac %>%
+  filter(!is.na(species)) %>%
+  ggplot(aes(x = site, y = uae.mmol.cm2, color = species)) +
+  facet_wrap(~species) +
+  labs(x = "", y = "uae.mmol.cm2",
+       title = "Total antixodidant capacity per unit surface area") +
+  geom_jitter(width = 0.1) +                                            # Plot all points
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", color = "black", width = 0.5) +
+  stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
+
+tac %>%
+  filter(!is.na(species)) %>%
+  ggplot(aes(x = site, y = uae.mmol.ugprot, color = species)) +
+  facet_wrap(~species) +
+  labs(x = "", y = "uae.mmol.ugprot",
+       title = "Total antixodidant capacity per unit protein") +
+  geom_jitter(width = 0.1) +                                            # Plot all points
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", color = "black", width = 0.5) +
+  stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
+```
+
+# Write data to output file
+```{r}
+tac %>%
+  filter(!is.na(species)) %>%
+  select(colony_id, uae.mmol, uae.mmol.cm2, uae.mmol.ugprot) %>%
+  write_csv(., path = "output/2_antioxidant_capacity.csv")
+```
+
+################### Below is the code to analyze the timepoint 2 csv formats. Timepoint 1 has 
+
+Reading in datafiles. 
+```{r}
+platemap1 <- read.csv("data/2_antioxidant_capacity/2_20200311_Plate1_TAC_platemap.csv") 
+platemap2 <- read.csv("data/2_antioxidant_capacity/2_20200311_Plate2_TAC_platemap.csv") 
+platemap3 <- read.csv("data/2_antioxidant_capacity/2_20200311_Plate3_TAC_platemap.csv") 
+
+platemap1$colony_id <- as.character(platemap1$colony_id)
+platemap2$colony_id <- as.character(platemap2$colony_id)
+platemap3$colony_id <- as.character(platemap3$colony_id)
+
+plate1_final <- read.csv("data/2_antioxidant_capacity/20200311_Plate1_TAC_final_2.csv", header=T) %>% dplyr::rename(Abs_final = X490.490)
+plate2_final <- read.csv("data/2_antioxidant_capacity/20200311_Plate2_TAC_final_2.csv", header=T) %>% dplyr::rename(Abs_final = X490.490)
+plate3_final <- read.csv("data/2_antioxidant_capacity/20200311_Plate3_TAC_final_2.csv", header=T) %>% dplyr::rename(Abs_final = X490.490)
+
+plate1_initial <- read.csv("data/2_antioxidant_capacity/20200311_Plate1_TAC_initial_2.csv", header=T) %>% dplyr::rename(Abs_initial = X490.490)
+plate2_initial <- read.csv("data/2_antioxidant_capacity/20200311_Plate2_TAC_initial_2.csv", header=T) %>% dplyr::rename(Abs_initial = X490.490)
+plate3_initial <- read.csv("data/2_antioxidant_capacity/20200311_Plate3_TAC_initial_2.csv", header=T) %>% dplyr::rename(Abs_initial = X490.490)
+
+plate1 <- full_join(platemap1, plate1_initial, by="Well") %>%
+  full_join(plate1_final) %>%
+  filter(!is.na(colony_id)) %>%
+  select(-Well)
+
+plate2 <- full_join(platemap2, plate2_initial, by="Well") %>%
+  full_join(plate2_final) %>%
+  filter(!is.na(colony_id)) %>%
+  select(-Well)
+
+plate3 <- full_join(platemap3, plate3_initial, by="Well") %>%
+  full_join(plate3_final) %>%
+  filter(!is.na(colony_id)) %>%
+  select(-Well)
+
+Raw_data <- bind_rows(plate1, plate2) %>%
+  bind_rows(plate3)
+
+# new dataframe (standards) with the standard values and renaming that column
+standards <- Raw_data %>% filter(grepl("Standard", colony_id)) %>% dplyr::rename(Standard = colony_id)
+```
+
+Plot standard curve. 
+```{r}
+standards <- standards %>%
+  mutate(Abs_net = Abs_final - Abs_initial) %>% 
+  dplyr::group_by(Standard) %>%
+  summarise(Abs_net = mean(Abs_net)) %>%
+  mutate(Abs_net.adj = Abs_net - Abs_net[Standard == "Standard10"])
+
+st.name <- c("Standard1", "Standard2", "Standard3", "Standard4", "Standard5", "Standard6", "Standard7", "Standard8", "Standard9", "Standard10")
+concentration <- c("1", "0.5", "0.25", "0.125", "0.0625", "0.03125", "0.01560", "0.00780", "0.00390", "0")
+standards$conc_mM <- concentration[match(standards$Standard, st.name)]
+  standards$conc_mM <- as.numeric(standards$conc_mM)
+
+mod_lin <- lm(conc_mM ~ Abs_net.adj, data = standards)
+summary(mod_lin)
+
+std_curve_plot <- standards %>%
+  ggplot(aes(x = conc_mM, y = Abs_net.adj)) +
+  geom_point(color = "blue", size = 1.5) + 
+  theme_bw() + 
+  labs(title = "TAC Standard curve") + 
+  geom_smooth(method = "lm")
+std_curve_plot
+```
+
+Calculate Total Antioxidant Capacity based on the standard curve model from above.
+“mM uric acid equivalents” (UAE) is the first calculation based on the fitted model. 
+“μM Copper Reducing Equivalents” (CRE) is the second calculation which is the reported value and equivalent to Total Antioxidant Capacity or Power. This calculation is done by multiplying the uric acid equivalence (UAE) concentration by 2189 μM Cu++/ mM uric acid.
+```{r}
+TAC <- Raw_data %>% filter(!grepl("Standard", colony_id)) %>%
+  mutate(Abs_net = Abs_final - Abs_initial) %>%
+  dplyr::group_by(colony_id) %>%
+  summarise(Abs_net = mean(Abs_net)) %>%
+  mutate(Abs_net.adj = Abs_net - standards$Abs_net[standards$Standard == "Standard10"],
+         uae.mmol.L = map_dbl(Abs_net.adj, ~ predict(mod_lin, newdata = data.frame(Abs_net.adj = .))),
+         CRE.mmol.L = uae.mmol.L*2189)
+
+std_curve_plot +
+  geom_point(data = TAC, aes(x = Abs_net.adj, y = uae.mmol.L), pch = "X", cex = 3, alpha = 0.3) +
+    labs(title = "All TAC samples projected on standard curve")
+```
+
+Normalize to surface area, soluble protein, and homogenate volume. 
+```{r}
+sa <- read.csv("output/1_surface_area.csv")
+homog_vols <- read_csv("data/2_homogenate_vols/2_homogenate_vols.csv") %>% select(1:2)
+metadata <- read_csv("../metadata/coral_metadata.csv") %>% select(1:3)
+prot <- read_csv("output/2_protein.csv")
+
+# Join homogenate volumes and surface area with sample metadata
+metadata <- full_join(metadata, homog_vols) %>%
+  full_join(sa) %>%
+  full_join(prot)
+
+TAC <- left_join(TAC, metadata) %>%
+  mutate(uae.mmol = uae.mmol.L * (homog_vol_ml / 1000),
+         uae.mmol.cm2 = uae.mmol / surface.area.cm2,
+         uae.mmol.ugprot = uae.mmol.cm2 / prot_ug.cm2) %>%
+  mutate(CRE.mmol = CRE.mmol.L * (homog_vol_ml / 1000),
+         CRE.mmol.cm2 = CRE.mmol / surface.area.cm2,
+         CRE.mmol.ugprot = CRE.mmol.cm2 / prot_ug.cm2) %>%
+  mutate(CRE.umol.mgprot = CRE.mmol.ugprot*1000*1000)
+```
+
+Write data to output file
+```{r}
+TAC %>%
+  select(colony_id, uae.mmol, uae.mmol.cm2, uae.mmol.ugprot, CRE.mmol, CRE.mmol.cm2, CRE.mmol.ugprot, CRE.umol.mgprot) %>%
+  write_csv(., path = "output/2_antioxidant_capacity.csv")
+```
