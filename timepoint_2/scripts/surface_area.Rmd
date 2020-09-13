@@ -22,7 +22,6 @@ wax.data <- read.csv("data/2_surface_area/2_surface_area_data.csv", header=TRUE)
 
 wax.data$delta.mass.g <- wax.data$weight2.g-wax.data$weight1.g
 stnds <- subset(wax.data, Sample=="Standard")
-stnds <- stnds[-1,] # the largest data point was an artifact outlier. It was removed, as it had bubbles of air escape the wooden sphere, leaving gaps in the wax
 
 #calculate the surface area of the spherical standards from the diameter
 stnds$rad <- stnds$Diameter/2
