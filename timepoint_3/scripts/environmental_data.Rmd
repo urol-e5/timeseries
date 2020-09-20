@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
 
 ```{r setup, include = FALSE}
 ## install packages if you dont already have them
@@ -26,7 +27,7 @@ library(lubridate)
 
 
 ```{r}
-Temp <- read.csv("data/2_environmental/2_20200305_Site1_Temp.csv", header=T, sep=",", na.strings="NA") #load  data
+pH <- read.csv("data/3_environmental/3_20200918_Site1_Temp", header=T, sep=",", na.strings="NA") #load  data
 colnames(pH) <- c("Date.Time", "Temp", "mV", "pH")
 pH$Date.Time <- parse_date_time(pH$Date.Time, "Y!-m!*-d! H!:M!:S!") 
 
