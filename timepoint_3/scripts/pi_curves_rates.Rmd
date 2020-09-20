@@ -29,17 +29,17 @@ library(furrr)
 
 ## Import data
 ```{r}
-path.p <- "data/2_pi_curves/" #the location of all your respirometry files 
+path.p <- "data/3_pi_curves/" #the location of all your respirometry files 
 
 # List data files
 file.names <- list.files(path = path.p, pattern = "csv$")  # list all csv file names in the folder
 file.names <- file.names[!grepl("metadata", file.names)]   # omit metadata from files to be read in as data
 
 # Load PI curve sample metadata (i.e., which corals were in which runs)
-sample.info <- read_csv(file = "data/2_pi_curves/2_pi_curves_sample_metadata.csv")
+sample.info <- read_csv(file = "data/3_pi_curves/3_pi_curves_sample_metadata.csv")
 
 # Load PI curve run metadata (i.e., light levels and interval times for each run)
-run.info <- read_csv(file = "data/2_pi_curves/2_pi_curves_run_metadata.csv")
+run.info <- read_csv(file = "data/3_pi_curves/3_pi_curves_run_metadata.csv")
 
 # Join all coral and run metadata
 metadata <- full_join(sample.info, run.info) %>%
