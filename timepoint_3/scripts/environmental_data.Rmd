@@ -209,9 +209,46 @@ mtext("PAR µmol photons m-2 s-1",side=2,col="black",line=4)
 dev.off()
 ```
 
-
+Conductivity
 ```{r}
-#Salinity
+#read in site data
+S1.Cond <- read.csv("data/3_environmental/3_20200918_SN20715882_Site1_Conductivity.csv", header = T, skip=1)
+S2.Cond <- read.csv("data/3_environmental/3_20200920_SN20715883_Site2_Conductivity.csv", header = T, skip=1)
+S3.Cond <- read.csv("data/3_environmental/3_20200909_SN20715881_Site3_Conductivity.csv", header = T, skip=1)
+
+S1.Cond <- S1.Cond[,2:4]
+colnames(S1.Cond) <- c("Date.Time", "Cond", "Temp")
+S1.Cond$Date.Time <- parse_date_time(S1.Cond$Date.Time, "m!/d!/y! H!:M!S! %p") 
+S2.Cond <- S2.Cond[,2:4]
+colnames(S2.Cond) <- c("Date.Time", "Cond", "Temp")
+S2.Cond$Date.Time <- parse_date_time(S2.Cond$Date.Time, "m!/d!/y! H!:M!S! %p") 
+S3.Cond <- S3.Cond[,2:4]
+colnames(S3.Cond) <- c("Date.Time", "Cond", "Temp")
+S3.Cond$Date.Time <- parse_date_time(S3.Cond$Date.Time, "m!/d!/y! H!:M!S! %p") 
+
+#plot data
+plot(S2.Cond$Cond, cex=0.2, ylab="Conductivity")
+points(S1.Cond$Cond, cex=0.2, col="red")
+points(S3.Cond$Cond, cex=0.2, col="blue")
+
+pdf("output/timepoint3_Cond.pdf")
+par(mfrow=c(3,1))
+par(mar = c(5,5,2,5))
+with(S1.Cond, plot(Date.Time, Cond, type="l", col="black", 
+             ylim=c(9000,42000), ylab =NA, main="Site 1 Manava"))
+axis(2, col="black",col.axis="black")
+mtext("Conductivity",side=2,col="black",line=4) 
+par(mar = c(5,5,2,5))
+with(S2.Cond, plot(Date.Time, Cond, type="l", col="black", 
+             ylim=c(9000,42000), ylab =NA, main="Site 2 Mahana"))
+axis(2, col="black",col.axis="black")
+mtext("Conductivity",side=2,col="black",line=4) 
+par(mar = c(5,5,2,5))
+with(S3.Cond, plot(Date.Time, Cond, type="l", col="black", 
+             ylim=c(9000,42000), ylab =NA, main="Site 3 Hilton"))
+axis(2, col="black",col.axis="black")
+mtext("Conductivity",side=2,col="black",line=4) 
+dev.off()
 
 ```
 
