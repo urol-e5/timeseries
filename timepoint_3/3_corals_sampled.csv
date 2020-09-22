@@ -1,35 +1,48 @@
 ﻿Date,site,colony_id,Notes
 20200911,site1,ACR_139,Sampled
+20200911,site1,ACR_143,Sampled
 20200911,site1,ACR_140,Sampled
 20200911,site1,ACR_145,Sampled
 20200911,site1,ACR_150,"Sampled, no tag - now ACR_54"
+20200911,site1,POR_73,Sampled
 20200911,site1,ACR_173,Sampled
 20200911,site1,ACR_175,Sampled
-20200911,site1,ACR_176,
+20200911,site1,ACR_186,Sampled
 20200911,site1,ACR_178,Sampled
-20200911,site1,ACR_180,
-20200911,site1,ACR_185,
-20200911,site1,ACR_186,
-20200911,site1,ACR_187,
 20200911,site1,ACR_190,Sampled
-20200911,site1,ACR_193,
+20200911,site1,POC_40,Sampled
+20200911,site1,POC_42,Sampled
+20200911,site1,POC_43,Sampled
+20200911,site1,POC_44,Sampled
+20200911,site1,POC_45,Sampled
+20200911,site1,POC_47,Sampled
+20200911,site1,POC_48,Sampled
+20200911,site1,POC_50,Sampled
+20200911,site1,POC_52,Sampled
+20200911,site1,POC_53,Sampled
+20200911,site1,POC_55,"Sampled, no tag - now POC_65"
+20200911,site1,POC_57,Sampled
+20200911,site1,POC_68,Sampled
+20200911,site1,POR_69,Sampled
+20200911,site1,POR_70,Sampled
+20200911,site1,POR_71,"Sampled, no tag - now POR_38"
+20200911,site1,POR_72,Sampled
+20200911,site1,POR_74,Sampled
+20200911,site1,POR_75,"Sampled, no tag - now POR_98"
+20200911,site1,POR_76,Sampled
+20200911,site1,POR_79,Sampled
+20200911,site1,POR_80,Sampled
+20200911,site1,POR_81,Sampled
+20200911,site1,POR_82,"Sampled, no tag - now POR_62"
+20200911,site1,POR_83,Sampled
 20200910,site2,ACR_225,Sampled
-20200910,site2,ACR_228,
 20200910,site2,ACR_229,Sampled
-20200910,site2,ACR_231,
-20200910,site2,ACR_234,
 20200910,site2,ACR_237,Sampled
-20200910,site2,ACR_243,
 20200910,site2,ACR_244,Sampled
-20200910,site2,ACR_246,Sampled
-20200910,site2,ACR_247,Sampled
-20200910,site2,ACR_256,
-20200910,site2,ACR_258,Sampled
+20200910,site2,ACR_213,Sampled
+20200910,site2,ACR_241,Sampled
+20200910,site2,ACR_210,Sampled
 20200910,site2,ACR_265,Sampled last remaining live part
-20200910,site2,ACR_267,
-20200908,site3,ACR_343,Sampled
-20200908,site3,ACR_364,Sampled
-20200911,site1,ACR_51,
 20200910,site2,POC_200,Sampled
 20200910,site2,POC_201,"Sampled, no tag - now POC_272"
 20200910,site2,POC_205,Sampled
@@ -43,6 +56,21 @@
 20200910,site2,POC_255,Sampled
 20200910,site2,POC_257,Sampled
 20200910,site2,POC_259,Sampled
+20200910,site2,POR_209,Sampled
+20200910,site2,POR_214,"Sampled, no tag - now POR_271"
+20200910,site2,POR_251,Sampled
+20200910,site2,POR_216,Sampled
+20200910,site2,POR_221,Sampled
+20200910,site2,POR_224,"Sampled, no tag - now POR_204"
+20200910,site2,POR_240,Sampled
+20200910,site2,POR_242,Sampled
+20200910,site2,POR_245,"Sampled, no tag - now POR_298"
+20200910,site2,POR_253,"Sampled, no tag - now POR_299"
+20200910,site2,POR_260,Sampled
+20200910,site2,POR_262,Sampled
+20200910,site2,ACR_220,Sampled
+20200908,site3,ACR_343,Sampled
+20200908,site3,ACR_364,Sampled
 20200908,site3,POC_358,Sampled
 20200908,site3,POC_359,Sampled
 20200908,site3,POC_366,"Sampled, no field photo"
@@ -56,33 +84,6 @@
 20200908,site3,POC_386,Sampled
 20200908,site3,POC_391,Sampled
 20200908,site3,POC_395,Sampled
-20200911,site1,POC_40,Sampled
-20200911,site1,POC_41,
-20200911,site1,POC_42,Sampled
-20200911,site1,POC_43,Sampled
-20200911,site1,POC_44,Sampled
-20200911,site1,POC_45,Sampled
-20200911,site1,POC_47,Sampled
-20200911,site1,POC_48,Sampled
-20200911,site1,POC_50,Sampled
-20200911,site1,POC_52,Sampled
-20200911,site1,POC_53,Sampled
-20200911,site1,POC_55,"Sampled, no tag - now POC_65"
-20200911,site1,POC_56,
-20200911,site1,POC_57,Sampled
-20200911,site1,POC_68,Sampled
-20200910,site2,POR_209,Sampled
-20200910,site2,POR_214,"Sampled, no tag - now POR_271"
-20200910,site2,POR_216,Sampled
-20200910,site2,POR_221,Sampled
-20200910,site2,POR_224,"Sampled, no tag - now POR_204"
-20200910,site2,POR_240,Sampled
-20200910,site2,POR_242,Sampled
-20200910,site2,POR_245,"Sampled, no tag - now POR_298"
-20200910,site2,POR_253,"Sampled, no tag - now POR_299"
-20200910,site2,POR_260,Sampled
-20200910,site2,POR_262,Sampled
-20200910,site2,POR_266,"Sampled, still POR_206 (currently in 251 bags)"
 20200908,site3,POR_338,Sampled
 20200908,site3,POR_340,"Missing tag, Now POR_397 - SAMPLED"
 20200908,site3,POR_341,Sampled
@@ -98,18 +99,4 @@
 20200908,site3,POR_383,Sampled
 20200908,site3,POR_384,Sampled
 20200908,site3,POR_387,Sampled
-20200911,site1,POR_69,Sampled
-20200911,site1,POR_70,Sampled
-20200911,site1,POR_71,"Sampled, no tag - now POR_38"
-20200911,site1,POR_72,Sampled
-20200911,site1,POR_73,
-20200911,site1,POR_74,Sampled
-20200911,site1,POR_75,"Sampled, no tag - now POR_98"
-20200911,site1,POR_76,Sampled
-20200911,site1,POR_77,
-20200911,site1,POR_78,
-20200911,site1,POR_79,Sampled
-20200911,site1,POR_80,Sampled
-20200911,site1,POR_81,Sampled
-20200911,site1,POR_82,"Sampled, no tag - now POR_62"
-20200911,site1,POR_83,Sampled
+20200908,site3,POC_391,Sampled
