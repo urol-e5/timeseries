@@ -24,23 +24,10 @@ library(lubridate)
 ```
 
 ```{r}
-pH1 <- read.csv("data/3_environmental/3_20200920_SN20697595_Site1_pH.csv", header=T, sep=",", na.strings="NA",skip=1) #load  data
+pH1 <- read.csv("data/3_environmental/3_20200922_SN20697597_Site1_pH.csv", header=T, sep=",", na.strings="NA",skip=1) #load  data
 colnames(pH1) <- c("Date.Time", "Temp", "mV", "pH")
 pH1$Date.Time <- parse_date_time(pH1$Date.Time, "Y!-m!*-d! H!:M!:S!") 
 pH1$Temp <- (pH1$Temp - 32)*(5/9)
-
-pdf("output/timepoint3_pH_Temp.pdf")
-par(mfrow=c(3,1))
-par(mar = c(5,5,2,5))
-with(pH1, plot(Date.Time, pH, type="l", col="blue", 
-             ylim=c(8.05,8.55), ylab =NA, main="Site 1"))
-axis(2, col="blue",col.axis="blue")
-mtext("pH",side=2,col="blue",line=4) 
-par(new = T)
-with(pH1, plot(Date.Time, Temp,type="l", axes=F,col="black", xlab=NA, ylab=NA, ylim=c(27,32)))
-axis(side = 4)
-mtext(side = 4, line = 3, 'Temperature°C')
-
 
 pH2 <- read.csv("data/3_environmental/3_20200920_SN20697596_Site2_pH.csv", header=T, sep=",", na.strings="NA", skip=2) #load  data
 pH2 <- pH2[,1:4]
@@ -48,34 +35,43 @@ colnames(pH2) <- c("Date.Time", "Temp", "mV", "pH")
 pH2$Date.Time <- parse_date_time(pH2$Date.Time, "Y!-m!*-d! H!:M!:S!")
 pH2$Temp <- (pH2$Temp - 32)*(5/9)
 
+pH3 <- read.csv("data/3_environmental/3_20200920_SN20697595_Site3_pH.csv", header=T, sep=",", na.strings="NA", skip=2) #load  data
+pH3 <- pH3[,1:4]
+colnames(pH3) <- c("Date.Time", "Temp", "mV", "pH")
+pH3$Date.Time <- parse_date_time(pH3$Date.Time, "Y!-m!*-d! H!:M!:S!")
+pH3$Temp <- (pH3$Temp - 32)*(5/9)
 
-par(mar = c(5,5,2,5))
-with(pH2, plot(Date.Time, pH, type="l", col="blue", 
-              ylim=c(8.05,8.55), ylab =NA, main="Site 2"))
+pdf("output/timepoint3_pH_Temp.pdf")
+par(mfrow=c(3,1))
+par(mar = c(5,5,2,19))
+with(pH1, plot(Date.Time, pH, type="l", col="blue", 
+             ylim=c(6.00,9.00), ylab =NA, main="Site 1"))
 axis(2, col="blue",col.axis="blue")
 mtext("pH",side=2,col="blue",line=4) 
 par(new = T)
-with(pH2, plot(Date.Time, Temp,type="l", axes=F,col="black", xlab=NA, ylab=NA, ylim=c(27,32)))
+with(pH1, plot(Date.Time, Temp,type="l", axes=F,col="black", xlab=NA, ylab=NA, ylim=c(25,36)))
 axis(side = 4)
 mtext(side = 4, line = 3, 'Temperature°C')
 
+par(mar = c(5,5,2,5))
+with(pH2, plot(Date.Time, pH, type="l", col="blue", 
+              ylim=c(6.00,9.00), ylab =NA, main="Site 2"))
+axis(2, col="blue",col.axis="blue")
+mtext("pH",side=2,col="blue",line=4) 
+par(new = T)
+with(pH2, plot(Date.Time, Temp,type="l", axes=F,col="black", xlab=NA, ylab=NA, ylim=c(25,36)))
+axis(side = 4)
+mtext(side = 4, line = 3, 'Temperature°C')
 
-# pH3 <- read.csv("data/3_environmental/", header=T, sep=",", na.strings="NA", skip=2) #load  data
-# pH3 <- pH3[,1:4]
-# colnames(pH3) <- c("Date.Time", "Temp", "mV", "pH")
-# pH3$Date.Time <- parse_date_time(pH3$Date.Time, "Y!-m!*-d! H!:M!:S!")
-# pH3$Temp <- (pH3$Temp - 32)*(5/9)
-
-
-# par(mar = c(5,5,2,5))
-# with(pH3, plot(Date.Time, pH, type="l", col="blue", 
-#               ylim=c(8.05,8.55), ylab =NA, main="Site 3"))
-# axis(2, col="blue",col.axis="blue")
-# mtext("pH",side=2,col="blue",line=4) 
-# par(new = T)
-# with(pH3, plot(Date.Time, Temp,type="l", axes=F,col="black", xlab=NA, ylab=NA, ylim=c(27,32)))
-# axis(side = 4)
-# mtext(side = 4, line = 3, 'Temperature°C')
+par(mar = c(5,5,2,5))
+with(pH3, plot(Date.Time, pH, type="l", col="blue", 
+              ylim=c(6.00,9.00), ylab =NA, main="Site 3"))
+axis(2, col="blue",col.axis="blue")
+mtext("pH",side=2,col="blue",line=4) 
+par(new = T)
+with(pH3, plot(Date.Time, Temp,type="l", axes=F,col="black", xlab=NA, ylab=NA, ylim=c(25,36)))
+axis(side = 4)
+mtext(side = 4, line = 3, 'Temperature°C')
 dev.off()
 ```
 
