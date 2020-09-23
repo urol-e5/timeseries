@@ -1,1 +1,15 @@
-﻿colony_id,homog_vol_ml,note,date_airbrushed
+﻿date_airbrushed,colony_id,homog_vol_ml,notes
+20200922,POR_71,32.5,
+20200922,ACR_145,17.5,
+20200922,POC_47,27.5,
+20200922,POR_82,70,between two 50 mL falcon tubes
+20200922,POR_79,67.5,between two 50 mL falcon tubes
+20200922,POR_69,55,between two 50 mL falcon tubes
+20200922,ACR_190,24,
+20200922,ACR_173,37.5,
+20200922,POC_40,50,
+20200922,ACR_140,16.5,
+20200922,ACR_178,32.5,
+20200922,ACR_139,32.5,
+20200922,POR_70,60,between two 50 mL falcon tubes
+20200923,POC_44,22.5,
