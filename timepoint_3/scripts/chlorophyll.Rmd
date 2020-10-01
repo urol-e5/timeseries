@@ -28,7 +28,7 @@ read_chl <- function(file) {
 }
 
 # List chlorophyll data files
-chl_path <- "data/2_chlorophyll/"                                        # Path to chlorophyll data directory
+chl_path <- "data/3_chlorophyll/"                                        # Path to chlorophyll data directory
 all_chl_files <- list.files(path = chl_path, pattern = "*.csv")          # List all files in directory
 chl_platemaps <- list.files(path = chl_path, pattern = "platemap")       # List platemap files
 chl_data_files <- setdiff(all_chl_files, chl_platemaps)                  # List absorbance data files
@@ -73,12 +73,12 @@ df <- df %>%
 # Normalize to surface area
 ```{r}
 # Load homogenate volume
-homog.vol <- read_csv("data/2_homogenate_vols/1_homogenate_vols.csv") %>%
+homog.vol <- read_csv("data/3_homogenate_vols/3_homogenate_vols.csv") %>%
   select(colony_id, homog_vol_ml)
 chl <- full_join(df, homog.vol)
 
 # Load surface area
-sa <- read_csv("output/2_surface_area.csv")
+sa <- read_csv("output/3_surface_area.csv")
 chl <- full_join(chl, sa)
 
 # Multiply chlorophyll by the homogenate volume and divide by surface area

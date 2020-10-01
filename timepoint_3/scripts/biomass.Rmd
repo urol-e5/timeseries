@@ -20,7 +20,7 @@ library(plotrix)
 
 ```{r }
 #Read in biomass data
-Data <- read.csv("data/2_biomass/1_biomass_data.csv")
+Data <- read.csv("data/3_biomass/3_biomass_data.csv")
 Data <- na.omit(Data)
   
 # calculated mass per ml
@@ -32,10 +32,10 @@ Data <- Data %>%
          burnt.pan.mass.g.ml = case_when(partner=="Host" ~ burnt.pan.mass.g/sym, partner=="Sym" ~burnt.pan.mass.g/host))
 
 #Load tissue homogenate volume
-homog_vol <- read.csv("data/2_homogenate_vols/1_homogenate_vols.csv", header=TRUE)
+homog_vol <- read.csv("data/3_homogenate_vols/3_homogenate_vols.csv", header=TRUE)
 
 # Load Surface area data
-sa <- read.csv("output/2_surface_area.csv")
+sa <- read.csv("output/3_surface_area.csv")
 
 # Coral sample metadata
 metadata <- read_csv("../metadata/coral_metadata.csv") %>% select(1:3)
@@ -61,7 +61,7 @@ dw <- left_join(Data, metadata) %>%
 
 ```{r}
 #summarize Dry Biomass mean and sem by site, species, and partner and plot
-dw %>% na.omit(dw) %>%
+dw %>% #na.omit(dw) %>%
   group_by(species, site, partner)%>%
   summarise(mean.value = mean(DW.mg.cm2), se = std.error(DW.mg.cm2)) %>%
   ggplot(aes(x = site, y = mean.value, group = species, color = partner))+
@@ -75,7 +75,7 @@ dw %>% na.omit(dw) %>%
 
 ```{r}
 #summarize AFDW mean and sem by site, species, and partner and plot
-afdw %>% na.omit(afdw) %>%
+afdw %>% #na.omit(afdw) %>%
   group_by(species, site, partner)%>%
   summarise(mean.value = mean(AFDW.mg.cm2), se = std.error(AFDW.mg.cm2)) %>%
   ggplot(aes(x = site, y = mean.value, group = species, color = partner))+
