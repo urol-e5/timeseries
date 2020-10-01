@@ -25,7 +25,7 @@
 	- 'ACR' = *Acropora*
 
 - 'colony_id' 	*(coral tag number)*
-	- Always include species and number separated by underscore, e.g. 'POC-201'
+	- Always include species and number separated by a dash, e.g. 'POC-201'
 
 	
 
