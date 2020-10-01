@@ -1,8 +1,7 @@
 ﻿Date,site,colony_id,Notes
 20200911,site1,ACR_139,Sampled
-20200911,site1,ACR_143,Sampled
-20200911,site1,ACR_140,Sampled
 20200911,site1,ACR_145,Sampled
+20200911,site1,ACR_140,Sampled
 20200911,site1,ACR_150,"Sampled, no tag - now ACR_54"
 20200911,site1,POR_73,Sampled
 20200911,site1,ACR_173,Sampled
@@ -36,6 +35,7 @@
 20200911,site1,POR_82,"Sampled, no tag - now POR_62"
 20200911,site1,POR_83,Sampled
 20200910,site2,ACR_225,Sampled
+20200910,site2,ACR_218,"Sampled, initially tagged in January, never sampled until September 2020"
 20200910,site2,ACR_229,Sampled
 20200910,site2,ACR_237,Sampled
 20200910,site2,ACR_244,Sampled
@@ -82,7 +82,6 @@
 20200908,site3,POC_377,Sampled
 20200908,site3,POC_378,Sampled
 20200908,site3,POC_386,Sampled
-20200908,site3,POC_391,Sampled
 20200908,site3,POC_395,Sampled
 20200908,site3,POR_338,Sampled
 20200908,site3,POR_340,"Missing tag, Now POR_397 - SAMPLED"
