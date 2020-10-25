@@ -1,100 +1,100 @@
-﻿Date,site,colony_id,Notes
-20200911,site1,ACR_139,Sampled
-20200911,site1,ACR_145,Sampled
-20200911,site1,ACR_140,Sampled
-20200911,site1,ACR_150,"Sampled, no tag - now ACR_54"
-20200911,site1,POR_73,Sampled
-20200911,site1,ACR_173,Sampled
-20200911,site1,ACR_175,Sampled
-20200911,site1,ACR_186,Sampled
-20200911,site1,ACR_178,Sampled
-20200911,site1,ACR_190,Sampled
-20200911,site1,POC_40,Sampled
-20200911,site1,POC_42,Sampled
-20200911,site1,POC_43,Sampled
-20200911,site1,POC_44,Sampled
-20200911,site1,POC_45,Sampled
-20200911,site1,POC_47,Sampled
-20200911,site1,POC_48,Sampled
-20200911,site1,POC_52,Sampled
-20200911,site1,POC_53,Sampled
-20200911,site1,POC_55,"Sampled, no tag - now POC_65"
-20200911,site1,POC_57,Sampled
-20200911,site1,POC_68,Sampled
-20200911,site1,POR_69,Sampled
-20200911,site1,POR_70,Sampled
-20200911,site1,POR_71,"Sampled, no tag - now POR_38"
-20200911,site1,POR_72,Sampled
-20200911,site1,POR_74,Sampled
-20200911,site1,POR_75,"Sampled, no tag - now POR_98"
-20200911,site1,POR_76,Sampled
-20200911,site1,POR_79,Sampled
-20200911,site1,POR_80,Sampled
-20200911,site1,POR_81,Sampled
-20200911,site1,POR_82,"Sampled, no tag - now POR_62"
-20200911,site1,POR_83,Sampled
-20200910,site2,ACR_225,Sampled
-20200910,site2,ACR_218,"Sampled, initially tagged in January, never sampled until September 2020"
-20200910,site2,ACR_229,Sampled
-20200910,site2,ACR_237,Sampled
-20200910,site2,ACR_244,Sampled
-20200910,site2,ACR_213,Sampled
-20200910,site2,ACR_241,Sampled
-20200910,site2,ACR_210,Sampled
-20200910,site2,ACR_265,Sampled last remaining live part
-20200910,site2,POC_200,Sampled
-20200910,site2,POC_201,"Sampled, no tag - now POC_272"
-20200910,site2,POC_205,Sampled
-20200910,site2,POC_207,Sampled
-20200910,site2,POC_219,Sampled
-20200910,site2,POC_222,Sampled
-20200910,site2,POC_238,Sampled
-20200910,site2,POC_239,Sampled
-20200910,site2,POC_248,Sampled
-20200910,site2,POC_254,Sampled
-20200910,site2,POC_255,Sampled
-20200910,site2,POC_257,Sampled
-20200910,site2,POC_259,Sampled
-20200910,site2,POR_209,Sampled
-20200910,site2,POR_214,"Sampled, no tag - now POR_271"
-20200910,site2,POR_251,Sampled
-20200910,site2,POR_216,Sampled
-20200910,site2,POR_221,Sampled
-20200910,site2,POR_224,"Sampled, no tag - now POR_204"
-20200910,site2,POR_240,Sampled
-20200910,site2,POR_242,Sampled
-20200910,site2,POR_245,"Sampled, no tag - now POR_298"
-20200910,site2,POR_253,"Sampled, no tag - now POR_299"
-20200910,site2,POR_260,Sampled
-20200910,site2,POR_262,Sampled
-20200910,site2,ACR_220,Sampled
-20200908,site3,ACR_343,Sampled
-20200908,site3,ACR_364,Sampled
-20200908,site3,POC_358,Sampled
-20200908,site3,POC_359,Sampled
-20200908,site3,POC_366,"Sampled, no field photo"
-20200908,site3,POC_369,Sampled
-20200908,site3,POC_371,Sampled
-20200908,site3,POC_372,Sampled
-20200908,site3,POC_373,Sampled
-20200908,site3,POC_375,"Missing tag, Now POC_300 - SAMPLED"
-20200908,site3,POC_377,Sampled
-20200908,site3,POC_378,Sampled
-20200908,site3,POC_386,Sampled
-20200908,site3,POC_395,Sampled
-20200908,site3,POR_338,Sampled
-20200908,site3,POR_340,"Missing tag, Now POR_397 - SAMPLED"
-20200908,site3,POR_341,Sampled
-20200908,site3,POR_349,Sampled
-20200908,site3,POR_353,Sampled
-20200908,site3,POR_354,"Missing Tag, Now POR_399 - SAMPLED"
-20200908,site3,POR_355,"Missing Tag, Now POR_39 - SAMPLED"
-20200908,site3,POR_357,Sampled
-20200908,site3,POR_362,Sampled
-20200908,site3,POR_365,Sampled
-20200908,site3,POR_367,"Missing Tag, Now POR_398 - SAMPLED"
-20200908,site3,POR_381,Sampled
-20200908,site3,POR_383,Sampled
-20200908,site3,POR_384,Sampled
-20200908,site3,POR_387,Sampled
-20200908,site3,POC_391,Sampled
+﻿Date,site,species,colony_id,Notes
+20200911,site1,Acropora,ACR-139,Sampled
+20200911,site1,Acropora,ACR-145,Sampled
+20200911,site1,Acropora,ACR-140,Sampled
+20200911,site1,Acropora,ACR-150,"Sampled, no tag - now ACR-54"
+20200911,site1,Porites,POR-73,Sampled
+20200911,site1,Acropora,ACR-173,Sampled
+20200911,site1,Acropora,ACR-175,Sampled
+20200911,site1,Acropora,ACR-186,Sampled
+20200911,site1,Acropora,ACR-178,Sampled
+20200911,site1,Acropora,ACR-190,Sampled
+20200911,site1,Pocillopora,POC-40,Sampled
+20200911,site1,Pocillopora,POC-42,Sampled
+20200911,site1,Pocillopora,POC-43,Sampled
+20200911,site1,Pocillopora,POC-44,Sampled
+20200911,site1,Pocillopora,POC-45,Sampled
+20200911,site1,Pocillopora,POC-47,Sampled
+20200911,site1,Pocillopora,POC-48,Sampled
+20200911,site1,Pocillopora,POC-52,Sampled
+20200911,site1,Pocillopora,POC-53,Sampled
+20200911,site1,Pocillopora,POC-55,"Sampled, no tag - now POC-65"
+20200911,site1,Pocillopora,POC-57,Sampled
+20200911,site1,Pocillopora,POC-68,Sampled
+20200911,site1,Porites,POR-69,Sampled
+20200911,site1,Porites,POR-70,Sampled
+20200911,site1,Porites,POR-71,"Sampled, no tag - now POR-38"
+20200911,site1,Porites,POR-72,Sampled
+20200911,site1,Porites,POR-74,Sampled
+20200911,site1,Porites,POR-75,"Sampled, no tag - now POR-98"
+20200911,site1,Porites,POR-76,Sampled
+20200911,site1,Porites,POR-79,Sampled
+20200911,site1,Porites,POR-80,Sampled
+20200911,site1,Porites,POR-81,Sampled
+20200911,site1,Porites,POR-82,"Sampled, no tag - now POR-62"
+20200911,site1,Porites,POR-83,Sampled
+20200910,site2,Acropora,ACR-225,Sampled
+20200910,site2,Acropora,ACR-218,"Sampled, initially tagged in January, never sampled until September 2020"
+20200910,site2,Acropora,ACR-229,Sampled
+20200910,site2,Acropora,ACR-237,Sampled
+20200910,site2,Acropora,ACR-244,Sampled
+20200910,site2,Acropora,ACR-213,Sampled
+20200910,site2,Acropora,ACR-241,Sampled
+20200910,site2,Acropora,ACR-210,Sampled
+20200910,site2,Acropora,ACR-265,Sampled last remaining live part
+20200910,site2,Pocillopora,POC-200,Sampled
+20200910,site2,Pocillopora,POC-201,"Sampled, no tag - now POC-272"
+20200910,site2,Pocillopora,POC-205,Sampled
+20200910,site2,Pocillopora,POC-207,Sampled
+20200910,site2,Pocillopora,POC-219,Sampled
+20200910,site2,Pocillopora,POC-222,Sampled
+20200910,site2,Pocillopora,POC-238,Sampled
+20200910,site2,Pocillopora,POC-239,Sampled
+20200910,site2,Pocillopora,POC-248,Sampled
+20200910,site2,Pocillopora,POC-254,Sampled
+20200910,site2,Pocillopora,POC-255,Sampled
+20200910,site2,Pocillopora,POC-257,Sampled
+20200910,site2,Pocillopora,POC-259,Sampled
+20200910,site2,Porites,POR-209,Sampled
+20200910,site2,Porites,POR-214,"Sampled, no tag - now POR-271"
+20200910,site2,Porites,POR-251,Sampled
+20200910,site2,Porites,POR-216,Sampled
+20200910,site2,Porites,POR-221,Sampled
+20200910,site2,Porites,POR-224,"Sampled, no tag - now POR-204"
+20200910,site2,Porites,POR-240,Sampled
+20200910,site2,Porites,POR-242,Sampled
+20200910,site2,Porites,POR-245,"Sampled, no tag - now POR-298"
+20200910,site2,Porites,POR-253,"Sampled, no tag - now POR-299"
+20200910,site2,Porites,POR-260,Sampled
+20200910,site2,Porites,POR-262,Sampled
+20200910,site2,Acropora,ACR-220,Sampled
+20200908,site3,Acropora,ACR-343,Sampled
+20200908,site3,Acropora,ACR-364,Sampled
+20200908,site3,Pocillopora,POC-358,Sampled
+20200908,site3,Pocillopora,POC-359,Sampled
+20200908,site3,Pocillopora,POC-366,"Sampled, no field photo"
+20200908,site3,Pocillopora,POC-369,Sampled
+20200908,site3,Pocillopora,POC-371,Sampled
+20200908,site3,Pocillopora,POC-372,Sampled
+20200908,site3,Pocillopora,POC-373,Sampled
+20200908,site3,Pocillopora,POC-375,"Missing tag, Now POC-300 - SAMPLED"
+20200908,site3,Pocillopora,POC-377,Sampled
+20200908,site3,Pocillopora,POC-378,Sampled
+20200908,site3,Pocillopora,POC-386,Sampled
+20200908,site3,Pocillopora,POC-395,Sampled
+20200908,site3,Porites,POR-338,Sampled
+20200908,site3,Porites,POR-340,"Missing tag, Now POR-397 - SAMPLED"
+20200908,site3,Porites,POR-341,Sampled
+20200908,site3,Porites,POR-349,Sampled
+20200908,site3,Porites,POR-353,Sampled
+20200908,site3,Porites,POR-354,"Missing Tag, Now POR-399 - SAMPLED"
+20200908,site3,Porites,POR-355,"Missing Tag, Now POR-39 - SAMPLED"
+20200908,site3,Porites,POR-357,Sampled
+20200908,site3,Porites,POR-362,Sampled
+20200908,site3,Porites,POR-365,Sampled
+20200908,site3,Porites,POR-367,"Missing Tag, Now POR-398 - SAMPLED"
+20200908,site3,Porites,POR-381,Sampled
+20200908,site3,Porites,POR-383,Sampled
+20200908,site3,Porites,POR-384,Sampled
+20200908,site3,Porites,POR-387,Sampled
+20200908,site3,Pocillopora,POC-391,Sampled

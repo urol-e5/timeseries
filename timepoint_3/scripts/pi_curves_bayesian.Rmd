@@ -54,7 +54,7 @@ rstan_options(auto_write = TRUE)
 
 # Import data
 ```{r import_data}
-Data <- read.csv(file = 'output/2_pi_curve_rates.csv')
+Data <- read.csv(file = 'output/1_pi_curve_rates.csv')
 #Data <- Data[1:40,]
 ```
 
@@ -144,7 +144,7 @@ pars.out2 <- Data %>%
   select(colony_id) %>%
   left_join(pars.out)
 
-write_csv(pars.out2, "output/2_pi_curve_pars.csv")
+write_csv(pars.out2, "output/1_pi_curve_pars.csv")
 ```
 
 # Create plots for all individuals
@@ -168,14 +168,14 @@ Data <- Data %>%
         theme(text = element_text(size=18), title = element_text(face="italic")) +
         labs(x = expression(paste('PAR (', mu, "mol photons m"^-2, 's'^-1,")")),
              y = expression(paste('Photosynthetic rate (', mu, "mol cm"^-2, 'h'^-1,")")),
-             title = paste0("2_", colony_id))
+             title = paste0("1_", colony_id))
       }))
 ```
 
 # Save PI curve plots to files
 ```{r save_plots}
 Data %>%
-  mutate(filename = paste0("output/2_pi_curve_plots/2_", colony_id, ".pdf")) %>%
+  mutate(filename = paste0("output/1_pi_curve_plots/1_", colony_id, ".pdf")) %>%
   select(filename, plot) %>%
   pwalk(ggsave)
 ```
