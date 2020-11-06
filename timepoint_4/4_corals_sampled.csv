@@ -1,113 +1,114 @@
 Date,site,species,colony_id,Notes
 20201101,site1,Acropora,ACR-139,
-,site1,Acropora,ACR-140,only molecular samples taken
-,site1,Acropora,ACR-145,
-,site1,Acropora,ACR-150,now ACR-54
-,site1,Acropora,ACR-173,now ACR-275 (not sure if correct - three ACR colonies missing tags)
-,site1,Acropora,ACR-175,
-,site1,Acropora,ACR-176,now ACR-276 (not sure if correct - three ACR colonies missing tags)
-,site1,Acropora,ACR-178,
-,site1,Acropora,ACR-180,only molecular samples taken
-,site1,Acropora,ACR-185,
-,site1,Acropora,ACR-186,
-,site1,Acropora,ACR-187,
-,site1,Acropora,ACR-190,only molecular samples taken
-,site1,Pocillopora,POC-40,
-,site1,Pocillopora,POC-42,
-,site1,Pocillopora,POC-43,
-,site1,Pocillopora,POC-44,
-,site1,Pocillopora,POC-45,
-,site1,Pocillopora,POC-47,
-,site1,Pocillopora,POC-48,
-,site1,Pocillopora,POC-50,
-,site1,Pocillopora,POC-52,
-,site1,Pocillopora,POC-53,
-,site1,Pocillopora,POC-55,Now POC-65
-,site1,Pocillopora,POC-57,
-,site1,Pocillopora,POC-68,
-,site1,Porites,POR-69,
-,site1,Porites,POR-70,
-,site1,Porites,POR-71,Now POR-38
-,site1,Porites,POR-72,
-,site1,Porites,POR-73,
-,site1,Porites,POR-74,Now POR-274
-,site1,Porites,POR-75,Now POR-98
-,site1,Porites,POR-76,
-,site1,Porites,POR-79,
-,site1,Porites,POR-81,
-,site1,Porites,POR-82,Now POR-62
-,site1,Porites,POR-83,
+20201101,site1,Acropora,ACR-140,only molecular samples taken
+20201101,site1,Acropora,ACR-145,
+20201101,site1,Acropora,ACR-150,now ACR-54
+20201101,site1,Acropora,ACR-173,now ACR-275 (not sure if correct - three ACR colonies missing tags)
+20201101,site1,Acropora,ACR-175,
+20201101,site1,Acropora,ACR-176,now ACR-276 (not sure if correct - three ACR colonies missing tags)
+20201101,site1,Acropora,ACR-178,
+20201101,site1,Acropora,ACR-180,only molecular samples taken
+20201101,site1,Acropora,ACR-185,
+20201101,site1,Acropora,ACR-186,
+20201101,site1,Acropora,ACR-187,
+20201101,site1,Acropora,ACR-190,only molecular samples taken
+20201101,site1,Pocillopora,POC-40,
+20201101,site1,Pocillopora,POC-42,
+20201101,site1,Pocillopora,POC-43,
+20201101,site1,Pocillopora,POC-44,
+20201101,site1,Pocillopora,POC-45,
+20201101,site1,Pocillopora,POC-47,
+20201101,site1,Pocillopora,POC-48,
+20201101,site1,Pocillopora,POC-50,
+20201101,site1,Pocillopora,POC-52,
+20201101,site1,Pocillopora,POC-53,
+20201101,site1,Pocillopora,POC-55,Now POC-65
+20201101,site1,Pocillopora,POC-57,
+20201101,site1,Pocillopora,POC-68,
+20201101,site1,Porites,POR-69,
+20201101,site1,Porites,POR-70,
+20201101,site1,Porites,POR-71,Now POR-38
+20201101,site1,Porites,POR-72,
+20201101,site1,Porites,POR-73,
+20201101,site1,Porites,POR-74,Now POR-274
+20201101,site1,Porites,POR-75,Now POR-98
+20201101,site1,Porites,POR-76,
+20201101,site1,Porites,POR-79,
+20201101,site1,Porites,POR-81,
+20201101,site1,Porites,POR-82,Now POR-62
+20201101,site1,Porites,POR-83,
 20201030,site2,Acropora,ACR-210,
-,site2,Acropora,ACR-213,
-,site2,Acropora,ACR-218,
-,site2,Acropora,ACR-220,
-,site2,Acropora,ACR-225,
-,site2,Acropora,ACR-228,only molecular samples taken
-,site2,Acropora,ACR-229,
-,site2,Acropora,ACR-234,
-,site2,Acropora,ACR-237,
-,site2,Acropora,ACR-241,mostly dead from spawning - all phys/molec taken still though
-,site2,Acropora,ACR-244,
-,site2,Acropora,ACR-256,
-,site2,Acropora,ACR-265,only molecular samples taken
-,site2,Acropora,ACR-267,
-,site2,Pocillopora,POC-200,
-,site2,Pocillopora,POC-205,
-,site2,Pocillopora,POC-207,
-,site2,Pocillopora,POC-219,
-,site2,Pocillopora,POC-222,
-,site2,Pocillopora,POC-238,
-,site2,Pocillopora,POC-239,
-,site2,Pocillopora,POC-248,
-,site2,Pocillopora,POC-254,
-,site2,Pocillopora,POC-255,
-,site2,Pocillopora,POC-257,
-,site2,Pocillopora,POC-259,
-,site2,Porites,POR-209,
-,site2,Porites,POR-214,Now POR-271
-,site2,Porites,POR-216,
-,site2,Porites,POR-221,
-,site2,Porites,POR-224,Now POR-204
-,site2,Porites,POR-240,
-,site2,Porites,POR-242,
-,site2,Porites,POR-245,Now POR-298
-,site2,Porites,POR-251,3 molecular bags b/c intial samples were very small
-,site2,Porites,POR-253,Now POR-299
-,site2,Porites,POR-260,
-,site2,Porites,POR-262,
-,site3,Acropora,ACR-343,
-,site3,Acropora,ACR-364,only molecular samples taken
-,site3,Acropora,ACR-368,
-,site3,Acropora,ACR-379,only molecular samples taken
-,site3,Acropora,ACR-389,molecular sample in ACR-374 bag (too dead to sample)
-,site3,Acropora,ACR-390,
-,site3,Acropora,ACR-393,
-,site3,Acropora,ACR-398,molecular sample in ACR-370 bag (too dead to sample)
-,site3,Pocillopora,POC-358,
-,site3,Pocillopora,POC-359,
-,site3,Pocillopora,POC-366,
-,site3,Pocillopora,POC-369,
-,site3,Pocillopora,POC-371,
-,site3,Pocillopora,POC-372,
-,site3,Pocillopora,POC-373,Now POC-261
-,site3,Pocillopora,POC-375,Now POC-300
-,site3,Pocillopora,POC-377,
-,site3,Pocillopora,POC-378,Now POC-296
-,site3,Pocillopora,POC-386,
-,site3,Pocillopora,POC-391,
-,site3,Pocillopora,POC-394,
-,site3,Pocillopora,POC-395,
-,site3,Porites,POR-338,
-,site3,Porites,POR-340,Now POR-397
-,site3,Porites,POR-341,
-,site3,Porites,POR-349,
-,site3,Porites,POR-353,
-,site3,Porites,POR-354,Now POR-399
-,site3,Porites,POR-357,
-,site3,Porites,POR-362,
-,site3,Porites,POR-365,Phys frag put in POR-355 bag but 355 not sampled
-,site3,Porites,POR-367,Now POR-398
-,site3,Porites,POR-381,
-,site3,Porites,POR-383,Now POR-270
-,site3,Porites,POR-384,
-,site3,Porites,POR-387,Now POR-296 ; has been referred to as POR_385 before and is same coral
+20201030,site2,Acropora,ACR-213,
+20201030,site2,Acropora,ACR-218,
+20201030,site2,Acropora,ACR-220,
+20201030,site2,Acropora,ACR-225,
+20201030,site2,Acropora,ACR-228,only molecular samples taken
+20201030,site2,Acropora,ACR-229,
+20201030,site2,Acropora,ACR-234,
+20201030,site2,Acropora,ACR-237,
+20201030,site2,Acropora,ACR-241,mostly dead from spawning - all phys/molec taken still though
+20201030,site2,Acropora,ACR-244,
+20201030,site2,Acropora,ACR-256,
+20201030,site2,Acropora,ACR-265,only molecular samples taken
+20201030,site2,Acropora,ACR-267,
+20201030,site2,Pocillopora,POC-200,
+20201030,site2,Pocillopora,POC-205,
+20201030,site2,Pocillopora,POC-207,
+20201030,site2,Pocillopora,POC-219,
+20201030,site2,Pocillopora,POC-222,
+20201030,site2,Pocillopora,POC-238,
+20201030,site2,Pocillopora,POC-239,
+20201030,site2,Pocillopora,POC-248,
+20201030,site2,Pocillopora,POC-254,
+20201030,site2,Pocillopora,POC-255,
+20201030,site2,Pocillopora,POC-257,
+20201030,site2,Pocillopora,POC-259,
+20201030,site2,Porites,POR-209,
+20201030,site2,Porites,POR-214,Now POR-271
+20201030,site2,Porites,POR-216,
+20201030,site2,Porites,POR-221,
+20201030,site2,Porites,POR-224,Now POR-204
+20201030,site2,Porites,POR-240,
+20201030,site2,Porites,POR-242,
+20201030,site2,Porites,POR-245,Now POR-298
+20201030,site2,Porites,POR-251,3 molecular bags b/c intial samples were very small
+20201030,site2,Porites,POR-253,Now POR-299
+20201030,site2,Porites,POR-260,
+20201030,site2,Porites,POR-262,
+20201031,site3,Acropora,ACR-343,
+20201031,site3,Acropora,ACR-364,only molecular samples taken
+20201031,site3,Acropora,ACR-368,
+20201031,site3,Acropora,ACR-379,only molecular samples taken
+20201031,site3,Acropora,ACR-389,molecular sample in ACR-374 bag (too dead to sample)
+20201031,site3,Acropora,ACR-390,
+20201031,site3,Acropora,ACR-393,
+20201031,site3,Acropora,ACR-398,molecular sample in ACR-370 bag (too dead to sample)
+20201031,site3,Pocillopora,POC-346,
+20201031,site3,Pocillopora,POC-358,
+20201031,site3,Pocillopora,POC-359,
+20201031,site3,Pocillopora,POC-366,
+20201031,site3,Pocillopora,POC-369,
+20201031,site3,Pocillopora,POC-371,
+20201031,site3,Pocillopora,POC-372,
+20201031,site3,Pocillopora,POC-373,Now POC-261
+20201031,site3,Pocillopora,POC-375,Now POC-300
+20201031,site3,Pocillopora,POC-377,
+20201031,site3,Pocillopora,POC-378,Now POC-296
+20201031,site3,Pocillopora,POC-386,
+20201031,site3,Pocillopora,POC-391,
+20201031,site3,Pocillopora,POC-394,
+20201031,site3,Pocillopora,POC-395,
+20201031,site3,Porites,POR-338,
+20201031,site3,Porites,POR-340,Now POR-397
+20201031,site3,Porites,POR-341,
+20201031,site3,Porites,POR-349,
+20201031,site3,Porites,POR-353,
+20201031,site3,Porites,POR-354,Now POR-399
+20201031,site3,Porites,POR-357,
+20201031,site3,Porites,POR-362,
+20201031,site3,Porites,POR-365,Phys frag put in POR-355 bag but 355 not sampled
+20201031,site3,Porites,POR-367,Now POR-398
+20201031,site3,Porites,POR-381,
+20201031,site3,Porites,POR-383,Now POR-270
+20201031,site3,Porites,POR-384,
+20201031,site3,Porites,POR-387,Now POR-296 ; has been referred to as POR_385 before and is same coral
