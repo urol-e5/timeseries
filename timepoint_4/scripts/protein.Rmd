@@ -1,4 +1,3 @@
----
 title: "Protein analysis"
 output: html_document
 ---
@@ -18,7 +17,7 @@ library(broom)
 # Import data
 ```{r}
 # List protein data files
-prot_path = "data/1_protein/"                                              # Path to prot data directory
+prot_path = "../data/3_protein/"                                              # Path to prot data directory
 all_prot_files <- list.files(path = prot_path, pattern = "*.csv")          # List all files in directory
 prot_platemaps <- list.files(path = prot_path, pattern = "platemap")       # List platemap files
 prot_data_files <- setdiff(all_prot_files, prot_platemaps)                 # List data files
@@ -102,9 +101,9 @@ std_curve_plot +
 # Normalize to surface area
 ```{r}
 # Surface area data
-sa <- read.csv("output/1_surface_area.csv")
+sa <- read.csv("output/3_surface_area.csv")
 # Tissue homogenate volume data
-homog_vols <- read_csv("data/1_homogenate_vols/1_homogenate_vols.csv") %>% select(1:2)
+homog_vols <- read_csv("data/3_homogenate_vols/3_homogenate_vols.csv") %>% select(1:2)
 
 # Coral sample metadata
 metadata <- read_csv("../metadata/coral_metadata.csv") %>% select(1:3)
@@ -140,6 +139,6 @@ prot %>%
 prot %>%
   filter(!is.na(species)) %>%
   select(colony_id, prot_ug, prot_ug.cm2) %>%
-  write_csv(., path = "output/1_protein.csv")
+  write_csv(., path = "output/3_protein.csv")
 ```
 

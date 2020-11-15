@@ -6,8 +6,8 @@ output: html_document
 #Title: Protein Data
 #Project: E5
 #Author: HM Putnam 
-#Edited by: HM Putnam
-#Date Last Modified: 20191104
+#Edited by: Danielle Becker
+#Date Last Modified: 20201024
 #See Readme file for details
 
 ```{r setup, include = FALSE}
@@ -21,16 +21,16 @@ library(tidyverse)
 # Import data
 ```{r}
 # Cell count data
-sym_counts <- read_csv("data/1_sym_counts/1_sym_counts_data.csv")
+sym_counts <- read_csv("../data/3_sym_counts/3_sym_counts_data.csv")
 
 # Surface area data
-sa <- read.csv("output/1_surface_area.csv")
+sa <- read.csv("../output/3_surface_area.csv")
 
 # Tissue homogenate volume data
-homog_vols <- read_csv("data/1_homogenate_vols/1_homogenate_vols.csv") %>% select(1:2)
+homog_vols <- read_csv("../data/3_homogenate_vols/3_homogenate_vols.csv") 
 
 # Coral sample metadata
-metadata <- read_csv("../metadata/coral_metadata.csv") %>% select(1:3)
+metadata <- read_csv("../../metadata/coral_metadata.csv") %>% select(1:3)
 
 # Join homogenate volumes and surface area with sample metadata
 metadata <- full_join(metadata, homog_vols) %>%
