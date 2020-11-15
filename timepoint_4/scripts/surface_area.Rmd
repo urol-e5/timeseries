@@ -18,7 +18,7 @@ library(tidyverse)
 ```{r}
 
 #load wax data
-wax.data <- read.csv("data/3_surface_area/3_surface_area_data.csv", header=TRUE)
+wax.data <- read.csv("data/1_surface_area/1_surface_area_data.csv", header=TRUE)
 
 wax.data$delta.mass.g <- wax.data$weight2.g-wax.data$weight1.g
 stnds <- subset(wax.data, Sample=="Standard")
@@ -50,6 +50,6 @@ range(smpls$surface.area.cm2)
 range(stnds$surface.area.cm2)
 
 #Save the output for use in normilzation for phys assays
-write.csv(smpls, "output/3_surface_area.csv")
+write.csv(smpls, "output/1_surface_area.csv")
 
 ```
