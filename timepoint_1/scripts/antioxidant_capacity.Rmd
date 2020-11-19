@@ -26,7 +26,7 @@ read_tac <- function(file) {
     unite("well", c(row, col), sep = "")
 }
 
-# List chlorophyll data files
+# List TAC data files
 tac_path = "data/1_antioxidant_capacity/"                                                 # Path to TAC data directory
 all_tac_files <- list.files(path = tac_path, pattern = "*.csv")          # List all files in directory
 tac_platemaps <- list.files(path = tac_path, pattern = "platemap")       # List platemap files
