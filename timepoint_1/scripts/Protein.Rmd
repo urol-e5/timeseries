@@ -57,9 +57,9 @@ std_curve <- df %>%
   select(plate, well, colony_id, abs562 = `562:562`) %>%
   rename(std = colony_id) %>%
   mutate(std = str_sub(std, 9, 9)) %>%
-  group_by(std) %>%
-  summarise(abs562 = mean(abs562)) %>%                       # calculate mean of standard duplicates
-  mutate(abs562.adj = abs562 - abs562[std == "I"]) %>%       # subtract blank absorbace value from all
+  #group_by(std) %>%
+  #summarise(abs562 = mean(abs562)) %>%                       # calculate mean of standard duplicates
+  #mutate(abs562.adj = abs562 - abs562[std == "I"]) %>%       # subtract blank absorbace value from all
   left_join(standards)
 
 ## Fit linear model for standard curve
@@ -67,16 +67,16 @@ std_curve <- df %>%
 # coef(mod)
 
 ## Fit nonlinear model for standard curve
-mod <- nls(formula = BSA_ug.mL ~ z + a * exp(b * abs562.adj), start = list(z = 0, a = 1, b = 1), data = std_curve)
+mod <- nls(formula = BSA_ug.mL ~ z + a * exp(b * abs562), start = list(z = 0, a = 1, b = 1), data = std_curve)
 fitted <- mod %>% broom::augment()
 
 # Plot standard curve
 std_curve_plot <- std_curve %>%
-  ggplot(aes(x = abs562.adj, y = BSA_ug.mL)) +
+  ggplot(aes(x = abs562, y = BSA_ug.mL)) +
   geom_point(color = "red", size = 3) 
 
 std_curve_plot + 
-  geom_line(data = fitted, aes(x = abs562.adj, y = .fitted)) +
+  geom_line(data = fitted, aes(x = abs562, y = .fitted)) +
   labs(title = "Standard curve")
 ```
 
@@ -89,13 +89,10 @@ prot <- df %>%
   select(plate, well, colony_id, abs562 = `562:562`) %>%        # Select only needed columns
   filter(!is.na(colony_id)) %>%                                 # Filter out empty wells
   filter(colony_id != "BK") %>%                                 # Filter out blank wells
-  group_by(colony_id) %>%          
-  summarise(abs562 = mean(abs562)) %>%                          # Average technical replicates for each colony
-  mutate(abs562.adj = abs562 - std_curve$abs562[std_curve$std == "I"],     # Subtract blank standard (Standard I) from mean absorbance values
-         prot_ug.mL = map_dbl(abs562.adj, ~ predict(mod, newdata = data.frame(abs562.adj = .))))    # Use standard curve to convert absorbance to protein
+  mutate(prot_ug.mL = map_dbl(abs562, ~ predict(mod, newdata = data.frame(abs562 = .))))    # Use standard curve to convert absorbance to protein
 
 std_curve_plot + 
-  geom_point(data = prot, aes(x = abs562.adj, y = prot_ug.mL), pch = "X", cex = 5, alpha = 0.3) +
+  geom_point(data = prot, aes(x = abs562, y = prot_ug.mL), pch = "X", cex = 5, alpha = 0.3) +
   labs(title = "All samples projected on standard curve")
 ```
 
@@ -132,6 +129,10 @@ prot %>%
   stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
                geom = "errorbar", color = "black", width = 0.5) +
   stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
+
+# Remove outlier data points where absorbance was super low
+prot <- prot %>%
+  filter(abs562 > 0.1)
 ```
 
 # Write data to output file
@@ -139,6 +140,9 @@ prot %>%
 # Write protein data to output file
 prot %>%
   filter(!is.na(species)) %>%
+  group_by(colony_id) %>%
+  summarise(prot_ug = mean(prot_ug, na.rm = T),
+            prot_ug.cm2 = mean(prot_ug.cm2, na.rm = T)) %>%
   select(colony_id, prot_ug, prot_ug.cm2) %>%
   write_csv(., path = "output/1_protein.csv")
 ```
