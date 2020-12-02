@@ -68,39 +68,39 @@ std_curve <- df %>%
   rename(std = colony_id) %>%
   mutate(std = as.numeric(str_sub(std, 9, 10))) %>%
   spread(readtime, absorbance) %>%
-  mutate(net = final - initial) %>%
-  group_by(std) %>%
-  summarise(net = mean(net)) %>%
-  mutate(net.adj = net - net[std == 10]) %>%
+  mutate(net_abs = final - initial) %>%
   left_join(standards)
 
 # Fit nonlinear model
-mod <- nls(formula = conc_mM ~ z + a * exp(b * net.adj), start = list(z = 0, a = 1, b = 1), data = std_curve)
+nlmod <- nls(formula = conc_mM ~ z + a * exp(b * net_abs), start = list(z = 0, a = 1, b = 1), data = std_curve)
+# Fit linear model
+lmod <- lm(conc_mM ~ net_abs, data = std_curve)
+
 # Get fitted values
-fitted <- mod %>% 
-  broom::augment(newdata = tibble(net.adj = seq(0, max(std_curve$net.adj), 0.005)))
+fitted <- nlmod %>% 
+  broom::augment(newdata = tibble(net_abs = seq(0, max(std_curve$net_abs), 0.005)))
 
 std_curve_plot <- std_curve %>%
-  ggplot(aes(x = net.adj, y = conc_mM)) +
+  ggplot(aes(x = net_abs, y = conc_mM)) +
   geom_point(color = "red", size = 3)
 
-std_curve_plot + geom_line(data = fitted, aes(x = net.adj, y = .fitted)) +
+std_curve_plot + geom_line(data = fitted, aes(x = net_abs, y = .fitted)) +
   labs(title = "Standard curve")
 ```
 
-# Calculate total antioxidant capacity
+# Calculate total antioxidant capacity for all samples based on standard curve
 ```{r}
 tac <- df %>%
   unnest(merged) %>%
   filter(!grepl("Standard", colony_id)) %>%
   select(plate, well, colony_id, wavelength, absorbance, readtime) %>%
   spread(readtime, absorbance) %>%
-  mutate(net = final - initial,
-         net.adj = net - std_curve$net[std_curve$std == 10],
-         uae.mmol.L = map_dbl(net.adj, ~ predict(mod, newdata = data.frame(net.adj = .))))
+  # Use standard curve to predict concentrations based on sample absorbance values
+  mutate(net_abs = final - initial,
+         uae.mmol.L = map_dbl(net_abs, ~ predict(nlmod, newdata = data.frame(net_abs = .))))
 
 std_curve_plot +
-  geom_point(data = tac, aes(x = net.adj, y = uae.mmol.L), pch = "X", cex = 3, alpha = 0.3) +
+  geom_point(data = tac, aes(x = net_abs, y = uae.mmol.L), pch = "X", cex = 3, alpha = 0.3) +
     labs(title = "All samples projected on standard curve")
 ```
 
@@ -125,37 +125,46 @@ metadata <- full_join(metadata, homog_vols) %>%
 
 # Join TAC data with metadata
 tac <- left_join(tac, metadata) %>%
-  mutate(uae.mmol = uae.mmol.L * (homog_vol_ml / 1000),
-         uae.mmol.cm2 = uae.mmol / surface.area.cm2,
-         uae.mmol.ugprot = uae.mmol.cm2 / prot_ug.cm2)
+  mutate(cre.umol.L = uae.mmol.L * 2189) %>%   # Convert to copper reducing equivalents (see product manual)
+  mutate(cre.umol = cre.umol.L * (homog_vol_ml / 1000),
+         cre.umol.cm2 = cre.umol / surface.area.cm2,
+         cre.umol.mgprot = cre.umol / (prot_ug / 1000))
+
+tac %>% select(colony_id, homog_vol_ml, surface.area.cm2, prot_ug)
+```
+
+```{r}
+# Summarize results
+tac %>% 
+  drop_na(species) %>%
+  group_by(species) %>%
+  summarise(across(starts_with("cre"), mean, na.rm = TRUE, .names = "mean_{.col}"))
 ```
 
 # Plot results by species and site
 ```{r}
 # Plot all data points with mean ± se
-tac %>%
+tacplot <- tac %>%
   filter(!is.na(species)) %>%
-  ggplot(aes(x = site, y = uae.mmol.cm2, color = species)) +
+  ggplot(aes(x = site, y = cre.umol.mgprot, color = species)) +
   facet_wrap(~species) +
-  labs(x = "", y = "uae.mmol/cm2",
-       title = "Total antixodidant capacity per unit surface area") +
+  labs(x = "", y = "Copper Reducing Equivalents (µmol/mg protein)",
+       title = "Total antixodidant capacity") +
   geom_jitter(width = 0.1) +                                            # Plot all points
   stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
                geom = "errorbar", color = "black", width = 0.5) +
   stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
 
-tac %>%
-  filter(!is.na(species)) %>%
-  ggplot(aes(x = site, y = uae.mmol.ugprot, color = species)) +
-  facet_wrap(~species) +
-  labs(x = "", y = "uae.mmol/ugprot",
-       title = "Total antixodidant capacity per unit protein") +
-  geom_jitter(width = 0.1) +                                            # Plot all points
-  ylim(0,0.0000004) +
-  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
-               geom = "errorbar", color = "black", width = 0.5) +
-  stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
+tacplot + ylim(0, 0.75)
 ```
+
+### Reported values in other studies
+Us: 0.1 - 0.5 µmol CRE / mg protein
+Strahl et al. 2015: 5-20 µmol CRE / mg protein
+Marangoni et al. 2017: 50,000-150,000 "µM CRE / mg protein"
+Ayalon et al. 2019: 10,000-15,000 "µM CRE / mg protein"
+
+
 
 # Write data to output file
 ```{r}
