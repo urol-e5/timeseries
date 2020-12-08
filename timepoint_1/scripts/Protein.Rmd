@@ -123,7 +123,8 @@ prot <- left_join(prot, metadata) %>%
 prot %>%
   filter(!is.na(species)) %>%
   ggplot(aes(x = site, y = prot_mg.cm2, color = species)) +
-  facet_wrap(~species) +
+  facet_wrap(~species)  +
+  coord_cartesian(ylim = c(0, 10))+
   labs(x = "", y = "Total protein (mg/cm2)") +
   geom_jitter(width = 0.1) +                                            # Plot all points
   stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error

@@ -132,7 +132,8 @@ tac <- left_join(tac, metadata) %>%
 tacplot <- tac %>%
   filter(!is.na(species)) %>%
   ggplot(aes(x = site, y = cre.umol.mgprot, color = species)) +
-  facet_wrap(~species) +
+  facet_wrap(~species)  +
+  coord_cartesian(ylim = c(0, 2))+
   labs(x = "", y = "Copper Reducing Equivalents (µmol/mg protein)",
        title = "Total antixodidant capacity") +
   geom_jitter(width = 0.1) +                                            # Plot all points
