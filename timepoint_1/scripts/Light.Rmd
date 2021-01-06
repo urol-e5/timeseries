@@ -30,12 +30,12 @@ library(ggplot2)
 
 ```{r}
 #Read in licor data
-Licor.Data <- read.csv("../data/1_Env_data/Cross_Calibration/20200111/1_20200111_Licor_Light_Calib.csv", header=FALSE)
+Licor.Data <- read.csv("data/1_environmental/Cross_Calibration/20200111/1_20200111_Licor_Light_Calib.csv", header=FALSE)
 
 #Read in odyssey data
-Site1 <- read.csv("../data/1_Env_data/Cross_Calibration/20200111/Logger1_FCDC4664E473_1578805794987.csv", header=FALSE, skip=81)
-Site2 <- read.csv("../data/1_Env_data/Cross_Calibration/20200111/Logger2_EA62F175DD93_1578805769597.csv", header=FALSE, skip=83)
-Site3 <- read.csv("../data/1_Env_data/Cross_Calibration/20200111/Logger3_ECB51D4FB2D6_1578805825453.csv", header=FALSE, skip=83)
+Site1 <- read.csv("data/1_environmental/Cross_Calibration/20200111/Logger1_FCDC4664E473_1578805794987.csv", header=FALSE, skip=81)
+Site2 <- read.csv("data/1_environmental/Cross_Calibration/20200111/Logger2_EA62F175DD93_1578805769597.csv", header=FALSE, skip=83)
+Site3 <- read.csv("data/1_environmental/Cross_Calibration/20200111/Logger3_ECB51D4FB2D6_1578805825453.csv", header=FALSE, skip=83)
 
 #truncate data to calibration timepoints
 Site1 <- Site1[1:49,]
@@ -65,9 +65,9 @@ summary(lm(Inst.Licor ~ Logger3, data=Data))
 #Read in and convert light data from each site
 ```{r}
 #read in site data
-S1.Data <- read.csv("../data/1_Env_data/1_FCDC4664E473_1578713594885_Site1_Light.csv")
-S2.Data <- read.csv("../data/1_Env_data/1_EA62F175DD93_1578713736764_Site2_Light.csv")
-S3.Data <- read.csv("../data/1_Env_data/1_ECB51D4FB2D6_1578713762658_Site3_Light.csv")
+S1.Data <- read.csv("data/1_environmental/1_FCDC4664E473_1578713594885_Site1_Light.csv")
+S2.Data <- read.csv("data/1_environmental/1_EA62F175DD93_1578713736764_Site2_Light.csv")
+S3.Data <- read.csv("data/1_environmental/1_ECB51D4FB2D6_1578713762658_Site3_Light.csv")
 
 #run calibrations
 S1.Data$light <-(S1.Data$data1*S1[2])+S1[1]
