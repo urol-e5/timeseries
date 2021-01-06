@@ -1,5 +1,7 @@
 # timeseries
 
+#### To run scripts, set Knit directory to "Project Directory"  
+
 #### Data standards
 
 - 'site'  *(site where sample was collected)*
