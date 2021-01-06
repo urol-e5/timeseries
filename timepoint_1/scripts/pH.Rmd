@@ -30,12 +30,12 @@ library(lubridate)
 
 
 ```{r}
-pH <- read.csv("../data/1_Env_data/1_20200102_SN20697597_Site1_pH.csv", header=F, sep=",", na.strings="NA", skip=700) #load  data
+pH <- read.csv("data/1_environmental/1_20200102_SN20697597_Site1_pH.csv", header=F, sep=",", na.strings="NA", skip=700) #load  data
 pH <- pH[,1:4]
 colnames(pH) <- c("Date.Time", "Temp", "mV", "pH")
 pH$Date.Time <- parse_date_time(pH$Date.Time, "Y!-m!*-d! H!:M!:S!") 
 
-pdf("../output/timepoint_pH_Temp.pdf")
+pdf("output/timepoint_pH_Temp.pdf")
 par(mfrow=c(3,1))
 par(mar = c(5,5,2,5))
 with(pH, plot(Date.Time, pH, type="l", col="blue", 
@@ -48,7 +48,7 @@ axis(side = 4)
 mtext(side = 4, line = 3, 'Temperature°C')
 #dev.off()
 
-pH <- read.csv("../data/1_Env_data/1_20200103_SN20697596_Site2_pH.csv", header=F, sep=",", na.strings="NA", skip=700) #load  data
+pH <- read.csv("data/1_environmental/1_20200103_SN20697596_Site2_pH.csv", header=F, sep=",", na.strings="NA", skip=700) #load  data
 pH <- pH[,1:4]
 colnames(pH) <- c("Date.Time", "Temp", "mV", "pH")
 pH$Date.Time <- parse_date_time(pH$Date.Time, "Y!-m!*-d! H!:M!:S!") 
@@ -65,7 +65,7 @@ axis(side = 4)
 mtext(side = 4, line = 3, 'Temperature°C')
 #dev.off()
 
-pH <- read.csv("../data/1_Env_data/1_20200106_20697595_Site3_pH.csv", header=F, sep=",", na.strings="NA", skip=700) #load  data
+pH <- read.csv("data/1_environmental/1_20200106_SN20697595_Site3_pH.csv", header=F, sep=",", na.strings="NA", skip=700) #load  data
 pH <- pH[,1:4]
 colnames(pH) <- c("Date.Time", "Temp", "mV", "pH")
 pH$Date.Time <- parse_date_time(pH$Date.Time, "Y!-m!*-d! H!:M!:S!") 
