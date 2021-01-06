@@ -78,7 +78,7 @@ curves <- meanpars %>%
 # Plot
 curves %>% 
   unnest(cols = c(I, PIcurve)) %>%
-  ggplot(aes(x = I, y = V1, color = species)) +
+  ggplot(aes(x = I, y = ...1, color = species)) +
   geom_line() +
   facet_wrap(~ site) +
   labs(x = expression(paste('PAR (', mu, "mol photons m"^-2, 's'^-1,")")),
