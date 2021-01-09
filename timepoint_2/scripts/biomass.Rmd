@@ -20,7 +20,7 @@ library(plotrix)
 
 ```{r }
 #Read in biomass data
-Data <- read.csv("data/2_biomass/1_biomass_data.csv")
+Data <- read.csv("data/2_biomass/2_biomass_data.csv")
 Data <- na.omit(Data)
   
 # calculated mass per ml
@@ -32,7 +32,7 @@ Data <- Data %>%
          burnt.pan.mass.g.ml = case_when(partner=="Host" ~ burnt.pan.mass.g/sym, partner=="Sym" ~burnt.pan.mass.g/host))
 
 #Load tissue homogenate volume
-homog_vol <- read.csv("data/2_homogenate_vols/1_homogenate_vols.csv", header=TRUE)
+homog_vol <- read.csv("data/2_homogenate_vols/2_homogenate_vols.csv", header=TRUE)
 
 # Load Surface area data
 sa <- read.csv("output/2_surface_area.csv")
@@ -61,7 +61,9 @@ dw <- left_join(Data, metadata) %>%
 
 ```{r}
 #summarize Dry Biomass mean and sem by site, species, and partner and plot
-dw %>% na.omit(dw) %>%
+dw<-dw[!is.na(dw$species),]#remove rows that are not identified for species and site
+  
+dw %>% 
   group_by(species, site, partner)%>%
   summarise(mean.value = mean(DW.mg.cm2), se = std.error(DW.mg.cm2)) %>%
   ggplot(aes(x = site, y = mean.value, group = species, color = partner))+
@@ -75,7 +77,9 @@ dw %>% na.omit(dw) %>%
 
 ```{r}
 #summarize AFDW mean and sem by site, species, and partner and plot
-afdw %>% na.omit(afdw) %>%
+afdw<-afdw[!is.na(afdw$species),]#remove rows that are not identified for species and site
+
+afdw %>% 
   group_by(species, site, partner)%>%
   summarise(mean.value = mean(AFDW.mg.cm2), se = std.error(AFDW.mg.cm2)) %>%
   ggplot(aes(x = site, y = mean.value, group = species, color = partner))+
