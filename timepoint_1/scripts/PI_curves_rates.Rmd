@@ -49,7 +49,7 @@ metadata <- full_join(sample.info, run.info) %>%
 metadata <- metadata %>%
   select(colony_id, Run, Chamber.Vol.L, Date, Start.time, Stop.time, Light_Value)
 
-# Read in all data files
+# Read in all data files 
 df <- tibble(file.name = file.names) %>%
   mutate(colony_id = gsub("_.*", "", file.name),                              # Get colony_id from filename
           info = map(colony_id, ~filter(metadata, colony_id == .)),           # Get associated sample info
@@ -185,7 +185,7 @@ pr <- pr %>%
 
 # Plot rates vs. irradiance for each sample
 ```{r, fig.height=15, fig.width = 10}
-ggplot(pr.out, aes(x = as.numeric(Light_Value), y = micromol.cm2.h)) +
+ggplot(pr, aes(x = as.numeric(Light_Value), y = micromol.cm2.h)) +
   geom_point() +
   facet_wrap(~colony_id, scale = "free_y", ncol = 9)
 ```
