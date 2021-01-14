@@ -100,6 +100,7 @@ completeness %>%
 # Full completeness table
 ```{r}
 completeness %>% print(n = nrow(.))
+write.table(completeness, file="output/1_completeness.csv", sep=",")
 ```
 
 

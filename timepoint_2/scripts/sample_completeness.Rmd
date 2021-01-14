@@ -1,8 +1,6 @@
 ---
 title: "Check completeness of datasets"
-output:
-  pdf_document: default
-  html_document: default
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -102,7 +100,7 @@ completeness %>%
 # Full completeness table
 ```{r}
 completeness %>% print(n = nrow(.))
-write.table(completeness, file="~/MyProjects/urol-e5/timeseries/timepoint_2/output/completeness.csv", sep=",")
+write.table(completeness, file="output/2_completeness.csv", sep=",")
 ```
 
 
