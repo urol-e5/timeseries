@@ -15,12 +15,12 @@ library(Hmisc)
 
 # Import PI curve fitted parameters for each individual
 ```{r}
-pars <- read_csv("../output/2_pi_curve_pars.csv")
+pars <- read_csv("output/2_pi_curve_pars.csv")
 ```
 
 # Import sample metadata
 ```{r}
-md <- read_csv("../../metadata/coral_metadata.csv")
+md <- read_csv("../metadata/coral_metadata.csv")
 
 df <- left_join(pars, md)
 ```
@@ -72,15 +72,15 @@ curves <- meanpars %>%
 # Plot
 curves %>% 
   unnest(cols = c(I, PIcurve)) %>%
-  ggplot(aes(x = I, y = V1, color = species)) +
+  ggplot(aes(x = I, y = ...1, color = species)) +
   geom_line() +
   facet_wrap(~ site) +
   labs(x = expression(paste('PAR (', mu, "mol photons m"^-2, 's'^-1,")")),
        y = expression(paste('Photosynthetic rate (', mu, "mol O2 cm"^-2, 'h'^-1,")")),
-       title = "Timepoint 1: January, 2020")
+       title = "Timepoint 2")
 
 # Save mean photosynthesis pars for each species/site to file
 meanpars
-write_csv(meanpars, path = "../output/2_photosynthesis_pars_summary.csv")
+write_csv(meanpars, path = "output/2_photosynthesis_pars_summary.csv")
 ```
 
