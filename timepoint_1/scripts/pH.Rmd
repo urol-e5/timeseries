@@ -35,7 +35,7 @@ pH <- pH[,1:4]
 colnames(pH) <- c("Date.Time", "Temp", "mV", "pH")
 pH$Date.Time <- parse_date_time(pH$Date.Time, "Y!-m!*-d! H!:M!:S!") 
 
-pdf("output/timepoint_pH_Temp.pdf")
+pdf("output/1_pH_Temp.pdf")
 par(mfrow=c(3,1))
 par(mar = c(5,5,2,5))
 with(pH, plot(Date.Time, pH, type="l", col="blue", 

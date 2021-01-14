@@ -76,7 +76,7 @@ par(new = T)
 with(pH3, plot(Date.Time, Temp,type="l", axes=F,col="black", xlab=NA, ylab=NA, ylim=c(27,32)))
 axis(side = 4)
 mtext(side = 4, line = 3, 'Temperature°C')
-dev.off()
+#dev.off()
 ```
 
 Temperature
@@ -112,7 +112,7 @@ with(Temp3, plot(Date.Time, Temp, type="l", col="black",
              ylim=c(26.5,31), ylab =NA, main="Site 3 Hilton"))
 axis(2, col="black",col.axis="black")
 mtext("Temperature °C",side=2,col="black",line=4) 
-dev.off()
+#dev.off()
 ```
 Light
 ```{r}
@@ -184,7 +184,7 @@ plot(S1.Data$light, cex=0.2, ylab="PAR µmol cm-2 s-1")
 points(S2.Data$light, cex=0.2, col="red")
 points(S3.Data$light, cex=0.2, col="blue")
 
-pdf("output/timepoint2_Light.pdf")
+pdf("output/timepoint1_Light.pdf")
 par(mfrow=c(3,1))
 par(mar = c(5,5,2,5))
 with(S1.Data, plot(Date.Time, light, type="l", col="black", 
@@ -201,7 +201,7 @@ with(S3.Data, plot(Date.Time, light, type="l", col="black",
              ylim=c(0,5000), ylab =NA, main="Site 3 Hilton"))
 axis(2, col="black",col.axis="black")
 mtext("PAR µmol photons m-2 s-1",side=2,col="black",line=4) 
-dev.off()
+#dev.off()
 ```
 
 
