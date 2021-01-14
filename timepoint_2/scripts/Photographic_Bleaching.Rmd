@@ -69,7 +69,7 @@ Blch$SpGroup <- paste(Blch$Timepoint, Blch$Site)
 Exporting datatable of bleaching score values
 ```{r}
 write.table(Blch, file = "data/E5_Bleaching_Score.csv", append = FALSE, quote = TRUE, sep = ",",
-            eol = "\n", na = "NA", dec = ".", row.names = TRUE,
+            eol = "\n", na = "NA", dec = ".", row.names = FALSE,
             col.names = TRUE, qmethod = c("escape", "double"),
             fileEncoding = "")
 ```
@@ -114,8 +114,8 @@ bleaching <- ggplot(All.Means, aes(x=Timepoint, y=mean, group=Site)) +
   ggtitle("Mo'orea E5 2020") + theme(plot.title = element_text(hjust = 0.5)) + 
   geom_line(aes(colour=Site, group=Site), position = position_dodge(width = 0.1), alpha=0.4) # colour, group both depend on cond2
 bleaching
-ggsave(file="output/Bleaching.pdf", bleaching, width = 6, height = 10, units = c("in"))
-ggsave(file="output/Bleaching.jpeg", bleaching, width = 6, height = 10, units = c("in"))
+ggsave(file="output/2_Bleaching.pdf", bleaching, width = 6, height = 10, units = c("in"))
+ggsave(file="output/2_Bleaching.jpeg", bleaching, width = 6, height = 10, units = c("in"))
 ```
 
 ## Statistics 
@@ -126,11 +126,17 @@ if ("tidyverse" %in% rownames(installed.packages()) == 'FALSE') install.packages
 if ("ggpubr" %in% rownames(installed.packages()) == 'FALSE') install.packages('ggpubr') 
 if ("rstatix" %in% rownames(installed.packages()) == 'FALSE') install.packages('rstatix') 
 if ("xml2" %in% rownames(installed.packages()) == 'FALSE') install.packages('xml2') 
-install.packages("xml2")
+if ("lme4" %in% rownames(installed.packages()) == 'FALSE') install.packages('lme4') 
+if ("car" %in% rownames(installed.packages()) == 'FALSE') install.packages('car') 
+if ("lmerTest" %in% rownames(installed.packages()) == 'FALSE') install.packages('lmerTest') 
 
 library(tidyverse)
 library(ggpubr)
 library(rstatix)
+library(xml2)
+library(lme4)
+library(car)
+library(lmerTest)
 
 Blch %>% group_by(Species, Site, Timepoint) %>% get_summary_stats(Bleaching.Score, type = "mean_sd")
 ## this can also be seen with the All.Means table created in previous steps
@@ -140,6 +146,7 @@ Blch %>% group_by(Species, Site, Timepoint) %>% get_summary_stats(Bleaching.Scor
 Checking assumptions 
 https://www.datanovia.com/en/lessons/repeated-measures-anova-in-r/
 
+Model bleaching in Acropora using mixed effect model: `ACR_model<-lmer(Bleaching.Score~Site*Timepoint + (1|Coral.ID), data=ACR_blch)`
 ```{r}
 ## Outlier check
 Blch %>% group_by(Species, Site, Timepoint) %>% identify_outliers(Bleaching.Score)
@@ -159,16 +166,31 @@ ggqqplot(POR_blch, "Bleaching.Score", ggtheme = theme_classic()) + facet_grid(Si
 ggqqplot(POC_blch, "Bleaching.Score", ggtheme = theme_classic()) + facet_grid(Site ~ Timepoint, labeller = "label_both")
 
 ## Repeated measures two way ANOVA 
-ACR.aov <- anova_test(data = ACR_blch, dv=Bleaching.Score, wid = Coral.ID, within = c(Site, Timepoint))
-get_anova_table(ACR.aov)
+#ACR.aov <- anova_test(data = ACR_blch, dv=Bleaching.Score, wid = Coral.ID, within = c(Site, Timepoint))
+#get_anova_table(ACR.aov)
 
-## Tukey Post-Hoc test
+#Using lmer mixed models rather than ANOVA
+ACR_model<-lmer(Bleaching.Score~Site*Timepoint + (1|Coral.ID), data=ACR_blch)
+qqPlot(residuals(ACR_model))
+anova(ACR_model, type=2)
 
 ```
 
+Model bleaching in Porites using mixed effect model: `POR_model<-lmer(Bleaching.Score~Site*Timepoint + (1|Coral.ID), data=POR_blch)`
+```{r}
+POR_model<-lmer(Bleaching.Score~Site*Timepoint + (1|Coral.ID), data=POR_blch)
+qqPlot(residuals(POR_model))
+anova(POR_model, type=2)
+```
 
+Model bleaching in Pocillopora using mixed effect model: `POC_model<-lmer(Bleaching.Score~Site*Timepoint + (1|Coral.ID), data=POC_blch)`
+```{r}
+POC_model<-lmer(Bleaching.Score~Site*Timepoint + (1|Coral.ID), data=POC_blch)
+qqPlot(residuals(POC_model))
+anova(POC_model, type=2)
+```
 
-
+There are upper end outliers that should be addressed in further statistical analyses.  
 
 
 
