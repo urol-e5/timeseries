@@ -15,14 +15,7 @@ library(tidyverse)
 library(plotrix)
 ```
 
-# ```{r}
-# chl_data <- read_csv("data/1_chlorophyll/1_20200106_Chl", skip = 24, n_max = 24) %>%
-#     select(-1) %>%
-#     magrittr::set_colnames(c("row", 1:12, "wavelength")) %>%
-#     fill(row) %>%
-#     gather("col", "absorbance", -wavelength, -row) %>%
-#     unite("well", c(row, col), sep = "")
-# ```
+
 # Import data
 ```{r}
 # Define function to read in chl data
@@ -86,7 +79,7 @@ homog.vol <- read_csv("data/2_homogenate_vols/2_homogenate_vols.csv") %>%
 chl <- full_join(df, homog.vol)
 
 # Load surface area
-sa <- read_csv("output/1_surface_area.csv")
+sa <- read_csv("output/2_surface_area.csv")
 chl <- full_join(chl, sa)
 
 # Multiply chlorophyll by the homogenate volume and divide by surface area
@@ -100,7 +93,7 @@ chl <- filter(chl, !colony_id %in% c("NA", "BK"))
 # write chlorophyll data to file
 chl %>%
   select(colony_id, chla.ug.cm2, chlc2.ug.cm2) %>%
-  write_csv(path = "output/1_chlorophyll.csv")
+  write_csv(path = "output/2_chlorophyll.csv")
 ```
 
 # Plot results by species and site
