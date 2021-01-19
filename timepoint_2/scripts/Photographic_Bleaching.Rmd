@@ -114,7 +114,7 @@ bleaching <- ggplot(All.Means, aes(x=Timepoint, y=mean, group=Site)) +
   ggtitle("Mo'orea E5 2020") + theme(plot.title = element_text(hjust = 0.5)) + 
   geom_line(aes(colour=Site, group=Site), position = position_dodge(width = 0.1), alpha=0.4) # colour, group both depend on cond2
 bleaching
-ggsave(file="output/2_Bleaching.pdf", bleaching, width = 6, height = 10, units = c("in"))
+#ggsave(file="output/2_Bleaching.pdf", bleaching, width = 6, height = 10, units = c("in"))
 ggsave(file="output/2_Bleaching.jpeg", bleaching, width = 6, height = 10, units = c("in"))
 ```
 

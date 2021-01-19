@@ -61,6 +61,15 @@ sym_counts <- sym_counts %>%
 sym_counts %>% filter(is.na(site))
 ```
 
+Output file.  
+
+```{r}
+sym_counts %>%
+  select(colony_id, site, species, cells.cm2) %>%
+  mutate(timepoint="timepoint2")%>% 
+  write.csv("output/2_symb_densities.csv")
+```
+
 # Plot data
 ```{r}
 sym_counts %>%

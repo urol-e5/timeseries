@@ -93,6 +93,7 @@ chl <- filter(chl, !colony_id %in% c("NA", "BK"))
 # write chlorophyll data to file
 chl %>%
   select(colony_id, chla.ug.cm2, chlc2.ug.cm2) %>%
+  mutate(timepoint="timepoint2")%>%
   write_csv(path = "output/2_chlorophyll.csv")
 ```
 
