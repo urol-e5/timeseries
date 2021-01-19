@@ -145,6 +145,7 @@ prot %>%
   summarise(prot_ug = mean(prot_ug, na.rm = T),
             prot_ug.cm2 = mean(prot_ug.cm2, na.rm = T)) %>%
   select(colony_id, prot_ug, prot_ug.cm2) %>%
+  mutate(timepoint="timepoint1")%>%
   write_csv(., path = "output/1_protein.csv")
 ```
 

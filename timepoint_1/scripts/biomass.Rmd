@@ -135,3 +135,12 @@ sh %>%
   arrange(partner)
 ```
 
+Output biomass data to .csv.  
+
+```{r}
+afdw %>%
+  select(colony_id, partner, site, species, DW.mg.cm2, AFDW.mg.cm2) %>%
+  mutate(timepoint="timepoint1")%>%
+  write_csv(path = "output/1_biomass.csv")
+```
+

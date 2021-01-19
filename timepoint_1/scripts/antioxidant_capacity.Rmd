@@ -157,6 +157,7 @@ tac %>%
 tac %>%
   filter(!is.na(species)) %>%
   select(colony_id, cre.umol.L, cre.umol.mgprot) %>%
+  mutate(timepoint="timepoint1")%>%
   write_csv(., path = "output/1_antioxidant_capacity.csv")
 ```
 

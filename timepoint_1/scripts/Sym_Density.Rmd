@@ -75,5 +75,13 @@ geom_jitter(width = 0.1) +                                            # Plot all
 ```
 
 
+Output data to file.  
+
+```{r}
+sym_counts %>%
+  select(colony_id, site, species, cells.cm2) %>%
+  mutate(timepoint="timepoint1")%>%
+  write_csv(path = "output/1_sym_densities.csv")
 
 
+```

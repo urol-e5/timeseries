@@ -50,6 +50,8 @@ range(smpls$surface.area.cm2)
 range(stnds$surface.area.cm2)
 
 #Save the output for use in normilzation for phys assays
-write.csv(smpls, "output/1_surface_area.csv")
+smpls%>%
+  mutate(timepoint="timepoint1")%>%
+  write.csv("output/1_surface_area.csv")
 
 ```
