@@ -1,0 +1,53 @@
+---
+title: "Integrating E5 time series biological data"
+author: "Ariana S Huffmyer"
+date: "1/18/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Loading data files 
+
+Load all .csv files from output of all timepoints for each biological response
+
+```{r}
+all_files<-list.files(path="../", pattern = "*.csv", recursive=T)
+
+biomass_files<-list.files("../", pattern = "biomass.csv", recursive=T)
+antioxidant_files<-list.files("../", pattern = "antioxidant_capacity.csv", recursive=T)
+pi_curve_rate_files<-list.files("../", pattern = "pi_curve_rates.csv", recursive=T)
+surface_area_files<-list.files("../", pattern = "surface_area.csv", recursive=T)
+pi_curve_pars_files<-list.files("../", pattern = "pi_curve_pars.csv", recursive=T)
+protein_files<-list.files("../", pattern = "protein.csv", recursive=T)
+symb_densities_files<-list.files("../", pattern = "symb_densities.csv", recursive=T)
+chlorophyll_files<-list.files("../", pattern = "chlorophyll.csv", recursive=T)
+
+#need to add calcification
+```
+
+## Correct, control for colony id  
+
+## Generate master data frame  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2. Generate master data file for each or all parameters that include a column for timepoint  
+
+3. Plot parameters over time and output plots  
+
+4. Conduct statistical analyses within and between time points and generate summary information for all parameters 

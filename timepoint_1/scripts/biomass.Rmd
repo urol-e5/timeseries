@@ -23,7 +23,7 @@ library(plotrix)
 Data <- read.csv("data/1_biomass/1_biomass_data.csv")
 Data <- na.omit(Data)
 
-# Change POC-42 pan 221 from Sym to Host -- was recorded twice as Sym, assuming pan with more mass is host
+# Change POC-42 pan 221 from Sym to Host -- was recorded twice as Sym, assuming pan with m ore mass is host
 Data[Data$Pan.ID == 221, "partner"] <- "Host"
 # Remove pan 73 -- from lab notebook, material was stuck in pipet tip, and result is outlier
 Data[Data$Pan.ID == 73, ] <- NA

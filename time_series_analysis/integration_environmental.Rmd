@@ -1,0 +1,24 @@
+---
+title: "Integrating E5 time series environmental data"
+author: "Ariana S Huffmyer"
+date: "1/18/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Steps to complete  
+
+1. Load all environmental data files 
+- temp (output/x_temp.csv)
+- pH (output/x_pH.csv)
+- salinity/conductivity (output/x_salinity.csv)
+- light (output/x_light.csv)
+
+2. Merge all files and generate output file  
+
+3. Plot all parameters
+
+4. Statistical analysis and summary of all parameters 
