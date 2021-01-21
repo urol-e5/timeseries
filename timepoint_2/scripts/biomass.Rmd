@@ -51,6 +51,9 @@ afdw <- left_join(Data, metadata) %>%
          burnt.bioimass.g = burnt.pan.mass.g.ml * homog_vol_ml,
          AFDW.mg.cm2 = ((dry.bioimass.g-burnt.bioimass.g)*1000) / surface.area.cm2)
 
+#POR365 is an outlier (afdw = 59mg/cm2 as compared to 1-10mg/cm2), remove
+afdw<-afdw[!afdw$colony_id == "POR-365", ]
+
 # Calculate Dry Biomass
 dw <- left_join(Data, metadata) %>%
   mutate(dry.bioimass.g.ml = (dry.pan.mass.g.ml - burnt.pan.mass.g.ml),
@@ -90,3 +93,19 @@ afdw %>%
 
 
 ```
+
+Output biomass data to .csv.  
+
+```{r}
+afdw<-afdw %>%
+  select(colony_id, partner, site, species, AFDW.mg.cm2) %>%
+  mutate(timepoint="timepoint2")
+
+dw<-dw %>% 
+  select(colony_id, partner, site, species, DW.mg.cm2) %>%
+  mutate(timepoint="timepoint2")
+  
+output<-left_join(afdw,dw)%>%
+  write_csv(path = "output/2_biomass.csv")
+```
+ 

@@ -22,15 +22,16 @@ library(plotrix)
 #Read in biomass data
 Data <- read.csv("data/1_biomass/1_biomass_data.csv")
 Data <- na.omit(Data)
+
 # Change POC-42 pan 221 from Sym to Host -- was recorded twice as Sym, assuming pan with more mass is host
 Data[Data$Pan.ID == 221, "partner"] <- "Host"
 # Remove pan 73 -- from lab notebook, material was stuck in pipet tip, and result is outlier
 Data[Data$Pan.ID == 73, ] <- NA
   
-# set sample volumes to calculated mass per ml of sample added to pans
+# calculated mass per ml
 #different volumes for sym (4ml) and host (5ml)
-sym.vol <- 5
-host.vol <- 4
+sym <- 5
+host <- 4
 
 #Load tissue homogenate volume
 homog_vol <- read.csv("data/1_homogenate_vols/1_homogenate_vols.csv", header=TRUE)
@@ -45,35 +46,31 @@ metadata <- read_csv("../metadata/coral_metadata.csv") %>% select(1:3)
 metadata <- full_join(metadata, homog_vol) %>%
   full_join(sa)
 
+Data <- Data %>%
+  mutate(dry.pan.mass.g.ml = case_when(partner=="Host" ~ dry.pan.mass.g/sym, partner=="Sym" ~dry.pan.mass.g/host),
+         burnt.pan.mass.g.ml = case_when(partner=="Host" ~ burnt.pan.mass.g/sym, partner=="Sym" ~burnt.pan.mass.g/host))
+
+
 # Join AFDW data with metadata
 afdw <- left_join(Data, metadata) %>%
-  mutate(dry.biomass.g = dry.pan.mass.g - initial.mass.g,
-         burnt.biomass.g = dry.pan.mass.g - burnt.pan.mass.g,
-         dry.biomass.g.ml = case_when(partner == "Host" ~ dry.biomass.g / host.vol, 
-                                      partner == "Sym"  ~ dry.biomass.g / sym.vol),
-         burnt.biomass.g.ml = case_when(partner == "Host" ~ dry.biomass.g / host.vol, 
-                                        partner == "Sym"  ~ dry.biomass.g / sym.vol),
-         dry.biomass.g.coral = dry.biomass.g.ml * homog_vol_ml,
-         burnt.biomass.g.coral = burnt.biomass.g.ml * homog_vol_ml,
-         DW.mg.cm2 = ((dry.biomass.g.coral)*1000) / surface.area.cm2,
-         AFDW.mg.cm2 = ((burnt.biomass.g.coral)*1000) / surface.area.cm2)
+  mutate(dry.bioimass.g.ml = (dry.pan.mass.g.ml - burnt.pan.mass.g.ml),
+         dry.bioimass.g = dry.pan.mass.g.ml * homog_vol_ml,
+         burnt.bioimass.g = burnt.pan.mass.g.ml * homog_vol_ml,
+         AFDW.mg.cm2 = ((dry.bioimass.g-burnt.bioimass.g)*1000) / surface.area.cm2)
 
-# Filter out samples that are duplicated in the dataset (one of them might have been different sample with a data entry error, but no way to know for sure)
-afdw <- afdw %>%
-  group_by(colony_id) %>%
-  summarise(n = n()) %>%
-  filter(n == 2) %>%
-  left_join(afdw) %>%
-  ungroup()
-
+# Calculate Dry Biomass
+dw <- left_join(Data, metadata) %>%
+  mutate(dry.bioimass.g.ml = (dry.pan.mass.g.ml - burnt.pan.mass.g.ml),
+         dry.bioimass.g = dry.pan.mass.g.ml * homog_vol_ml,
+         DW.mg.cm2 = ((dry.bioimass.g)*1000) / surface.area.cm2)
 
 ```
 
-
 ```{r}
 #summarize Dry Biomass mean and sem by site, species, and partner and plot
-afdw %>% 
-  drop_na() %>%
+dw<-dw[!is.na(dw$species),]#remove rows that are not identified for species and site
+  
+dw %>% 
   group_by(species, site, partner)%>%
   summarise(mean.value = mean(DW.mg.cm2), se = std.error(DW.mg.cm2)) %>%
   ggplot(aes(x = site, y = mean.value, group = species, color = partner))+
@@ -87,60 +84,32 @@ afdw %>%
 
 ```{r}
 #summarize AFDW mean and sem by site, species, and partner and plot
-afdw %>%
-  drop_na() %>%
-  ggplot(aes(x = site, y = AFDW.mg.cm2, color = partner, group = partner)) +
-  facet_wrap(~species, scales = "free") +
-  labs(x = "", y = "AFDW (mg/cm2)") +
-  geom_point(position = position_jitterdodge(dodge.width = 0.75, jitter.width = 0.1), alpha = 0.6) +            # Plot all points
-  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
-               geom = "errorbar", width = 0.5, position = position_dodge(width = 0.75)) +
-  stat_summary(fun.y = mean, geom = "point", size = 3, pch = 1, position = position_dodge(width = 0.75))           # Plot mean
+afdw<-afdw[!is.na(afdw$species),]#remove rows that are not identified for species and site
 
-```
-
-```{r}
-# Symbiont to host biomass ratio for each sample
-sh <- tibble(afdw) %>%
-  drop_na() %>%
-  select(colony_id, site, species, partner, AFDW.mg.cm2) %>%
-  pivot_wider(names_from = partner, values_from = AFDW.mg.cm2) %>%
-  mutate(SH = Sym / Host) %>%
-  filter(SH < 0.5)   # removes ones outlier sample POC-375 that had S/H = 0.7.... somethings wrong with that sample.
-
-sh %>%
-  ggplot(aes(x = site, y = SH, color = species)) +
-  facet_wrap(~species) +
-  labs(x = "", y = "S/H biomass ratio") +
-  geom_point(position = position_jitter(width = 0.1), alpha = 0.6) +            # Plot all points
-  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
-               geom = "errorbar", width = 0.25) +
-  stat_summary(fun.y = mean, geom = "point", size = 3, pch = 1)           # Plot mean
-
-```
+afdw %>% 
+  group_by(species, site, partner)%>%
+  summarise(mean.value = mean(AFDW.mg.cm2), se = std.error(AFDW.mg.cm2)) %>%
+  ggplot(aes(x = site, y = mean.value, group = species, color = partner))+
+  ylab("AFDW mg cm-2")+
+  geom_point(size = 3)+
+  geom_errorbar(aes(x = site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
+  facet_grid(~species, scales = "free_y")
 
 
-```{r}
-#QC
-afdw %>%
-  filter(AFDW.mg.cm2 < 0) %>%
-  select(colony_id, Pan.ID, partner, initial.mass.g, dry.pan.mass.g, burnt.pan.mass.g, dry.biomass.g, burnt.biomass.g,
-         homog_vol_ml, surface.area.cm2, DW.mg.cm2, AFDW.mg.cm2)
-
-sh %>%
-  filter(SH > 0.4) %>%
-  left_join(afdw) %>%
-  select(colony_id, Pan.ID, partner, initial.mass.g, dry.pan.mass.g, burnt.pan.mass.g, dry.biomass.g, burnt.biomass.g,
-         homog_vol_ml, surface.area.cm2, DW.mg.cm2, AFDW.mg.cm2) %>%
-  arrange(partner)
 ```
 
 Output biomass data to .csv.  
 
 ```{r}
-afdw %>%
-  select(colony_id, partner, site, species, DW.mg.cm2, AFDW.mg.cm2) %>%
-  mutate(timepoint="timepoint1")%>%
+afdw<-afdw %>%
+  select(colony_id, partner, site, species, AFDW.mg.cm2) %>%
+  mutate(timepoint="timepoint1")
+
+dw<-dw %>% 
+  select(colony_id, partner, site, species, DW.mg.cm2) %>%
+  mutate(timepoint="timepoint1")
+  
+output<-left_join(afdw,dw)%>%
   write_csv(path = "output/1_biomass.csv")
 ```
-
+ 
