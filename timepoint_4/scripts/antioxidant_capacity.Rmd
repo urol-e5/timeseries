@@ -67,7 +67,7 @@ std_curve <- df %>%
   select(plate, well, colony_id, wavelength, absorbance, readtime) %>%
   rename(std = colony_id) %>%
   mutate(std = as.numeric(str_sub(std, 9, 10))) %>%
-  spread(readtime, absorbance) %>%
+  spread(readtime, absorbance) %>% 
   mutate(net_abs = final - initial) %>%
   left_join(standards)
 
@@ -156,7 +156,8 @@ tac %>%
 tac %>%
   filter(!is.na(species)) %>%
   select(colony_id, cre.umol.L, cre.umol.mgprot) %>%
-  write_csv(., path = "output/1_antioxidant_capacity.csv")
+  mutate(timepoint="timepoint4")%>%
+  write_csv(., path = "output/4_antioxidant_capacity.csv")
 ```
 
 
