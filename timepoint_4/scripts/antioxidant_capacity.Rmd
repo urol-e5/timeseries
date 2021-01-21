@@ -69,7 +69,11 @@ std_curve <- df %>%
   mutate(std = as.numeric(str_sub(std, 9, 10))) %>%
   spread(readtime, absorbance) %>% 
   mutate(net_abs = final - initial) %>%
+  filter(plate=="4_20201118_Plate3")%>%
   left_join(standards)
+
+#remove well B8 as an outlier - initial value far out of range of other initial values for wells 
+std_curve<-std_curve[!(std_curve$well=="B8"),]
 
 # Fit nonlinear model
 nlmod <- nls(formula = conc_mM ~ z + a * exp(b * net_abs), start = list(z = 0, a = 1, b = 1), data = std_curve)
