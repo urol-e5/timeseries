@@ -144,7 +144,9 @@ pars.out2 <- Data %>%
   select(colony_id) %>%
   left_join(pars.out)
 
-write_csv(pars.out2, "output/2_pi_curve_pars.csv")
+pars.out2 %>%
+  mutate(timepoint="timepoint2")%>%
+  write_csv(., path = "output/2_pi_curve_pars.csv")
 ```
 
 # Create plots for all individuals

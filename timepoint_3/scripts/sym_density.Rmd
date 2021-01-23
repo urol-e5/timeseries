@@ -3,7 +3,7 @@ title: "Symbiont density analysis"
 output: html_document
 ---
 
-#Title: Protein Data
+#Title: Symbiont densities
 #Project: E5
 #Author: HM Putnam 
 #Edited by: Danielle Becker
@@ -74,6 +74,13 @@ geom_jitter(width = 0.1) +                                            # Plot all
   stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
 ```
 
+Output data to file.  
+
+```{r}
+sym_counts %>%
+  mutate(timepoint="timepoint3")%>%
+  write_csv(., path = "output/3_symb_densities.csv")
+```
 
 
 

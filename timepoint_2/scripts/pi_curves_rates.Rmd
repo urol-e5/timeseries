@@ -172,7 +172,7 @@ pr <- left_join(pr, blanks) %>%
 
 
 # Import surface area data
-sa <- read.csv("output/2_surface_area_junk.csv")
+sa <- read.csv("output/2_surface_area.csv") #used to be 2_surface_area_junk.csv
 
 # Join surface area with rest of data
 pr <- left_join(pr, select(sa, colony_id, surface.area.cm2))
@@ -189,7 +189,9 @@ pr <- pr %>%
 pr.out <- pr %>% select(colony_id, Light_Value, Run, micromol.cm2.s, micromol.cm2.h)
 
 # Write to output file
-write.csv(pr.out, "output/2_pi_curve_rates.csv")
+pr.out %>%
+  mutate(timepoint="timepoint2")%>%
+  write_csv(., path = "output/2_pi_curve_rates.csv")
 ```
 
 # Plot rates vs. irradiance for each sample
@@ -198,15 +200,6 @@ write.csv(pr.out, "output/2_pi_curve_rates.csv")
   geom_point() +
   facet_wrap(~colony_id, scale = "free_y", ncol = 4)
 
-ggsave("output/2_pi_curve_vis.pdf", plot = last_plot(), width = 5, height = 10, units ="in")
-```
-
-# Write to output file
-```{r}
-# Select variables to write to file
-pr.out <- pr %>% select(colony_id, Light_Value, Run, micromol.cm2.s, micromol.cm2.h)
-
-# Write to output file
-write.csv(pr.out, "output/2_pi_curve_rates.csv")
+#ggsave("output/2_pi_curve_vis.pdf", plot = last_plot(), width = 5, height = 10, units ="in")
 ```
 

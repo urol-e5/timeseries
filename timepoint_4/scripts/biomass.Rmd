@@ -60,15 +60,32 @@ dw <- left_join(Data, metadata) %>%
 
 ```
 
+Output biomass data to .csv.  
+
+```{r}
+afdw<-afdw %>%
+  select(colony_id, partner, site, species, AFDW.mg.cm2) %>%
+  mutate(timepoint="timepoint4")
+
+dw<-dw %>% 
+  select(colony_id, partner, site, species, DW.mg.cm2) %>%
+  mutate(timepoint="timepoint4")
+  
+output<-left_join(afdw,dw)%>%
+  write_csv(path = "output/4_biomass.csv")
+```
+
 ```{r}
 #summarize Dry Biomass mean and sem by site, species, and partner and plot
 dw<-dw[!is.na(dw$species),]#remove rows that are not identified for species and site
+dw<-dw[!is.na(dw$DW.mg.cm2),]#remove rows that do not have dw data
 
 dw %>% #na.omit(dw) %>%
   group_by(species, site, partner)%>%
   summarise(mean.value = mean(DW.mg.cm2), se = std.error(DW.mg.cm2)) %>%
   ggplot(aes(x = site, y = mean.value, group = species, color = partner))+
   ylab("DW mg cm-2")+
+  #ylim(0,700)+
   geom_point(size = 3)+
   geom_errorbar(aes(x = site, ymin = mean.value-se, ymax = mean.value+se), width = 0.5)+
   facet_grid(~species, scales = "free_y")
@@ -79,6 +96,11 @@ dw %>% #na.omit(dw) %>%
 ```{r}
 #summarize AFDW mean and sem by site, species, and partner and plot
 afdw<-afdw[!is.na(afdw$species),]#remove rows that are not identified for species and site
+afdw<-afdw[!is.na(afdw$AFDW.mg.cm2),]#remove rows that do not have dw data
+
+#remove outliers that are below zero for AFDW
+afdw<-afdw%>%
+  filter(AFDW.mg.cm2>0)
 
 afdw %>% #na.omit(afdw) %>%
   group_by(species, site, partner)%>%
@@ -91,3 +113,4 @@ afdw %>% #na.omit(afdw) %>%
 
 
 ```
+

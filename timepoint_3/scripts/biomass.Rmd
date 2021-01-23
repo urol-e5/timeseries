@@ -60,6 +60,21 @@ dw <- left_join(Data, metadata) %>%
 
 ```
 
+Output biomass data to .csv.  
+
+```{r}
+afdw<-afdw %>%
+  select(colony_id, partner, site, species, AFDW.mg.cm2) %>%
+  mutate(timepoint="timepoint3")
+
+dw<-dw %>% 
+  select(colony_id, partner, site, species, DW.mg.cm2) %>%
+  mutate(timepoint="timepoint3")
+  
+output<-left_join(afdw,dw)%>%
+  write_csv(path = "output/3_biomass.csv")
+```
+
 ```{r}
 #summarize Dry Biomass mean and sem by site, species, and partner and plot
 dw<-dw[!is.na(dw$species),]#remove rows that are not identified for species and site
@@ -91,3 +106,4 @@ afdw %>% #na.omit(afdw) %>%
 
 
 ```
+

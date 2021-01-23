@@ -4,7 +4,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 ```
 
 ```{r}
@@ -16,13 +16,16 @@ library(Hmisc)
 # Import PI curve fitted parameters for each individual
 ```{r}
 pars <- read_csv("output/2_pi_curve_pars.csv")
+levels(as.factor(pars$colony_id)) ##site 1 missing after this point
 ```
 
 # Import sample metadata
 ```{r}
 md <- read_csv("../metadata/coral_metadata.csv")
+levels(as.factor(md$site))
 
-df <- left_join(pars, md)
+df <- left_join(pars, md) 
+levels(as.factor(pars$colony_id))
 ```
 
 # Plot data with mean ± SE for each species/site
@@ -80,7 +83,8 @@ curves %>%
        title = "Timepoint 2")
 
 # Save mean photosynthesis pars for each species/site to file
-meanpars
-write_csv(meanpars, path = "output/2_photosynthesis_pars_summary.csv")
+meanpars %>%
+  mutate(timepoint="timepoint2")%>%
+  write_csv(., path = "output/2_photosynthesis_pars_summary.csv")
 ```
 
