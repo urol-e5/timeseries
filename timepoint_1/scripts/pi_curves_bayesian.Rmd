@@ -142,7 +142,8 @@ pars.out <- Data %>%
 # Join with colony_id to create rows of NA for individuals that failed Bayesian fitting
 pars.out2 <- Data %>% 
   select(colony_id) %>%
-  left_join(pars.out)
+  left_join(pars.out) %>%
+  mutate(timepoint="timepoint1")
 
 write_csv(pars.out2, "output/1_pi_curve_pars.csv")
 ```

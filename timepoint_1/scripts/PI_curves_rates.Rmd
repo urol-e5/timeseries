@@ -193,7 +193,9 @@ ggplot(pr, aes(x = as.numeric(Light_Value), y = micromol.cm2.h)) +
 # Write to output file
 ```{r}
 # Select variables to write to file
-pr.out <- pr %>% select(colony_id, Light_Value, Run, micromol.cm2.s, micromol.cm2.h)
+pr.out <- pr %>% 
+  select(colony_id, Light_Value, Run, micromol.cm2.s, micromol.cm2.h) %>%
+  mutate(timepoint="timepoint1")
 
 # Write to output file
 write.csv(pr.out, "output/1_pi_curve_rates.csv")

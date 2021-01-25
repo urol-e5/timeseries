@@ -86,6 +86,7 @@ curves %>%
        title = "Timepoint 1: January, 2020")
 
 # Save mean photosynthesis pars for each species/site to file
-meanpars
-write_csv(meanpars, path = "output/1_photosynthesis_pars_summary.csv")
+meanpars %>%
+  mutate(timepoint="timepoint1") %>%
+  write_csv(path = "output/1_photosynthesis_pars_summary.csv")
 ```
