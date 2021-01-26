@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 ```
 
 ```{r}
@@ -36,20 +36,8 @@ chlorophyll_files<-list.files("../", pattern = "chlorophyll.csv", recursive=T, f
 #need to add calcification
 ```
 
-## Correct and control for colony id that changed between time points due to relabeling  
 
-```{r}
-#Load tag metadata sheet 
-tags<-read.csv("../metadata/coral_id_metadata.csv")
-
-```
-
-Correct for tags  
-Add site   
-Change columns to TP1,2,3,4
-
-
-## Read files and generate master data frame  
+## Read data files 
 
 Load all data frames.  
 
@@ -140,6 +128,71 @@ for (i in 1:length(chlorophyll_files)){
 #remove files that are not needed from loops
 rm(list = ls(pattern = "*_df"))
 ```
+
+
+## Generate master data frame    
+
+Read in metadata frame. 
+```{r}
+#Load tag metadata sheet 
+tags<-read.csv("../metadata/coral_id_metadata.csv")
+```
+
+Prepare datasets for merging by renaming columns and spreading dataframes. Each file needs to have one line per colony per response variable in order to merge and should be without site/species columns as these will be added from metadata sheet.   
+```{r}
+#antioxidant data 
+antioxidant_dataset<-antioxidant_dataset%>%
+  select(colony_id, cre.umol.mgprot, timepoint)
+
+#biomass data 
+biomass_dataset<- biomass_dataset %>%
+  filter(!colony_id=="1xPBS")%>%
+  nest(AFDW.mg.cm2, DW.mg.cm2, .key = 'value_col') %>%
+  spread(key = partner, value = value_col) %>%
+  unnest(Host, Sym, .sep = '_')%>%
+  select(colony_id, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Host_DW.mg.cm2, Sym_DW.mg.cm2, timepoint)
+
+#protein data
+protein_dataset<-protein_dataset%>%
+  select(colony_id, prot_ug.cm2, timepoint)
+  
+#symbiont densitites
+symb_densities_dataset<-symb_densities_dataset%>%
+  select(colony_id, cells.cm2, timepoint)
+```
+
+```{r}
+#need to find a more elegant solution for this
+master <- full_join(full_join(full_join(full_join(full_join(
+  antioxidant_dataset,
+  biomass_dataset, by=c("colony_id", "timepoint")),
+  chlorophyll_dataset, by=c("colony_id", "timepoint")),
+  protein_dataset, by=c("colony_id", "timepoint")),
+  surface_area_dataset, by=c("colony_id", "timepoint")), 
+  symb_densities_dataset, by=c("colony_id", "timepoint"))
+
+head(master)
+```
+
+Control for colony id, site name, and timepoint names. 
+```{r}
+## Correct and control for colony id that changed between time points due to relabeling \
+## Rename sites by name rather than 1, 2, 3
+
+#match site name by site number from tag sheet 
+
+
+## Merge in species, site information
+
+
+
+```
+
+
+
+
+
+
 
 
 ## Antioxidant capacity  

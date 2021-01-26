@@ -64,10 +64,16 @@ Output biomass data to .csv.
 
 ```{r}
 afdw<-afdw %>%
+  group_by(colony_id, partner)%>%
+  summarise(AFDW.mg.cm2=mean(AFDW.mg.cm2))%>%
+  left_join(.,metadata)%>% #add metadata back into file
   select(colony_id, partner, site, species, AFDW.mg.cm2) %>%
   mutate(timepoint="timepoint4")
 
 dw<-dw %>% 
+  group_by(colony_id, partner)%>%
+  summarise(DW.mg.cm2=mean(DW.mg.cm2))%>%
+  left_join(.,metadata)%>% #add metadata back into file
   select(colony_id, partner, site, species, DW.mg.cm2) %>%
   mutate(timepoint="timepoint4")
   
