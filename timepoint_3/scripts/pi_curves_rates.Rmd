@@ -1,7 +1,6 @@
 ---
 title: "Photosynthesis and respiration rate calculations"
 edited by: "Danielle Becker"
-date: "20201024
 output: html_document
 ---
 
@@ -62,13 +61,13 @@ df <- df %>%
   mutate(data0 = map(data0, ~select(., Time, Value, Temp)))    
 ```
 
-## Use the time breaks in the s ample info to link O2 data with light levels
+## Use the time breaks in the sample info to link O2 data with light levels
 ```{r, warning = FALSE}
 df <- df %>%
   mutate(intervals = map2(data0, info, function(.x, .y) {
     split(.x, f = cut(as.numeric(.x$Time), breaks = as.numeric(c(.y$Start.time, last(.y$Stop.time))),
                       labels = as.character(.y$Light_Value)))})) %>%
-  mutate(data = map(intervals, ~ unnest(tibble(.), .id = "Light_Value")))
+  mutate(data = map(intervals, ~ unnest(tibble(.), .id = "Light_Value"))) ### NOT WORKING 
 
 ## 'data' now contains the O2 data with the corresponding light level as another column
 ## Example of what 'data' for each sample looks like:
@@ -195,7 +194,9 @@ ggplot(pr.out, aes(x = as.numeric(Light_Value), y = micromol.cm2.h)) +
 # Write to output file
 ```{r}
 # Select variables to write to file
-pr.out <- pr %>% select(colony_id, Light_Value, Run, micromol.cm2.s, micromol.cm2.h)
+pr.out <- pr %>% 
+  select(colony_id, Light_Value, Run, micromol.cm2.s, micromol.cm2.h) %>%
+  mutate(timepoint="timepoint3")
 
 # Write to output file
 write.csv(pr.out, "output/3_pi_curve_rates.csv")

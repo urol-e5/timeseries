@@ -83,9 +83,10 @@ curves %>%
   facet_wrap(~ site) +
   labs(x = expression(paste('PAR (', mu, "mol photons m"^-2, 's'^-1,")")),
        y = expression(paste('Photosynthetic rate (', mu, "mol O2 cm"^-2, 'h'^-1,")")),
-       title = "Timepoint 1: January, 2020")
+       title = "Timepoint 3")
 
 # Save mean photosynthesis pars for each species/site to file
-meanpars
-write_csv(meanpars, path = "output/3_photosynthesis_pars_summary.csv")
+meanpars %>%
+  mutate(timepoint="timepoint3")%>%
+  write_csv(path = "output/3_photosynthesis_pars_summary.csv")
 ```
