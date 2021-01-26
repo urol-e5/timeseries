@@ -140,6 +140,7 @@ prot %>%
 prot %>%
   filter(!is.na(species)) %>%
   select(colony_id, prot_ug, prot_ug.cm2) %>%
+  mutate(timepoint="timepoint4") %>%
   write_csv(., path = "output/4_protein.csv")
 ```
 

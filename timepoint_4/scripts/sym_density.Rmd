@@ -74,6 +74,11 @@ geom_jitter(width = 0.1) +                                            # Plot all
   stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
 ```
 
+Output data to file.  
 
-
+```{r}
+sym_counts %>%
+  mutate(timepoint="timepoint4")%>%
+  write_csv(., path = "output/4_symb_densities.csv")
+```
 
