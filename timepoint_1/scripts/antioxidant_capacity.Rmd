@@ -124,24 +124,7 @@ tac <- left_join(tac, metadata) %>%
   mutate(cre.umol.L = uae.mmol.L * 2189) %>%   # Convert to CRE (see product manual) per unit sample volume
   mutate(cre.umol = cre.umol.L * (homog_vol_ml / 1000),  # Convert to CRE per coral by multiplying by homog. vol.
          cre.umol.mgprot = cre.umol / (prot_ug / 1000))  # Convert to CRE per mg protein by dividing by total protein
-```
 
-# Plot results by species and site
-```{r}
-# Plot all data points with mean ± se
-tacplot <- tac %>%
-  filter(!is.na(species)) %>%
-  ggplot(aes(x = site, y = cre.umol.mgprot, color = species)) +
-  facet_wrap(~species)  +
-  coord_cartesian(ylim = c(0, 2))+
-  labs(x = "", y = "Copper Reducing Equivalents (µmol/mg protein)",
-       title = "Total antixodidant capacity") +
-  geom_jitter(width = 0.1) +                                            # Plot all points
-  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
-               geom = "errorbar", color = "black", width = 0.5) +
-  stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
-
-tacplot
 ```
 
 ### Summarize results
@@ -154,11 +137,34 @@ tac %>%
 
 # Write data to output file
 ```{r}
-tac %>%
+tac<-tac %>%
   filter(!is.na(species)) %>%
   select(colony_id, cre.umol.L, cre.umol.mgprot) %>%
+  group_by(colony_id)%>%
+  summarise(cre.umol.L=mean(cre.umol.L), cre.umol.mgprot=mean(cre.umol.mgprot)) %>% #average values by colony 
+  left_join(.,metadata)%>% #add metadata back into file
+  select(colony_id, species, site, cre.umol.L, cre.umol.mgprot) %>%
   mutate(timepoint="timepoint1")%>%
   write_csv(., path = "output/1_antioxidant_capacity.csv")
 ```
+
+# Plot results by species and site
+```{r}
+# Plot all data points with mean ± se
+tacplot <- tac %>%
+  filter(!is.na(species)) %>%
+  ggplot(aes(x = site, y = cre.umol.mgprot, color = species)) +
+  facet_wrap(~species)  +
+  coord_cartesian(ylim = c(0, 1))+
+  labs(x = "", y = "Copper Reducing Equivalents (µmol/mg protein)",
+       title = "Total antixodidant capacity") +
+  geom_jitter(width = 0.1) +                                            # Plot all points
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", color = "black", width = 0.5) +
+  stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
+
+tacplot
+```
+
 
 
