@@ -67,7 +67,7 @@ Output file.
 sym_counts %>%
   select(colony_id, site, species, cells.cm2) %>%
   mutate(timepoint="timepoint2")%>% 
-  write.csv("output/2_symb_densities.csv")
+  write_csv("output/2_symb_densities.csv")
 ```
 
 # Plot data

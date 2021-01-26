@@ -51,6 +51,7 @@ range(stnds$surface.area.cm2)
 
 smpls %>%
   mutate(timepoint="timepoint3")%>%
+  select(colony_id, surface.area.cm2, timepoint)%>%
   write_csv(., path = "output/3_surface_area.csv")
 
 ```

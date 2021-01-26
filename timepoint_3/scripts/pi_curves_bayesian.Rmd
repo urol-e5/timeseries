@@ -169,7 +169,7 @@ Data <- Data %>%
         theme(text = element_text(size=18), title = element_text(face="italic")) +
         labs(x = expression(paste('PAR (', mu, "mol photons m"^-2, 's'^-1,")")),
              y = expression(paste('Photosynthetic rate (', mu, "mol cm"^-2, 'h'^-1,")")),
-             title = paste0("1_", colony_id))
+             title = paste0("3_", colony_id))
       }))
 ```
 

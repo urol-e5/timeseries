@@ -52,6 +52,7 @@ range(stnds$surface.area.cm2)
 #Save the output for use in normilzation for phys assays
 smpls%>%
   mutate(timepoint="timepoint1")%>%
-  write.csv("output/1_surface_area.csv")
+  select(colony_id, surface.area.cm2, timepoint)%>%
+  write_csv("output/1_surface_area.csv")
 
 ```

@@ -1,7 +1,6 @@
 ---
 title: "Photosynthesis and respiration rate calculations"
 edited by: "Danielle Becker"
-date: "20201024
 output: html_document
 ---
 
@@ -31,17 +30,17 @@ library(furrr)
 
 ## Import data
 ```{r}
-path.p <- "../data/3_pi_curves/" #the location of all your respirometry files 
+path.p <- "data/4_pi_curves/" #the location of all your respirometry files 
 
 # List data files
 file.names <- list.files(path = path.p, pattern = "csv$")  # list all csv file names in the folder
 file.names <- file.names[!grepl("metadata", file.names)]   # omit metadata from files to be read in as data
 
 # Load PI curve sample metadata (i.e., which corals were in which runs)
-sample.info <- read_csv(file = "../data/3_pi_curves/3_pi_curves_sample_metadata.csv")
+sample.info <- read_csv(file = "data/4_pi_curves/4_pi_curves_sample_metadata.csv")
 
 # Load PI curve run metadata (i.e., light levels and interval times for each run)
-run.info <- read_csv(file = "../data/3_pi_curves/3_pi_curves_run_metadata.csv")
+run.info <- read_csv(file = "data/4_pi_curves/4_pi_curves_run_metadata.csv")
 
 # Join all coral and run metadata
 metadata <- full_join(sample.info, run.info) %>%
@@ -68,7 +67,7 @@ df <- df %>%
   mutate(intervals = map2(data0, info, function(.x, .y) {
     split(.x, f = cut(as.numeric(.x$Time), breaks = as.numeric(c(.y$Start.time, last(.y$Stop.time))),
                       labels = as.character(.y$Light_Value)))})) %>%
-  mutate(data = map(intervals, ~ unnest(tibble(.), .id = "Light_Value")))
+  mutate(data = map(intervals, ~ unnest(tibble(.), .id = "Light_Value"))) ##NOT WORKING
 
 ## 'data' now contains the O2 data with the corresponding light level as another column
 ## Example of what 'data' for each sample looks like:
@@ -174,7 +173,7 @@ pr <- left_join(pr, blanks) %>%
 
 
 # Import surface area data
-sa <- read.csv("output/3_surface_area.csv")
+sa <- read.csv("output/4_surface_area.csv")
 
 # Join surface area with rest of data
 pr <- left_join(pr, select(sa, colony_id, surface.area.cm2))
@@ -195,9 +194,11 @@ ggplot(pr.out, aes(x = as.numeric(Light_Value), y = micromol.cm2.h)) +
 # Write to output file
 ```{r}
 # Select variables to write to file
-pr.out <- pr %>% select(colony_id, Light_Value, Run, micromol.cm2.s, micromol.cm2.h)
+pr.out <- pr %>% 
+  select(colony_id, Light_Value, Run, micromol.cm2.s, micromol.cm2.h) %>%
+  mutate(timepoint="timepoint4")
 
 # Write to output file
-write.csv(pr.out, "output/3_pi_curve_rates.csv")
+write.csv(pr.out, "output/4_pi_curve_rates.csv")
 ```
 
