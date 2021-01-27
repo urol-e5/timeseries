@@ -13,15 +13,19 @@ knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 ## install packages if you dont already have them
 if (!require("tidyverse")) install.packages("tidyverse")
 if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("RColorBrewer")) install.packages("RColorBrewer")
 
 # load packages
 library(tidyverse)
 library(ggplot2)
+library(RColorBrewer)
 ```
+ 
+# Load and manipulate data  
 
-## Loading data files 
+## Loading data files   
 
-Load all .csv files from output of all timepoints for each biological response
+Load all .csv files from output of all timepoints for each biological response  
 
 ```{r}
 biomass_files<-list.files("../", pattern = "biomass.csv", recursive=T, full.names=T)
@@ -176,82 +180,253 @@ head(master)
 
 Control for colony id, site name, and timepoint names. 
 ```{r}
-## Correct and control for colony id that changed between time points due to relabeling \
-## Rename sites by name rather than 1, 2, 3
+#Add column for month of year for each timepoint
+master$month[master$timepoint == "timepoint1"] <- "January 2020"
+master$month[master$timepoint == "timepoint2"] <- "March 2020"
+master$month[master$timepoint == "timepoint3"] <- "September 2020"
+master$month[master$timepoint == "timepoint4"] <- "November 2020"
 
-#match site name by site number from tag sheet 
+#replace colony id with the original tag number if the tag was changed during the timeseries, as shown by a new tag id at the end of the time series
+master$colony_id_corr<-tags$Original_Tag[match(master$colony_id, tags$Tag_ID_Nov)] 
 
+#if there is an na (because the colony tag id did not change over the timesereis), populate with the colonyid number from colony_id column
+master$colony_id_corr[is.na(master$colony_id_corr)] <- master$colony_id[is.na(master$colony_id_corr)]
 
-## Merge in species, site information
-
-
-
+#match site name by site number and species from tag sheet 
+master$site<-tags$Site[match(master$colony_id_corr, tags$Original_Tag)]
+master$species<-tags$Coral_Species[match(master$colony_id_corr, tags$Original_Tag)]
 ```
-
-
-
-
-
-
-
+ 
+# Examine Responses  
 
 ## Antioxidant capacity  
 
-View by site and timepoint for each species.  
+View by site and timepoint for each species.   
 ```{r}
-tacplot<-antioxidant_dataset %>%
-  filter(!is.na(species)) %>%
+tacplot<-master %>%
+  filter(!is.na(cre.umol.mgprot)) %>%
+  select(colony_id_corr, species, site, timepoint, cre.umol.mgprot)%>%
+  
   ggplot(., aes(x = site, y = cre.umol.mgprot, fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
-    geom_point(pch = 21, position = position_jitterdodge()) + 
-    scale_fill_brewer(palette = "YlGnBu")+
-    facet_wrap(~species)+
-    theme_classic(); tacplot
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Copper Reducing Elements (", mu, "mol mg protein"^-1,")"))))+
+    theme_classic() + 
+    theme(
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=12, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); tacplot
+
+ggsave("Figures/Antioxidant_capacity.pdf", plot=tacplot, height=6, width=10, units = c("in"), dpi=300) #output figure
 ```
+
+
 
 ## Symbiont Densities  
 
-View by site and timepoint for each species.  
+View by site and timepoint for each species.   
 ```{r}
-symbplot<-symb_densities_dataset %>%
-  filter(!is.na(species)) %>%
+symbplot<-master %>%
+  filter(!is.na(cells.cm2)) %>%
+  select(colony_id_corr, species, site, timepoint, cells.cm2)%>%
+  
   ggplot(., aes(x = site, y = cells.cm2, fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
-    geom_point(pch = 21, position = position_jitterdodge()) + 
-    scale_fill_brewer(palette = "YlGnBu")+
-    facet_wrap(~species)+
-    theme_classic(); symbplot
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Symbiont Cells cm"^-2))))+
+    theme_classic() + 
+    theme(
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=12, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); symbplot
+
+ggsave("Figures/Symbiont_densities.pdf", plot=symbplot, height=6, width=10, units = c("in"), dpi=300) #output figure
 ```
 
 
 ## Biomass
-
-View by site and timepoint for each species in the host. *Need to address negative values in dataset by removing outliers.  
-```{r}
-biomassHplot<-biomass_dataset %>%
-  filter(!is.na(species)) %>%
-  filter(partner=="Host") %>%
-  ggplot(., aes(x = site, y = AFDW.mg.cm2, fill = timepoint, group=interaction(site,timepoint))) +
+ 
+View by site and timepoint for each species in the host. *Need to address negative values in dataset by removing outliers.    
+```{r} 
+hAFDWplot<-master %>%
+  filter(!is.na(Host_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  select(colony_id_corr, species, site, timepoint, Host_AFDW.mg.cm2)%>%
+  
+  ggplot(., aes(x = site, y = Host_AFDW.mg.cm2, fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
-    geom_point(pch = 21, position = position_jitterdodge()) + 
-    ylim(0,15)+
-    scale_fill_brewer(palette = "YlGnBu")+
-    facet_wrap(~species)+
-    ggtitle("Host Biomass") +
-    theme_classic(); biomassHplot
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Host Biomass (AFDW mg cm"^-2, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=12, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); hAFDWplot
+
+ggsave("Figures/Host_AFDW.pdf", plot=hAFDWplot, height=6, width=10, units = c("in"), dpi=300) #output figure
 ```
 
-View by site and timepoint for each species in the symbiont *Need to address negative values in dataset by removing outliers.  
-```{r}
-biomassSplot<-biomass_dataset %>%
-  filter(!is.na(species)) %>%
-  filter(partner=="Sym") %>%
-  ggplot(., aes(x = site, y = AFDW.mg.cm2, fill = timepoint, group=interaction(site,timepoint))) +
+View by site and timepoint for each species in the host. *Need to address negative values in dataset by removing outliers.    
+```{r} 
+sAFDWplot<-master %>%
+  filter(!is.na(Sym_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  select(colony_id_corr, species, site, timepoint, Sym_AFDW.mg.cm2)%>%
+  
+  ggplot(., aes(x = site, y = Sym_AFDW.mg.cm2, fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
-    geom_point(pch = 21, position = position_jitterdodge()) + 
-    ylim(0,15)+
-    scale_fill_brewer(palette = "YlGnBu")+
-    facet_wrap(~species)+
-    ggtitle("Symbiont Biomass") +
-    theme_classic(); biomassSplot
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Symbiont Biomass (AFDW mg cm"^-2, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=12, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); sAFDWplot
+
+ggsave("Figures/Symbiont_AFDW.pdf", plot=sAFDWplot, height=6, width=10, units = c("in"), dpi=300) #output figure
+```
+
+Calculate biomass as a ratio of host to symbiont and plot.  
+
+```{r} 
+ratioAFDWplot<-master %>%
+  filter(!is.na(Host_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  mutate(Ratio_AFDW.mg.cm2=Host_AFDW.mg.cm2/Sym_AFDW.mg.cm2)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  select(colony_id_corr, species, site, timepoint, Ratio_AFDW.mg.cm2)%>%
+  
+  ggplot(., aes(x = site, y = Ratio_AFDW.mg.cm2, fill = timepoint, group=interaction(site,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Host : Symbiont Biomass"))))+
+    theme_classic() + 
+    theme(
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=12, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); ratioAFDWplot
+
+ggsave("Figures/H_S_Ratio_AFDW.pdf", plot=ratioAFDWplot, height=6, width=10, units = c("in"), dpi=300) #output figure
+```
+
+## Chlorophyll 
+
+View by site and timepoint for each species in Chl a.   
+```{r}
+chlaplot<-master %>%
+  filter(!is.na(chla.ug.cm2)) %>%
+  filter(!is.na(species)) %>%
+  select(colony_id_corr, species, site, timepoint, chla.ug.cm2)%>%
+  
+  ggplot(., aes(x = site, y = chla.ug.cm2, fill = timepoint, group=interaction(site,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Chlorophyll a (", mu, "g cm"^-2, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=12, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); chlaplot
+
+ggsave("Figures/Chl_a.pdf", plot=chlaplot, height=6, width=10, units = c("in"), dpi=300) #output figure
+```
+
+View by site and timepoint for each species in Chl c2.   
+```{r}
+chlcplot<-master %>%
+  filter(!is.na(chlc2.ug.cm2)) %>%
+  filter(!is.na(species)) %>%
+  select(colony_id_corr, species, site, timepoint, chlc2.ug.cm2)%>%
+  
+  ggplot(., aes(x = site, y = chlc2.ug.cm2, fill = timepoint, group=interaction(site,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Chlorophyll c2 (", mu, "g cm"^-2, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=12, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); chlcplot
+
+ggsave("Figures/Chl_c2.pdf", plot=chlcplot, height=6, width=10, units = c("in"), dpi=300) #output figure
+```
+## Protein 
+
+View by site and timepoint for each species.   
+```{r}
+protplot<-master %>%
+  filter(!is.na(prot_ug.cm2)) %>%
+  filter(!is.na(species)) %>%
+  select(colony_id_corr, species, site, timepoint, prot_ug.cm2)%>%
+  
+  ggplot(., aes(x = site, y = prot_ug.cm2, fill = timepoint, group=interaction(site,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Protein (", mu, "g cm"^-2, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=12, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); protplot
+
+ggsave("Figures/Protein.pdf", plot=protplot, height=6, width=10, units = c("in"), dpi=300) #output figure
 ```
