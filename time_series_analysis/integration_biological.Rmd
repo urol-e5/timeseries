@@ -196,7 +196,12 @@ master$colony_id_corr[is.na(master$colony_id_corr)] <- master$colony_id[is.na(ma
 master$site<-tags$Site[match(master$colony_id_corr, tags$Original_Tag)]
 master$species<-tags$Coral_Species[match(master$colony_id_corr, tags$Original_Tag)]
 ```
- 
+
+Write master file to csv.  
+```{r}
+write_csv(master, "Output/master_timeseries.csv")
+```
+
 # Examine Responses  
 
 ## Antioxidant capacity  
@@ -260,7 +265,7 @@ ggsave("Figures/Symbiont_densities.pdf", plot=symbplot, height=6, width=10, unit
 
 ## Biomass
  
-View by site and timepoint for each species in the host. *Need to address negative values in dataset by removing outliers.    
+View by site and timepoint for each species in the host. *Need to address negative values in dataset by removing outliers.     
 ```{r} 
 hAFDWplot<-master %>%
   filter(!is.na(Host_AFDW.mg.cm2)) %>%
@@ -323,7 +328,7 @@ ratioAFDWplot<-master %>%
   filter(!is.na(Host_AFDW.mg.cm2)) %>%
   filter(!is.na(species))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
-  mutate(Ratio_AFDW.mg.cm2=Host_AFDW.mg.cm2/Sym_AFDW.mg.cm2)%>%
+  mutate(Ratio_AFDW.mg.cm2=Sym_AFDW.mg.cm2/Host_AFDW.mg.cm2)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   select(colony_id_corr, species, site, timepoint, Ratio_AFDW.mg.cm2)%>%
   
@@ -334,7 +339,7 @@ ratioAFDWplot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Host : Symbiont Biomass"))))+
+    ylab(expression(bold(paste("Symbiont : Host Biomass"))))+
     theme_classic() + 
     theme(
       legend.title=element_text(face="bold", size=14),
@@ -344,7 +349,7 @@ ratioAFDWplot<-master %>%
       strip.text.x=element_text(face="italic", size=14)
       ); ratioAFDWplot
 
-ggsave("Figures/H_S_Ratio_AFDW.pdf", plot=ratioAFDWplot, height=6, width=10, units = c("in"), dpi=300) #output figure
+ggsave("Figures/S_H_Ratio_AFDW.pdf", plot=ratioAFDWplot, height=6, width=10, units = c("in"), dpi=300) #output figure
 ```
 
 ## Chlorophyll 
