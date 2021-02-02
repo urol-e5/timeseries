@@ -20,6 +20,7 @@ if (!require("car")) install.packages("car")
 if (!require("effects")) install.packages("effects")
 if (!require("ggfortify")) install.packages("ggfortify")
 if (!require("cowplot")) install.packages("cowplot")
+if (!require("vegan")) install.packages("vegan")
 
 # load packages
 library(tidyverse)
@@ -31,6 +32,7 @@ library(car)
 library(effects)
 library(ggfortify)
 library(cowplot)
+library(vegan)
 ```
  
 # Load and manipulate data  
@@ -749,6 +751,8 @@ plot(allEffects(prot_model))
 
 ## PCA  
 
+### All species PCA's  
+
 Plot PCA using prcomp to center and scale.    
 
 ```{r}
@@ -781,6 +785,16 @@ pcaSpecies<-ggplot2::autoplot(scaled_data, data=pca_data, frame.colour="species"
 #ggsave("Figures/PCA_species.pdf", plot=pcaSpecies, height=8, width=10, units = c("in"), dpi=300) #output figure
 ```
 
+PERMANOVA of the effect of species  
+```{r}
+# scale data
+vegan <- scale(pca_data[ ,5:11])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan ~ species, data = pca_data, method='eu')
+```
+
+
 Groupings by timepoint:  
 ```{r}
 pcaTimepoint<-ggplot2::autoplot(scaled_data, data=pca_data, frame.colour="timepoint", loadings=TRUE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5) + 
@@ -799,6 +813,11 @@ pcaTimepoint<-ggplot2::autoplot(scaled_data, data=pca_data, frame.colour="timepo
 #ggsave("Figures/PCA_timepoint.pdf", plot=pcaTimepoint, height=8, width=10, units = c("in"), dpi=300) #output figure
 ```
 
+PERMANOVA of the effect of timepoint  
+```{r}
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan ~ timepoint, data = pca_data, method='eu')
+```
 
 Groupings by site:  
 ```{r}
@@ -816,6 +835,12 @@ pcaSite<-ggplot2::autoplot(scaled_data, data=pca_data, frame.colour="site", load
         axis.title = element_text(size=18,  face="bold"));pcaSite
 
 #ggsave("Figures/PCA_site.pdf", plot=pcaTimepoint, height=8, width=10, units = c("in"), dpi=300) #output figure
+```
+
+PERMANOVA of the effect of site  
+```{r}
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan ~ site, data = pca_data, method='eu')
 ```
 
 Generate a plot of all PCA's for full dataset.  
@@ -867,7 +892,7 @@ poc_data<-poc_data[complete.cases(poc_data), ]
 scaled_poc<-prcomp(poc_data[c(5:11)], scale=TRUE, center=TRUE) 
 ```
 
-### Porites PCA's  
+### Porites PCA's   
 
 Groupings by timepoint:  
 ```{r}
@@ -883,6 +908,15 @@ porTimepoint<-ggplot2::autoplot(scaled_por, data=por_data, frame.colour="timepoi
         legend.title = element_text(size=18, face="bold"), 
         axis.text = element_text(size=18), 
         axis.title = element_text(size=18,  face="bold"));porTimepoint
+```
+
+PERMANOVA of the effect of timepoint  
+```{r}
+# scale data
+vegan <- scale(por_data[ ,5:11])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan ~ timepoint, data = por_data, method='eu')
 ```
 
 Groupings by site:  
@@ -901,6 +935,12 @@ porSite<-ggplot2::autoplot(scaled_por, data=por_data, frame.colour="site", loadi
         axis.title = element_text(size=18,  face="bold"));porSite
 ```
 
+PERMANOVA of the effect of site  
+```{r}
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan ~ site, data = por_data, method='eu')
+```
+
 Generate a plot of all PCA's for Porites.    
 
 ```{r}
@@ -910,7 +950,7 @@ ggsave(filename="Figures/POR_PCAs.pdf", plot=por_plots, dpi=300, width=18, heigh
 ```  
 
 ### Acropora PCA's  
-
+ 
 Groupings by timepoint:  
 ```{r}
 acrTimepoint<-ggplot2::autoplot(scaled_acr, data=acr_data, frame.colour="timepoint", loadings=TRUE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5) + 
@@ -925,6 +965,15 @@ acrTimepoint<-ggplot2::autoplot(scaled_acr, data=acr_data, frame.colour="timepoi
         legend.title = element_text(size=18, face="bold"), 
         axis.text = element_text(size=18), 
         axis.title = element_text(size=18,  face="bold"));acrTimepoint
+```
+
+PERMANOVA of the effect of timepoint  
+```{r}
+# scale data
+vegan <- scale(acr_data[ ,5:11])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan ~ timepoint, data = acr_data, method='eu')
 ```
 
 Groupings by site:  
@@ -943,7 +992,13 @@ acrSite<-ggplot2::autoplot(scaled_acr, data=acr_data, frame.colour="site", loadi
         axis.title = element_text(size=18,  face="bold"));acrSite
 ```
 
-Generate a plot of all PCA's for Porites.    
+PERMANOVA of the effect of site  
+```{r}
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan ~ site, data = acr_data, method='eu')
+```
+
+Generate a plot of all PCA's for Acropora.      
 
 ```{r}
 acr_plots<-plot_grid(acrSite, acrTimepoint, labels = c("Acropora", ""), ncol=2, nrow=1, rel_widths = c(1, 1), label_size = 20, label_x = 0.1, label_y=1.0)
@@ -953,7 +1008,7 @@ ggsave(filename="Figures/ACR_PCAs.pdf", plot=acr_plots, dpi=300, width=18, heigh
 
 ### Pocillopora PCA's  
 
-Groupings by timepoint:  
+Groupings by timepoint:   
 ```{r}
 pocTimepoint<-ggplot2::autoplot(scaled_poc, data=poc_data, frame.colour="timepoint", loadings=TRUE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5) + 
   scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
@@ -967,6 +1022,15 @@ pocTimepoint<-ggplot2::autoplot(scaled_poc, data=poc_data, frame.colour="timepoi
         legend.title = element_text(size=18, face="bold"), 
         axis.text = element_text(size=18), 
         axis.title = element_text(size=18,  face="bold"));pocTimepoint
+```
+ 
+PERMANOVA of the effect of timepoint  
+```{r}
+# scale data
+vegan <- scale(poc_data[ ,5:11])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan ~ timepoint, data = poc_data, method='eu')
 ```
 
 Groupings by site:  
@@ -985,10 +1049,18 @@ pocSite<-ggplot2::autoplot(scaled_poc, data=poc_data, frame.colour="site", loadi
         axis.title = element_text(size=18,  face="bold"));pocSite
 ```
 
-Generate a plot of all PCA's for Porites.    
+PERMANOVA of the effect of site  
+```{r}
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan ~ site, data = poc_data, method='eu')
+```
+
+Generate a plot of all PCA's for Pocillopora    
 
 ```{r}
 poc_plots<-plot_grid(pocSite, pocTimepoint, labels = c("Pocillopora", ""), ncol=2, nrow=1, rel_widths = c(1, 1), label_size = 20, label_x = 0.1, label_y=1.0)
 
 ggsave(filename="Figures/POC_PCAs.pdf", plot=poc_plots, dpi=300, width=18, height=5, units="in")
 ``` 
+
