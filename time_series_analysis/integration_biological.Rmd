@@ -14,11 +14,23 @@ knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 if (!require("tidyverse")) install.packages("tidyverse")
 if (!require("ggplot2")) install.packages("ggplot2")
 if (!require("RColorBrewer")) install.packages("RColorBrewer")
+if (!require("lme4")) install.packages("lme4")
+if (!require("lmerTest")) install.packages("lmerTest")
+if (!require("car")) install.packages("car")
+if (!require("effects")) install.packages("effects")
+if (!require("ggfortify")) install.packages("ggfortify")
+if (!require("cowplot")) install.packages("cowplot")
 
 # load packages
 library(tidyverse)
 library(ggplot2)
 library(RColorBrewer)
+library(lme4)
+library(lmerTest)
+library(car)
+library(effects)
+library(ggfortify)
+library(cowplot)
 ```
  
 # Load and manipulate data  
@@ -151,7 +163,7 @@ antioxidant_dataset<-antioxidant_dataset%>%
 #biomass data 
 biomass_dataset<- biomass_dataset %>%
   filter(!colony_id=="1xPBS")%>%
-  nest(AFDW.mg.cm2, DW.mg.cm2, .key = 'value_col') %>%
+  nest(value_col = c(AFDW.mg.cm2, DW.mg.cm2)) %>%
   spread(key = partner, value = value_col) %>%
   unnest(Host, Sym, .sep = '_')%>%
   select(colony_id, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Host_DW.mg.cm2, Sym_DW.mg.cm2, timepoint)
@@ -206,6 +218,8 @@ write_csv(master, "Output/master_timeseries.csv")
 
 ## Antioxidant capacity  
 
+### Plot 
+
 View by site and timepoint for each species.   
 ```{r}
 tacplot<-master %>%
@@ -232,9 +246,45 @@ tacplot<-master %>%
 ggsave("Figures/Antioxidant_capacity.pdf", plot=tacplot, height=6, width=10, units = c("in"), dpi=300) #output figure
 ```
 
+### Analysis  
 
+Build a mixed model for univariate analysis and examine data distribution.
+
+`antiox_model<-lmer(cre.umol.mgprot~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+antiox_model<-lmer(cre.umol.mgprot~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(antiox_model))
+hist(residuals(antiox_model))
+```
+
+Residuals are not normally distributed. Attempt with log transformation.      
+
+`antiox_model<-lmer(log(cre.umol.mgprot)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+antiox_model<-lmer(log(cre.umol.mgprot)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(antiox_model))
+hist(residuals(antiox_model))
+```
+
+Residuals are improved, but we need to revisit this model to improve fit.  
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(antiox_model, type="II")
+```
+
+Generate model effect plots.  
+
+```{r}
+plot(allEffects(antiox_model))
+```
 
 ## Symbiont Densities  
+
+### Plot   
 
 View by site and timepoint for each species.   
 ```{r}
@@ -261,10 +311,45 @@ symbplot<-master %>%
 
 ggsave("Figures/Symbiont_densities.pdf", plot=symbplot, height=6, width=10, units = c("in"), dpi=300) #output figure
 ```
+### Analysis  
+
+Build a mixed model for univariate analysis and examine data distribution.
+
+`density_model<-lmer(cells.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+density_model<-lmer(cells.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(density_model))
+hist(residuals(density_model))
+```
+
+Residuals are not normally distributed. Attempt with log transformation.      
+
+`density_model<-lmer(log(cells.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+density_model<-lmer(log(cells.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(density_model))
+hist(residuals(density_model))
+```
+
+Residuals are improved, but we need to revisit this model to improve fit.  
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(density_model, type="II")
+```
+
+Generate model effect plots.  
+
+```{r}
+plot(allEffects(density_model)) #currently not working, need TP4 data 
+```
 
 
 ## Biomass
- 
+  
 View by site and timepoint for each species in the host. *Need to address negative values in dataset by removing outliers.     
 ```{r} 
 hAFDWplot<-master %>%
@@ -324,11 +409,13 @@ ggsave("Figures/Symbiont_AFDW.pdf", plot=sAFDWplot, height=6, width=10, units = 
 Calculate biomass as a ratio of host to symbiont and plot.  
 
 ```{r} 
+master <- master %>% 
+  mutate(Ratio_AFDW.mg.cm2=Sym_AFDW.mg.cm2/Host_AFDW.mg.cm2)
+
 ratioAFDWplot<-master %>%
   filter(!is.na(Host_AFDW.mg.cm2)) %>%
   filter(!is.na(species))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
-  mutate(Ratio_AFDW.mg.cm2=Sym_AFDW.mg.cm2/Host_AFDW.mg.cm2)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   select(colony_id_corr, species, site, timepoint, Ratio_AFDW.mg.cm2)%>%
   
@@ -352,9 +439,118 @@ ratioAFDWplot<-master %>%
 ggsave("Figures/S_H_Ratio_AFDW.pdf", plot=ratioAFDWplot, height=6, width=10, units = c("in"), dpi=300) #output figure
 ```
 
+### Analysis  
+
+Build a mixed model for univariate analysis and examine data distribution.
+
+Host Biomass:  
+
+`hAFDW_model<-lmer(Host_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))` 
+
+```{r}
+hAFDW_model<-lmer(Host_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))
+qqPlot(residuals(hAFDW_model))
+hist(residuals(hAFDW_model))
+```
+
+Residuals are not normally distributed. Attempt with log transformation.      
+
+`hAFDW_model<-lmer(log(Host_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))` 
+
+```{r}
+hAFDW_model<-lmer(log(Host_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))
+qqPlot(residuals(hAFDW_model))
+hist(residuals(hAFDW_model))
+```
+
+Residuals are improved, but we need to revisit this model to improve fit.  
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(hAFDW_model, type="II")
+```
+
+Generate model effect plots.  
+
+```{r}
+plot(allEffects(hAFDW_model))
+```
+
+Symbiont Biomass:  
+
+`sAFDW_model<-lmer(Sym_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))` 
+
+```{r}
+sAFDW_model<-lmer(Sym_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))
+qqPlot(residuals(sAFDW_model))
+hist(residuals(sAFDW_model))
+```
+
+Residuals are not normally distributed. Attempt with log transformation.      
+
+`sAFDW_model<-lmer(log(Sym_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))` 
+
+```{r}
+sAFDW_model<-lmer(log(Sym_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))
+qqPlot(residuals(sAFDW_model))
+hist(residuals(sAFDW_model))
+```
+
+Residuals are improved, but we need to revisit this model to improve fit.  
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(sAFDW_model, type="II")
+```
+
+Generate model effect plots.  
+
+```{r}
+plot(allEffects(sAFDW_model))
+```
+
+
+S:H Biomass: 
+
+`shAFDW_model<-lmer(Ratio_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))` 
+
+```{r}
+shAFDW_model<-lmer(Ratio_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))
+qqPlot(residuals(shAFDW_model))
+hist(residuals(shAFDW_model))
+```
+
+Residuals are not normally distributed. Attempt with log transformation.      
+
+`shAFDW_model<-lmer(log(Ratio_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))` 
+
+```{r}
+shAFDW_model<-lmer(log(Ratio_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))
+qqPlot(residuals(shAFDW_model))
+hist(residuals(shAFDW_model))
+```
+
+Residuals are improved, but we need to revisit this model to improve fit.  
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(shAFDW_model, type="II")
+```
+
+Generate model effect plots.  
+
+```{r}
+plot(allEffects(shAFDW_model))
+```
+
 ## Chlorophyll 
 
-View by site and timepoint for each species in Chl a.   
+### Plot  
+
+View by site and timepoint for each species in Chl a.    
 ```{r}
 chlaplot<-master %>%
   filter(!is.na(chla.ug.cm2)) %>%
@@ -407,9 +603,86 @@ chlcplot<-master %>%
 
 ggsave("Figures/Chl_c2.pdf", plot=chlcplot, height=6, width=10, units = c("in"), dpi=300) #output figure
 ```
+
+### Analysis  
+
+Build a mixed model for univariate analysis and examine data distribution.
+
+Chlorophyll a: 
+
+`chla_model<-lmer(chla.ug.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+chla_model<-lmer(chla.ug.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(chla_model))
+hist(residuals(chla_model))
+```
+
+Residuals are not normally distributed. Attempt with log transformation.      
+
+`chla_model<-lmer(log(chla.ug.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+chla_model<-lmer(log(chla.ug.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(chla_model))
+hist(residuals(chla_model))
+```
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(chla_model, type="II")
+```
+
+Generate model effect plots.  
+
+```{r}
+plot(allEffects(chla_model))
+```
+
+
+Chlorophyll c2: 
+
+Build a mixed model for univariate analysis and examine data distribution.
+
+`chlc2_model<-lmer(chlc2.ug.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+chlc2_model<-lmer(chlc2.ug.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(chlc2_model))
+hist(residuals(chlc2_model))
+```
+
+Residuals are not normally distributed. Attempt with log transformation.      
+
+`chlc2_model<-lmer(log(chlc2.ug.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+chlc2_model<-lmer(log(chlc2.ug.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(chlc2_model))
+hist(residuals(chlc2_model))
+```
+
+Return to check outliers in this model.  
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(chlc2_model, type="II")
+```
+
+Generate model effect plots.  
+
+```{r}
+plot(allEffects(chlc2_model))
+```
+
+
 ## Protein 
 
-View by site and timepoint for each species.   
+### Plot  
+
+View by site and timepoint for each species.    
 ```{r}
 protplot<-master %>%
   filter(!is.na(prot_ug.cm2)) %>%
@@ -435,3 +708,287 @@ protplot<-master %>%
 
 ggsave("Figures/Protein.pdf", plot=protplot, height=6, width=10, units = c("in"), dpi=300) #output figure
 ```
+
+### Analysis  
+
+Build a mixed model for univariate analysis and examine data distribution.
+
+`prot_model<-lmer(prot_ug.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+prot_model<-lmer(prot_ug.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(prot_model))
+hist(residuals(prot_model))
+```
+
+Residuals are not normally distributed. Attempt with log transformation.      
+
+`prot_model<-lmer(log(prot_ug.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+prot_model<-lmer(log(prot_ug.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(prot_model))
+hist(residuals(prot_model))
+```
+
+Return to check outliers in this model.  
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(prot_model, type="II")
+```
+
+Generate model effect plots.  
+
+```{r}
+plot(allEffects(prot_model))
+```
+
+# Multivariate analyses  
+
+## PCA  
+
+Plot PCA using prcomp to center and scale.    
+
+```{r}
+pca_data<-master%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2,chla.ug.cm2, chlc2.ug.cm2, prot_ug.cm2, cells.cm2)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)
+
+pca_data<-pca_data[complete.cases(pca_data), ]
+
+scaled_data<-prcomp(pca_data[c(5:11)], scale=TRUE, center=TRUE) 
+```
+
+Groupings by species:  
+```{r}
+pcaSpecies<-ggplot2::autoplot(scaled_data, data=pca_data, frame.colour="species", loadings=TRUE,  colour="species", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5) + 
+  scale_colour_manual(values=c("orange", "darkgray", "purple")) +
+  scale_fill_manual(values=c("orange", "darkgray", "purple")) + 
+  theme_classic()+
+  xlim(-0.2,0.5)+
+  ylim(-0.2, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pcaSpecies
+
+#ggsave("Figures/PCA_species.pdf", plot=pcaSpecies, height=8, width=10, units = c("in"), dpi=300) #output figure
+```
+
+Groupings by timepoint:  
+```{r}
+pcaTimepoint<-ggplot2::autoplot(scaled_data, data=pca_data, frame.colour="timepoint", loadings=TRUE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  theme_classic()+
+  xlim(-0.2,0.5)+
+  ylim(-0.2, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pcaTimepoint
+
+#ggsave("Figures/PCA_timepoint.pdf", plot=pcaTimepoint, height=8, width=10, units = c("in"), dpi=300) #output figure
+```
+
+
+Groupings by site:  
+```{r}
+pcaSite<-ggplot2::autoplot(scaled_data, data=pca_data, frame.colour="site", loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5) + 
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
+  theme_classic()+
+  xlim(-0.2,0.5)+
+  ylim(-0.2, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pcaSite
+
+#ggsave("Figures/PCA_site.pdf", plot=pcaTimepoint, height=8, width=10, units = c("in"), dpi=300) #output figure
+```
+
+Generate a plot of all PCA's for full dataset.  
+
+```{r}
+pcaplots<-plot_grid(pcaSpecies, pcaSite, pcaTimepoint, labels = c("Species", "Site", "Timepoint"), ncol=3, nrow=1, rel_widths = c(1, 1, 1), label_size = 20, label_x = 0.1)
+
+ggsave(filename="Figures/All_PCAs.pdf", plot=pcaplots, dpi=300, width=24, height=5, units="in")
+```  
+
+Next generate PCA for site and timepoint for each species separately.  
+
+Separate by species.  
+```{r}
+#porites
+por_data<-master%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2,chla.ug.cm2, chlc2.ug.cm2, prot_ug.cm2, cells.cm2)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")
+
+por_data<-por_data[complete.cases(por_data), ]
+
+scaled_por<-prcomp(por_data[c(5:11)], scale=TRUE, center=TRUE) 
+
+#acropora
+acr_data<-master%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2,chla.ug.cm2, chlc2.ug.cm2, prot_ug.cm2, cells.cm2)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Acropora")
+
+acr_data<-acr_data[complete.cases(acr_data), ]
+
+scaled_acr<-prcomp(acr_data[c(5:11)], scale=TRUE, center=TRUE) 
+
+#pocillopora
+poc_data<-master%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2,chla.ug.cm2, chlc2.ug.cm2, prot_ug.cm2, cells.cm2)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Pocillopora")
+
+poc_data<-poc_data[complete.cases(poc_data), ]
+
+scaled_poc<-prcomp(poc_data[c(5:11)], scale=TRUE, center=TRUE) 
+```
+
+### Porites PCA's  
+
+Groupings by timepoint:  
+```{r}
+porTimepoint<-ggplot2::autoplot(scaled_por, data=por_data, frame.colour="timepoint", loadings=TRUE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  theme_classic()+
+  xlim(-0.7,0.5)+
+  ylim(-0.7, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));porTimepoint
+```
+
+Groupings by site:  
+```{r}
+porSite<-ggplot2::autoplot(scaled_por, data=por_data, frame.colour="site", loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5) + 
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
+  theme_classic()+
+  xlim(-0.7,0.5)+
+  ylim(-0.7, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));porSite
+```
+
+Generate a plot of all PCA's for Porites.    
+
+```{r}
+por_plots<-plot_grid(porSite, porTimepoint, labels = c("Porites", ""), ncol=2, nrow=1, rel_widths = c(1, 1), label_size = 20, label_x = 0.1, label_y=1.0)
+
+ggsave(filename="Figures/POR_PCAs.pdf", plot=por_plots, dpi=300, width=18, height=5, units="in")
+```  
+
+### Acropora PCA's  
+
+Groupings by timepoint:  
+```{r}
+acrTimepoint<-ggplot2::autoplot(scaled_acr, data=acr_data, frame.colour="timepoint", loadings=TRUE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  theme_classic()+
+  xlim(-0.5,0.5)+
+  ylim(-0.5, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));acrTimepoint
+```
+
+Groupings by site:  
+```{r}
+acrSite<-ggplot2::autoplot(scaled_acr, data=acr_data, frame.colour="site", loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5) + 
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
+  theme_classic()+
+  xlim(-0.5,0.5)+
+  ylim(-0.5, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));acrSite
+```
+
+Generate a plot of all PCA's for Porites.    
+
+```{r}
+acr_plots<-plot_grid(acrSite, acrTimepoint, labels = c("Acropora", ""), ncol=2, nrow=1, rel_widths = c(1, 1), label_size = 20, label_x = 0.1, label_y=1.0)
+
+ggsave(filename="Figures/ACR_PCAs.pdf", plot=acr_plots, dpi=300, width=18, height=5, units="in")
+``` 
+
+### Pocillopora PCA's  
+
+Groupings by timepoint:  
+```{r}
+pocTimepoint<-ggplot2::autoplot(scaled_poc, data=poc_data, frame.colour="timepoint", loadings=TRUE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  theme_classic()+
+  xlim(-0.5,0.5)+
+  ylim(-0.5, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pocTimepoint
+```
+
+Groupings by site:  
+```{r}
+pocSite<-ggplot2::autoplot(scaled_poc, data=poc_data, frame.colour="site", loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5) + 
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
+  theme_classic()+
+  xlim(-0.5,0.5)+
+  ylim(-0.5, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pocSite
+```
+
+Generate a plot of all PCA's for Porites.    
+
+```{r}
+poc_plots<-plot_grid(pocSite, pocTimepoint, labels = c("Pocillopora", ""), ncol=2, nrow=1, rel_widths = c(1, 1), label_size = 20, label_x = 0.1, label_y=1.0)
+
+ggsave(filename="Figures/POC_PCAs.pdf", plot=poc_plots, dpi=300, width=18, height=5, units="in")
+``` 
