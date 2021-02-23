@@ -7,6 +7,7 @@ editor_options:
   chunk_output_type: console
 ---
 
+# Set Up  
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 ```
@@ -216,8 +217,10 @@ master$species<-tags$Coral_Species[match(master$colony_id_corr, tags$Original_Ta
 master<-master%>%
   mutate(nutrient = if_else(site == "Hilton", "Medium", 
                             if_else(site == "Mahana", "Low", 
-                                    if_else(site == "Manava", "High", "NA"))))
+                                    if_else(site == "Manava", "High", "NA"))))%>%
+  mutate(site_code = paste(site, nutrient))
 
+master$site_code <- factor(master$site_code, levels = c("Mahana Low", "Hilton Medium", "Manava High"))
 ```
 
 # Normalization  
@@ -226,6 +229,8 @@ In order to examine the effect of normalizer on all response variables, normaliz
 (1) Protein  (ug/cm2)  
 (2) AFDW  (mg/cm2)   
 (3) Surface area (cm2)  
+
+To do this, back-normalize variables that are already normalized and divide by each new normalizer.  
 
 ```{r}
 master<-master%>%
@@ -253,35 +258,104 @@ write_csv(master, "Output/master_timeseries.csv")
 
 ## Antioxidant capacity  
 
-### Plot 
+### Plot: CRE umol mgprot 
 
 View by site and timepoint for each species.   
 ```{r}
-tacplot<-master %>%
+tacplot_prot<-master %>%
   filter(!is.na(cre.umol.mgprot)) %>%
-  select(colony_id_corr, species, site, timepoint, cre.umol.mgprot)%>%
+  select(colony_id_corr, species, site_code, timepoint, cre.umol.mgprot)%>%
   
-  ggplot(., aes(x = site, y = cre.umol.mgprot, fill = timepoint, group=interaction(site,timepoint))) +
+  ggplot(., aes(x = site_code, y = cre.umol.mgprot, fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
     ylab(expression(bold(paste("Copper Reducing Elements (", mu, "mol mg protein"^-1,")"))))+
     theme_classic() + 
     theme(
+      legend.position="none",
       legend.title=element_text(face="bold", size=14),
       legend.text=element_text(size=14),
       axis.title=element_text(face="bold", size=14),
-      axis.text=element_text(size=12, color="black"), 
+      axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); tacplot
-
-ggsave("Figures/Antioxidant_capacity.pdf", plot=tacplot, height=6, width=10, units = c("in"), dpi=300) #output figure
+      ); tacplot_prot
 ```
 
-### Analysis  
+### Plot: CRE umol mgafdw 
+
+View by site and timepoint for each species.   
+```{r}
+tacplot_afdw<-master %>%
+  filter(!is.na(cre.umol.mgafdw)) %>%
+  select(colony_id_corr, species, site_code, timepoint, cre.umol.mgafdw)%>%
+  
+  ggplot(., aes(x = site_code, y = cre.umol.mgafdw, fill = timepoint, group=interaction(site_code,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
+    ylab(expression(bold(paste("Copper Reducing Elements (", mu, "mol mg afdw"^-1,")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); tacplot_afdw
+```
+
+
+### Plot: CRE umol cm2 
+
+View by site and timepoint for each species.   
+```{r}
+tacplot_cm2<-master %>%
+  filter(!is.na(cre.umol.cm2)) %>%
+  select(colony_id_corr, species, site_code, timepoint, cre.umol.cm2)%>%
+  
+  ggplot(., aes(x = site_code, y = cre.umol.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+     scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
+    ylab(expression(bold(paste("Copper Reducing Elements (", mu, "mol cm"^-2,")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="right",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); tacplot_cm2
+
+```
+
+Join all plots for each normalization together.  
+
+```{r}
+tac_figure<-plot_grid(tacplot_prot, tacplot_afdw, tacplot_cm2, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1)
+
+ggsave(filename="Figures/TAC_Figure.pdf", plot=tac_figure, dpi=300, width=24, height=5, units="in")
+```
+
+### Analysis 
 
 Build a mixed model for univariate analysis and examine data distribution.
 
@@ -319,18 +393,20 @@ plot(allEffects(antiox_model))
 
 ## Symbiont Densities  
 
-### Plot   
+### Plot: Surface Area   
 
 View by site and timepoint for each species.   
 ```{r}
-symbplot<-master %>%
+symbplot_cm2<-master %>%
   filter(!is.na(cells.cm2)) %>%
-  select(colony_id_corr, species, site, timepoint, cells.cm2)%>%
+  select(colony_id_corr, species, site_code, timepoint, cells.cm2)%>%
   
-  ggplot(., aes(x = site, y = cells.cm2, fill = timepoint, group=interaction(site,timepoint))) +
+  ggplot(., aes(x = site_code, y = cells.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
@@ -340,12 +416,78 @@ symbplot<-master %>%
       legend.title=element_text(face="bold", size=14),
       legend.text=element_text(size=14),
       axis.title=element_text(face="bold", size=14),
-      axis.text=element_text(size=12, color="black"), 
+      axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); symbplot
-
-ggsave("Figures/Symbiont_densities.pdf", plot=symbplot, height=6, width=10, units = c("in"), dpi=300) #output figure
+      ); symbplot_cm2
 ```
+
+### Plot: Protein   
+
+View by site and timepoint for each species.   
+```{r}
+symbplot_prot<-master %>%
+  filter(!is.na(cells.mgprot)) %>%
+  select(colony_id_corr, species, site_code, timepoint, cells.mgprot)%>%
+  
+  ggplot(., aes(x = site_code, y = cells.mgprot, fill = timepoint, group=interaction(site_code,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Symbiont Cells mg protein"^-1))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); symbplot_prot
+
+```
+
+### Plot: Biomass   
+
+View by site and timepoint for each species.   
+```{r}
+symbplot_afdw<-master %>%
+  filter(!is.na(cells.mgAFDW)) %>%
+  select(colony_id_corr, species, site_code, timepoint, cells.mgAFDW)%>%
+  
+  ggplot(., aes(x = site_code, y = cells.mgAFDW, fill = timepoint, group=interaction(site_code,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Symbiont Cells mg afdw"^-1))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); symbplot_afdw
+```
+
+Join all plots for each normalization together.  
+
+```{r}
+symbcells_figure<-plot_grid(symbplot_prot, symbplot_afdw, symbplot_cm2, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1)
+
+ggsave(filename="Figures/CellDensity_Figure.pdf", plot=symbcells_figure, dpi=300, width=24, height=5, units="in")
+```
+
 ### Analysis  
 
 Build a mixed model for univariate analysis and examine data distribution.
@@ -384,62 +526,71 @@ Generate model effect plots.
 
 
 ## Biomass
-  
-View by site and timepoint for each species in the host. *Need to address negative values in dataset by removing outliers.     
+
+### Host Biomass  
+
+View by site and timepoint for each species in the host.  
 ```{r} 
 hAFDWplot<-master %>%
   filter(!is.na(Host_AFDW.mg.cm2)) %>%
   filter(!is.na(species))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
-  select(colony_id_corr, species, site, timepoint, Host_AFDW.mg.cm2)%>%
+  select(colony_id_corr, species, site_code, timepoint, Host_AFDW.mg.cm2)%>%
   
-  ggplot(., aes(x = site, y = Host_AFDW.mg.cm2, fill = timepoint, group=interaction(site,timepoint))) +
+  ggplot(., aes(x = site_code, y = Host_AFDW.mg.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Host Biomass (AFDW mg cm"^-2, ")"))))+
+    ylab(expression(bold(paste("Host Biomass (mg AFDW cm"^-2, ")"))))+
     theme_classic() + 
     theme(
+      legend.position="none",
       legend.title=element_text(face="bold", size=14),
       legend.text=element_text(size=14),
       axis.title=element_text(face="bold", size=14),
-      axis.text=element_text(size=12, color="black"), 
+      axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
       ); hAFDWplot
-
-ggsave("Figures/Host_AFDW.pdf", plot=hAFDWplot, height=6, width=10, units = c("in"), dpi=300) #output figure
 ```
 
-View by site and timepoint for each species in the host. *Need to address negative values in dataset by removing outliers.    
+
+### Symbiont biomass  
+
+View by site and timepoint for each species in the symbiont  
 ```{r} 
 sAFDWplot<-master %>%
   filter(!is.na(Sym_AFDW.mg.cm2)) %>%
   filter(!is.na(species))%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
-  select(colony_id_corr, species, site, timepoint, Sym_AFDW.mg.cm2)%>%
+  select(colony_id_corr, species, site_code, timepoint, Sym_AFDW.mg.cm2)%>%
   
-  ggplot(., aes(x = site, y = Sym_AFDW.mg.cm2, fill = timepoint, group=interaction(site,timepoint))) +
+  ggplot(., aes(x = site_code, y = Sym_AFDW.mg.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Symbiont Biomass (AFDW mg cm"^-2, ")"))))+
+    ylab(expression(bold(paste("Symbiont Biomass (mg AFDW cm"^-2, ")"))))+
     theme_classic() + 
     theme(
+      legend.position="none",
       legend.title=element_text(face="bold", size=14),
       legend.text=element_text(size=14),
       axis.title=element_text(face="bold", size=14),
-      axis.text=element_text(size=12, color="black"), 
+      axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
       ); sAFDWplot
-
-ggsave("Figures/Symbiont_AFDW.pdf", plot=sAFDWplot, height=6, width=10, units = c("in"), dpi=300) #output figure
 ```
+
+### S:H Ratio  
 
 Calculate biomass as a ratio of host to symbiont and plot.  
 
@@ -458,6 +609,8 @@ ratioAFDWplot<-master %>%
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
@@ -467,11 +620,18 @@ ratioAFDWplot<-master %>%
       legend.title=element_text(face="bold", size=14),
       legend.text=element_text(size=14),
       axis.title=element_text(face="bold", size=14),
-      axis.text=element_text(size=12, color="black"), 
+      axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
       ); ratioAFDWplot
+```
 
-ggsave("Figures/S_H_Ratio_AFDW.pdf", plot=ratioAFDWplot, height=6, width=10, units = c("in"), dpi=300) #output figure
+
+Join all plots together.  
+
+```{r}
+afdw_figure<-plot_grid(hAFDWplot, sAFDWplot, ratioAFDWplot, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1)
+
+ggsave(filename="Figures/Biomass_Figure.pdf", plot=afdw_figure, dpi=300, width=24, height=5, units="in")
 ```
 
 ### Analysis  
@@ -581,21 +741,23 @@ Generate model effect plots.
 plot(allEffects(shAFDW_model))
 ```
 
-## Chlorophyll 
+## Chlorophyll  
 
-### Plot  
+### Plot: Surface area    
 
 View by site and timepoint for each species in Chl a.    
 ```{r}
-chlaplot<-master %>%
+chlaplot_cm2<-master %>%
   filter(!is.na(chla.ug.cm2)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site, timepoint, chla.ug.cm2)%>%
+  select(colony_id_corr, species, site_code, timepoint, chla.ug.cm2)%>%
   
-  ggplot(., aes(x = site, y = chla.ug.cm2, fill = timepoint, group=interaction(site,timepoint))) +
+  ggplot(., aes(x = site_code, y = chla.ug.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
@@ -605,24 +767,24 @@ chlaplot<-master %>%
       legend.title=element_text(face="bold", size=14),
       legend.text=element_text(size=14),
       axis.title=element_text(face="bold", size=14),
-      axis.text=element_text(size=12, color="black"), 
+      axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); chlaplot
-
-ggsave("Figures/Chl_a.pdf", plot=chlaplot, height=6, width=10, units = c("in"), dpi=300) #output figure
+      ); chlaplot_cm2
 ```
 
 View by site and timepoint for each species in Chl c2.   
 ```{r}
-chlcplot<-master %>%
+chlc2plot_cm2<-master %>%
   filter(!is.na(chlc2.ug.cm2)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site, timepoint, chlc2.ug.cm2)%>%
+  select(colony_id_corr, species, site_code, timepoint, chlc2.ug.cm2)%>%
   
-  ggplot(., aes(x = site, y = chlc2.ug.cm2, fill = timepoint, group=interaction(site,timepoint))) +
+  ggplot(., aes(x = site_code, y = chlc2.ug.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
@@ -632,11 +794,133 @@ chlcplot<-master %>%
       legend.title=element_text(face="bold", size=14),
       legend.text=element_text(size=14),
       axis.title=element_text(face="bold", size=14),
-      axis.text=element_text(size=12, color="black"), 
+      axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); chlcplot
+      ); chlc2plot_cm2
+```
 
-ggsave("Figures/Chl_c2.pdf", plot=chlcplot, height=6, width=10, units = c("in"), dpi=300) #output figure
+### Plot: Protein    
+
+View by site and timepoint for each species in Chl a.    
+```{r}
+chlaplot_prot<-master %>%
+  filter(!is.na(chla.ug.mgprot)) %>%
+  filter(!is.na(species)) %>%
+  select(colony_id_corr, species, site_code, timepoint, chla.ug.mgprot)%>%
+  
+  ggplot(., aes(x = site_code, y = chla.ug.mgprot, fill = timepoint, group=interaction(site_code,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Chlorophyll a (", mu, "g mg protein"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); chlaplot_prot
+```
+
+View by site and timepoint for each species in Chl c2.   
+```{r}
+chlc2plot_prot<-master %>%
+  filter(!is.na(chlc2.ug.mgprot)) %>%
+  filter(!is.na(species)) %>%
+  select(colony_id_corr, species, site_code, timepoint, chlc2.ug.mgprot)%>%
+  
+  ggplot(., aes(x = site_code, y = chlc2.ug.mgprot, fill = timepoint, group=interaction(site_code,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Chlorophyll c2 (", mu, "g mg protein"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); chlc2plot_prot
+```
+
+### Plot: Biomass    
+
+View by site and timepoint for each species in Chl a.    
+```{r}
+chlaplot_afdw<-master %>%
+  filter(!is.na(chla.ug.mgAFDW)) %>%
+  filter(!is.na(species)) %>%
+  select(colony_id_corr, species, site_code, timepoint, chla.ug.mgAFDW)%>%
+  
+  ggplot(., aes(x = site_code, y = chla.ug.mgAFDW, fill = timepoint, group=interaction(site_code,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Chlorophyll a (", mu, "g mg afdw"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); chlaplot_afdw
+```
+
+View by site and timepoint for each species in Chl c2.   
+```{r}
+chlc2plot_afdw<-master %>%
+  filter(!is.na(chlc2.ug.mgAFDW)) %>%
+  filter(!is.na(species)) %>%
+  select(colony_id_corr, species, site_code, timepoint, chlc2.ug.mgAFDW)%>%
+  
+  ggplot(., aes(x = site_code, y = chlc2.ug.mgAFDW, fill = timepoint, group=interaction(site_code,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Chlorophyll c2 (", mu, "g mg afdw"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); chlc2plot_afdw
+```
+
+Join all plots for each normalization together.  
+
+```{r}
+chl_figure<-plot_grid(chlaplot_prot, chlaplot_afdw, chlaplot_cm2, chlc2plot_prot, chlc2plot_afdw, chlc2plot_cm2, labels = c("", "", ""), ncol=3, nrow=2, rel_widths = c(.8, .8, 1, .8, .8, 1), label_size = 20, label_x = 0.1)
+
+ggsave(filename="Figures/Chlorophyll_Figure.pdf", plot=chl_figure, dpi=300, width=24, height=10, units="in")
 ```
 
 ### Analysis  
@@ -715,33 +999,71 @@ plot(allEffects(chlc2_model))
 
 ## Protein 
 
-### Plot  
+### Plot: Surface Area  
 
 View by site and timepoint for each species.    
 ```{r}
-protplot<-master %>%
-  filter(!is.na(prot_ug.cm2)) %>%
+protplot_cm2<-master %>%
+  filter(!is.na(prot_mg.cm2)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site, timepoint, prot_ug.cm2)%>%
+  select(colony_id_corr, species, site_code, timepoint, prot_mg.cm2)%>%
   
-  ggplot(., aes(x = site, y = prot_ug.cm2, fill = timepoint, group=interaction(site,timepoint))) +
+  ggplot(., aes(x = site_code, y = prot_mg.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Protein (", mu, "g cm"^-2, ")"))))+
+    ylab(expression(bold(paste("Protein (mg cm"^-2, ")"))))+
     theme_classic() + 
     theme(
       legend.title=element_text(face="bold", size=14),
       legend.text=element_text(size=14),
       axis.title=element_text(face="bold", size=14),
-      axis.text=element_text(size=12, color="black"), 
+      axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); protplot
+      ); protplot_cm2
+```
 
-ggsave("Figures/Protein.pdf", plot=protplot, height=6, width=10, units = c("in"), dpi=300) #output figure
+### Plot: AFDW  
+
+View by site and timepoint for each species.    
+```{r}
+protplot_afdw<-master %>%
+  filter(!is.na(prot_mg.mgafdw)) %>%
+  filter(!is.na(species)) %>%
+  select(colony_id_corr, species, site_code, timepoint, prot_mg.mgafdw)%>%
+  
+  ggplot(., aes(x = site_code, y = prot_mg.mgafdw, fill = timepoint, group=interaction(site_code,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Protein (mg mg afdw"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); protplot_afdw
+```
+
+Join all plots for each normalization together.  
+
+```{r}
+prot_figure<-plot_grid(protplot_afdw, protplot_cm2, labels = c("", "", ""), ncol=2, nrow=1, rel_widths = c(.8, 1), label_size = 20, label_x = 0.1)
+
+ggsave(filename="Figures/Protein_Figure.pdf", plot=prot_figure, dpi=300, width=16, height=5, units="in")
 ```
 
 ### Analysis  
@@ -782,27 +1104,27 @@ plot(allEffects(prot_model))
 
 # Multivariate analyses  
 
-## PCA  
+## PCAs: Surface Area normalizers  
 
-### All species PCA's  
+### Combined PCA's  
 
 Plot PCA using prcomp to center and scale.    
-
+ 
 ```{r}
-pca_data<-master%>%
-  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2,chla.ug.cm2, chlc2.ug.cm2, prot_ug.cm2, cells.cm2)%>%
+pca_data_cm2<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.cm2, chlc2.ug.cm2, prot_mg.cm2, cells.cm2, cre.umol.cm2)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)
 
-pca_data<-pca_data[complete.cases(pca_data), ]
+pca_data_cm2<-pca_data_cm2[complete.cases(pca_data_cm2), ]
 
-scaled_data<-prcomp(pca_data[c(5:11)], scale=TRUE, center=TRUE) 
+scaled_data_cm2<-prcomp(pca_data_cm2[c(5:12)], scale=TRUE, center=TRUE) 
 ```
 
 Groupings by species:  
 ```{r}
-pcaSpecies<-ggplot2::autoplot(scaled_data, data=pca_data, frame.colour="species", loadings=FALSE,  colour="species", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+pcaSpecies_cm2<-ggplot2::autoplot(scaled_data_cm2, data=pca_data_cm2, frame.colour="species", loadings=FALSE,  colour="species", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
   scale_colour_manual(values=c("orange", "darkgray", "purple")) +
   scale_fill_manual(values=c("orange", "darkgray", "purple")) + 
   theme_classic()+
@@ -813,24 +1135,23 @@ pcaSpecies<-ggplot2::autoplot(scaled_data, data=pca_data, frame.colour="species"
         plot.background = element_blank(),
         legend.title = element_text(size=18, face="bold"), 
         axis.text = element_text(size=18), 
-        axis.title = element_text(size=18,  face="bold"));pcaSpecies
+        axis.title = element_text(size=18,  face="bold"));pcaSpecies_cm2
 
-#ggsave("Figures/PCA_species.pdf", plot=pcaSpecies, height=8, width=10, units = c("in"), dpi=300) #output figure
 ```
 
 PERMANOVA of the effect of species  
 ```{r}
 # scale data
-vegan <- scale(pca_data[ ,5:11])
+vegan_cm2 <- scale(pca_data_cm2[ ,5:12])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-adonis(vegan ~ species, data = pca_data, method='eu')
+adonis(vegan_cm2 ~ species, data = pca_data_cm2, method='eu')
 ```
 
 
 Groupings by timepoint:  
 ```{r}
-pcaTimepoint<-ggplot2::autoplot(scaled_data, data=pca_data, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+pcaTimepoint_cm2<-ggplot2::autoplot(scaled_data_cm2, data=pca_data_cm2, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
   scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
   scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
   theme_classic()+
@@ -841,20 +1162,18 @@ pcaTimepoint<-ggplot2::autoplot(scaled_data, data=pca_data, frame.colour="timepo
         plot.background = element_blank(),
         legend.title = element_text(size=18, face="bold"), 
         axis.text = element_text(size=18), 
-        axis.title = element_text(size=18,  face="bold"));pcaTimepoint
-
-#ggsave("Figures/PCA_timepoint.pdf", plot=pcaTimepoint, height=8, width=10, units = c("in"), dpi=300) #output figure
+        axis.title = element_text(size=18,  face="bold"));pcaTimepoint_cm2
 ```
 
 PERMANOVA of the effect of timepoint  
 ```{r}
 # PerMANOVA - partitioning the euclidean distance matrix by species
-adonis(vegan ~ timepoint, data = pca_data, method='eu')
+adonis(vegan_cm2 ~ timepoint, data = pca_data_cm2, method='eu')
 ```
 
 Groupings by site:  
 ```{r}
-pcaSite<-ggplot2::autoplot(scaled_data, data=pca_data, frame.colour="site", loadings=FALSE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+pcaSite_cm2<-ggplot2::autoplot(scaled_data_cm2, data=pca_data_cm2, frame.colour="site_code", loadings=FALSE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
@@ -865,71 +1184,72 @@ pcaSite<-ggplot2::autoplot(scaled_data, data=pca_data, frame.colour="site", load
         plot.background = element_blank(),
         legend.title = element_text(size=18, face="bold"), 
         axis.text = element_text(size=18), 
-        axis.title = element_text(size=18,  face="bold"));pcaSite
+        axis.title = element_text(size=18,  face="bold"));pcaSite_cm2
 
-#ggsave("Figures/PCA_site.pdf", plot=pcaTimepoint, height=8, width=10, units = c("in"), dpi=300) #output figure
 ```
 
 PERMANOVA of the effect of site  
 ```{r}
 # PerMANOVA - partitioning the euclidean distance matrix by species
-adonis(vegan ~ site, data = pca_data, method='eu')
+adonis(vegan_cm2 ~ site_code, data = pca_data_cm2, method='eu')
 ```
 
-Generate a plot of all PCA's for full dataset.  
+Generate a plot of all PCA's for surface area normalization.  
 
 ```{r}
-pcaplots<-plot_grid(pcaSpecies, pcaSite, pcaTimepoint, labels = c("Species", "Site", "Timepoint"), ncol=3, nrow=1, rel_widths = c(1, 1, 1), label_size = 20, label_x = 0.1)
+pcaplots_cm2<-plot_grid(pcaSpecies_cm2, pcaSite_cm2, pcaTimepoint_cm2, labels = c("Species: Surface Area", "Site: Surface Area", "Timepoint: Surface Area"), ncol=3, nrow=1, rel_widths = c(1, 1, 1), label_size = 20, label_x = 0.01)
 
-ggsave(filename="Figures/All_PCAs.pdf", plot=pcaplots, dpi=300, width=24, height=5, units="in")
+ggsave(filename="Figures/All_PCAs_cm2.pdf", plot=pcaplots_cm2, dpi=300, width=24, height=5, units="in")
 ```  
+
+### Species-specific PCA's   
 
 Next generate PCA for site and timepoint for each species separately.  
 
 Separate by species.  
 ```{r}
 #porites
-por_data<-master%>%
-  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2,chla.ug.cm2, chlc2.ug.cm2, prot_ug.cm2, cells.cm2)%>%
+por_data_cm2<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.cm2, chlc2.ug.cm2, prot_mg.cm2, cells.cm2, cre.umol.cm2)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Porites")
 
-por_data<-por_data[complete.cases(por_data), ]
+por_data_cm2<-por_data_cm2[complete.cases(por_data_cm2), ]
 
-scaled_por<-prcomp(por_data[c(5:11)], scale=TRUE, center=TRUE) 
+scaled_por_cm2<-prcomp(por_data_cm2[c(5:12)], scale=TRUE, center=TRUE) 
 
 #acropora
-acr_data<-master%>%
-  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2,chla.ug.cm2, chlc2.ug.cm2, prot_ug.cm2, cells.cm2)%>%
+acr_data_cm2<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.cm2, chlc2.ug.cm2, prot_mg.cm2, cells.cm2, cre.umol.cm2)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Acropora")
 
-acr_data<-acr_data[complete.cases(acr_data), ]
+acr_data_cm2<-acr_data_cm2[complete.cases(acr_data_cm2), ]
 
-scaled_acr<-prcomp(acr_data[c(5:11)], scale=TRUE, center=TRUE) 
+scaled_acr_cm2<-prcomp(acr_data_cm2[c(5:12)], scale=TRUE, center=TRUE) 
 
 #pocillopora
-poc_data<-master%>%
-  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2,chla.ug.cm2, chlc2.ug.cm2, prot_ug.cm2, cells.cm2)%>%
+poc_data_cm2<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.cm2, chlc2.ug.cm2, prot_mg.cm2, cells.cm2, cre.umol.cm2)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Pocillopora")
 
-poc_data<-poc_data[complete.cases(poc_data), ]
+poc_data_cm2<-poc_data_cm2[complete.cases(poc_data_cm2), ]
 
-scaled_poc<-prcomp(poc_data[c(5:11)], scale=TRUE, center=TRUE) 
+scaled_poc_cm2<-prcomp(poc_data_cm2[c(5:12)], scale=TRUE, center=TRUE) 
 ```
 
-### Porites PCA's   
+#### Porites PCA's   
 
 Groupings by timepoint:  
 ```{r}
-porTimepoint<-ggplot2::autoplot(scaled_por, data=por_data, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+porTimepoint_cm2<-ggplot2::autoplot(scaled_por_cm2, data=por_data_cm2, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
   scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
   scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
   theme_classic()+
@@ -940,21 +1260,21 @@ porTimepoint<-ggplot2::autoplot(scaled_por, data=por_data, frame.colour="timepoi
         plot.background = element_blank(),
         legend.title = element_text(size=18, face="bold"), 
         axis.text = element_text(size=18), 
-        axis.title = element_text(size=18,  face="bold"));porTimepoint
+        axis.title = element_text(size=18,  face="bold"));porTimepoint_cm2
 ```
 
 PERMANOVA of the effect of timepoint  
 ```{r}
 # scale data
-vegan <- scale(por_data[ ,5:11])
+vegan_cm2 <- scale(por_data_cm2[ ,5:12])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-adonis(vegan ~ timepoint, data = por_data, method='eu')
+adonis(vegan_cm2 ~ timepoint, data = por_data_cm2, method='eu')
 ```
 
 Groupings by site:  
 ```{r}
-porSite<-ggplot2::autoplot(scaled_por, data=por_data, frame.colour="site", loadings=FALSE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+porSite_cm2<-ggplot2::autoplot(scaled_por_cm2, data=por_data_cm2, frame.colour="site_code", loadings=FALSE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
@@ -965,28 +1285,20 @@ porSite<-ggplot2::autoplot(scaled_por, data=por_data, frame.colour="site", loadi
         plot.background = element_blank(),
         legend.title = element_text(size=18, face="bold"), 
         axis.text = element_text(size=18), 
-        axis.title = element_text(size=18,  face="bold"));porSite
+        axis.title = element_text(size=18,  face="bold"));porSite_cm2
 ```
 
 PERMANOVA of the effect of site  
 ```{r}
 # PerMANOVA - partitioning the euclidean distance matrix by species
-adonis(vegan ~ site, data = por_data, method='eu')
+adonis(vegan_cm2 ~ site_code, data = por_data_cm2, method='eu')
 ```
 
-Generate a plot of all PCA's for Porites.    
-
-```{r}
-por_plots<-plot_grid(porSite, porTimepoint, labels = c("Porites", ""), ncol=2, nrow=1, rel_widths = c(1, 1), label_size = 20, label_x = 0.1, label_y=1.0)
-
-ggsave(filename="Figures/POR_PCAs.pdf", plot=por_plots, dpi=300, width=18, height=5, units="in")
-```  
-
-### Acropora PCA's  
+#### Acropora PCA's  
  
 Groupings by timepoint:  
 ```{r}
-acrTimepoint<-ggplot2::autoplot(scaled_acr, data=acr_data, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+acrTimepoint_cm2<-ggplot2::autoplot(scaled_acr_cm2, data=acr_data_cm2, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
   scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
   scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
   theme_classic()+
@@ -997,21 +1309,21 @@ acrTimepoint<-ggplot2::autoplot(scaled_acr, data=acr_data, frame.colour="timepoi
         plot.background = element_blank(),
         legend.title = element_text(size=18, face="bold"), 
         axis.text = element_text(size=18), 
-        axis.title = element_text(size=18,  face="bold"));acrTimepoint
+        axis.title = element_text(size=18,  face="bold"));acrTimepoint_cm2
 ```
 
 PERMANOVA of the effect of timepoint  
 ```{r}
 # scale data
-vegan <- scale(acr_data[ ,5:11])
+vegan_cm2 <- scale(acr_data_cm2[ ,5:12])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-adonis(vegan ~ timepoint, data = acr_data, method='eu')
+adonis(vegan_cm2 ~ timepoint, data = acr_data_cm2, method='eu')
 ```
 
 Groupings by site:  
 ```{r}
-acrSite<-ggplot2::autoplot(scaled_acr, data=acr_data, frame.colour="site", loadings=FALSE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+acrSite_cm2<-ggplot2::autoplot(scaled_acr_cm2, data=acr_data_cm2, frame.colour="site_code", loadings=FALSE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
@@ -1022,53 +1334,45 @@ acrSite<-ggplot2::autoplot(scaled_acr, data=acr_data, frame.colour="site", loadi
         plot.background = element_blank(),
         legend.title = element_text(size=18, face="bold"), 
         axis.text = element_text(size=18), 
-        axis.title = element_text(size=18,  face="bold"));acrSite
+        axis.title = element_text(size=18,  face="bold"));acrSite_cm2
 ```
 
 PERMANOVA of the effect of site  
 ```{r}
 # PerMANOVA - partitioning the euclidean distance matrix by species
-adonis(vegan ~ site, data = acr_data, method='eu')
+adonis(vegan_cm2 ~ site_code, data = acr_data_cm2, method='eu')
 ```
 
-Generate a plot of all PCA's for Acropora.      
-
-```{r}
-acr_plots<-plot_grid(acrSite, acrTimepoint, labels = c("Acropora", ""), ncol=2, nrow=1, rel_widths = c(1, 1), label_size = 20, label_x = 0.1, label_y=1.0)
-
-ggsave(filename="Figures/ACR_PCAs.pdf", plot=acr_plots, dpi=300, width=18, height=5, units="in")
-``` 
-
-### Pocillopora PCA's  
+#### Pocillopora PCA's  
 
 Groupings by timepoint:   
 ```{r}
-pocTimepoint<-ggplot2::autoplot(scaled_poc, data=poc_data, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+pocTimepoint_cm2<-ggplot2::autoplot(scaled_poc_cm2, data=poc_data_cm2, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
   scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
   scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
   theme_classic()+
-  xlim(-0.5,0.5)+
+  xlim(-0.6,0.5)+
   ylim(-0.5, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
         legend.title = element_text(size=18, face="bold"), 
         axis.text = element_text(size=18), 
-        axis.title = element_text(size=18,  face="bold"));pocTimepoint
+        axis.title = element_text(size=18,  face="bold"));pocTimepoint_cm2
 ```
  
 PERMANOVA of the effect of timepoint  
 ```{r}
 # scale data
-vegan <- scale(poc_data[ ,5:11])
+vegan_cm2 <- scale(poc_data_cm2[ ,5:12])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-adonis(vegan ~ timepoint, data = poc_data, method='eu')
+adonis(vegan_cm2 ~ timepoint, data = poc_data_cm2, method='eu')
 ```
 
 Groupings by site:  
 ```{r}
-pocSite<-ggplot2::autoplot(scaled_poc, data=poc_data, frame.colour="site", loadings=FALSE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+pocSite_cm2<-ggplot2::autoplot(scaled_poc_cm2, data=poc_data_cm2, frame.colour="site_code", loadings=FALSE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
@@ -1079,22 +1383,674 @@ pocSite<-ggplot2::autoplot(scaled_poc, data=poc_data, frame.colour="site", loadi
         plot.background = element_blank(),
         legend.title = element_text(size=18, face="bold"), 
         axis.text = element_text(size=18), 
-        axis.title = element_text(size=18,  face="bold"));pocSite
+        axis.title = element_text(size=18,  face="bold"));pocSite_cm2
 ```
 
 PERMANOVA of the effect of site  
 ```{r}
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-adonis(vegan ~ site, data = poc_data, method='eu')
+adonis(vegan_cm2 ~ site_code, data = poc_data_cm2, method='eu')
 ```
 
-Generate a plot of all PCA's for Pocillopora    
+Generate a plot of all PCA's for all Species    
 
 ```{r}
-poc_plots<-plot_grid(pocSite, pocTimepoint, labels = c("Pocillopora", ""), ncol=2, nrow=1, rel_widths = c(1, 1), label_size = 20, label_x = 0.1, label_y=1.0)
+species_plots_cm2<-plot_grid(porSite_cm2, porTimepoint_cm2, acrSite_cm2, acrTimepoint_cm2, pocSite_cm2, pocTimepoint_cm2, labels = c("Porites: Surface Area", "Porites: Surface Area", "Acropora: Surface Area", "Acropora: Surface Area", "Pocillopora: Surface Area", "Pocillopora: Surface Area"), ncol=2, nrow=3, rel_widths = c(1, 1, 1, 1, 1, 1), label_size = 20, label_x = 0.01, label_y=1.0)
 
-ggsave(filename="Figures/POC_PCAs.pdf", plot=poc_plots, dpi=300, width=18, height=5, units="in")
+ggsave(filename="Figures/Species_PCAs_cm2.pdf", plot=species_plots_cm2, dpi=300, width=18, height=15, units="in")
 ``` 
 
  
+
+
+
+
+
+
+
+
+
+
+
+
+## PCAs: Protein normalizers  
+
+### Combined PCA's  
+
+Plot PCA using prcomp to center and scale.    
+ 
+```{r}
+pca_data_prot<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgprot, chlc2.ug.mgprot, prot_mg.cm2, cells.mgprot, cre.umol.mgprot)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)
+
+pca_data_prot<-pca_data_prot[complete.cases(pca_data_prot), ]
+
+scaled_data_prot<-prcomp(pca_data_prot[c(5:12)], scale=TRUE, center=TRUE) 
+```
+
+Groupings by species:  
+```{r}
+pcaSpecies_prot<-ggplot2::autoplot(scaled_data_prot, data=pca_data_prot, frame.colour="species", loadings=FALSE,  colour="species", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("orange", "darkgray", "purple")) +
+  scale_fill_manual(values=c("orange", "darkgray", "purple")) + 
+  theme_classic()+
+  xlim(-0.3,0.5)+
+  ylim(-0.3, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pcaSpecies_prot
+
+```
+
+PERMANOVA of the effect of species  
+```{r}
+# scale data
+vegan_prot <- scale(pca_data_prot[ ,5:12])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_prot ~ species, data = pca_data_prot, method='eu')
+```
+
+
+Groupings by timepoint:  
+```{r}
+pcaTimepoint_prot<-ggplot2::autoplot(scaled_data_prot, data=pca_data_prot, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  theme_classic()+
+  xlim(-0.3,0.5)+
+  ylim(-0.3, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pcaTimepoint_prot
+```
+
+PERMANOVA of the effect of timepoint  
+```{r}
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_prot ~ timepoint, data = pca_data_prot, method='eu')
+```
+
+Groupings by site:  
+```{r}
+pcaSite_prot<-ggplot2::autoplot(scaled_data_prot, data=pca_data_prot, frame.colour="site_code", loadings=FALSE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
+  theme_classic()+
+  xlim(-0.3,0.5)+
+  ylim(-0.3, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pcaSite_prot
+
+```
+
+PERMANOVA of the effect of site  
+```{r}
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_prot ~ site_code, data = pca_data_prot, method='eu')
+```
+
+Generate a plot of all PCA's for protein normalization.  
+
+```{r}
+pcaplots_prot<-plot_grid(pcaSpecies_prot, pcaSite_prot, pcaTimepoint_prot, labels = c("Species: Protein", "Site: Protein", "Timepoint: Protein"), ncol=3, nrow=1, rel_widths = c(1, 1, 1), label_size = 20, label_x = 0.02)
+
+ggsave(filename="Figures/All_PCAs_prot.pdf", plot=pcaplots_prot, dpi=300, width=24, height=5, units="in")
+```  
+
+### Species-specific PCA's   
+
+Next generate PCA for site and timepoint for each species separately.  
+
+Separate by species.  
+```{r}
+#porites
+por_data_prot<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgprot, chlc2.ug.mgprot, prot_mg.cm2, cells.mgprot, cre.umol.mgprot)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")
+
+por_data_prot<-por_data_prot[complete.cases(por_data_prot), ]
+
+scaled_por_prot<-prcomp(por_data_prot[c(5:12)], scale=TRUE, center=TRUE) 
+
+#acropora
+acr_data_prot<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgprot, chlc2.ug.mgprot, prot_mg.cm2, cells.mgprot, cre.umol.mgprot)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Acropora")
+
+acr_data_prot<-acr_data_prot[complete.cases(acr_data_prot), ]
+
+scaled_acr_prot<-prcomp(acr_data_prot[c(5:12)], scale=TRUE, center=TRUE) 
+
+#pocillopora
+poc_data_prot<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgprot, chlc2.ug.mgprot, prot_mg.cm2, cells.mgprot, cre.umol.mgprot)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Pocillopora")
+
+poc_data_prot<-poc_data_prot[complete.cases(poc_data_prot), ]
+
+scaled_poc_prot<-prcomp(poc_data_prot[c(5:12)], scale=TRUE, center=TRUE) 
+```
+
+#### Porites PCA's   
+
+Groupings by timepoint:  
+```{r}
+porTimepoint_prot<-ggplot2::autoplot(scaled_por_prot, data=por_data_prot, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  theme_classic()+
+  xlim(-0.7,0.5)+
+  ylim(-0.7, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));porTimepoint_prot
+```
+
+PERMANOVA of the effect of timepoint  
+```{r}
+# scale data
+vegan_prot <- scale(por_data_prot[ ,5:12])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_prot ~ timepoint, data = por_data_prot, method='eu')
+```
+
+Groupings by site:  
+```{r}
+porSite_prot<-ggplot2::autoplot(scaled_por_prot, data=por_data_prot, frame.colour="site_code", loadings=FALSE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
+  theme_classic()+
+  xlim(-0.7,0.5)+
+  ylim(-0.7, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));porSite_prot
+```
+
+PERMANOVA of the effect of site  
+```{r}
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_prot ~ site_code, data = por_data_prot, method='eu')
+```
+
+#### Acropora PCA's  
+ 
+Groupings by timepoint:  
+```{r}
+acrTimepoint_prot<-ggplot2::autoplot(scaled_acr_prot, data=acr_data_prot, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  theme_classic()+
+  xlim(-0.5,0.5)+
+  ylim(-0.5, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));acrTimepoint_prot
+```
+
+PERMANOVA of the effect of timepoint  
+```{r}
+# scale data
+vegan_prot <- scale(acr_data_prot[ ,5:12])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_prot ~ timepoint, data = acr_data_prot, method='eu')
+```
+
+Groupings by site:  
+```{r}
+acrSite_prot<-ggplot2::autoplot(scaled_acr_prot, data=acr_data_prot, frame.colour="site_code", loadings=FALSE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
+  theme_classic()+
+  xlim(-0.5,0.5)+
+  ylim(-0.5, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));acrSite_prot
+```
+
+PERMANOVA of the effect of site  
+```{r}
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_prot ~ site_code, data = acr_data_prot, method='eu')
+```
+
+#### Pocillopora PCA's  
+
+Groupings by timepoint:   
+```{r}
+pocTimepoint_prot<-ggplot2::autoplot(scaled_poc_prot, data=poc_data_prot, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  theme_classic()+
+  xlim(-0.6,0.5)+
+  ylim(-0.5, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pocTimepoint_prot
+```
+ 
+PERMANOVA of the effect of timepoint  
+```{r}
+# scale data
+vegan_prot <- scale(poc_data_prot[ ,5:12])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_prot ~ timepoint, data = poc_data_prot, method='eu')
+```
+
+Groupings by site:  
+```{r}
+pocSite_prot<-ggplot2::autoplot(scaled_poc_prot, data=poc_data_prot, frame.colour="site_code", loadings=FALSE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
+  theme_classic()+
+  xlim(-0.5,0.5)+
+  ylim(-0.5, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pocSite_prot
+```
+
+PERMANOVA of the effect of site  
+```{r}
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_prot ~ site_code, data = poc_data_prot, method='eu')
+```
+
+Generate a plot of all PCA's for all Species    
+
+```{r}
+species_plots_prot<-plot_grid(porSite_prot, porTimepoint_prot, acrSite_prot, acrTimepoint_prot, pocSite_prot, pocTimepoint_prot, labels = c("Porites: Protein", "Porites: Protein", "Acropora: Protein", "Acropora: Protein", "Pocillopora: Protein", "Pocillopora: Protein"), ncol=2, nrow=3, rel_widths = c(1, 1, 1, 1, 1, 1), label_size = 20, label_x = 0.01, label_y=1.0)
+
+ggsave(filename="Figures/Species_PCAs_prot.pdf", plot=species_plots_prot, dpi=300, width=18, height=15, units="in")
+``` 
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+## PCAs: Biomass normalizers  
+
+### Combined PCA's  
+
+Plot PCA using prcomp to center and scale.    
+ 
+```{r}
+pca_data_afdw<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)
+
+pca_data_afdw<-pca_data_afdw[complete.cases(pca_data_afdw), ]
+
+scaled_data_afdw<-prcomp(pca_data_afdw[c(5:12)], scale=TRUE, center=TRUE) 
+```
+
+Groupings by species:  
+```{r}
+pcaSpecies_afdw<-ggplot2::autoplot(scaled_data_afdw, data=pca_data_afdw, frame.colour="species", loadings=FALSE,  colour="species", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("orange", "darkgray", "purple")) +
+  scale_fill_manual(values=c("orange", "darkgray", "purple")) + 
+  theme_classic()+
+  xlim(-0.3,0.5)+
+  ylim(-0.3, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pcaSpecies_afdw
+
+```
+
+PERMANOVA of the effect of species  
+```{r}
+# scale data
+vegan_afdw <- scale(pca_data_afdw[ ,5:12])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_afdw ~ species, data = pca_data_afdw, method='eu')
+```
+
+
+Groupings by timepoint:  
+```{r}
+pcaTimepoint_afdw<-ggplot2::autoplot(scaled_data_afdw, data=pca_data_afdw, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  theme_classic()+
+  xlim(-0.3,0.5)+
+  ylim(-0.3, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pcaTimepoint_afdw
+```
+
+PERMANOVA of the effect of timepoint  
+```{r}
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_afdw ~ timepoint, data = pca_data_afdw, method='eu')
+```
+
+Groupings by site:  
+```{r}
+pcaSite_afdw<-ggplot2::autoplot(scaled_data_afdw, data=pca_data_afdw, frame.colour="site_code", loadings=FALSE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
+  theme_classic()+
+  xlim(-0.3,0.5)+
+  ylim(-0.3, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pcaSite_afdw
+
+```
+
+PERMANOVA of the effect of site  
+```{r}
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_afdw ~ site_code, data = pca_data_afdw, method='eu')
+```
+
+Generate a plot of all PCA's for afdw normalization.  
+
+```{r}
+pcaplots_afdw<-plot_grid(pcaSpecies_afdw, pcaSite_afdw, pcaTimepoint_afdw, labels = c("Species: Biomass", "Site: Biomass", "Timepoint: Biomass"), ncol=3, nrow=1, rel_widths = c(1, 1, 1), label_size = 20, label_x = 0.02)
+
+ggsave(filename="Figures/All_PCAs_afdw.pdf", plot=pcaplots_afdw, dpi=300, width=24, height=5, units="in")
+```  
+
+### Species-specific PCA's   
+
+Next generate PCA for site and timepoint for each species separately.  
+
+Separate by species.  
+```{r}
+#porites
+por_data_afdw<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")
+
+por_data_afdw<-por_data_afdw[complete.cases(por_data_afdw), ]
+
+scaled_por_afdw<-prcomp(por_data_afdw[c(5:12)], scale=TRUE, center=TRUE) 
+
+#acropora
+acr_data_afdw<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Acropora")
+
+acr_data_afdw<-acr_data_afdw[complete.cases(acr_data_afdw), ]
+
+scaled_acr_afdw<-prcomp(acr_data_afdw[c(5:12)], scale=TRUE, center=TRUE) 
+
+#pocillopora
+poc_data_afdw<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Pocillopora")
+
+poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
+
+scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:12)], scale=TRUE, center=TRUE) 
+```
+
+#### Porites PCA's   
+
+Groupings by timepoint:  
+```{r}
+porTimepoint_afdw<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  theme_classic()+
+  xlim(-0.7,0.5)+
+  ylim(-0.7, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));porTimepoint_afdw
+```
+
+PERMANOVA of the effect of timepoint  
+```{r}
+# scale data
+vegan_afdw <- scale(por_data_afdw[ ,5:12])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_afdw ~ timepoint, data = por_data_afdw, method='eu')
+```
+
+Groupings by site:  
+```{r}
+porSite_afdw<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, frame.colour="site_code", loadings=FALSE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
+  theme_classic()+
+  xlim(-0.7,0.5)+
+  ylim(-0.7, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));porSite_afdw
+```
+
+PERMANOVA of the effect of site  
+```{r}
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_afdw ~ site_code, data = por_data_afdw, method='eu')
+```
+
+#### Acropora PCA's  
+ 
+Groupings by timepoint:  
+```{r}
+acrTimepoint_afdw<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  theme_classic()+
+  xlim(-0.5,0.5)+
+  ylim(-0.5, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));acrTimepoint_afdw
+```
+
+PERMANOVA of the effect of timepoint  
+```{r}
+# scale data
+vegan_afdw <- scale(acr_data_afdw[ ,5:12])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_afdw ~ timepoint, data = acr_data_afdw, method='eu')
+```
+
+Groupings by site:  
+```{r}
+acrSite_afdw<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, frame.colour="site_code", loadings=FALSE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
+  theme_classic()+
+  xlim(-0.5,0.5)+
+  ylim(-0.5, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));acrSite_afdw
+```
+
+PERMANOVA of the effect of site  
+```{r}
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_afdw ~ site_code, data = acr_data_afdw, method='eu')
+```
+
+#### Pocillopora PCA's  
+
+Groupings by timepoint:   
+```{r}
+pocTimepoint_afdw<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  theme_classic()+
+  xlim(-0.6,0.5)+
+  ylim(-0.5, 0.8)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pocTimepoint_afdw
+```
+ 
+PERMANOVA of the effect of timepoint  
+```{r}
+# scale data
+vegan_afdw <- scale(poc_data_afdw[ ,5:12])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_afdw ~ timepoint, data = poc_data_afdw, method='eu')
+```
+
+Groupings by site:  
+```{r}
+pocSite_afdw<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, frame.colour="site_code", loadings=FALSE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
+  theme_classic()+
+  xlim(-0.5,0.5)+
+  ylim(-0.5, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pocSite_afdw
+```
+
+PERMANOVA of the effect of site  
+```{r}
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+adonis(vegan_afdw ~ site_code, data = poc_data_afdw, method='eu')
+```
+
+Generate a plot of all PCA's for all Species    
+
+```{r}
+species_plots_afdw<-plot_grid(porSite_afdw, porTimepoint_afdw, acrSite_afdw, acrTimepoint_afdw, pocSite_afdw, pocTimepoint_afdw, labels = c("Porites: Biomass", "Porites: Biomass", "Acropora: Biomass", "Acropora: Biomass", "Pocillopora: Biomass", "Pocillopora: Biomass"), ncol=2, nrow=3, rel_widths = c(1, 1, 1, 1, 1, 1), label_size = 20, label_x = 0.01, label_y=1.0)
+
+ggsave(filename="Figures/Species_PCAs_afdw.pdf", plot=species_plots_afdw, dpi=300, width=18, height=15, units="in")
+``` 
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Assemble all PCA plots  
+
+Generate plot of all combined PCA's
+
+```{r}
+All_PCAs<-plot_grid(pcaSpecies_prot, pcaSite_prot, pcaTimepoint_prot, pcaSpecies_afdw, pcaSite_afdw, pcaTimepoint_afdw, pcaSpecies_cm2, pcaSite_cm2, pcaTimepoint_cm2, labels = c("Protein", "Protein", "Protein", "Biomass", "Biomass", "Biomass","Surface Area", "Surface Area", "Surface Area"), ncol=3, nrow=3, rel_widths = c(1, 1, 1, 1, 1, 1, 1, 1, 1), label_size = 20, label_x = 0.06, label_y=1.0)
+
+ggsave(filename="Figures/All_PCAs.pdf", plot=All_PCAs, dpi=300, width=24, height=15, units="in")
+``` 
+
+Generate plot of all species specific PCA's
+
+```{r}
+All_PCAs_species<-plot_grid(porSite_prot, porTimepoint_prot, porSite_afdw, porTimepoint_afdw, porSite_cm2, porTimepoint_cm2, 
+                    acrSite_prot, acrTimepoint_prot, acrSite_afdw, acrTimepoint_afdw, acrSite_cm2, acrTimepoint_cm2,
+                    pocSite_prot, pocTimepoint_prot, pocSite_afdw, pocTimepoint_afdw, pocSite_cm2, pocTimepoint_cm2,
+                    labels = c("Porites: Protein", "Porites: Protein", "Porites: Biomass", "Porites: Biomass", "Porites: SA", "Porites: SA",
+                               "Acropora: Protein", "Acropora: Protein", "Acropora: Biomass", "Acropora: Biomass", "Acropora: SA", "Acropora: SA",
+                               "Pocillopora: Protein", "Pocillopora: Protein", "Pocillopora: Biomass", "Pocillopora: Biomass", "Pocillopora: SA", "Pocillopora: SA"), ncol=6, nrow=3, rel_widths = c(1), label_size = 20, label_x = 0.06, label_y=1.0)
+
+ggsave(filename="Figures/All_Species_PCAs.pdf", plot=All_PCAs_species, dpi=300, width=48, height=15, units="in")
+``` 
