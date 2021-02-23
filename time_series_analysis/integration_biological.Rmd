@@ -41,7 +41,7 @@ library(vegan)
 
 ## Loading data files   
 
-Load all .csv files from output of all timepoints for each biological response  
+Load all .csv files from output of all timepoints for each biological response   
 
 ```{r}
 biomass_files<-list.files("../", pattern = "biomass.csv", recursive=T, full.names=T)
@@ -55,7 +55,7 @@ chlorophyll_files<-list.files("../", pattern = "chlorophyll.csv", recursive=T, f
 
 #need to add calcification
 ```
-
+ 
 
 ## Read data files 
 
@@ -182,7 +182,7 @@ symb_densities_dataset<-symb_densities_dataset%>%
 ```
 
 ```{r}
-#need to find a more elegant solution for this
+#can also use "join_all" - E. Strand
 master <- full_join(full_join(full_join(full_join(full_join(
   antioxidant_dataset,
   biomass_dataset, by=c("colony_id", "timepoint")),
@@ -211,12 +211,43 @@ master$colony_id_corr[is.na(master$colony_id_corr)] <- master$colony_id[is.na(ma
 #match site name by site number and species from tag sheet 
 master$site<-tags$Site[match(master$colony_id_corr, tags$Original_Tag)]
 master$species<-tags$Coral_Species[match(master$colony_id_corr, tags$Original_Tag)]
+
+#add a nutrient level for each site  
+master<-master%>%
+  mutate(nutrient = if_else(site == "Hilton", "Medium", 
+                            if_else(site == "Mahana", "Low", 
+                                    if_else(site == "Manava", "High", "NA"))))
+
+```
+
+# Normalization  
+
+In order to examine the effect of normalizer on all response variables, normalize each response to: 
+(1) Protein  (ug/cm2)  
+(2) AFDW  (mg/cm2)   
+(3) Surface area (cm2)  
+
+```{r}
+master<-master%>%
+  mutate(mgprot = (prot_ug.cm2*surface.area.cm2)/1000)%>% #get absolute values of normaliers for each coral sample, change from ug to mg
+  mutate(mgafdw = Host_AFDW.mg.cm2*surface.area.cm2)%>% #get absolute values of normaliers for each coral sample
+  mutate(cells.mgprot = (cells.cm2 * surface.area.cm2)/mgprot)%>% #convert cells per cm2 to cells per mg protein
+  mutate(cells.mgAFDW = (cells.cm2 * surface.area.cm2)/mgafdw)%>% #converts cells per cm2 to cells per mg afdw
+  mutate(chla.ug.mgprot = (chla.ug.cm2 * surface.area.cm2)/mgprot)%>% #normalize chla to protein
+  mutate(chla.ug.mgAFDW = (chla.ug.cm2 * surface.area.cm2)/mgafdw)%>% #normalize chla to afdw
+  mutate(chlc2.ug.mgprot = (chlc2.ug.cm2 * surface.area.cm2)/mgprot)%>% #normalize chlc2 to protein
+  mutate(chlc2.ug.mgAFDW = (chlc2.ug.cm2 * surface.area.cm2)/mgafdw)%>% #normalize chlc2 to afdw
+  mutate(prot_mg.cm2=prot_ug.cm2/1000)%>% #change protein to mg
+  mutate(prot_mg.mgafdw=(prot_mg.cm2*surface.area.cm2)/mgafdw)%>% #normalize protein to afdw
+  mutate(cre.umol.mgafdw=(cre.umol.mgprot*mgprot)/mgafdw)%>% #normalize tac to afdw
+  mutate(cre.umol.cm2=(cre.umol.mgprot*mgprot)/surface.area.cm2) #normalize tac to surface area
 ```
 
 Write master file to csv.  
 ```{r}
 write_csv(master, "Output/master_timeseries.csv")
 ```
+
 
 # Examine Responses  
 
@@ -1066,3 +1097,4 @@ poc_plots<-plot_grid(pocSite, pocTimepoint, labels = c("Pocillopora", ""), ncol=
 ggsave(filename="Figures/POC_PCAs.pdf", plot=poc_plots, dpi=300, width=18, height=5, units="in")
 ``` 
 
+ 
