@@ -24,6 +24,9 @@ if (!require("effects")) install.packages("effects")
 if (!require("ggfortify")) install.packages("ggfortify")
 if (!require("cowplot")) install.packages("cowplot")
 if (!require("vegan")) install.packages("vegan")
+if (!require("corrr")) install.packages("corrr")
+if (!require("ggcorrplot")) install.packages("ggcorrplot")
+if (!require("GGally")) install.packages("GGally")
 
 # load packages
 library(tidyverse)
@@ -36,6 +39,9 @@ library(effects)
 library(ggfortify)
 library(cowplot)
 library(vegan)
+library(corrr)
+library(ggcorrplot)
+library(GGally)
 ```
  
 # Load and manipulate data  
@@ -259,7 +265,20 @@ write_csv(master, "Output/master_timeseries.csv")
 Summarize all response values by group (species + timepoint + site).  
 
 ```{r}
+summary_colony<-master%>%
+  select(., -c(colony_id, timepoint, site_code))%>%
+  group_by(colony_id_corr, month, site, nutrient, species)%>%
+  summarise(across(.cols=everything(), ~mean(.x, na.rm = TRUE)))%>%
+  drop_na("site")%>%
+  write_csv(., "Output/Summary_Colony_Responses.csv")
 
+summary_group<-master%>%
+  select(., -c(colony_id, timepoint, site_code, colony_id_corr))%>%
+  group_by(month, site, nutrient, species)%>%
+  summarise(across(.cols=everything(), ~mean(.x, na.rm = TRUE)))%>%
+  drop_na("site")%>%
+  write_csv(., "Output/Summary_Responses.csv")
+           
 ```
 
 
@@ -1110,6 +1129,48 @@ Generate model effect plots.
 ```{r}
 plot(allEffects(prot_model))
 ```
+
+# Correlations  
+
+Generate a correlation matrix to examine relationships between responses of interest. Use normalizations by afdw for all responses.   
+
+Generating network plot with corrr package.  
+```{r}
+master%>%
+  select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW)%>%
+  corrr::correlate(., method="spearman", diagonal=1)%>% #generate correlation matrix
+  rearrange(.)%>%
+  #shave(.)%>% #remove upper triangle
+  network_plot(min_cor=.2)
+```
+
+Generating matrix with ggcorrplot.  
+
+```{r}
+p<-master%>%
+  select(species, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  ggpairs(., columns=2:9, ggplot2::aes(colour=species))
+
+#change colors
+for(i in 1:p$nrow) {
+  for(j in 1:p$ncol){
+    p[i,j] <- p[i,j] + 
+        scale_fill_manual(values=c("orange", "gray", "purple")) +
+        scale_color_manual(values=c("orange", "gray", "purple")) +
+        theme_classic()+
+        theme(text=element_text(size=14, face="bold"))+
+        theme(strip.text.x=element_text(face="bold", size=14))
+  }
+}
+
+p
+
+ggsave(plot=p, "Figures/Correlation_Matrix.pdf", width=20, height=12, unit="in", dpi=300)
+```
+
 
 # Multivariate analyses  
 
