@@ -1152,7 +1152,7 @@ p<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
-  ggpairs(., columns=2:9, ggplot2::aes(colour=species))
+  ggpairs(., columns=2:9, ggplot2::aes(colour=species)) #try to bold significant stats
 
 #change colors
 for(i in 1:p$nrow) {
