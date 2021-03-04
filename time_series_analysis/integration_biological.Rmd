@@ -242,6 +242,7 @@ To do this, back-normalize variables that are already normalized and divide by e
 master<-master%>%
   mutate(mgprot = (prot_ug.cm2*surface.area.cm2)/1000)%>% #get absolute values of normaliers for each coral sample, change from ug to mg
   mutate(mgafdw = Host_AFDW.mg.cm2*surface.area.cm2)%>% #get absolute values of normaliers for each coral sample
+  mutate(cells = cells.cm2 * surface.area.cm2)%>% #get absolute number of symbiont cells
   mutate(cells.mgprot = (cells.cm2 * surface.area.cm2)/mgprot)%>% #convert cells per cm2 to cells per mg protein
   mutate(cells.mgAFDW = (cells.cm2 * surface.area.cm2)/mgafdw)%>% #converts cells per cm2 to cells per mg afdw
   mutate(chla.ug.mgprot = (chla.ug.cm2 * surface.area.cm2)/mgprot)%>% #normalize chla to protein
@@ -251,7 +252,9 @@ master<-master%>%
   mutate(prot_mg.cm2=prot_ug.cm2/1000)%>% #change protein to mg
   mutate(prot_mg.mgafdw=(prot_mg.cm2*surface.area.cm2)/mgafdw)%>% #normalize protein to afdw
   mutate(cre.umol.mgafdw=(cre.umol.mgprot*mgprot)/mgafdw)%>% #normalize tac to afdw
-  mutate(cre.umol.cm2=(cre.umol.mgprot*mgprot)/surface.area.cm2) #normalize tac to surface area
+  mutate(cre.umol.cm2=(cre.umol.mgprot*mgprot)/surface.area.cm2)%>% #normalize tac to surface area
+  mutate(chla.ug.cell = (chla.ug.cm2 * surface.area.cm2)/cells) %>% #normalize to chl per cell
+  mutate(chlc2.ug.cell = (chlc2.ug.cm2 * surface.area.cm2)/cells) #normalize to chl per cell
 ```
 
 Write master file to csv.  
@@ -260,7 +263,7 @@ write_csv(master, "Output/master_timeseries.csv")
 ```
 
 
-# Generating summary by groups  
+# Generating summary by groups   
 
 Summarize all response values by group (species + timepoint + site).  
 
@@ -771,7 +774,7 @@ plot(allEffects(shAFDW_model))
 
 ## Chlorophyll  
 
-### Plot: Surface area    
+### Plot: Surface area     
 
 View by site and timepoint for each species in Chl a.    
 ```{r}
@@ -943,12 +946,70 @@ chlc2plot_afdw<-master %>%
       ); chlc2plot_afdw
 ```
 
+### Plot: Per cell    
+
+View by site and timepoint for each species in Chl a.    
+```{r}
+chlaplot_cell<-master %>%
+  filter(!is.na(chla.ug.cell)) %>%
+  filter(!is.na(species)) %>%
+  select(colony_id_corr, species, site_code, timepoint, chla.ug.cell)%>%
+  
+  ggplot(., aes(x = site_code, y = chla.ug.cell, fill = timepoint, group=interaction(site_code,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Chlorophyll a (", mu, "g cell"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); chlaplot_cell
+```
+
+View by site and timepoint for each species in Chl c2.   
+```{r}
+chlc2plot_cell<-master %>%
+  filter(!is.na(chlc2.ug.cell)) %>%
+  filter(!is.na(species)) %>%
+  select(colony_id_corr, species, site_code, timepoint, chlc2.ug.cell)%>%
+  
+  ggplot(., aes(x = site_code, y = chlc2.ug.cell, fill = timepoint, group=interaction(site_code,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Chlorophyll c2 (", mu, "g cell"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); chlc2plot_cell
+```
+
 Join all plots for each normalization together.  
 
 ```{r}
-chl_figure<-plot_grid(chlaplot_prot, chlaplot_afdw, chlaplot_cm2, chlc2plot_prot, chlc2plot_afdw, chlc2plot_cm2, labels = c("", "", ""), ncol=3, nrow=2, rel_widths = c(.8, .8, 1, .8, .8, 1), label_size = 20, label_x = 0.1)
+chl_figure<-plot_grid(chlaplot_prot, chlaplot_afdw, chlaplot_cell, chlaplot_cm2,chlc2plot_prot, chlc2plot_afdw, chlc2plot_cell, chlc2plot_cm2,  labels = c("", "", ""), ncol=4, nrow=2, rel_widths = c(.8, .8, .8, 1, .8, .8, .8, 1), label_size = 20, label_x = 0.1)
 
-ggsave(filename="Figures/Chlorophyll_Figure.pdf", plot=chl_figure, dpi=300, width=24, height=10, units="in")
+ggsave(filename="Figures/Chlorophyll_Figure.pdf", plot=chl_figure, dpi=300, width=32, height=10, units="in")
 ```
 
 ### Analysis  
