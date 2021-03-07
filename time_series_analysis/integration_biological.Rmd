@@ -49,7 +49,7 @@ library(GGally)
 ## Loading data files   
 
 Load all .csv files from output of all timepoints for each biological response   
-
+ 
 ```{r}
 biomass_files<-list.files("../", pattern = "biomass.csv", recursive=T, full.names=T)
 antioxidant_files<-list.files("../", pattern = "antioxidant_capacity.csv", recursive=T, full.names=T)
@@ -101,7 +101,7 @@ for (i in 1:length(antioxidant_files)){
 ```
 
 ```{r}
-#surface area WORKS
+#surface area 
 surface_area_dataset <- data.frame()
 
 for (i in 1:length(surface_area_files)){
@@ -294,7 +294,7 @@ summary_group<-master%>%
 View by site and timepoint for each species.   
 ```{r}
 tacplot_prot<-master %>%
-  filter(!is.na(cre.umol.mgprot)) %>%
+  filter(!is.na(cre.umol.mgprot)) %>% 
   select(colony_id_corr, species, site_code, timepoint, cre.umol.mgprot)%>%
   
   ggplot(., aes(x = site_code, y = cre.umol.mgprot, fill = timepoint, group=interaction(site_code,timepoint))) +
@@ -430,6 +430,7 @@ View by site and timepoint for each species.
 ```{r}
 symbplot_cm2<-master %>%
   filter(!is.na(cells.cm2)) %>%
+  filter(!is.na(species))%>%
   select(colony_id_corr, species, site_code, timepoint, cells.cm2)%>%
   
   ggplot(., aes(x = site_code, y = cells.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
@@ -458,6 +459,7 @@ View by site and timepoint for each species.
 ```{r}
 symbplot_prot<-master %>%
   filter(!is.na(cells.mgprot)) %>%
+   filter(!is.na(species))%>%
   select(colony_id_corr, species, site_code, timepoint, cells.mgprot)%>%
   
   ggplot(., aes(x = site_code, y = cells.mgprot, fill = timepoint, group=interaction(site_code,timepoint))) +
@@ -488,6 +490,7 @@ View by site and timepoint for each species.
 ```{r}
 symbplot_afdw<-master %>%
   filter(!is.na(cells.mgAFDW)) %>%
+    filter(!is.na(species))%>%
   select(colony_id_corr, species, site_code, timepoint, cells.mgAFDW)%>%
   
   ggplot(., aes(x = site_code, y = cells.mgAFDW, fill = timepoint, group=interaction(site_code,timepoint))) +
