@@ -80,7 +80,7 @@ Output data to file.
 sym_counts %>%
   select(colony_id, site, species, cells.cm2) %>%
   mutate(timepoint="timepoint3")%>%
-  write_csv(., path = "output/3_symb_densities.csv")
+  write_csv(., file = "output/3_symb_densities.csv")
 ```
 
 
