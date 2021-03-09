@@ -1201,7 +1201,7 @@ Generate a correlation matrix to examine relationships between responses of inte
 Generating network plot with corrr package.  
 ```{r}
 master%>%
-  select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW)%>%
+  select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell)%>%
   corrr::correlate(., method="spearman", diagonal=1)%>% #generate correlation matrix
   rearrange(.)%>%
   #shave(.)%>% #remove upper triangle
@@ -1212,11 +1212,11 @@ Generating matrix with ggcorrplot.
 
 ```{r}
 p<-master%>%
-  select(species, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW)%>%
+  select(species, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
-  ggpairs(., columns=2:9, ggplot2::aes(colour=species)) #try to bold significant stats
+  ggpairs(., columns=2:11, ggplot2::aes(colour=species)) #try to bold significant stats
 
 #change colors
 for(i in 1:p$nrow) {
