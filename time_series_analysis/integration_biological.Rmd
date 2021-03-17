@@ -637,9 +637,9 @@ ratioAFDWplot<-master %>%
   filter(!is.na(species))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
-  select(colony_id_corr, species, site, timepoint, Ratio_AFDW.mg.cm2)%>%
+  select(colony_id_corr, species, site_code, timepoint, Ratio_AFDW.mg.cm2)%>%
   
-  ggplot(., aes(x = site, y = Ratio_AFDW.mg.cm2, fill = timepoint, group=interaction(site,timepoint))) +
+  ggplot(., aes(x = site_code, y = Ratio_AFDW.mg.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
