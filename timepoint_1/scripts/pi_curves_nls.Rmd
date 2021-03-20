@@ -2,7 +2,9 @@
 title: "pi_curves_nls"
 author: "Ariana S Huffmyer"
 date: "3/18/2021"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -21,6 +23,8 @@ if ("chron" %in% rownames(installed.packages()) == 'FALSE') install.packages('ch
 if ("plyr" %in% rownames(installed.packages()) == 'FALSE') install.packages('plyr') 
 if ("dplyr" %in% rownames(installed.packages()) == 'FALSE') install.packages('dplyr') 
 if ("phytotools" %in% rownames(installed.packages()) == 'FALSE') install.packages('phytotools') 
+if ("tidyverse" %in% rownames(installed.packages()) == 'FALSE') install.packages('tidyverse') 
+if ("broom" %in% rownames(installed.packages()) == 'FALSE') install.packages('broom') 
 
 #Read in required libraries
 
@@ -35,6 +39,8 @@ library("chron")
 library('plyr')
 library('dplyr')
 library('phytotools')
+library("tidyverse")
+library("broom")
 ```
 
 # Import data
@@ -47,14 +53,14 @@ Data <- read.csv(file = 'output/1_pi_curve_rates.csv')
 # Define data  
 
 ```{r}
-PAR <- as.numeric(Data$Light_Value)
-Pc <- as.numeric(Data$micromol.cm2.h)
-plot(PAR,Pc,xlab="", ylab="", xlim=c(0,max(PAR)), ylim=c(-2, 2), cex.lab=0.8,cex.axis=0.8,cex=1, main="", adj = 0.05) #set plot info
-mtext(expression("Irradiance ("*mu*"mol photons "*m^-2*s^-1*")"),side=1,line=3.3,cex=1) #add labels
-mtext(expression(Rate*" ("*mu*"mol "*O[2]*" "*cm^-2*h^-1*")"),side=2,line=2,cex=1) #add labels
+#PAR <- as.numeric(Data$Light_Value)
+#Pc <- as.numeric(Data$micromol.cm2.h)
+#plot(PAR,Pc,xlab="", ylab="", xlim=c(0,max(PAR)), ylim=c(-2, 2), cex.lab=0.8,cex.axis=0.8,cex=1, main="", adj = 0.05) #set plot info
+#mtext(expression("Irradiance ("*mu*"mol photons "*m^-2*s^-1*")"),side=1,line=3.3,cex=1) #add labels
+#mtext(expression(Rate*" ("*mu*"mol "*O[2]*" "*cm^-2*h^-1*")"),side=2,line=2,cex=1) #add labels
 ```
 
-# Define PI curve function as a nonlinear Least Squares regression of a quadratic fit
+# Define PI curve function as a nonlinear Least Squares regression of a quadratic fit, test nls fit
 
 ```{r}
 #Aquatic Photosynthesis, Falkowski 
@@ -63,91 +69,92 @@ mtext(expression(Rate*" ("*mu*"mol "*O[2]*" "*cm^-2*h^-1*")"),side=2,line=2,cex=
 #I/E = irradiance (AKA PAR from Bayesian script)
 #Rd = dark respiration 
 
-
-#Currently running into an error on this line: 
-curve.nlsrc = nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2+(AQY*PAR^2))))-Rd), start=list(Am=(max(Pc)-min(Pc)), AQY=0.05, Rd=abs(min(Pc))))
-my.fit <- summary(curve.nlslrc) #summary of model fit
+#df <- data.frame(PAR, Pc)
+#curve.nls <- nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=df, start=list(Am=1, AQY=0.05, Rd=.2))
+#my.fit <- summary(curve.nls)
+#my.fit
 ```
 
-
-
-
-
-
+Run models - NOTE: Need to look at starting values, the starts make a difference in the outcome right? 
 ```{r}
-#draw the curve using the model fit
-Ber.curve.fitting <- curve((1/(2*summary(curve.nlslrc)$coef[4,1]))*(summary(curve.nlslrc)$coef[2,1]*x+summary(curve.nlslrc)$coef[1,1]-sqrt((summary(curve.nlslrc)$coef[2,1]*x+summary(curve.nlslrc)$coef[1,1])^2-4*summary(curve.nlslrc)$coef[2,1]*summary(curve.nlslrc)$coef[4,1]*summary(curve.nlslrc)$coef[1,1]*x))-summary(curve.nlslrc)$coef[3,1],lwd=2,col="blue",add=T)
-dev.off()
+#specify data
+Data$PAR <- as.numeric(Data$Light_Value)
+Data$Pc <- as.numeric(Data$micromol.cm2.h)
+
+#use tidy to group by colony, then map data using nls curve and pull out coeffients to generate a new data frame
+
+#Script version 1
+#nls_data <- Data %>% 
+  #filter(colony_id==c("ACR-140"))%>%
+  #group_by(colony_id) %>% #group by colony
+  #nest(-colony_id) %>% #nest data by colony
+  #mutate(
+   # fit = map(data, ~ nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=.)), #fit nls curve
+  #  tidied = map(fit, tidy), #pull out coefficients from model
+ # ) %>% 
+ # unnest(tidied) %>% #unnest data
+ # select(colony_id, term, estimate) %>% #keep columns we want
+ # spread(term, estimate) #spread columns by coefficient for each colony
 
 
-#need to run for each colony:
-Data <- Data %>%
-  nest(-colony_id) %>%
-  mutate(fit = furrr::future_map(data, ~ fit_pi_curve_noerror(.)))
+#Script version 2 - adjusted starting values to reflect values we are getting from models on single colony (when filtering)
+nls_data <- Data %>% 
+   #filter(colony_id==c("ACR-140"))%>%
+   group_by(colony_id) %>%
+   nest(-colony_id) %>%
+   mutate(model1 = map(data, ~ 
+                         nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=0.7,  AQY=0.001, Rd=.4)) %>%
+                              tidy %>%
+                              dplyr::select(term, estimate) %>% 
+                              spread(term, estimate))) %>%
+  unnest(model1) %>%
+  unnest(data) %>%
+  group_by(colony_id)%>%
+  summarise(Am=mean(Am), AQY=mean(AQY), Rd=mean(Rd))%>%
+  mutate(timepoint="timepoint1")%>%
+  write_csv(., "output/1_pi_curve_pars_NLS.csv")
+
 ```
 
-# Extract parameters values and 95% confidence intervals
-```{r extract_pars}
-# Define function to extract parameter values and CI's from fitted model object
-getpars <- function(x) {
-  x %>% 
-    gather_draws(b_AQY_Intercept, b_Am_Intercept, b_theta_Intercept, b_Rd_Intercept, sigma, Ic) %>%
-    median_qi()
-}
-# Function to get parameters, but return NULL in case of error (where model fitting failed)
-getpars_noerror <- possibly(getpars, otherwise = NULL)
-
-# Get parameter values for all individuals
-Data <- Data %>%
-  mutate(pars = map(fit, getpars_noerror))
-```
-
-# Write PI curve parameters to file
-```{r save_pars}
-# Unnest parameter values
-pars.out <- Data %>%
-  select(colony_id, pars) %>%
-  unnest(cols = pars)
-
-# Join with colony_id to create rows of NA for individuals that failed Bayesian fitting
-pars.out2 <- Data %>% 
-  select(colony_id) %>%
-  left_join(pars.out) %>%
-  mutate(timepoint="timepoint1")
-
-write_csv(pars.out2, "output/1_pi_curve_pars.csv")
-```
-
-# Create plots for all individuals
-```{r create_plots}
-# Create plots for all individuals
-Data <- Data %>%
-  drop_na() %>%      # Drops individuals that didn't fit
+Plot curve over data points.  
+```{r}
+augmented <- Data %>% 
+  nest(-colony_id) %>% 
   mutate(
-    plot = pmap(list(colony_id = colony_id, data = data, fit = fit, pars = pars),
-                     function(colony_id, data, fit, pars) {
-      pt <- marginal_effects(fit)
-      ggplot(as.data.frame(pt$Light_Value)) +      # pull the fitted data
-        geom_line(aes(Light_Value, estimate__)) +  #
-        geom_ribbon(aes(Light_Value, ymin = lower__, ymax = upper__), alpha = 0.3) +
-        geom_point(data = data, aes(x = Light_Value, y = micromol.cm2.h)) +    # add the raw data
-        geom_hline(yintercept = pars %>% filter(.variable == "b_Am_Intercept") %>% pull(.value), lty = 2) +
-        geom_hline(yintercept = pars %>% filter(.variable == "b_Rd_Intercept") %>% pull(.value) * -1, lty = 2) +
-        geom_abline(intercept = pars %>% filter(.variable == "b_Rd_Intercept") %>% pull(.value) * -1,
-                    slope = pars %>% filter(.variable == "b_AQY_Intercept") %>% pull(.value), lty = 2) +
-        theme_bw() +
-        theme(text = element_text(size=18), title = element_text(face="italic")) +
-        labs(x = expression(paste('PAR (', mu, "mol photons m"^-2, 's'^-1,")")),
-             y = expression(paste('Photosynthetic rate (', mu, "mol cm"^-2, 'h'^-1,")")),
-             title = paste0("1_", colony_id))
-      }))
+    fit = map(data, ~ nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=0.7,  AQY=0.001, Rd=.4))),
+    augmented = map(fit, augment),
+  ) %>% 
+  unnest(augmented)
+
+
+#all colonies together
+augmented %>%
+  group_by(colony_id)%>%
+  qplot(PAR, Pc, data = ., geom = 'point', colour = colony_id) +
+  geom_line(aes(y=.fitted))+
+  theme(legend.position="none")
+
+
+#view individual plots
+by(augmented,augmented$colony_id, function(i) {
+  ggplot(i) +
+          geom_point(aes(PAR, Pc, group=colony_id)) + 
+          geom_line(aes(y=.fitted, x=PAR)) + 
+          theme_classic()+
+          labs(x = expression(paste('PAR (', mu, "mol photons m"^-2, 's'^-1,")")),
+               y = expression(paste('Photosynthetic rate (', mu, "mol cm"^-2, 'h'^-1,")")),
+               title = paste0("1_", augmented$colony_id))
+})
+
+#NEED TO FIND A WAY TO SAVE INDIVIDUALS 
 ```
 
-# Save PI curve plots to files
-```{r save_plots}
-Data %>%
-  mutate(filename = paste0("output/1_pi_curve_plots/1_", colony_id, ".pdf")) %>%
-  select(filename, plot) %>%
-  pwalk(ggsave)
-```
+
+
+
+
+
+
+
+
 
