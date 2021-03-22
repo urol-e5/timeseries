@@ -3,8 +3,8 @@ title: "pi_curves_nls"
 author: "Ariana S Huffmyer"
 date: "3/18/2021"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -53,85 +53,51 @@ Data <- read.csv(file = 'output/1_pi_curve_rates.csv')
 # Define data  
 
 ```{r}
-#PAR <- as.numeric(Data$Light_Value)
-#Pc <- as.numeric(Data$micromol.cm2.h)
-#plot(PAR,Pc,xlab="", ylab="", xlim=c(0,max(PAR)), ylim=c(-2, 2), cex.lab=0.8,cex.axis=0.8,cex=1, main="", adj = 0.05) #set plot info
-#mtext(expression("Irradiance ("*mu*"mol photons "*m^-2*s^-1*")"),side=1,line=3.3,cex=1) #add labels
-#mtext(expression(Rate*" ("*mu*"mol "*O[2]*" "*cm^-2*h^-1*")"),side=2,line=2,cex=1) #add labels
-```
-
-# Define PI curve function as a nonlinear Least Squares regression of a quadratic fit, test nls fit
-
-```{r}
-#Aquatic Photosynthesis, Falkowski 
-#Pmax = max photosynthesis (AKA Am from Bayesian script)
-#alpha = quantum yeild (AKA AQY from Bayesian script)
-#I/E = irradiance (AKA PAR from Bayesian script)
-#Rd = dark respiration 
-
-#df <- data.frame(PAR, Pc)
-#curve.nls <- nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=df, start=list(Am=1, AQY=0.05, Rd=.2))
-#my.fit <- summary(curve.nls)
-#my.fit
-```
-
-Run models - NOTE: Need to look at starting values, currently getting an error for singular gradient matrix
-```{r}
 #specify data
 Data$PAR <- as.numeric(Data$Light_Value)
 Data$Pc <- as.numeric(Data$micromol.cm2.h)
 ```
 
-THIS ONE WORKS (fixed initial values): 
+
+
+# Define PI curve function as a nonlinear Least Squares regression of a quadratic fit, test nls fit
+Aquatic Photosynthesis, Falkowski   
+Pmax = max photosynthesis (AKA Am from Bayesian script)  
+alpha = quantum yeild (AKA AQY from Bayesian script)  
+I/E = irradiance (AKA PAR from Bayesian script)  
+Rd = dark respiration   
+
+Run models 
+
+Using fixed initial values (keeping for reference):  
 
 ```{r}
-#use tidy to group by colony, then map data using nls curve and pull out coeffients to generate a new data frame
-
-#Script version 1
 #nls_data <- Data %>% 
-  #filter(colony_id==c("ACR-140"))%>%
-  #group_by(colony_id) %>% #group by colony
-  #nest(-colony_id) %>% #nest data by colony
-  #mutate(
-   # fit = map(data, ~ nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=.)), #fit nls curve
-  #  tidied = map(fit, tidy), #pull out coefficients from model
- # ) %>% 
- # unnest(tidied) %>% #unnest data
- # select(colony_id, term, estimate) %>% #keep columns we want
- # spread(term, estimate) #spread columns by coefficient for each colony
-
-#Script version 2 - adjusted starting values to reflect values we are getting from models on single colony (when filtering)
-nls_data <- Data %>% 
    #filter(colony_id==c("ACR-140"))%>%
-   group_by(colony_id) %>%
-   nest(-colony_id) %>%
-   mutate(model1 = map(data, ~ 
-                         nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=0.7,  AQY=0.001, Rd=.4)) %>%
-                              tidy %>%
-                              dplyr::select(term, estimate) %>% 
-                              spread(term, estimate))) %>%
-  unnest(model1) %>%
-  unnest(data) %>%
-  group_by(colony_id)%>%
-  summarise(Am=mean(Am), AQY=mean(AQY), Rd=mean(Rd))%>%
-  mutate(timepoint="timepoint1")%>%
-  write_csv(., "output/1_pi_curve_pars_NLS.csv")
-
-#start=list(Am=(max(Pc)-min(Pc)),AQY=0.001,Rd=-min(Pc))
-#start=list(Am=0.7,  AQY=0.001, Rd=.4))
-
+   #group_by(colony_id) %>%
+   #nest(-colony_id) %>%
+   #mutate(model1 = map(data, ~ 
+                        # nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=0.7,  AQY=0.001, Rd=.4)) %>%
+                             # tidy %>%
+                             # dplyr::select(term, estimate) %>% 
+                             # spread(term, estimate))) %>%
+  #unnest(model1) %>%
+  #unnest(data) %>%
+  #group_by(colony_id)%>%
+  #summarise(Am=mean(Am), AQY=mean(AQY), Rd=mean(Rd))%>%
+  #mutate(timepoint="timepoint1")%>%
+  #write_csv(., "output/1_pi_curve_pars_NLS_fixed_inis.csv")
 ```
 
-THIS ONE DOESN'T WORK (changed initial values to reference data + nls control): 
+Using flexible initial values based on input data:  
 
 ```{r}
-
 nls_data <- Data %>% 
    #filter(colony_id==c("ACR-140"))%>%
    group_by(colony_id) %>%
    nest(-colony_id) %>%
    mutate(model1 = map(data, ~ 
-                         nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=(max(.$Pc)-min(.$Pc)),AQY=0.001,Rd=-min(.$Pc), control = nls.control(tol = 1e-05, minFactor = 1/1000))) %>%
+                         nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=(max(.$Pc)-min(.$Pc)),  AQY=0.001, Rd=-min(.$Pc))) %>%
                               tidy %>%
                               dplyr::select(term, estimate) %>% 
                               spread(term, estimate))) %>%
@@ -141,11 +107,7 @@ nls_data <- Data %>%
   summarise(Am=mean(Am), AQY=mean(AQY), Rd=mean(Rd))%>%
   mutate(timepoint="timepoint1")%>%
   write_csv(., "output/1_pi_curve_pars_NLS.csv")
-
 ```
-
-
-
 
 Plot curve over data points.  
 ```{r}
