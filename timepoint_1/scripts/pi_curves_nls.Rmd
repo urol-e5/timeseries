@@ -75,7 +75,7 @@ Data <- read.csv(file = 'output/1_pi_curve_rates.csv')
 #my.fit
 ```
 
-Run models - NOTE: Need to look at starting values, the starts make a difference in the outcome right? 
+Run models - NOTE: Need to look at starting values, currently getting an error for singular gradient matrix
 ```{r}
 #specify data
 Data$PAR <- as.numeric(Data$Light_Value)
@@ -96,6 +96,8 @@ Data$Pc <- as.numeric(Data$micromol.cm2.h)
  # select(colony_id, term, estimate) %>% #keep columns we want
  # spread(term, estimate) #spread columns by coefficient for each colony
 
+#nls control
+nls.control(tol = 1e-05, maxiter = 50)
 
 #Script version 2 - adjusted starting values to reflect values we are getting from models on single colony (when filtering)
 nls_data <- Data %>% 
@@ -103,7 +105,7 @@ nls_data <- Data %>%
    group_by(colony_id) %>%
    nest(-colony_id) %>%
    mutate(model1 = map(data, ~ 
-                         nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=0.7,  AQY=0.001, Rd=.4)) %>%
+                         nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=(max(.$Pc)-min(.$Pc)),AQY=0.001,Rd=-min(.$Pc), control = nls.control(tol = 1e-05, minFactor = 1/1000))) %>%
                               tidy %>%
                               dplyr::select(term, estimate) %>% 
                               spread(term, estimate))) %>%
@@ -113,6 +115,9 @@ nls_data <- Data %>%
   summarise(Am=mean(Am), AQY=mean(AQY), Rd=mean(Rd))%>%
   mutate(timepoint="timepoint1")%>%
   write_csv(., "output/1_pi_curve_pars_NLS.csv")
+
+#start=list(Am=(max(Pc)-min(Pc)),AQY=0.001,Rd=-min(Pc))
+#start=list(Am=0.7,  AQY=0.001, Rd=.4))
 
 ```
 
