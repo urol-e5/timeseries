@@ -208,7 +208,7 @@ ggplot(pr.out, aes(x = as.numeric(Light_Value), y = micromol.cm2.h)) +
 # Write to output file
 ```{r}
 # Select variables to write to file
-pr.out <- pr %>%
+pr.out <- pr.out %>%
   select(colony_id, Light_Value, Run, micromol.cm2.s, micromol.cm2.h) %>%
   mutate(timepoint="timepoint3")
 
