@@ -58,16 +58,16 @@ df <- tibble(file.name = file.names) %>%
 
 # Select only Time, Value, and Temp columns from O2 data
 df <- df %>%
-  mutate(data0 = map(data0, ~select(., Time, Value, Temp)))    
+  mutate(data0 = map(data0, ~select(., Time, Value, Temp)))
 ```
 
-## Use the time breaks in the s ample info to link O2 data with light levels
+## Use the time breaks in the sample info to link O2 data with light levels
 ```{r, warning = FALSE}
 df <- df %>%
   mutate(intervals = map2(data0, info, function(.x, .y) {
     split(.x, f = cut(as.numeric(.x$Time), breaks = as.numeric(c(.y$Start.time, last(.y$Stop.time))),
                       labels = as.character(.y$Light_Value)))})) %>%
-  mutate(data = map(intervals, ~ unnest(tibble(.), .id = "Light_Value"))) ##NOT WORKING
+  mutate(data = map(intervals, ~ unnest(tibble(.), .id = "Light_Value"))) 
 
 ## 'data' now contains the O2 data with the corresponding light level as another column
 ## Example of what 'data' for each sample looks like:
@@ -118,6 +118,8 @@ fit_reg <- function(df) {
 future::plan(multiprocess)
 
 # Map LoLinR function onto all intervals of each sample's thinned dataset
+
+##ERROR HERE: Problem with `mutate()` input `regs`. x invalid 'length.out' argument
 df <- df %>%
   mutate(regs = furrr::future_map(thin_data, function(.) {       # future_map executes function in parallel
     group_by(., Light_Value) %>%
