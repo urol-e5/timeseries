@@ -1,0 +1,115 @@
+---
+title: "Photosynthesis parameters summary"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+```{r}
+library(plotrix)
+library(Hmisc)
+library(tidyverse)
+```
+
+# Import PI curve fitted parameters for each individual
+```{r}
+pars <- read_csv("output/3_pi_curve_pars_nls.csv")
+```
+
+# Import sample metadata
+```{r}
+md <- read_csv("../metadata/coral_metadata.csv")
+
+df <- left_join(pars, md)
+```
+
+# Plot data with mean ± SE for each species/site
+```{r, fig.height = 8}
+# Facet grid with common y-scale for each variable
+pdf("output/PI_metrics_Am_nls.pdf")
+df %>%
+  filter(!species=="NA") %>%
+  ggplot(aes(x = site, y = Am, color = species)) +
+  facet_grid(~species, scales = "free_y") +
+  geom_jitter(width = 0.1) +
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", color = "black", width = 0.5) +
+  stat_summary(fun.y = mean, geom = "point", color = "black")   
+dev.off()
+
+pdf("output/PI_metrics_AQY_nls.pdf")
+df %>%
+  filter(!species=="NA") %>%
+  ggplot(aes(x = site, y = AQY, color = species)) +
+  facet_grid(~species, scales = "free_y") +
+  geom_jitter(width = 0.1) +
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", color = "black", width = 0.5) +
+  stat_summary(fun.y = mean, geom = "point", color = "black")   
+dev.off()
+
+pdf("output/PI_metrics_Rd_nls.pdf")
+df %>%
+  filter(!species=="NA") %>%
+  ggplot(aes(x = site, y = Rd, color = species)) +
+  facet_grid(~species, scales = "free_y") +
+  geom_jitter(width = 0.1) +
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", color = "black", width = 0.5) +
+  stat_summary(fun.y = mean, geom = "point", color = "black")   
+dev.off()
+
+```
+
+# Plot species average PI curve for each site using mean parameter values
+```{r, fig.width = 10}
+#arrange data in long format
+df <- df%>%
+  gather("parameter", "value", 2:4)
+df$parameter<-as.factor(df$parameter)
+df$site<-as.factor(df$site)
+df$species<-as.factor(df$species)
+df$colony_id<-as.factor(df$colony_id)
+df$timepoint<-as.factor(df$timepoint)
+
+# Get mean parameter values for each species and site
+meanpars <- df %>%
+  #drop_na(.variable) %>%  # Drops rows with NA for .variable (samples that failed PI curve fitting)
+  group_by(species, site, parameter) %>%
+  dplyr::summarize(meanval = mean(value)) %>%
+  pivot_wider(names_from = parameter, values_from = meanval) %>%
+  #rename(Am = b_Am_Intercept, AQY = b_AQY_Intercept, Rd = b_Rd_Intercept, theta = b_theta_Intercept) %>%
+  ungroup()
+
+# Define PI curve function
+PIfun <- function(I, Am, AQY, Rd) {
+  (Am*((AQY*I)/(sqrt(Am^2 + (AQY*I)^2)))-Rd)
+}
+
+# Produce PI curve for each species/site
+curves <- meanpars %>%
+  nest(pars = c(Am, AQY, Rd)) %>%
+  mutate(I = list(1:1000),
+         PIcurve = map2(pars, I, ~ pmap_dfc(.x, .f = PIfun, I = .y)))   # curve for each par set and Irradiance
+
+# Plot
+pdf("output/PI_curves_species_nls.pdf")
+curves %>% 
+  filter(!species=="NA") %>%
+  unnest(cols = c(I, PIcurve)) %>%
+  ggplot(aes(x = I, y = ...1, color = species)) +
+  geom_line() +
+  facet_wrap(~ site) +
+  theme_classic()+
+  labs(x = expression(paste('PAR (', mu, "mol photons m"^-2, 's'^-1,")")),
+       y = expression(paste('Photosynthetic rate (', mu, "mol O2 cm"^-2, 'h'^-1,")")),
+       title = "Timepoint 3: September, 2020")
+dev.off()
+
+# Save mean photosynthesis pars for each species/site to file
+meanpars %>%
+  mutate(timepoint="timepoint3") %>%
+  write_csv(path = "output/3_photosynthesis_pars_summary_nls.csv")
+```
