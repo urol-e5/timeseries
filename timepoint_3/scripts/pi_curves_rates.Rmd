@@ -63,6 +63,8 @@ df <- df %>%
 
 ## Use the time breaks in the sample info to link O2 data with light levels
 ```{r, warning = FALSE}
+
+## THIS CODE IS GIVING ERROR "Error: Problem with `mutate()` input `intervals`.x invalid number of intervals Input `intervals` is `map2(...)`.
 df <- df %>%
   mutate(intervals = map2(data0, info, function(.x, .y) {
     split(.x, f = cut(as.numeric(.x$Time), breaks = as.numeric(c(.y$Start.time, last(.y$Stop.time))),
@@ -72,6 +74,18 @@ df <- df %>%
 ## 'data' now contains the O2 data with the corresponding light level as another column
 ## Example of what 'data' for each sample looks like:
 # df$data[[1]]
+
+# #troubleshooting code issue
+# data0 <- df[[4]][[1]] #check data
+# info <- df[[3]][[1]] #check info
+# 
+# #check number of intervals
+# intervals <- split(data0, f = cut(as.numeric(data0$Time), breaks = as.numeric(c(info$Start.time, last(info$Stop.time)))))
+# 
+# #check labels
+# as.character(info$Light_Value)
+
+
 ```
 
 ### Thin data
@@ -179,7 +193,7 @@ sa <- read.csv("output/3_surface_area.csv")
 pr <- left_join(pr, select(sa, colony_id, surface.area.cm2))
 
 # Normalize rates by surface area
-pr <- pr %>%
+pr.out <- pr %>%
   mutate(micromol.cm2.s = micromol.s.adj / surface.area.cm2,
          micromol.cm2.h = micromol.cm2.s * 3600)
 ```
@@ -194,7 +208,7 @@ ggplot(pr.out, aes(x = as.numeric(Light_Value), y = micromol.cm2.h)) +
 # Write to output file
 ```{r}
 # Select variables to write to file
-pr.out <- pr %>% 
+pr.out <- pr %>%
   select(colony_id, Light_Value, Run, micromol.cm2.s, micromol.cm2.h) %>%
   mutate(timepoint="timepoint3")
 
