@@ -27,6 +27,8 @@ if (!require("vegan")) install.packages("vegan")
 if (!require("corrr")) install.packages("corrr")
 if (!require("ggcorrplot")) install.packages("ggcorrplot")
 if (!require("GGally")) install.packages("GGally")
+if (!require("broom")) install.packages("broom")
+if (!require("cowplot")) install.packages("cowplot")
 
 # load packages
 library(tidyverse)
@@ -42,6 +44,8 @@ library(vegan)
 library(corrr)
 library(ggcorrplot)
 library(GGally)
+library(broom)
+library(cowplot)
 ```
  
 # Load and manipulate data  
@@ -1238,7 +1242,8 @@ ggsave(plot=p, "Figures/Correlation_Matrix.pdf", width=20, height=12, unit="in",
 
 # Multivariate analyses  
 
-## PCAs: Surface Area normalizers  
+## Standard PCA's
+### PCAs: Surface Area normalizers  
 
 ### Combined PCA's  
 
@@ -1548,7 +1553,7 @@ ggsave(filename="Figures/Species_PCAs_cm2.pdf", plot=species_plots_cm2, dpi=300,
 
 
 
-## PCAs: Protein normalizers  
+### PCAs: Protein normalizers  
 
 ### Combined PCA's  
 
@@ -1857,12 +1862,12 @@ ggsave(filename="Figures/Species_PCAs_prot.pdf", plot=species_plots_prot, dpi=30
 
 
 
-## PCAs: Biomass normalizers  
+### PCAs: Biomass normalizers  
 
 ### Combined PCA's  
 
 Plot PCA using prcomp to center and scale.    
- 
+  
 ```{r}
 pca_data_afdw<-master%>%
   select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw)%>%
@@ -1900,7 +1905,7 @@ vegan_afdw <- scale(pca_data_afdw[ ,5:12])
 # PerMANOVA - partitioning the euclidean distance matrix by species
 adonis(vegan_afdw ~ species, data = pca_data_afdw, method='eu')
 ```
-
+ 
 
 Groupings by timepoint:  
 ```{r}
@@ -1958,7 +1963,7 @@ ggsave(filename="Figures/All_PCAs_afdw.pdf", plot=pcaplots_afdw, dpi=300, width=
 ### Species-specific PCA's   
 
 Next generate PCA for site and timepoint for each species separately.  
-
+ 
 Separate by species.  
 ```{r}
 #porites
@@ -2166,7 +2171,7 @@ ggsave(filename="Figures/Species_PCAs_afdw.pdf", plot=species_plots_afdw, dpi=30
 
 
 
-## Assemble all PCA plots  
+### Assemble all PCA plots  
 
 Generate plot of all combined PCA's
 
@@ -2188,3 +2193,319 @@ All_PCAs_species<-plot_grid(porSite_prot, porTimepoint_prot, porSite_afdw, porTi
 
 ggsave(filename="Figures/All_Species_PCAs.pdf", plot=All_PCAs_species, dpi=300, width=48, height=15, units="in")
 ``` 
+
+
+## PCA's for centroid and trajectories  
+
+### Acropora
+
+Generate PCA using scaled (scaled_acr_afdw) from dataframe (acr_data_afdw).
+
+```{r}
+acr_data_afdw<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Acropora")
+
+acr_data_afdw<-acr_data_afdw[complete.cases(acr_data_afdw), ]
+
+scaled_acr_afdw<-prcomp(acr_data_afdw[c(5:12)], scale=TRUE, center=TRUE) 
+
+acr_info<-acr_data_afdw[c(2,4)]
+
+acr_data<-scaled_acr_afdw%>%
+  augment(acr_info)%>%
+  group_by(timepoint, site_code)%>%
+  mutate(PC1.mean = mean(.fittedPC1),
+         PC2.mean = mean(.fittedPC2))
+
+acr.centroids<-acr_data %>% 
+  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site_code)%>%
+  summarise(PC1.mean = mean(PC1.mean),
+         PC2.mean = mean(PC2.mean))
+```
+
+Assemble plot with background points
+```{r}
+#1. make plot with dots
+acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+  geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen4")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen4")) + 
+  theme_classic()+
+  #ylim(-4,10)+
+  #xlim(-4,10)+
+  ylab("PC2")+
+  xlab("PC1")+
+  theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18,  face="bold"));acrPCA
+
+```
+
+Add centroids  
+
+```{r}
+#2. add centroids 
+acrPCAcen<-acrPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=acr.centroids, size=1, show.legend=FALSE) + 
+  scale_colour_manual(values=c("blue4", "black", "springgreen4"))+
+  theme(legend.position="none"); acrPCAcen
+
+```
+
+Add segments
+
+```{r}
+#3. add segments
+segpoints<-acr.centroids%>%
+  gather(variable, value, -(timepoint:site_code)) %>%
+  unite(temp, timepoint, variable) %>%
+  spread(temp, value)
+  
+acrPCAfull<-acrPCAcen + 
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); acrPCAfull
+```
+
+Add bi plot with loadings  
+```{r}
+#1. make plot with dots
+acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=4, loadings.label.vjust=0, loadings.label.hjust=-0.1, size=4, alpha=0.3) + 
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen4")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen4")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_blank(),
+         axis.text.y=element_blank(),
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         axis.text = element_text(size=18), 
+         axis.title = element_blank());acrArrows
+```
+
+
+Asemble final figure with inset biplot.  
+```{r}
+acrFullPCA<-ggdraw(acrPCAfull + theme_half_open(12)) +
+  draw_plot(acrArrows, .55, .5, .4, .5); acrFullPCA #x, y, w, h
+
+ggsave(filename="Figures/FullPCA_Acropora.pdf", plot=acrFullPCA, dpi=300, width=12, height=8, units="in")
+```
+
+
+### Porites
+
+Generate PCA using scaled (scaled_por_afdw) from dataframe (por_data_afdw).
+
+Calculate centroid locations for each site and timepoint and pull PC1 and PC2 locations.   
+
+```{r}
+por_data_afdw<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")
+
+por_data_afdw<-por_data_afdw[complete.cases(por_data_afdw), ]
+
+scaled_por_afdw<-prcomp(por_data_afdw[c(5:12)], scale=TRUE, center=TRUE) 
+
+por_info<-por_data_afdw[c(2,4)]
+
+por_data<-scaled_por_afdw%>%
+  augment(por_info)%>%
+  group_by(timepoint, site_code)%>%
+  mutate(PC1.mean = mean(.fittedPC1),
+         PC2.mean = mean(.fittedPC2))
+
+por.centroids<-por_data %>% 
+  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site_code)%>%
+  summarise(PC1.mean = mean(PC1.mean),
+         PC2.mean = mean(PC2.mean))
+```
+
+Assemble plot with background points
+```{r}
+#1. make plot with dots
+porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+  geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen4")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen4")) + 
+  theme_classic()+
+  ylab("PC2")+
+  xlab("PC1")+
+  theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18,  face="bold"));porPCA
+
+```
+
+Add centroids  
+
+```{r}
+#2. add centroids 
+porPCAcen<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=por.centroids, size=1, show.legend=FALSE) + 
+  scale_colour_manual(values=c("blue4", "black", "springgreen4"))+
+  theme(legend.position="none"); porPCAcen
+
+```
+
+Add segments
+
+```{r}
+#3. add segments
+segpoints<-por.centroids%>%
+  gather(variable, value, -(timepoint:site_code)) %>%
+  unite(temp, timepoint, variable) %>%
+  spread(temp, value)
+  
+porPCAfull<-porPCAcen + 
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); porPCAfull
+```
+
+Add bi plot with loadings  
+```{r}
+#1. make plot with dots
+porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=4, loadings.label.vjust=0, loadings.label.hjust=-0.1, size=4, alpha=0.3) + 
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen4")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen4")) + 
+  theme_classic()+
+  #xlim(-0.5,0.5)+
+  #ylim(-0.5, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_blank(),
+         axis.text.y=element_blank(),
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         axis.text = element_text(size=18), 
+         axis.title = element_blank());porArrows
+```
+
+
+Asemble final figure with inset biplot.  
+```{r}
+porFullPCA<-ggdraw(porPCAfull + theme_half_open(12)) +
+  draw_plot(porArrows, .55, .5, .4, .5); porFullPCA #x, y, w, h
+
+ggsave(filename="Figures/FullPCA_Porites.pdf", plot=porFullPCA, dpi=300, width=12, height=8, units="in")
+```
+
+### Pocillopora  
+
+Generate PCA using scaled (scaled_poc_afdw) from dataframe (poc_data_afdw).
+
+```{r}
+poc_data_afdw<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Pocillopora")
+
+poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
+
+scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:12)], scale=TRUE, center=TRUE) 
+
+poc_info<-poc_data_afdw[c(2,4)]
+
+poc_data<-scaled_poc_afdw%>%
+  augment(poc_info)%>%
+  group_by(timepoint, site_code)%>%
+  mutate(PC1.mean = mean(.fittedPC1),
+         PC2.mean = mean(.fittedPC2))
+
+poc.centroids<-poc_data %>% 
+  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site_code)%>%
+  summarise(PC1.mean = mean(PC1.mean),
+         PC2.mean = mean(PC2.mean))
+```
+
+Assemble plot with background points
+```{r}
+#1. make plot with dots
+pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+  geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen4")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen4")) + 
+  theme_classic()+
+  ylim(-4,10)+
+  xlim(-4,10)+
+  ylab("PC2")+
+  xlab("PC1")+
+  theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18,  face="bold"));pocPCA
+
+```
+
+Add centroids  
+
+```{r}
+#2. add centroids 
+pocPCAcen<-pocPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=poc.centroids, size=1, show.legend=FALSE) + 
+  scale_colour_manual(values=c("blue4", "black", "springgreen4"))+
+  theme(legend.position="none"); pocPCAcen
+
+```
+
+Add segments
+
+```{r}
+#3. add segments
+segpoints<-poc.centroids%>%
+  gather(variable, value, -(timepoint:site_code)) %>%
+  unite(temp, timepoint, variable) %>%
+  spread(temp, value)
+  
+pocPCAfull<-pocPCAcen + 
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); pocPCAfull
+```
+
+Add bi plot with loadings  
+```{r}
+#1. make plot with dots
+pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=4, loadings.label.vjust=0, loadings.label.hjust=-0.1, size=4, alpha=0.3) + 
+  scale_colour_manual(values=c("blue4", "darkgray", "springgreen4")) +
+  scale_fill_manual(values=c("blue4", "darkgray", "springgreen4")) + 
+  theme_classic()+
+  xlim(-.3,.6)+
+  ylim(-.3, .3)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_blank(),
+         axis.text.y=element_blank(),
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         axis.text = element_text(size=18), 
+         axis.title = element_blank());pocArrows
+```
+
+
+Asemble final figure with inset biplot.  
+```{r}
+pocFullPCA<-ggdraw(pocPCAfull + theme_half_open(12)) +
+  draw_plot(pocArrows, .55, .5, .4, .5); pocFullPCA #x, y, w, h
+
+ggsave(filename="Figures/FullPCA_Pocillopora.pdf", plot=pocFullPCA, dpi=300, width=12, height=8, units="in")
+```
