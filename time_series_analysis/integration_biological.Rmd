@@ -1200,7 +1200,7 @@ plot(allEffects(prot_model))
 
 # Correlations  
 
-Generate a correlation matrix to examine relationships between responses of interest. Use normalizations by afdw for all responses.   
+Generate a correlation matrix to examine relationships between responses of interest. Use normalizations by afdw for all responses.    
 
 Generating network plot with corrr package.  
 ```{r}
@@ -1220,6 +1220,7 @@ p<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(prot_mg.mgafdw<1.5)%>%
   ggpairs(., columns=2:11, ggplot2::aes(colour=species)) #try to bold significant stats
 
 #change colors
@@ -1239,6 +1240,87 @@ p
 ggsave(plot=p, "Figures/Correlation_Matrix.pdf", width=20, height=12, unit="in", dpi=300)
 ```
 
+Acropora: 
+```{r}
+p<-master%>%
+  filter(species=="Acropora")%>%
+  select(site_code, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  ggpairs(., columns=2:11, ggplot2::aes(colour=site_code)) 
+
+#change colors
+for(i in 1:p$nrow) {
+  for(j in 1:p$ncol){
+    p[i,j] <- p[i,j] + 
+        scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+        scale_color_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+        theme_classic()+
+        theme(text=element_text(size=14, face="bold"))+
+        theme(strip.text.x=element_text(face="bold", size=14))
+  }
+}
+
+p
+
+ggsave(plot=p, "Figures/Correlation_Matrix_Acropora.pdf", width=20, height=12, unit="in", dpi=300)
+```
+
+Pocillopora
+```{r}
+p<-master%>%
+  filter(species=="Pocillopora")%>%
+  select(site_code, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  ggpairs(., columns=2:11, ggplot2::aes(colour=site_code)) 
+
+#change colors
+for(i in 1:p$nrow) {
+  for(j in 1:p$ncol){
+    p[i,j] <- p[i,j] + 
+        scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+        scale_color_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+        theme_classic()+
+        theme(text=element_text(size=14, face="bold"))+
+        theme(strip.text.x=element_text(face="bold", size=14))
+  }
+}
+
+p
+
+ggsave(plot=p, "Figures/Correlation_Matrix_Pocillopora.pdf", width=20, height=12, unit="in", dpi=300)
+```
+
+Porites 
+```{r}
+p<-master%>%
+  filter(species=="Porites")%>%
+  select(site_code, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(prot_mg.mgafdw<1.5)%>%
+  ggpairs(., columns=2:11, ggplot2::aes(colour=site_code)) 
+
+#change colors
+for(i in 1:p$nrow) {
+  for(j in 1:p$ncol){
+    p[i,j] <- p[i,j] + 
+        scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+        scale_color_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+        theme_classic()+
+        theme(text=element_text(size=14, face="bold"))+
+        theme(strip.text.x=element_text(face="bold", size=14))
+  }
+}
+
+p
+
+ggsave(plot=p, "Figures/Correlation_Matrix_Porites.pdf", width=20, height=12, unit="in", dpi=300)
+```
 
 # Multivariate analyses  
 
@@ -1873,7 +1955,9 @@ pca_data_afdw<-master%>%
   select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Ratio_AFDW.mg.cm2>0)
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(prot_mg.mgafdw<1.5) #remove outliers
+
 
 pca_data_afdw<-pca_data_afdw[complete.cases(pca_data_afdw), ]
 
@@ -1889,7 +1973,7 @@ permanova<-adonis(vegan ~ species, data = pca_data_afdw, method='eu')
 z_species<-permanova$aov.tab
 z_species
 ``` 
-
+ 
 Groupings by species:  
 ```{r}
 pcaSpecies_afdw<-ggplot2::autoplot(scaled_data_afdw, data=pca_data_afdw, frame.colour="species", loadings=FALSE,  colour="species", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
@@ -2221,7 +2305,9 @@ acr_data_afdw<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(species=="Acropora")
+  filter(species=="Acropora")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)
 
 acr_data_afdw<-acr_data_afdw[complete.cases(acr_data_afdw), ]
 
@@ -2267,9 +2353,9 @@ acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site_code)) +
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Acropora")))+
-  geom_text(x=6, y=-1.85, label=paste("p(Timepoint)=", z_acr$`Pr(>F)`[1]), size=4, color="black") + 
-  geom_text(x=6, y=-2.25, label=paste("p(Site)=", z_acr$`Pr(>F)`[2]), size=4, color="black") + 
-  geom_text(x=6, y=-2.65, label=paste("p(Timepoint x Site)=", z_acr$`Pr(>F)`[3]), size=4, color="black") + 
+  geom_text(x=6, y=-1.85, label=paste("p(Timepoint)=", z_acr$`Pr(>F)`[1]), size=4, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=6, y=-2.25, label=paste("p(Site)=", z_acr$`Pr(>F)`[2]), size=4, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=6, y=-2.65, label=paste("p(Timepoint x Site)=", z_acr$`Pr(>F)`[3]), size=4, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -2322,14 +2408,15 @@ acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,
          legend.title = element_blank(), 
          plot.margin = margin(1, 1, 1, 1, "cm"),
          axis.text = element_text(size=18), 
+         title = element_text(size=25, face="bold"),
          axis.title = element_blank());acrArrows
 ```
 
 
 Asemble final figure with inset biplot.  
 ```{r}
-acrFullPCA<-ggdraw(acrPCAfull + theme_half_open(12)) +
-  draw_plot(acrArrows, .45, .5, .55, .5); acrFullPCA #x, y, w, h
+acrFullPCA<-ggdraw(acrPCAfull) + #theme_half_open(12)) +
+  draw_plot(acrArrows, .5, .5, .5, .5); acrFullPCA #x, y, w, h
 
 #ggsave(filename="Figures/FullPCA_Acropora.pdf", plot=acrFullPCA, dpi=300, width=12, height=8, units="in")
 ```
@@ -2347,7 +2434,9 @@ por_data_afdw<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(species=="Porites")
+  filter(species=="Porites")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)
 
 por_data_afdw<-por_data_afdw[complete.cases(por_data_afdw), ]
 
@@ -2388,10 +2477,12 @@ porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site_code)) +
   theme_classic()+
   ylab("PC2")+
   xlab("PC1")+
+  ylim(-4.5,6)+
+  xlim(-5,10)+
   ggtitle(expression(italic("Porites")))+
-  geom_text(x=6, y=-3.4, label=paste("p(Timepoint)=", z_por$`Pr(>F)`[1]), size=4, color="black") + 
-  geom_text(x=6, y=-3.9, label=paste("p(Site)=", z_por$`Pr(>F)`[2]), size=4, color="black") + 
-  geom_text(x=6, y=-4.4, label=paste("p(Timepoint x Site)=", z_por$`Pr(>F)`[3]), size=4, color="darkgray") + 
+  geom_text(x=6, y=-3.4, label=paste("p(Timepoint)=", z_por$`Pr(>F)`[1]), size=4, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=6, y=-3.9, label=paste("p(Site)=", z_por$`Pr(>F)`[2]), size=4, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=6, y=-4.4, label=paste("p(Timepoint x Site)=", z_por$`Pr(>F)`[3]), size=4, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -2460,8 +2551,8 @@ porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,
 
 Asemble final figure with inset biplot.  
 ```{r}
-porFullPCA<-ggdraw(porPCAfull + theme_half_open(12)) +
-  draw_plot(porArrows, .45, .5, .55, .5); porFullPCA #x, y, w, h
+porFullPCA<-ggdraw(porPCAfull)+ #+ theme_half_open(12)) +
+  draw_plot(porArrows, .5, .5, .5, .5); porFullPCA #x, y, w, h
 
 #ggsave(filename="Figures/FullPCA_Porites.pdf", plot=porFullPCA, dpi=300, width=12, height=8, units="in")
 ```
@@ -2476,7 +2567,8 @@ poc_data_afdw<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(species=="Pocillopora")
+  filter(species=="Pocillopora")%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)
 
 poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
 
@@ -2520,9 +2612,9 @@ pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site_code)) +
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Pocillopora")))+
-  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_poc$`Pr(>F)`[1]), size=4, color="black") + 
-  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_poc$`Pr(>F)`[2]), size=4, color="black") + 
-  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_poc$`Pr(>F)`[3]), size=4, color="black") + 
+  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_poc$`Pr(>F)`[1]), size=4, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_poc$`Pr(>F)`[2]), size=4, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_poc$`Pr(>F)`[3]), size=4, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -2581,8 +2673,8 @@ pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,
  
 Assemble final figure with inset biplot.  
 ```{r}
-pocFullPCA<-ggdraw(pocPCAfull + theme_half_open(12)) +
-  draw_plot(pocArrows, .45, .5, .55, .5); pocFullPCA #x, y, w, h
+pocFullPCA<-ggdraw(pocPCAfull) + #theme_half_open(12)) +
+  draw_plot(pocArrows, .5, .5, .5, .5); pocFullPCA #x, y, w, h
 
 #ggsave(filename="Figures/FullPCA_Pocillopora.pdf", plot=pocFullPCA, dpi=300, width=12, height=8, units="in")
 ```
