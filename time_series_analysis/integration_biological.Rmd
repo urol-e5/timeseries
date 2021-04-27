@@ -7,7 +7,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Set Up  
+# Set Up   
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 ```
@@ -52,7 +52,7 @@ library(cowplot)
 
 ## Loading data files   
 
-Load all .csv files from output of all timepoints for each biological response   
+Load all .csv files from output of all timepoints for each biological response    
  
 ```{r}
 biomass_files<-list.files("../", pattern = "biomass.csv", recursive=T, full.names=T)
@@ -269,7 +269,7 @@ write_csv(master, "Output/master_timeseries.csv")
 
 # Generating summary by groups   
 
-Summarize all response values by group (species + timepoint + site).  
+Summarize all response values by group (species + timepoint + site).   
 
 ```{r}
 summary_colony<-master%>%
@@ -428,7 +428,7 @@ plot(allEffects(antiox_model))
 
 ## Symbiont Densities  
 
-### Plot: Surface Area   
+### Plot: Surface Area    
 
 View by site and timepoint for each species.   
 ```{r}
@@ -1329,7 +1329,7 @@ ggsave(plot=p, "Figures/Correlation_Matrix_Porites.pdf", width=20, height=12, un
 
 #### Combined PCA's  
  
-Plot PCA using prcomp to center and scale.    
+Plot PCA using prcomp to center and scale.     
  
 ```{r}
 pca_data_cm2<-master%>%
@@ -1349,8 +1349,8 @@ pcaSpecies_cm2<-ggplot2::autoplot(scaled_data_cm2, data=pca_data_cm2, frame.colo
   scale_colour_manual(values=c("orange", "darkgray", "purple")) +
   scale_fill_manual(values=c("orange", "darkgray", "purple")) + 
   theme_classic()+
-  xlim(-0.3,0.5)+
-  ylim(-0.3, 0.5)+
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1373,11 +1373,11 @@ adonis(vegan_cm2 ~ species, data = pca_data_cm2, method='eu')
 Groupings by timepoint:  
 ```{r}
 pcaTimepoint_cm2<-ggplot2::autoplot(scaled_data_cm2, data=pca_data_cm2, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
-  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
-  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) + 
   theme_classic()+
-  xlim(-0.3,0.5)+
-  ylim(-0.3, 0.5)+
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1398,8 +1398,8 @@ pcaSite_cm2<-ggplot2::autoplot(scaled_data_cm2, data=pca_data_cm2, frame.colour=
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
-  xlim(-0.3,0.5)+
-  ylim(-0.3, 0.5)+
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1471,11 +1471,11 @@ scaled_poc_cm2<-prcomp(poc_data_cm2[c(5:12)], scale=TRUE, center=TRUE)
 Groupings by timepoint:  
 ```{r}
 porTimepoint_cm2<-ggplot2::autoplot(scaled_por_cm2, data=por_data_cm2, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
-  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
-  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) + 
   theme_classic()+
-  xlim(-0.7,0.5)+
-  ylim(-0.7, 0.5)+
+  #xlim(-0.7,0.5)+
+  #ylim(-0.7, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1499,8 +1499,8 @@ porSite_cm2<-ggplot2::autoplot(scaled_por_cm2, data=por_data_cm2, frame.colour="
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
-  xlim(-0.7,0.5)+
-  ylim(-0.7, 0.5)+
+  #xlim(-0.7,0.5)+
+  #ylim(-0.7, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1520,11 +1520,11 @@ adonis(vegan_cm2 ~ site_code, data = por_data_cm2, method='eu')
 Groupings by timepoint:  
 ```{r}
 acrTimepoint_cm2<-ggplot2::autoplot(scaled_acr_cm2, data=acr_data_cm2, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
-  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
-  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) + 
   theme_classic()+
-  xlim(-0.5,0.5)+
-  ylim(-0.5, 0.5)+
+  #xlim(-0.5,0.5)+
+  #ylim(-0.5, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1548,8 +1548,8 @@ acrSite_cm2<-ggplot2::autoplot(scaled_acr_cm2, data=acr_data_cm2, frame.colour="
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
-  xlim(-0.5,0.5)+
-  ylim(-0.5, 0.5)+
+  #xlim(-0.5,0.5)+
+  #ylim(-0.5, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1569,11 +1569,11 @@ adonis(vegan_cm2 ~ site_code, data = acr_data_cm2, method='eu')
 Groupings by timepoint:   
 ```{r}
 pocTimepoint_cm2<-ggplot2::autoplot(scaled_poc_cm2, data=poc_data_cm2, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
-  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
-  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) + 
   theme_classic()+
-  xlim(-0.6,0.5)+
-  ylim(-0.5, 0.5)+
+  #xlim(-0.6,0.5)+
+  #ylim(-0.5, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1597,8 +1597,8 @@ pocSite_cm2<-ggplot2::autoplot(scaled_poc_cm2, data=poc_data_cm2, frame.colour="
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
-  xlim(-0.5,0.5)+
-  ylim(-0.5, 0.5)+
+  #xlim(-0.5,0.5)+
+  #ylim(-0.5, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1659,8 +1659,8 @@ pcaSpecies_prot<-ggplot2::autoplot(scaled_data_prot, data=pca_data_prot, frame.c
   scale_colour_manual(values=c("orange", "darkgray", "purple")) +
   scale_fill_manual(values=c("orange", "darkgray", "purple")) + 
   theme_classic()+
-  xlim(-0.3,0.5)+
-  ylim(-0.3, 0.5)+
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1683,11 +1683,11 @@ adonis(vegan_prot ~ species, data = pca_data_prot, method='eu')
 Groupings by timepoint:  
 ```{r}
 pcaTimepoint_prot<-ggplot2::autoplot(scaled_data_prot, data=pca_data_prot, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
-  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
-  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) + 
   theme_classic()+
-  xlim(-0.3,0.5)+
-  ylim(-0.3, 0.5)+
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1708,8 +1708,8 @@ pcaSite_prot<-ggplot2::autoplot(scaled_data_prot, data=pca_data_prot, frame.colo
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
-  xlim(-0.3,0.5)+
-  ylim(-0.3, 0.5)+
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1781,11 +1781,11 @@ scaled_poc_prot<-prcomp(poc_data_prot[c(5:12)], scale=TRUE, center=TRUE)
 Groupings by timepoint:  
 ```{r}
 porTimepoint_prot<-ggplot2::autoplot(scaled_por_prot, data=por_data_prot, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
-  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
-  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) + 
   theme_classic()+
-  xlim(-0.7,0.5)+
-  ylim(-0.7, 0.5)+
+  #xlim(-0.7,0.5)+
+  #ylim(-0.7, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1809,8 +1809,8 @@ porSite_prot<-ggplot2::autoplot(scaled_por_prot, data=por_data_prot, frame.colou
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
-  xlim(-0.7,0.5)+
-  ylim(-0.7, 0.5)+
+  #xlim(-0.7,0.5)+
+  #ylim(-0.7, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1830,11 +1830,11 @@ adonis(vegan_prot ~ site_code, data = por_data_prot, method='eu')
 Groupings by timepoint:  
 ```{r}
 acrTimepoint_prot<-ggplot2::autoplot(scaled_acr_prot, data=acr_data_prot, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
-  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
-  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) + 
   theme_classic()+
-  xlim(-0.5,0.5)+
-  ylim(-0.5, 0.5)+
+  #xlim(-0.5,0.5)+
+  #ylim(-0.5, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1858,8 +1858,8 @@ acrSite_prot<-ggplot2::autoplot(scaled_acr_prot, data=acr_data_prot, frame.colou
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
-  xlim(-0.5,0.5)+
-  ylim(-0.5, 0.5)+
+  #xlim(-0.5,0.5)+
+  #ylim(-0.5, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1879,11 +1879,11 @@ adonis(vegan_prot ~ site_code, data = acr_data_prot, method='eu')
 Groupings by timepoint:   
 ```{r}
 pocTimepoint_prot<-ggplot2::autoplot(scaled_poc_prot, data=poc_data_prot, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
-  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
-  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) + 
   theme_classic()+
-  xlim(-0.6,0.5)+
-  ylim(-0.5, 0.5)+
+  #xlim(-0.6,0.5)+
+  #ylim(-0.5, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1907,8 +1907,8 @@ pocSite_prot<-ggplot2::autoplot(scaled_poc_prot, data=poc_data_prot, frame.colou
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
-  xlim(-0.5,0.5)+
-  ylim(-0.5, 0.5)+
+  #xlim(-0.5,0.5)+
+  #ylim(-0.5, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1982,7 +1982,7 @@ pcaSpecies_afdw<-ggplot2::autoplot(scaled_data_afdw, data=pca_data_afdw, frame.c
   theme_classic()+
   #xlim(-0.3,0.5)+
   #ylim(-0.3, 0.5)+
-  geom_text(x=0.3, y=-0.15, label=paste("p(Species)=", z_species$`Pr(>F)`[1]), size=6, color="black") + 
+  #geom_text(x=0.3, y=-0.15, label=paste("p(Species)=", z_species$`Pr(>F)`[1]), size=6, color="black") + 
   xlab("PC1")+
   ylab("PC2")+
    theme(legend.text = element_text(size=18), 
@@ -2008,11 +2008,11 @@ adonis(vegan_afdw ~ species, data = pca_data_afdw, method='eu')
 Groupings by timepoint:  
 ```{r}
 pcaTimepoint_afdw<-ggplot2::autoplot(scaled_data_afdw, data=pca_data_afdw, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
-  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
-  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) + 
   theme_classic()+
-  xlim(-0.3,0.5)+
-  ylim(-0.3, 0.5)+
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -2033,8 +2033,8 @@ pcaSite_afdw<-ggplot2::autoplot(scaled_data_afdw, data=pca_data_afdw, frame.colo
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
-  xlim(-0.3,0.5)+
-  ylim(-0.3, 0.5)+
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -2106,11 +2106,11 @@ scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:12)], scale=TRUE, center=TRUE)
 Groupings by timepoint:  
 ```{r}
 porTimepoint_afdw<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
-  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
-  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) + 
   theme_classic()+
-  xlim(-0.7,0.5)+
-  ylim(-0.7, 0.5)+
+  #xlim(-0.7,0.5)+
+  #ylim(-0.7, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -2134,8 +2134,8 @@ porSite_afdw<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, frame.colou
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
-  xlim(-0.7,0.5)+
-  ylim(-0.7, 0.5)+
+ # xlim(-0.7,0.5)+
+ # ylim(-0.7, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -2155,11 +2155,11 @@ adonis(vegan_afdw ~ site_code, data = por_data_afdw, method='eu')
 Groupings by timepoint:  
 ```{r}
 acrTimepoint_afdw<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
-  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
-  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) + 
   theme_classic()+
-  xlim(-0.5,0.5)+
-  ylim(-0.5, 0.5)+
+  #xlim(-0.5,0.5)+
+  #ylim(-0.5, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -2183,8 +2183,8 @@ acrSite_afdw<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, frame.colou
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
-  xlim(-0.5,0.5)+
-  ylim(-0.5, 0.5)+
+  #xlim(-0.5,0.5)+
+  #ylim(-0.5, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -2204,11 +2204,11 @@ adonis(vegan_afdw ~ site_code, data = acr_data_afdw, method='eu')
 Groupings by timepoint:   
 ```{r}
 pocTimepoint_afdw<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, frame.colour="timepoint", loadings=FALSE,  colour="timepoint", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
-  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) +
-  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred"), labels=c("Jan2020", "March2020", "Sept2020")) + 
+  scale_colour_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) +
+  scale_fill_manual(values=c("darkturquoise", "darkgray", "mediumvioletred", "black"), labels=c("Jan2020", "March2020", "Sept2020", "Nov2020")) + 
   theme_classic()+
-  xlim(-0.6,0.5)+
-  ylim(-0.5, 0.8)+
+ # xlim(-0.6,0.5)+
+  #ylim(-0.5, 0.8)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -2232,8 +2232,8 @@ pocSite_afdw<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, frame.colou
   scale_colour_manual(values=c("blue4", "darkgray", "springgreen3")) +
   scale_fill_manual(values=c("blue4", "darkgray", "springgreen3")) + 
   theme_classic()+
-  xlim(-0.5,0.5)+
-  ylim(-0.5, 0.5)+
+  #xlim(-0.5,0.5)+
+  #ylim(-0.5, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="right",
         plot.background = element_blank(),
@@ -2388,13 +2388,14 @@ segpoints<-acr.centroids%>%
   
 acrPCAfull<-acrPCAcen + 
   geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); acrPCAfull
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); acrPCAfull
 ```
 
 Add bi plot with loadings  
 ```{r}
 #1. make plot with dots
-acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, size=4, alpha=0.0) + 
+acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0.5, loadings.label.hjust=-0.1, loadings.label.repel=T, size=4, alpha=0.0) + 
   #scale_colour_manual(values=c("blue4", "darkgray", "springgreen4")) +
   #scale_fill_manual(values=c("blue4", "darkgray", "springgreen4")) + 
   theme_classic()+
@@ -2525,17 +2526,18 @@ segpoints<-por.centroids%>%
   
 porPCAfull<-porPCAcen + 
   geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); porPCAfull
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); porPCAfull
 ```
 
 Add bi plot with loadings  
 ```{r}
 #1. make plot with dots
-porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, size=4, alpha=0.0) + 
+porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=T, size=4, alpha=0.0) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
-  #xlim(-0.5,0.5)+
+  xlim(-0.5,0.1)+
   #ylim(-0.5, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="none",
@@ -2647,13 +2649,14 @@ segpoints<-poc.centroids%>%
   
 pocPCAfull<-pocPCAcen + 
   geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); pocPCAfull
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); pocPCAfull
 ```
 
 Add bi plot with loadings  
 ```{r}
 #1. make plot with dots
-pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, size=4, alpha=0.0) + 
+pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, laodings.label.repel=TRUE, size=4, alpha=0.0) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
