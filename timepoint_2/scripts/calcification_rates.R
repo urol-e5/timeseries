@@ -40,9 +40,9 @@ blanks <-calc.data[rows.blanks,] #shows you the rows with the blank sample type
 
 calc.data <- calc.data[-rows.blanks,] #to remove the rows with blank data
 
-#need to join sample data frame, join initial with your calc.data, only by temperature, pull out the columns we need
+#need to join sample data frame, join initial with your calc.data, only by run number, pull out the columns we need
 
-initial <- initial[, c("date","colony_ID", "salinity.chamber", "salinity.lab", "TA", "mV.chamber")]
+initial <- initial[, c("date","run.number", "salinity.chamber", "salinity.lab", "TA", "mV.chamber")]
 names(initial)[3:6] <- paste0(names(initial)[3:6], "_initial") #use this to rename all of our columns
 
 #join blanks and carb chem data frame
@@ -65,7 +65,7 @@ calc.data <- left_join(calc.data, mean.blanks) #bring in mean blanks to calc.dat
 
 sample.data <- read.csv("../timepoint_2/output/2_surface_area.csv") #bring in SA and volume data sheet
 
-SA <- sample.data[, c("colony_id", "surf.area.cm2")] #pull out the necessary columns and treatment 
+SA <- sample.data[, c("colony_id", "surface.area.cm2")] #pull out the necessary columns and treatment 
 
 calc.data2 <- left_join(calc.data, SA) # join carb chem and SA data
 
@@ -92,11 +92,11 @@ full.calc.data$deltaTA<- (full.calc.data$TA_initial - full.calc.data$TA) - full.
 full.calc.data$timediff <- as.numeric((full.calc.data$stop.time - full.calc.data$start.time)) 
 
 #convert volume from cm3 to m3
-full.calc.data$volume <- full.calc.data$volume * 0.000001
+#full.calc.data$volume <- full.calc.data$vol.ml * 0.0001
 
 #equation to calculate NEC rates 
 
-full.calc.data$umol.cm2.hr <- (full.calc.data$deltaTA/2)*(1.023)*(full.calc.data$volume/full.calc.data$surf.area.cm2)*(1/full.calc.data$timediff)*(1/1000)
+full.calc.data$umol.cm2.hr <- (full.calc.data$deltaTA/2)*(1.023)*(full.calc.data$volume/full.calc.data$surface.area.cm2)*(1/full.calc.data$timediff)*(1/1000)
 
 
 #anything that it <0 make it zero
