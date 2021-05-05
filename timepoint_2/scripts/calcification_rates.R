@@ -26,6 +26,40 @@ library(stringr)
 #Divide by hours
 #Gives umol cm-2 h-1
 
+#1. Load data
+
+
+#set wd
+here()
+
+#bring in calcification data file with TA and chamber pH, temp, salinity measurements
+
+calc.data <- read.csv("data/2_calcification/2_TA_data.csv")
+
+#2. Salinity normalize all TA values
+
+#need to pull out initial TA, sample final TA, and blank final TA measurements in long format
+
+#then correct them to salinity using below: 
+#from Nyssa's script: Should this be chamber or lab salinity? 
+#CData$TA.NormSal<-CData$TA*CData$Salinity/36
+
+
+#3. Calculate sample and blank delta TA values
+
+#4. Normalize to surface area
+
+#5. Divide by incubation time
+
+#6. Display values 
+
+
+
+
+
+
+
+
 
 #set wd
 here()
