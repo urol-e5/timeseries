@@ -45,7 +45,7 @@ library("broom")
 
 # Import data
 ```{r import_data}
-Data <- read.csv(file = 'output/3_pi_curve_rates.csv')
+Data <- read.csv(file = 'output/4_pi_curve_rates.csv')
 #Data <- Data[1:40,]
 ```
 
@@ -107,7 +107,7 @@ nls_data <- Data %>%
   group_by(colony_id)%>%
   summarise(Am=mean(Am), AQY=mean(AQY), Rd=mean(Rd))%>%
   mutate(timepoint="timepoint3")%>%
-  write_csv(., "output/3_pi_curve_pars_nls.csv")
+  write_csv(., "output/4_pi_curve_pars_nls.csv")
 ```
 
 Plot curve over data points.  

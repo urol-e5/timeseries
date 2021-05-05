@@ -95,7 +95,6 @@ full.calc.data$timediff <- as.numeric((full.calc.data$stop.time - full.calc.data
 
 full.calc.data$umol.cm2.hr <- (full.calc.data$deltaTA/2)*(1.023)*(full.calc.data$vol.L/full.calc.data$surface.area.cm2)*(1/full.calc.data$timediff)*(1/1000)
 
-
 #anything that it <0 make it zero
 full.calc.data$umol.cm2.hr[full.calc.data$umol.cm2.hr<0]<-0
 
