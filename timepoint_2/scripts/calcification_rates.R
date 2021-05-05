@@ -91,18 +91,15 @@ full.calc.data$stop.time <- strptime(as.character(full.calc.data$TA.Stop.Time), 
 full.calc.data$deltaTA<- (full.calc.data$TA_initial - full.calc.data$TA) - full.calc.data$mean.blanks
 full.calc.data$timediff <- as.numeric((full.calc.data$stop.time - full.calc.data$start.time)) 
 
-#convert volume from cm3 to m3
-#full.calc.data$volume <- full.calc.data$vol.ml * 0.0001
-
 #equation to calculate NEC rates 
 
-full.calc.data$umol.cm2.hr <- (full.calc.data$deltaTA/2)*(1.023)*(full.calc.data$volume/full.calc.data$surface.area.cm2)*(1/full.calc.data$timediff)*(1/1000)
+full.calc.data$umol.cm2.hr <- (full.calc.data$deltaTA/2)*(1.023)*(full.calc.data$vol.L/full.calc.data$surface.area.cm2)*(1/full.calc.data$timediff)*(1/1000)
 
 
 #anything that it <0 make it zero
-calcification$umol.cm2.hr[calcification$umol.cm2.hr<0]<-0
+full.calc.data$umol.cm2.hr[full.calc.data$umol.cm2.hr<0]<-0
 
 #log x+ 1 you will have to log x + whatever the difference is here, a line for dissolution and calcification
-calcification$umol.cm2.hr <- log(calcification$umol.cm2.hr+1) 
+full.calc.data$log.umol.cm2.hr <- log10(1+full.calc.data$umol.cm2.hr) 
 
-write.csv(calcification, 'data/2_calcification/2_calcification_rates.csv') 
+write.csv(full.calc.data, 'output/2_calcification_rates.csv') 
