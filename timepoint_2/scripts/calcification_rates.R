@@ -17,49 +17,6 @@ library(nlstools)
 library(here)
 library(stringr)
 
-#STEPS FOR CALCULATION
-#salinity normalize all ta measurements and blanks
-#SnormTA initial - SnormTA final = delta TA
-#SnormTA initial - SnormTA blank = blank delta TA
-#Delta TA = delta TA - blank delta TA
-#Divide by SA
-#Divide by hours
-#Gives umol cm-2 h-1
-
-#1. Load data
-
-
-#set wd
-here()
-
-#bring in calcification data file with TA and chamber pH, temp, salinity measurements
-
-calc.data <- read.csv("data/2_calcification/2_TA_data.csv")
-
-#2. Salinity normalize all TA values
-
-#need to pull out initial TA, sample final TA, and blank final TA measurements in long format
-
-#then correct them to salinity using below: 
-#from Nyssa's script: Should this be chamber or lab salinity? 
-#CData$TA.NormSal<-CData$TA*CData$Salinity/36
-
-
-#3. Calculate sample and blank delta TA values
-
-#4. Normalize to surface area
-
-#5. Divide by incubation time
-
-#6. Display values 
-
-
-
-
-
-
-
-
 
 #set wd
 here()
@@ -69,6 +26,10 @@ here()
 calc.data <- read.csv("data/2_calcification/2_TA_data.csv")
 
 #create new data frame of just the initial data (initial bottles taken before each run for initial TA measurements), pull out initial data from sample.type
+
+#add salinity normalization for TA values for blanks
+#add new column for TA initial normalized and TA normalized, then include TA.norm values below 
+calc.data$Ta.norm<-calc.data$TA*calc.data$salinity.lab/36
 
 rows.initial <- which(calc.data$sample.type == "Initial") #tells you all the rows that you have with initial sample type
 
@@ -86,8 +47,8 @@ calc.data <- calc.data[-rows.blanks,] #to remove the rows with blank data
 
 #need to join sample data frame, join initial with your calc.data, only by run number, pull out the columns we need
 
-initial <- initial[, c("date","run.number", "salinity.chamber", "salinity.lab", "TA", "mV.chamber")]
-names(initial)[3:6] <- paste0(names(initial)[3:6], "_initial") #use this to rename all of our columns
+initial <- initial[, c("date","run.number", "salinity.chamber", "salinity.lab", "TA", "mV.chamber", "Ta.norm")]
+names(initial)[3:7] <- paste0(names(initial)[3:7], "_initial") #use this to rename all of our columns
 
 #join blanks and carb chem data frame
 
@@ -96,7 +57,7 @@ blanks <- left_join(blanks,initial)
 
 #figure out delta TA, initial-final
 
-blanks$delta.TA.blank <- blanks$TA_initial - blanks$TA
+blanks$delta.TA.blank <- blanks$Ta.norm_initial - blanks$Ta.norm
 
 #getting the averages of blanks for each temperature and each date
 mean.blanks <- blanks %>% 
@@ -132,12 +93,14 @@ full.calc.data$stop.time <- strptime(as.character(full.calc.data$TA.Stop.Time), 
 
 #calculate the net ecosystem calcification rate
 
-full.calc.data$deltaTA<- (full.calc.data$TA_initial - full.calc.data$TA) - full.calc.data$mean.blanks
+full.calc.data$deltaTA<- (full.calc.data$Ta.norm_initial - full.calc.data$Ta.norm) - full.calc.data$mean.blanks
 full.calc.data$timediff <- as.numeric((full.calc.data$stop.time - full.calc.data$start.time)) 
 
+
+#convert volume (L) to mL 
 #equation to calculate NEC rates 
 
-full.calc.data$umol.cm2.hr <- (full.calc.data$deltaTA/2)*(1.023)*(full.calc.data$vol.L/full.calc.data$surface.area.cm2)*(1/full.calc.data$timediff)*(1/1000)
+full.calc.data$umol.cm2.hr <- (full.calc.data$deltaTA/2)*(1.023)*((full.calc.data$vol.L*1000)/full.calc.data$surface.area.cm2)*(1/full.calc.data$timediff)*(1/1000)
 
 #anything that it <0 make it zero
 full.calc.data$umol.cm2.hr[full.calc.data$umol.cm2.hr<0]<-0

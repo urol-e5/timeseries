@@ -100,9 +100,13 @@ cowplot::plot_grid(df$data_plot[[1]], df$thin_data_plot[[1]], nrow = 2,
 ```
 
 #### The full or thinned data plot for any sample can be accessed like this:
-```
+```{r}
 df %>%
   filter(colony_id == "ACR-185") %>%
+  pull(thin_data_plot)
+
+df %>%
+  group_by(colony_id)%>%
   pull(thin_data_plot)
 ```
 
@@ -121,7 +125,7 @@ future::plan(multiprocess)
 
 ##ERROR HERE: Problem with `mutate()` input `regs`. x invalid 'length.out' argument
 df <- df %>%
-  mutate(regs = furrr::future_map(thin_data, function(.) {       # future_map executes function in parallel
+  dplyr::mutate(regs = furrr::future_map(thin_data, function(.) {       # future_map executes function in parallel
     group_by(., Light_Value) %>%
     do(rankLcRg = fit_reg(.))
   }))
