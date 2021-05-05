@@ -17,6 +17,16 @@ library(nlstools)
 library(here)
 library(stringr)
 
+#STEPS FOR CALCULATION
+#salinity normalize all ta measurements and blanks
+#SnormTA initial - SnormTA final = delta TA
+#SnormTA initial - SnormTA blank = blank delta TA
+#Delta TA = delta TA - blank delta TA
+#Divide by SA
+#Divide by hours
+#Gives umol cm-2 h-1
+
+
 #set wd
 here()
 
