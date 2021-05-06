@@ -4,6 +4,8 @@
 #Edited by: DM Becker, AS Huffmyer, E5 team members
 #Date Last Modified: 20210504
 
+#### Analyze data #### 
+
 #clear workspace
 rm(list=ls())
 
@@ -109,3 +111,15 @@ full.calc.data$umol.cm2.hr[full.calc.data$umol.cm2.hr<0]<-0
 full.calc.data$log.umol.cm2.hr <- log10(1+full.calc.data$umol.cm2.hr) 
 
 write.csv(full.calc.data, 'output/2_calcification_rates.csv') 
+
+#### Plot data ####  
+
+full.calc.data %>%
+  filter(!run.number=="NA")%>%
+  ggplot(aes(x = as.factor(site), y = umol.cm2.hr, color = species)) +
+  geom_boxplot()+
+  geom_point(size=2)+
+  facet_wrap(~species) +
+  labs(x = "", y = expression(paste("umol CaCO3 cm"^-2, "hr"^-1))) +
+  geom_jitter(width = 0.1) +                                            # Plot all points
+  theme_classic() 
