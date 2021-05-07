@@ -71,43 +71,43 @@ Rd = dark respiration
 
 Run models 
 
-Using fixed initial values (not used, kept for reference):
-
-```{r}
-#nls_data <- Data %>% 
-   #filter(Pc>-2)%>% #remove low outliers
-   #group_by(colony_id) %>%
-   #nest(-colony_id) %>%
-   #mutate(model1 = map(data, ~ 
-                        #nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=0.6,  AQY=0.001, Rd=.4)) %>%
-                             #tidy %>%
-                             #dplyr::select(term, estimate) %>% 
-                             #spread(term, estimate))) %>%
-  #unnest(model1) %>%
-  #unnest(data) %>%
-  #group_by(colony_id)%>%
-  #summarise(Am=mean(Am), AQY=mean(AQY), Rd=mean(Rd))%>%
-  #mutate(timepoint="timepoint2")%>%
-  #write_csv(., "output/2_pi_curve_pars_NLS.csv")
-```
-
-Using flexible initial values based on input data:  
+Using fixed initial values:
 
 ```{r}
 nls_data <- Data %>% 
    group_by(colony_id) %>%
    nest(-colony_id) %>%
    mutate(model1 = map(data, ~ 
-                         nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=(max(.$Pc)-min(.$Pc)),  AQY=0.001, Rd=-min(.$Pc))) %>%
-                              tidy %>%
-                              dplyr::select(term, estimate) %>% 
-                              spread(term, estimate))) %>%
+                        nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=1,  AQY=0.01, Rd=.2)) %>%
+                             tidy %>%
+                             dplyr::select(term, estimate) %>% 
+                             spread(term, estimate))) %>%
   unnest(model1) %>%
   unnest(data) %>%
   group_by(colony_id)%>%
   summarise(Am=mean(Am), AQY=mean(AQY), Rd=mean(Rd))%>%
-  mutate(timepoint="timepoint3")%>%
-  write_csv(., "output/4_pi_curve_pars_nls.csv")
+  mutate(timepoint="timepoint4")%>%
+  write_csv(., "output/4_pi_curve_pars_NLS.csv")
+```
+
+Using flexible initial values based on input data:  
+
+```{r}
+#nls_data <- Data %>% 
+   #group_by(colony_id) %>%
+   #nest(-colony_id) %>%
+   #mutate(model1 = map(data, ~ 
+                         #nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=(max(.$Pc)-min(.$Pc)),  AQY=0.001, Rd=-min(.$Pc))) %>%
+                          #nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=1,  AQY=0.01, Rd=0.2)) %>%
+                              #tidy %>%
+                              #dplyr::select(term, estimate) %>% 
+                              #spread(term, estimate))) %>%
+  #unnest(model1) %>%
+  #unnest(data) %>%
+  #group_by(colony_id)%>%
+  #summarise(Am=mean(Am), AQY=mean(AQY), Rd=mean(Rd))%>%
+  #mutate(timepoint="timepoint4")%>%
+  #write_csv(., "output/4_pi_curve_pars_nls.csv")
 ```
 
 Plot curve over data points.  
@@ -115,7 +115,7 @@ Plot curve over data points.
 augmented <- Data %>% 
   nest(-colony_id) %>% 
   mutate(
-    fit = map(data, ~ nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=0.7,  AQY=0.001, Rd=.4))),
+    fit = map(data, ~ nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=1,  AQY=0.01, Rd=.2))),
     augmented = map(fit, augment),
   ) %>% 
   unnest(augmented)
