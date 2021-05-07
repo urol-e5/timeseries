@@ -74,6 +74,8 @@ df <- df %>%
 # df$data[[1]]
 ```
 
+**Increased thinning parameter
+
 ### Thin data
 ```{r, fig.height = 8, fig.width = 8}
 # Set thinning parameter
@@ -102,7 +104,7 @@ cowplot::plot_grid(df$data_plot[[1]], df$thin_data_plot[[1]], nrow = 2,
 #### The full or thinned data plot for any sample can be accessed like this:
 ```{r}
 df %>%
-  filter(colony_id == "ACR-185") %>%
+  filter(colony_id == "ACR-145") %>%
   pull(thin_data_plot)
 
 #df %>%
@@ -125,20 +127,49 @@ future::plan(multiprocess)
 
 ##ERROR HERE: Problem with `mutate()` input `regs`. x invalid 'length.out' argument
 df <- df %>%
+  filter(!colony_id==c("ACR-220", "ACR-225", "ACR-229", "ACR-343", "ACR-368", "BK-3", "BK-5", "POC-239", "POC-248", "POC-254", "POC-358", "POC-359", "POC-366", "POC-369", "POR-221", "POR-242", "POR-245", "POR-338", "POR-340"))%>%
   dplyr::mutate(regs = furrr::future_map(thin_data, function(.) {       # future_map executes function in parallel
     group_by(., Light_Value) %>%
     do(rankLcRg = fit_reg(.))
   }))
 
-## Tried manually subsetting colonies to see which colony is causing the problem. In this script (filtering to the first 5 colonies) only 3 of the colonies are running in this data set??? I can't figure out why... 
+## Tried manually subsetting colonies to see which colony is causing the problem. 
+
+#colonies that generate the issue individually: 
+#ACR-220 
+#ACR-225 
+#ACR-229 
+#ACR-343
+#ACR-368
+#BK-3
+#BK-5
+#POC-239
+#POC-248
+#POC-254
+#POC-358
+#POC-359
+#POC-366
+#POC-369
+#POR-221
+#POR-242
+#POR-245
+#POR-338
+#POR-340
+
+
 test <- df %>%
-       filter(colony_id==c("ACR-140", "ACR-145", "ACR-150", "ACR-173", "ACR-178"))%>%
+       filter(colony_id==c("POR-385"))%>%
         dplyr::mutate(regs = furrr::future_map(thin_data, function(.) {       # future_map executes function in parallel
        group_by(., Light_Value) %>%
         do(rankLocRg = fit_reg(.))
   }))
 
-levels(as.factor(test$colony_id))
+
+#check if this is due to inability to calculate slope due to low sample size or variation at certain light levels in these colonies
+
+#check file formats for column issues
+
+
 
 ## Now 'regs' contains the fitted local regressions for each interval of each sample's thinned dataset
 
