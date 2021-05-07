@@ -105,9 +105,9 @@ df %>%
   filter(colony_id == "ACR-185") %>%
   pull(thin_data_plot)
 
-df %>%
-  group_by(colony_id)%>%
-  pull(thin_data_plot)
+#df %>%
+  #group_by(colony_id)%>%
+  #pull(thin_data_plot)
 ```
 
 # Fit regressions to each interval for each sample
@@ -129,6 +129,16 @@ df <- df %>%
     group_by(., Light_Value) %>%
     do(rankLcRg = fit_reg(.))
   }))
+
+## Tried manually subsetting colonies to see which colony is causing the problem. In this script (filtering to the first 5 colonies) only 3 of the colonies are running in this data set??? I can't figure out why... 
+test <- df %>%
+       filter(colony_id==c("ACR-140", "ACR-145", "ACR-150", "ACR-173", "ACR-178"))%>%
+        dplyr::mutate(regs = furrr::future_map(thin_data, function(.) {       # future_map executes function in parallel
+       group_by(., Light_Value) %>%
+        do(rankLocRg = fit_reg(.))
+  }))
+
+levels(as.factor(test$colony_id))
 
 ## Now 'regs' contains the fitted local regressions for each interval of each sample's thinned dataset
 
