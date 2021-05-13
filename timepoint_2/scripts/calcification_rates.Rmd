@@ -146,6 +146,6 @@ full.calc.data %>%
   geom_boxplot()+
   geom_point(size=3)+
   facet_wrap(~species) +
-  labs(x = "Site", y = expression(paste("umol CaCO3 cm"^-2, "hr"^-1))) +                                       # Plot all points
+  labs(x = "Site", y = expression(paste(mu,"mol CaCO3 cm"^-2, "hr"^-1))) +                                       # Plot all points
   theme_classic() 
 ```
