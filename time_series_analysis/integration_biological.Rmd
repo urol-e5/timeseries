@@ -2945,21 +2945,25 @@ plasticity.species<-bind_rows(plasticity.acr.species, plasticity.poc.species, pl
 Plot plasticity scores for site values.    
 
 ```{r}
-plasticity_site<-ggplot(plasticity.site, aes(x = site_code, y = mean_site, fill = site_code, group=interaction(site_code,species))) +
+plasticity_site<-plasticity.site%>%
+                group_by(site_code)%>%
+                summarise(mean=mean(mean_site))%>%
+
+  ggplot(., aes(x = site_code, y = mean, fill = site_code, group=interaction(site_code))) +
     geom_point(pch = 21, size=5, position = position_jitterdodge(0)) + 
     scale_fill_manual(values = c("#374d7c", "#00cccc", "#ff6633"))+
     scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
                               "Manava High" = "Manava \nHigh"))+
-    facet_wrap(~species) +
+    #facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold("Plasticity Score (Distance / Spread)")))+
+    ylab(expression(bold("Plasticity (Distance / Spread)")))+
     theme_classic() + 
     ylim(0,3)+
     theme(
       legend.position="none",
       legend.title=element_text(face="bold", size=14),
       legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=14),
+      axis.title=element_text(face="bold", size=12),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
       ); plasticity_site
@@ -2967,20 +2971,24 @@ plasticity_site<-ggplot(plasticity.site, aes(x = site_code, y = mean_site, fill 
 
 Plot plasticity scores for timepoint values.    
 ```{r}
-plasticity_time<-ggplot(plasticity.time, aes(x = comparison, y = mean_timepoint, group=interaction(comparison,species))) +
+plasticity_time<-plasticity.time%>%
+                group_by(comparison)%>%
+                summarise(mean=mean(mean_timepoint))%>%
+  
+  ggplot(., aes(x = comparison, y = mean, group=interaction(comparison))) +
     geom_point(pch = 21, size=5, fill="gray") + 
     #scale_fill_manual(values = c("#374d7c", "#00cccc", "#ff6633"))+
     scale_x_discrete(labels=c("tp1.2" = "Jan-March", "tp2.3" = "March-Sept", "tp3.4" = "Sept-Nov"))+
-    facet_wrap(~species) +
-    xlab("Timepoint Comparison") + 
-    ylab(expression(bold("Plasticity Score (Distance / Spread)")))+
+    #facet_wrap(~species) +
+    xlab("Timepoint") + 
+    ylab(expression(bold("Plasticity (Distance / Spread)")))+
     theme_classic() + 
     ylim(0,3)+
     theme(
       legend.position="none",
       legend.title=element_text(face="bold", size=14),
       legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=14),
+      axis.title=element_text(face="bold", size=12),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
       ); plasticity_time
@@ -2995,14 +3003,14 @@ plasticity_species<-ggplot(plasticity.species, aes(x = species, y = mean_species
     #scale_x_discrete(labels=c("tp1.2" = "Jan-March", "tp2.3" = "March-Sept", "tp3.4" = "Sept-Nov"))+
     #facet_wrap(~species) +
     xlab("Species") + 
-    ylab(expression(bold("Plasticity Score (Distance / Spread)")))+
+    ylab(expression(bold("Plasticity (Distance / Spread)")))+
     theme_classic() + 
     ylim(0,3)+
     theme(
       legend.position="none",
       legend.title=element_text(face="bold", size=14),
       legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=14),
+      axis.title=element_text(face="bold", size=12),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
       ); plasticity_species
@@ -3011,7 +3019,7 @@ plasticity_species<-ggplot(plasticity.species, aes(x = species, y = mean_species
 Assemble full plasticity figure.  
 
 ```{r}
-plasticity_full_panel<-plot_grid(plasticity_species, plasticity_site, plasticity_time, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(0.5,1,1), label_size = 20, label_y=1)
+plasticity_full_panel<-plot_grid(plasticity_species, plasticity_site, plasticity_time, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
 
-ggsave(filename="Figures/Plasticity_Panel.png", plot=plasticity_full_panel, dpi=500, width=20, height=4, units="in")
+ggsave(filename="Figures/Plasticity_Panel.png", plot=plasticity_full_panel, dpi=500, width=10, height=4, units="in")
 ```  
