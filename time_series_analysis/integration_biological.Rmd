@@ -1,7 +1,7 @@
 ---
 title: "Integrating E5 time series biological data"
 author: "Ariana S Huffmyer"
-date: "1/18/2021"
+date: "5/21/2021"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -2517,7 +2517,7 @@ acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site_code)) +
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
-  ylim(-5,10)+
+  ylim(-6,10)+
   xlim(-5,10)+
   ylab("PC2")+
   xlab("PC1")+
@@ -2596,6 +2596,7 @@ acrFullPCA<-ggdraw(acrPCAfull) + #theme_half_open(12)) +
 1 - calculate sd of mean distance between all points and the centroid of all points (spread)
 
 ```{r}
+
 #calculate mean centroid location
 mean.centroid.acr <- acr.centroids%>%
   select(PC1.mean, PC2.mean)%>%
@@ -2674,10 +2675,10 @@ plasticity.acr.species
 
 ### Porites
 
-Generate PCA using scaled (scaled_por_afdw) from dataframe (por_data_afdw). 
+Generate PCA using scaled (scaled_por_afdw) from dataframe (por_data_afdw).   
  
-Calculate centroid locations for each site and timepoint and pull PC1 and PC2 locations.   
-
+Calculate centroid locations for each site and timepoint and pull PC1 and PC2 locations.     
+ 
 ```{r}
 por_data_afdw<-master%>%
   select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
@@ -2727,7 +2728,7 @@ porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site_code)) +
   theme_classic()+
   ylab("PC2")+
   xlab("PC1")+
-  ylim(-5,10)+
+  ylim(-6,10)+
   xlim(-5,10)+
   ggtitle(expression(italic("Porites")))+
   geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_por$`Pr(>F)`[1]), size=4, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
@@ -2786,7 +2787,7 @@ porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
-  xlim(-0.5,0.1)+
+  #xlim(-0.5,0.1)+
   #ylim(-0.5, 0.5)+
    theme(legend.text = element_text(size=18), 
          legend.position="none",
@@ -2798,7 +2799,7 @@ porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,
          axis.text = element_text(size=18), 
          axis.title = element_blank());porArrows
 ```
-
+ 
 
 Assemble final figure with inset biplot.  
 ```{r}
@@ -2807,7 +2808,7 @@ porFullPCA<-ggdraw(porPCAfull)+ #+ theme_half_open(12)) +
 
 #ggsave(filename="Figures/FullPCA_Porites.pdf", plot=porFullPCA, dpi=300, width=12, height=8, units="in")
 ```
-
+ 
 #### Calculate plasticity using centroid travel calculations.  
 
 1 - calculate mean distance between all points and the centroid of all points (spread)   
@@ -2939,7 +2940,7 @@ pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site_code)) +
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
-  ylim(-5,10)+
+  ylim(-6,10)+
   xlim(-5,10)+
   ylab("PC2")+
   xlab("PC1")+
@@ -2990,8 +2991,8 @@ pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
-  xlim(-.3,.6)+
-  ylim(-.3, .3)+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
    theme(legend.text = element_text(size=18), 
          legend.position="none",
          axis.text.x=element_blank(),
@@ -3105,7 +3106,7 @@ plasticity.poc.species
 ```
 
 ## Examine plasticity scores generated from PCA's
-
+  
 Generate plasticity dataframe from calculations for each species.   
 ```{r}
 plasticity.site<-bind_rows(acr.plasticity.site, poc.plasticity.site, por.plasticity.site);plasticity.site
