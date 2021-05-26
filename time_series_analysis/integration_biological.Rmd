@@ -6,7 +6,7 @@ output: html_document
 editor_options: 
   chunk_output_type: console
 --- 
-
+ 
 # Set Up    
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
@@ -52,7 +52,7 @@ library(cowplot)
 
 ## Loading data files     
 
-Load all .csv files from output of all timepoints for each biological response    
+Load all .csv files from output of all timepoints for each biological response     
  
 ```{r}
 biomass_files<-list.files("../", pattern = "biomass.csv", recursive=T, full.names=T)
