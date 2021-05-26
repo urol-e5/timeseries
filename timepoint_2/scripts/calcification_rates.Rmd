@@ -142,6 +142,7 @@ Plot data.
 ```{r}
 full.calc.data %>%
   filter(!run.number=="NA")%>%
+  filter(!species=="NA")%>%
   ggplot(aes(x = as.factor(site), y = umol.cm2.hr, color = species), position=position_dodge(0.5)) +
   geom_boxplot()+
   geom_point(size=3)+
