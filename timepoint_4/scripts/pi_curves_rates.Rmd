@@ -118,7 +118,6 @@ df %>%
   #pull(thin_data_plot)
 ```
 
-Example of colony that does not run: 
 ```{r}
 df %>%
   filter(colony_id == c("ACR-220")) %>%
@@ -156,44 +155,19 @@ future::plan(multiprocess)
 
 # Map LoLinR function onto all intervals of each sample's thinned dataset
 
-##ERROR HERE: Problem with `mutate()` input `regs`. x invalid 'length.out' argument
 df <- df %>%
-  #filter(!colony_id==c("ACR-220", "ACR-225", "ACR-229", "ACR-343", "ACR-368", "BK-3", "BK-5", "POC-239", "POC-248", "POC-254", "POC-358", "POC-359", "POC-366", "POC-369", "POR-221", "POR-242", "POR-245", "POR-338", "POR-340"))%>%
   dplyr::mutate(regs = furrr::future_map(thin_data, function(.) {       # future_map executes function in parallel
     group_by(., Light_Value) %>%
     do(rankLcRg = fit_reg(.))
   }))
 
-## Tried manually subsetting colonies to see which colony is causing the problem. 
 
-#colonies that generate the issue individually: 
-#ACR-220 
-#ACR-225 
-#ACR-229 
-#ACR-343
-#ACR-368
-#BK-3
-#BK-5
-#POC-239
-#POC-248
-#POC-254
-#POC-358
-#POC-359
-#POC-366
-#POC-369
-#POR-221
-#POR-242
-#POR-245
-#POR-338
-#POR-340
-
-
-test <- df %>%
-       filter(colony_id==c("POR-340"))%>%
-        dplyr::mutate(regs = furrr::future_map(thin_data, function(.) {       # future_map executes function in parallel
-       group_by(., Light_Value) %>%
-        do(rankLcRg = fit_reg(.))
-  }))
+#test <- df %>%
+      #filter(colony_id==c("POR-340"))%>%
+        #dplyr::mutate(regs = furrr::future_map(thin_data, function(.) {       # future_map executes function in parallel
+       #group_by(., Light_Value) %>%
+       # do(rankLcRg = fit_reg(.))
+  #}))
 
 
 ## Now 'regs' contains the fitted local regressions for each interval of each sample's thinned dataset

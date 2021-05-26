@@ -5,6 +5,8 @@ date: "3/18/2021"
 output:
   pdf_document: default
   html_document: default
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -79,14 +81,14 @@ Using fixed initial values:
    #nest(-colony_id) %>%
    #mutate(model1 = map(data, ~ 
                         #nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=1,  AQY=0.002, Rd=.2)) %>%
-                            # tidy %>%
-                             #dplyr::select(term, estimate) %>% 
-                            # spread(term, estimate))) %>%
-  #unnest(model1) %>%
-  #unnest(data) %>%
+                           # tidy %>%
+                           # dplyr::select(term, estimate) %>% 
+                           # spread(term, estimate))) %>%
+ # unnest(model1) %>%
+ # unnest(data) %>%
   #group_by(colony_id)%>%
   #summarise(Am=mean(Am), AQY=mean(AQY), Rd=mean(Rd))%>%
- # mutate(timepoint="timepoint4")%>%
+# mutate(timepoint="timepoint4")%>%
   #write_csv(., "output/4_pi_curve_pars_NLS.csv")
 ```
 
@@ -94,6 +96,7 @@ Using flexible initial values based on input data:
 
 ```{r}
 nls_data <- Data %>% 
+   filter(!colony_id=="POC-239")%>%
    group_by(colony_id) %>%
    nest(-colony_id) %>%
    mutate(model1 = map(data, ~ 
@@ -110,12 +113,14 @@ nls_data <- Data %>%
   write_csv(., "output/4_pi_curve_pars_nls.csv")
 ```
 
+ERROR HERE - not plotting   
+
 Plot curve over data points.  
 ```{r}
 augmented <- Data %>% 
   nest(-colony_id) %>% 
   mutate(
-    fit = map(data, ~ nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=1,  AQY=0.002, Rd=.2))),
+    fit = map(data, ~ nls(Pc ~ (Am*((AQY*PAR)/(sqrt(Am^2 + (AQY*PAR)^2)))-Rd), data=., start=list(Am=(max(.$Pc)-min(.$Pc)),  AQY=0.005, Rd=-min(.$Pc)))),
     augmented = map(fit, augment),
   ) %>% 
   unnest(augmented)
