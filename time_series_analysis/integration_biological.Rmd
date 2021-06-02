@@ -628,7 +628,7 @@ Calculate biomass as a ratio of host to symbiont and plot.
 
 ```{r} 
 master <- master %>% 
-  mutate(Ratio_AFDW.mg.cm2=Sym_AFDW.mg.cm2/Host_AFDW.mg.cm2)
+  mutate(Ratio_AFDW.mg.cm2=Sym_AFDW.mg.cm2/(Sym_AFDW.mg.cm2+Host_AFDW.mg.cm2))
 
 ratioAFDWplot<-master %>%
   filter(!is.na(Host_AFDW.mg.cm2)) %>%
@@ -646,7 +646,7 @@ ratioAFDWplot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Symbiont : Host Biomass"))))+
+    ylab(expression(bold(paste("Symbiont : Holobiont Biomass"))))+
     theme_classic() + 
     theme(
       legend.title=element_text(face="bold", size=14),
@@ -2920,8 +2920,8 @@ poc.centroids<-poc_data %>%
   group_by(timepoint, site_code)%>%
   summarise(PC1.mean = mean(PC1.mean),
          PC2.mean = mean(PC2.mean))
-```
- 
+``` 
+  
 ```{r}
 # scale data
 vegan <- scale(poc_data_afdw[ ,5:12])
@@ -3051,7 +3051,7 @@ spread.poc<-poc_data%>%
 spread.poc
 ```
 
-
+ 
 2 - calculate distance between each time point centroids for each site (distance) 
 
 ```{r}
@@ -3106,7 +3106,7 @@ plasticity.poc.species
 ```
 
 ## Examine plasticity scores generated from PCA's
-  
+   
 Generate plasticity dataframe from calculations for each species.   
 ```{r}
 plasticity.site<-bind_rows(acr.plasticity.site, poc.plasticity.site, por.plasticity.site);plasticity.site
