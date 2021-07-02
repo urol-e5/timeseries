@@ -4,6 +4,8 @@ author: "Nyssa Silbiger, Danielle Becker, edited by Ariana S Huffmyer"
 date: "5/6/2021"
 output:
   html_document: default
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
