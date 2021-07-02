@@ -131,13 +131,14 @@ full.calc.data$umol.cm2.hr <- (full.calc.data$deltaTA/2)*(1.023)*((full.calc.dat
 full.calc.data$umol.cm2.hr[full.calc.data$umol.cm2.hr<0]<-0
 
 #log x+ 1 you will have to log x + whatever the difference is here, a line for dissolution and calcification
-full.calc.data$log.umol.cm2.hr <- log10(1+full.calc.data$umol.cm2.hr) 
+#full.calc.data$log.umol.cm2.hr <- log10(1+full.calc.data$umol.cm2.hr) 
 
 full.calc.data%>%
   mutate(timepoint="timepoint2")%>%
   drop_na()%>%
   write.csv(., 'output/2_calcification_rates.csv') 
 ```
+
 
 Plot data.  
 ```{r}
