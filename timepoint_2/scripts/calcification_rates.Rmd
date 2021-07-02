@@ -41,31 +41,23 @@ calc.data <- read.csv("data/2_calcification/2_TA_data.csv")
 
 Normalize TA values to salinity and separate blanks from samples.  
 ```{r}
-#add salinity normalization for TA values for blanks
-#add new column for TA initial normalized and TA normalized, then include TA.norm values below 
-calc.data$Ta.norm<-calc.data$TA*calc.data$salinity.lab/36
+calc.data<-calc.data%>%
+  mutate(Ta.norm = TA * salinity.lab/36) #add salinity normalization for TA values for blanks - add new column for TA initial normalized and TA normalized, then include TA.norm values below 
 
-rows.initial <- which(calc.data$sample.type == "Initial") #tells you all the rows that you have with initial sample type
+initial<-calc.data%>%
+  dplyr::filter(sample.type=="Initial")%>% #create a data frame of the initial values
+  select(date,run.number, salinity.chamber, salinity.lab, TA, mV.chamber, Ta.norm)%>%
+  rename_all(~ paste0(.x, "_initial"))%>% #add "_initial" to all columns 
+  rename(date=date_initial, run=run.number_initial)
+  
+blanks<-calc.data%>%
+  dplyr::filter(sample.type=="Blank") #create a data frame of the blanks 
 
-initial <- calc.data[rows.initial,] #shows you the rows with the initial sample type
-
-calc.data <- calc.data[-rows.initial,] #to remove the rows with initial data
-
-#remove and create new data frame with just blanks
-
-rows.blanks <- which(calc.data$sample.type == "Blank") #tells you all the rows that you have wwith blanks
-
-blanks <-calc.data[rows.blanks,] #shows you the rows with the blank sample type
-
-calc.data <- calc.data[-rows.blanks,] #to remove the rows with blank data
-
-#need to join sample data frame, join initial with your calc.data, only by run number, pull out the columns we need
-
-initial <- initial[, c("date","run.number", "salinity.chamber", "salinity.lab", "TA", "mV.chamber", "Ta.norm")]
-names(initial)[3:7] <- paste0(names(initial)[3:7], "_initial") #use this to rename all of our columns
+calc.data<-calc.data%>%
+  dplyr::filter(!sample.type=="Initial")%>% #remove the initial rows from data frame
+  dplyr::filter(!sample.type=="Blank") #remove the blank rows from data frame
 
 #join blanks and carb chem data frame
-
 calc.data <- left_join(calc.data, initial) #joining the initials to the data frame for carb chem
 blanks <- left_join(blanks,initial)
 ```
@@ -73,8 +65,8 @@ blanks <- left_join(blanks,initial)
 Calculate delta TA and mean blank values.  
 ```{r}
 #figure out delta TA, initial-final
-
-blanks$delta.TA.blank <- blanks$Ta.norm_initial - blanks$Ta.norm
+blanks<-blanks%>%
+  mutate(delta.TA.blank = Ta.norm_initial - Ta.norm)
 
 #getting the averages of blanks for each temperature and each date
 mean.blanks <- blanks %>% 
@@ -90,7 +82,8 @@ Read in metadata and surface area data.
 ```{r}
 sample.data <- read.csv("../timepoint_2/output/2_surface_area.csv") #bring in SA and volume data sheet
 
-SA <- sample.data[, c("colony_id", "surface.area.cm2")] #pull out the necessary columns and treatment 
+SA <- sample.data%>%
+  select("colony_id", "surface.area.cm2") #pull out the necessary columns and treatment 
 
 calc.data2 <- left_join(calc.data, SA) # join carb chem and SA data
 
@@ -99,44 +92,26 @@ resp.data <- read.csv("data/2_calcification/2_DeltaTA_metadata.csv")
 
 #pull out columns that we want to use for our bind to the calc.data2 sheet
 
-time.data <- resp.data[, c("colony_id","TA.Start.Time", "TA.Stop.Time")] 
+time.data <- resp.data%>%
+  select("colony_id","TA.Start.Time", "TA.Stop.Time") 
 
 full.calc.data <- left_join(calc.data2, time.data)
 ```
 
-Adjust time information.  
+Calculate Net Ecosystem Calcification (NEC) from total alkalinity method.  .  
 ```{r}
-#adjust the time information and format
-
-#convert time from character to time
-full.calc.data$start.time <- strptime(as.character(full.calc.data$TA.Start.Time), "%I:%M:%S %p")
-
-#convert time from character to time
-full.calc.data$stop.time <- strptime(as.character(full.calc.data$TA.Stop.Time), "%I:%M:%S %p")
-```
-
-Calculate Net Ecosystem Calcification (NEC) from total alkalinity method.  
-```{r}
-#calculate the net ecosystem calcification rate
-
-full.calc.data$deltaTA<- (full.calc.data$Ta.norm_initial - full.calc.data$Ta.norm) - full.calc.data$mean.blanks
-full.calc.data$timediff <- as.numeric((full.calc.data$stop.time - full.calc.data$start.time)) 
-
-#convert volume (L) to mL 
-#equation to calculate NEC rates 
-
-full.calc.data$umol.cm2.hr <- (full.calc.data$deltaTA/2)*(1.023)*((full.calc.data$vol.L*1000)/full.calc.data$surface.area.cm2)*(1/full.calc.data$timediff)*(1/1000)
-
-#anything that it <0 make it zero
-full.calc.data$umol.cm2.hr[full.calc.data$umol.cm2.hr<0]<-0
-
-#log x+ 1 you will have to log x + whatever the difference is here, a line for dissolution and calcification
-#full.calc.data$log.umol.cm2.hr <- log10(1+full.calc.data$umol.cm2.hr) 
-
-full.calc.data%>%
+full.calc.data<-full.calc.data%>%
+  mutate(start.time = strptime(as.character(TA.Start.Time), "%I:%M:%S %p"))%>% #convert time from character to time
+  mutate(stop.time = strptime(as.character(TA.Stop.Time), "%I:%M:%S %p"))%>%
+  mutate(deltaTA = (Ta.norm_initial - Ta.norm) - mean.blanks)%>% #calculate difference in TA corrected to blanks
+  mutate(timediff = as.numeric(stop.time - start.time))%>% #calculate time difference
+  mutate(umol.cm2.hr = (deltaTA/2)*(1.023)*((vol.L*1000)/surface.area.cm2)*(1/timediff)*(1/1000))%>% #convert volume (L) to mL and calculate net ecosystem calcification rates
+  mutate(umol.cm2.hr=if_else(umol.cm2.hr<0, 0, umol.cm2.hr))%>% #make any negative values equal to 0
   mutate(timepoint="timepoint2")%>%
-  drop_na()%>%
-  write.csv(., 'output/2_calcification_rates.csv') 
+  drop_na()
+
+write.csv(full.calc.data, 'output/2_calcification_rates.csv') 
+
 ```
 
 
