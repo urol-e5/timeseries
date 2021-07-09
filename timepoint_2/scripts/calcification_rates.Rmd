@@ -1,7 +1,7 @@
 ---
 title: "Calcification Total Alkalinity"
 author: "Nyssa Silbiger, Danielle Becker, edited by Ariana S Huffmyer"
-date: "5/6/2021"
+date: "7/9/2021"
 output:
   html_document: default
 editor_options: 
@@ -123,8 +123,8 @@ full.calc.data %>%
   filter(!site=="NA")%>%
   ggplot(aes(x = as.factor(site), y = umol.cm2.hr, color = species), position=position_dodge(0.5)) +
   geom_boxplot()+
-  geom_point(size=3)+
+  geom_point(size=3, position=position_jitterdodge(0.6))+
   facet_wrap(~species) +
-  labs(x = "Site", y = expression(paste(mu,"mol CaCO3 cm"^-2, "hr"^-1))) +                                       # Plot all points
+  labs(x = "Site", y = expression(paste(mu,"mol Ca", CO[3], " cm"^-2, " hr"^-1))) +                                       # Plot all points
   theme_classic() 
 ```
