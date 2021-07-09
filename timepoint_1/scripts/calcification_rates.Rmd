@@ -1,0 +1,130 @@
+---
+title: "Calcification Total Alkalinity"
+author: "Nyssa Silbiger, Danielle Becker, edited by Ariana S Huffmyer"
+date: "7/9/2021"
+output:
+  html_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, message = FALSE, warning = FALSE)
+```
+
+```{r load_packages}
+## install packages if you dont already have them in your library
+if ("tidyverse" %in% rownames(installed.packages()) == 'FALSE') install.packages('tidyverse') 
+if ("broom" %in% rownames(installed.packages()) == 'FALSE') install.packages('broom') 
+if ("purrr" %in% rownames(installed.packages()) == 'FALSE') install.packages('purrr') 
+if ("lubridate" %in% rownames(installed.packages()) == 'FALSE') install.packages('lubridate') 
+if ("nlstools" %in% rownames(installed.packages()) == 'FALSE') install.packages('nlstools')
+if ("stringr" %in% rownames(installed.packages()) == 'FALSE') install.packages('stringr') 
+
+#Read in required libraries
+
+library(broom)
+library(purrr)
+library(lubridate)
+library(tidyverse)
+library(nlstools)
+library(stringr)
+```
+
+# Import data and format
+```{r import_data}
+#bring in calcification data file with TA and chamber pH, temp, salinity measurements
+calc.data <- read.csv("data/1_calcification/1_TA_data.csv")
+
+#create new data frame of just the initial data (initial bottles taken before each run for initial TA measurements), pull out initial data from sample.type
+```
+
+Normalize TA values to salinity and separate blanks from samples.  
+```{r}
+calc.data<-calc.data%>%
+  mutate(Ta.norm = TA * salinity.lab/36) #add salinity normalization for TA values for blanks - add new column for TA initial normalized and TA normalized, then include TA.norm values below 
+
+initial<-calc.data%>%
+  dplyr::filter(sample.type=="Initial")%>% #create a data frame of the initial values
+  select(date,run.number, salinity.chamber, salinity.lab, TA, mV.chamber, Ta.norm)%>%
+  rename_all(~ paste0(.x, "_initial"))%>% #add "_initial" to all columns 
+  rename(date=date_initial, run=run.number_initial)
+  
+blanks<-calc.data%>%
+  dplyr::filter(sample.type=="Blank") #create a data frame of the blanks 
+
+calc.data<-calc.data%>%
+  dplyr::filter(!sample.type=="Initial")%>% #remove the initial rows from data frame
+  dplyr::filter(!sample.type=="Blank") #remove the blank rows from data frame
+
+#join blanks and carb chem data frame
+calc.data <- left_join(calc.data, initial) #joining the initials to the data frame for carb chem
+blanks <- left_join(blanks,initial)
+```
+
+Calculate delta TA and mean blank values.  
+```{r}
+#figure out delta TA, initial-final
+blanks<-blanks%>%
+  mutate(delta.TA.blank = Ta.norm_initial - Ta.norm)
+
+#getting the averages of blanks for each temperature and each date
+mean.blanks <- blanks %>% 
+  group_by(date) %>%
+  summarise(mean.blanks=mean(delta.TA.blank))
+
+calc.data <- left_join(calc.data, mean.blanks) #bring in mean blanks to calc.data
+
+#need to join in SA, time data by colony ID, before calculating NEC
+```
+
+Read in metadata and surface area data.  
+```{r}
+sample.data <- read.csv("../timepoint_1/output/1_surface_area.csv") #bring in SA and volume data sheet
+
+SA <- sample.data%>%
+  select("colony_id", "surface.area.cm2") #pull out the necessary columns and treatment 
+
+calc.data2 <- left_join(calc.data, SA) # join carb chem and SA data
+
+#bring in the time data from resp.data sheet
+resp.data <- read.csv("data/1_calcification/1_DeltaTA_metadata.csv")
+
+#pull out columns that we want to use for our bind to the calc.data2 sheet
+
+time.data <- resp.data%>%
+  select("colony_id","TA.Start.Time", "TA.Stop.Time") 
+
+full.calc.data <- left_join(calc.data2, time.data)
+```
+
+Calculate Net Ecosystem Calcification (NEC) from total alkalinity method.  .  
+```{r}
+full.calc.data<-full.calc.data%>%
+  mutate(start.time = strptime(as.character(TA.Start.Time), "%I:%M:%S %p"))%>% #convert time from character to time
+  mutate(stop.time = strptime(as.character(TA.Stop.Time), "%I:%M:%S %p"))%>%
+  mutate(deltaTA = (Ta.norm_initial - Ta.norm) - mean.blanks)%>% #calculate difference in TA corrected to blanks
+  mutate(timediff = as.numeric(stop.time - start.time))%>% #calculate time difference
+  mutate(umol.cm2.hr = (deltaTA/2)*(1.023)*((vol.L*1000)/surface.area.cm2)*(1/timediff)*(1/1000))%>% #convert volume (L) to mL and calculate net ecosystem calcification rates
+  mutate(umol.cm2.hr=if_else(umol.cm2.hr<0, 0, umol.cm2.hr))%>% #make any negative values equal to 0
+  mutate(timepoint="timepoint1")%>%
+  drop_na()
+
+write.csv(full.calc.data, 'output/1_calcification_rates.csv') 
+
+```
+
+
+Plot data.  
+```{r}
+full.calc.data %>%
+  filter(!run.number=="NA")%>%
+  filter(!species=="NA")%>%
+  filter(!site=="NA")%>%
+  ggplot(aes(x = as.factor(site), y = umol.cm2.hr, color = species), position=position_dodge(0.5)) +
+  geom_boxplot()+
+  geom_point(size=3, position=position_jitterdodge(0.6))+
+  facet_wrap(~species) +
+  labs(x = "Site", y = expression(paste(mu,"mol Ca", CO[3], " cm"^-2, " hr"^-1))) +                                       # Plot all points
+  theme_classic() 
+```
