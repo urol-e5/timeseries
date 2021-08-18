@@ -1,7 +1,7 @@
 ---
 title: "Integrating E5 time series biological data"
 author: "Ariana S Huffmyer"
-date: "5/21/2021"
+date: "8/18/2021"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -283,7 +283,7 @@ summary_group<-master%>%
 ```
 
 
-# Examine Responses  
+# Univariate Responses  
 
 ## Antioxidant capacity  
 
@@ -1272,7 +1272,7 @@ rd_plot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Rd"))))+
+    ylab(expression(bold(paste("Respiration"))))+
     theme_classic() + 
     theme(
       legend.title=element_text(face="bold", size=14),
@@ -1393,6 +1393,38 @@ Generate model effect plots.
 
 ```{r}
 plot(allEffects(rd_model))
+```
+
+## Generating univariate response panels  
+
+First, specify symbiont and holobiont responses for plotting in separate panels.  
+```{r}
+symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "chla.ug.mgAFDW", "chlc2.ug.mgAFDW", "chla.ug.cell", "chlc2.ug.cell", "Am", "AQY") 
+holobiont_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "Ratio_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd")
+```
+
+Generate a panel of responses for symbiont metrics.  
+
+```{r}
+chlc2plot_cell<-chlc2plot_cell+theme(legend.position="right")
+
+symbiont_univ1<-plot_grid(symbplot_afdw, sAFDWplot, am_plot, aqy_plot, NULL, ncol=5, nrow=1, rel_widths = c(1,1,1,1,0.5))
+symbiont_univ2<-plot_grid(chlaplot_afdw, chlaplot_cell, chlc2plot_afdw, chlc2plot_cell, NULL, ncol=5, nrow=1, rel_widths = c(1,1,1,1.5,0.1))
+symbiont_univ<-plot_grid(symbiont_univ1, symbiont_univ2, ncol=1, nrow=2, rel_widths = c(1,1))
+
+ggsave(filename="Figures/Symbiont_Univariate_Panel.pdf", plot=symbiont_univ, dpi=150, width=22, height=8, units="in")
+```
+
+Generate a panel of responses for host/holobiont metrics.  
+
+```{r}
+ratioAFDWplot<-ratioAFDWplot+theme(legend.position="none")
+
+holobiont_univ1<-plot_grid(tacplot_afdw, hAFDWplot, ratioAFDWplot, ncol=3, nrow=1, rel_widths = c(1))
+holobiont_univ2<-plot_grid(protplot_afdw, rd_plot, NULL, ncol=3, nrow=1, rel_widths = c(1.2, 1.5, 0.8))
+holobiont_univ<-plot_grid(holobiont_univ1, holobiont_univ2, ncol=1, nrow=2, rel_widths = c(1, 1))
+
+ggsave(filename="Figures/Holobiont_Univariate_Panel.pdf", plot=holobiont_univ, dpi=150, width=22, height=8, units="in")
 ```
 
 # Correlations  
@@ -1521,8 +1553,9 @@ ggsave(plot=p, "Figures/Correlation_Matrix_Porites.pdf", width=20, height=12, un
 
 # Multivariate analyses  
 
-## Standard PCA's
-### PCAs: Surface Area normalizers  
+## All Responses  
+### Standard PCA's
+#### PCAs: Surface Area normalizers  
 
 #### Combined PCA's   
  
@@ -1822,7 +1855,7 @@ species_plots_cm2<-plot_grid(porSite_cm2, porTimepoint_cm2, acrSite_cm2, acrTime
 
 
 
-### PCAs: Protein normalizers  
+#### PCAs: Protein normalizers  
 
 #### Combined PCA's  
 
@@ -2123,7 +2156,7 @@ species_plots_prot<-plot_grid(porSite_prot, porTimepoint_prot, acrSite_prot, acr
 
 
 
-### PCAs: Biomass normalizers  
+#### PCAs: Biomass normalizers  
 
 #### Combined PCA's  
 
@@ -2438,7 +2471,7 @@ species_plots_afdw<-plot_grid(porSite_afdw, porTimepoint_afdw, acrSite_afdw, acr
 
 
 
-### Assemble all PCA plots  
+#### Assemble all PCA plots  
 
 Generate plot of all combined PCA's
 
@@ -2462,9 +2495,9 @@ ggsave(filename="Figures/All_Species_PCAs.pdf", plot=All_PCAs_species, dpi=300, 
 ``` 
 
 
-## PCA's for centroid and trajectories  
+### PCA's for centroid and trajectories  
 
-### Acropora  
+#### Acropora  
 
 Generate PCA using scaled (scaled_acr_afdw) from dataframe (acr_data_afdw).   
  
@@ -2591,7 +2624,7 @@ acrFullPCA<-ggdraw(acrPCAfull) + #theme_half_open(12)) +
 #ggsave(filename="Figures/FullPCA_Acropora.pdf", plot=acrFullPCA, dpi=300, width=12, height=8, units="in")
 ```
 
-#### Calculate plasticity using centroid travel calculations.  
+##### Calculate plasticity using centroid travel calculations.  
 
 1 - calculate sd of mean distance between all points and the centroid of all points (spread)
 
@@ -2673,7 +2706,7 @@ plasticity.acr.species
 ```
 
 
-### Porites
+#### Porites
 
 Generate PCA using scaled (scaled_por_afdw) from dataframe (por_data_afdw).   
  
@@ -2809,7 +2842,7 @@ porFullPCA<-ggdraw(porPCAfull)+ #+ theme_half_open(12)) +
 #ggsave(filename="Figures/FullPCA_Porites.pdf", plot=porFullPCA, dpi=300, width=12, height=8, units="in")
 ```
  
-#### Calculate plasticity using centroid travel calculations.  
+##### Calculate plasticity using centroid travel calculations.  
 
 1 - calculate mean distance between all points and the centroid of all points (spread)   
 
@@ -2890,10 +2923,10 @@ plasticity.por.species
 ```
 
 
-### Pocillopora   
+#### Pocillopora   
 
-Generate PCA using scaled (scaled_poc_afdw) from dataframe (poc_data_afdw).
-
+Generate PCA using scaled (scaled_poc_afdw) from dataframe (poc_data_afdw). 
+ 
 ```{r}
 poc_data_afdw<-master%>%
   select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
@@ -2904,7 +2937,7 @@ poc_data_afdw<-master%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)
 
 poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
-
+ 
 scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:15)], scale=TRUE, center=TRUE) 
 
 poc_info<-poc_data_afdw[c(2,4)]
@@ -2986,7 +3019,7 @@ pocPCAfull<-pocPCAcen +
 
 Add bi plot with loadings  
 ```{r}
-#1. make plot with dots
+
 pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, laodings.label.repel=FALSE, size=4, alpha=0.0) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -3025,7 +3058,7 @@ PCA_full_panel_legend<-plot_grid(PCA_full_panel, legend, rel_heights = c(4, .2),
 ggsave(filename="Figures/Full_Panel_PCAs.png", plot=PCA_full_panel_legend, dpi=500, width=20, height=6, units="in")
 ```  
 
-#### Calculate plasticity using centroid travel calculations.  
+##### Calculate plasticity using centroid travel calculations.  
 
 1 - calculate mean distance between all points and the centroid of all points (spread)
 
@@ -3105,7 +3138,7 @@ plasticity.poc.species<-plasticity.poc%>%
 plasticity.poc.species
 ```
 
-## Examine plasticity scores generated from PCA's
+### Examine plasticity scores generated from PCA's
    
 Generate plasticity dataframe from calculations for each species.   
 ```{r}
@@ -3252,3 +3285,2209 @@ plasticity_full_panel2<-plot_grid(plasticity_species, plasticity_site2, plastici
 
 ggsave(filename="Figures/Plasticity_Panel_species_detail.png", plot=plasticity_full_panel2, dpi=500, width=20, height=4, units="in")
 ```  
+
+### Matrix of PCA's by species and time  
+
+Generate biplot showing groupings by site for each species and time point.  
+
+#### Pocillopora  
+
+```{r}
+poc_tp1_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Pocillopora")%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint1")
+
+poc_tp1_data<-poc_tp1_data[complete.cases(poc_tp1_data), ]
+ 
+poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:15)], scale=TRUE, center=TRUE) 
+
+pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("January 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  annotate("text", x=-16, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 2, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));pocTP1
+```
+
+```{r}
+poc_tp2_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2.2)%>%
+  filter(species=="Pocillopora")%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint2")
+ 
+poc_tp2_data<-poc_tp2_data[complete.cases(poc_tp2_data), ]
+ 
+poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:15)], scale=TRUE, center=TRUE) 
+
+pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("March 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));pocTP2
+```
+
+```{r}
+poc_tp3_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(chla.ug.mgAFDW<2.2)%>%
+  filter(species=="Pocillopora")%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint3")
+ 
+poc_tp3_data<-poc_tp3_data[complete.cases(poc_tp3_data), ]
+ 
+poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:15)], scale=TRUE, center=TRUE) 
+
+pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("September 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));pocTP3
+```
+
+```{r}
+poc_tp4_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(chla.ug.mgAFDW<2.2)%>%
+  filter(species=="Pocillopora")%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint4")
+ 
+poc_tp4_data<-poc_tp4_data[complete.cases(poc_tp4_data), ]
+ 
+poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:15)], scale=TRUE, center=TRUE) 
+
+pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("November 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));pocTP4
+```
+
+
+
+
+
+
+
+
+#### Acropora  
+
+```{r}
+acr_tp1_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Acropora")%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint1")
+
+acr_tp1_data<-acr_tp1_data[complete.cases(acr_tp1_data), ]
+ 
+acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:15)], scale=TRUE, center=TRUE) 
+
+acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  ggtitle("January 2020")+
+  coord_cartesian(xlim=c(-8, 8), ylim=c(-5, 5), clip = "off")+
+  annotate("text", x=-16, y=0, label="italic(Acropora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 2, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));acrTP1
+```
+
+```{r}
+acr_tp2_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(chla.ug.mgAFDW<2.2)%>%
+  filter(species=="Acropora")%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint2")
+ 
+acr_tp2_data<-acr_tp2_data[complete.cases(acr_tp2_data), ]
+ 
+acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:15)], scale=TRUE, center=TRUE) 
+
+acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  ggtitle("March 2020")+
+  coord_cartesian(xlim=c(-8, 8), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));acrTP2
+```
+
+```{r}
+acr_tp3_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(chla.ug.mgAFDW<2.2)%>%
+  filter(species=="Acropora")%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint3")
+ 
+acr_tp3_data<-acr_tp3_data[complete.cases(acr_tp3_data), ]
+ 
+acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:15)], scale=TRUE, center=TRUE) 
+
+acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  ggtitle("September 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));acrTP3
+```
+
+```{r}
+acr_tp4_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(chla.ug.mgAFDW<2.2)%>%
+  filter(species=="Acropora")%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint4")
+ 
+acr_tp4_data<-acr_tp4_data[complete.cases(acr_tp4_data), ]
+ 
+acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:15)], scale=TRUE, center=TRUE) 
+
+acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  ggtitle("November 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));acrTP4
+```
+
+
+
+
+
+
+
+
+#### Porites  
+
+```{r}
+por_tp1_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint1")
+
+por_tp1_data<-por_tp1_data[complete.cases(por_tp1_data), ]
+ 
+por_tp1_scaled<-prcomp(por_tp1_data[c(5:15)], scale=TRUE, center=TRUE) 
+
+porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("January 2020")+
+  coord_cartesian(xlim=c(-8, 8), ylim=c(-5, 5), clip = "off")+
+  annotate("text", x=-16, y=0, label="italic(Porites)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 2, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));porTP1
+```
+
+```{r}
+por_tp2_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(chla.ug.mgAFDW<2.2)%>%
+  filter(species=="Porites")%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint2")
+ 
+por_tp2_data<-por_tp2_data[complete.cases(por_tp2_data), ]
+ 
+por_tp2_scaled<-prcomp(por_tp2_data[c(5:15)], scale=TRUE, center=TRUE) 
+
+porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("March 2020")+
+  coord_cartesian(xlim=c(-8, 8), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));porTP2
+```
+
+```{r}
+por_tp3_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(chla.ug.mgAFDW<2.2)%>%
+  filter(species=="Porites")%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint3")
+ 
+por_tp3_data<-por_tp3_data[complete.cases(por_tp3_data), ]
+ 
+por_tp3_scaled<-prcomp(por_tp3_data[c(5:15)], scale=TRUE, center=TRUE) 
+
+porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("September 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));porTP3
+```
+
+```{r}
+por_tp4_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(chla.ug.mgAFDW<2.2)%>%
+  filter(species=="Porites")%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint4")
+ 
+por_tp4_data<-por_tp4_data[complete.cases(por_tp4_data), ]
+ 
+por_tp4_scaled<-prcomp(por_tp4_data[c(5:15)], scale=TRUE, center=TRUE) 
+
+porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+ # ggtitle("November 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));porTP4
+```
+
+#### Assemble grid plot of all metrics by species and time  
+
+```{r}
+all_grid<-plot_grid(acrTP1, acrTP2, acrTP3, acrTP4, pocTP1, pocTP2, pocTP3, pocTP4, porTP1, porTP2, porTP3, porTP4, ncol=4, nrow=3)
+all_grid2<-plot_grid(all_grid, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
+
+ggsave(filename="Figures/Matrix_AllResponses.pdf", plot=all_grid2, dpi=500, width=20, height=20, units="in")
+
+```
+
+
+
+
+
+
+
+## Holobiont Responses  
+
+### PCA's for centroid and trajectories  
+
+#### Acropora  
+
+Generate PCA using scaled (scaled_acr_afdw) from dataframe (acr_data_afdw).   
+ 
+```{r}
+acr_data_afdw<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Acropora")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)
+
+acr_data_afdw<-acr_data_afdw[complete.cases(acr_data_afdw), ]
+
+scaled_acr_afdw<-prcomp(acr_data_afdw[c(5:9)], scale=TRUE, center=TRUE) 
+
+acr_info<-acr_data_afdw[c(2,4)]
+
+acr_data<-scaled_acr_afdw%>%
+  augment(acr_info)%>%
+  group_by(timepoint, site_code)%>%
+  mutate(PC1.mean = mean(.fittedPC1),
+         PC2.mean = mean(.fittedPC2))
+
+acr.centroids<-acr_data %>% 
+  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site_code)%>%
+  summarise(PC1.mean = mean(PC1.mean),
+         PC2.mean = mean(PC2.mean))
+```
+
+Examine PERMANOVA results.  
+ 
+```{r}
+# scale data
+vegan <- scale(acr_data_afdw[ ,5:9])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis(vegan ~ timepoint*site_code, data = acr_data_afdw, method='eu')
+z_acr<-permanova$aov.tab
+z_acr
+``` 
+ 
+Assemble plot with background points
+```{r}
+#1. make plot with dots
+acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+  geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  ylim(-6,10)+
+  xlim(-5,10)+
+  ylab("PC2")+
+  xlab("PC1")+
+  ggtitle(expression(italic("Acropora")))+
+  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_acr$`Pr(>F)`[1]), size=4, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_acr$`Pr(>F)`[2]), size=4, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_acr$`Pr(>F)`[3]), size=4, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         plot.margin = margin(1, 1, 1, 1, "cm"),
+         axis.text = element_text(size=18), 
+         title = element_text(size=25, face="bold"), 
+         axis.title = element_text(size=18));acrPCA
+
+```
+
+Add centroids  
+
+```{r}
+#2. add centroids 
+acrPCAcen<-acrPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=acr.centroids, size=3, show.legend=FALSE) + 
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
+  theme(legend.position="none"); acrPCAcen
+
+```
+
+Add segments
+
+```{r}
+#3. add segments
+segpoints<-acr.centroids%>%
+  gather(variable, value, -(timepoint:site_code)) %>%
+  unite(temp, timepoint, variable) %>%
+  spread(temp, value)
+  
+acrPCAfull<-acrPCAcen + 
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); acrPCAfull
+```
+
+Add bi plot with loadings  
+```{r}
+#1. make plot with dots
+acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0.5, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
+  #scale_colour_manual(values=c("blue4", "darkgray", "springgreen4")) +
+  #scale_fill_manual(values=c("blue4", "darkgray", "springgreen4")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_blank(),
+         axis.text.y=element_blank(),
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         plot.margin = margin(1, 1, 1, 1, "cm"),
+         axis.text = element_text(size=18), 
+         title = element_text(size=25, face="bold"),
+         axis.title = element_blank());acrArrows
+```
+
+
+Asemble final figure with inset biplot.  
+```{r}
+acrFullPCA<-ggdraw(acrPCAfull) + #theme_half_open(12)) +
+  draw_plot(acrArrows, .5, .5, .5, .5); acrFullPCA #x, y, w, h
+
+#ggsave(filename="Figures/FullPCA_Acropora.pdf", plot=acrFullPCA, dpi=300, width=12, height=8, units="in")
+```
+
+#### Porites
+
+Generate PCA using scaled (scaled_por_afdw) from dataframe (por_data_afdw).   
+ 
+Calculate centroid locations for each site and timepoint and pull PC1 and PC2 locations.      
+ 
+```{r}
+por_data_afdw<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)
+
+por_data_afdw<-por_data_afdw[complete.cases(por_data_afdw), ]
+
+scaled_por_afdw<-prcomp(por_data_afdw[c(5:9)], scale=TRUE, center=TRUE) 
+
+por_info<-por_data_afdw[c(2,4)]
+
+por_data<-scaled_por_afdw%>%
+  augment(por_info)%>%
+  group_by(timepoint, site_code)%>%
+  mutate(PC1.mean = mean(.fittedPC1),
+         PC2.mean = mean(.fittedPC2))
+
+por.centroids<-por_data %>% 
+  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site_code)%>%
+  summarise(PC1.mean = mean(PC1.mean),
+         PC2.mean = mean(PC2.mean))
+```
+
+```{r}
+# scale data
+vegan <- scale(por_data_afdw[ ,5:9])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis(vegan ~ timepoint*site_code, data = por_data_afdw, method='eu')
+z_por<-permanova$aov.tab
+z_por
+```
+
+Assemble plot with background points
+```{r}
+#1. make plot with dots
+porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+  geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  ylab("PC2")+
+  xlab("PC1")+
+  ylim(-6,10)+
+  xlim(-5,10)+
+  ggtitle(expression(italic("Porites")))+
+  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_por$`Pr(>F)`[1]), size=4, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_por$`Pr(>F)`[2]), size=4, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_por$`Pr(>F)`[3]), size=4, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         axis.text = element_text(size=18), 
+         plot.margin = margin(1, 1, 1, 1, "cm"),
+         title = element_text(size=25, face="bold"),
+         axis.title = element_text(size=18,  face="bold"));porPCA
+```
+
+Add centroids  
+
+```{r}
+#2. add centroids 
+porPCAcen<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=por.centroids, size=3, show.legend=FALSE) + 
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
+  theme(legend.position=c(1,0.3)); porPCAcen
+
+#build a plot for the legend
+legend_plot<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=por.centroids, size=3, show.legend=TRUE) + 
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
+  theme(legend.position="bottom")
+
+# extract the legend from one of the plots
+legend <- get_legend(
+  # create some space to the left of the legend
+  legend_plot + theme(legend.box.margin = margin(1,1,1,1))
+)
+
+```
+
+Add segments
+
+```{r}
+#3. add segments
+segpoints<-por.centroids%>%
+  gather(variable, value, -(timepoint:site_code)) %>%
+  unite(temp, timepoint, variable) %>%
+  spread(temp, value)
+  
+porPCAfull<-porPCAcen + 
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); porPCAfull
+```
+
+Add bi plot with loadings  
+```{r}
+#1. make plot with dots
+porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=FALSE, size=4, alpha=0.0) + 
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-0.5,0.1)+
+  #ylim(-0.5, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_blank(),
+         axis.text.y=element_blank(),
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         plot.margin = margin(1, 1, 1, 1, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_blank());porArrows
+```
+ 
+
+Assemble final figure with inset biplot.  
+```{r}
+porFullPCA<-ggdraw(porPCAfull)+ #+ theme_half_open(12)) +
+  draw_plot(porArrows, .5, .5, .5, .5); porFullPCA #x, y, w, h
+
+#ggsave(filename="Figures/FullPCA_Porites.pdf", plot=porFullPCA, dpi=300, width=12, height=8, units="in")
+```
+ 
+#### Pocillopora   
+
+Generate PCA using scaled (scaled_poc_afdw) from dataframe (poc_data_afdw). 
+ 
+```{r}
+poc_data_afdw<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Pocillopora")%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)
+
+poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
+ 
+scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:9)], scale=TRUE, center=TRUE) 
+
+poc_info<-poc_data_afdw[c(2,4)]
+
+poc_data<-scaled_poc_afdw%>%
+  augment(poc_info)%>%
+  group_by(timepoint, site_code)%>%
+  mutate(PC1.mean = mean(.fittedPC1),
+         PC2.mean = mean(.fittedPC2))
+
+poc.centroids<-poc_data %>% 
+  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site_code)%>%
+  summarise(PC1.mean = mean(PC1.mean),
+         PC2.mean = mean(PC2.mean))
+``` 
+  
+```{r}
+# scale data
+vegan <- scale(poc_data_afdw[ ,5:9])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis(vegan ~ timepoint*site_code, data = poc_data_afdw, method='eu')
+z_poc<-permanova$aov.tab
+z_poc
+```
+
+Assemble plot with background points
+```{r}
+#1. make plot with dots
+pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+  geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  ylim(-6,10)+
+  xlim(-5,10)+
+  ylab("PC2")+
+  xlab("PC1")+
+  ggtitle(expression(italic("Pocillopora")))+
+  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_poc$`Pr(>F)`[1]), size=4, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_poc$`Pr(>F)`[2]), size=4, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_poc$`Pr(>F)`[3]), size=4, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         plot.background = element_blank(),
+         plot.margin = margin(1, 1, 1, 1, "cm"),
+         legend.title = element_blank(), 
+         title = element_text(size=25, face="bold"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18,  face="bold"));pocPCA
+
+```
+
+Add centroids  
+
+```{r}
+#2. add centroids 
+pocPCAcen<-pocPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=poc.centroids, size=3, show.legend=FALSE) + 
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
+  theme(legend.position="none"); pocPCAcen
+
+```
+
+Add segments
+
+```{r}
+#3. add segments
+segpoints<-poc.centroids%>%
+  gather(variable, value, -(timepoint:site_code)) %>%
+  unite(temp, timepoint, variable) %>%
+  spread(temp, value)
+  
+pocPCAfull<-pocPCAcen + 
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); pocPCAfull
+```
+
+Add bi plot with loadings  
+```{r}
+
+pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, laodings.label.repel=FALSE, size=4, alpha=0.0) + 
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_blank(),
+         axis.text.y=element_blank(),
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         plot.margin = margin(1, 1, 1, 1, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_blank());pocArrows
+```
+
+ 
+Assemble final figure with inset biplot.  
+```{r}
+pocFullPCA<-ggdraw(pocPCAfull) + #theme_half_open(12)) +
+  draw_plot(pocArrows, .5, .5, .5, .5); pocFullPCA #x, y, w, h
+
+#ggsave(filename="Figures/FullPCA_Pocillopora.pdf", plot=pocFullPCA, dpi=300, width=12, height=8, units="in")
+```
+ 
+Assemble all plots.  
+
+```{r}
+PCA_full_panel<-plot_grid(acrFullPCA, pocFullPCA, porFullPCA, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
+
+# add the legend to the row we made earlier. Give it one-third of 
+# the width of one plot (via rel_widths).
+PCA_full_panel_legend<-plot_grid(PCA_full_panel, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
+
+ggsave(filename="Figures/Full_Panel_PCAs_Holobiont.png", plot=PCA_full_panel_legend, dpi=500, width=20, height=6, units="in")
+```  
+
+
+
+
+  
+  
+### Matrix of PCA's by species and time  
+
+Generate biplot showing groupings by site for each species and time point.  
+
+#### Pocillopora  
+
+```{r}
+poc_tp1_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Pocillopora")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint1")
+
+poc_tp1_data<-poc_tp1_data[complete.cases(poc_tp1_data), ]
+ 
+poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:9)], scale=TRUE, center=TRUE) 
+
+pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("January 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  annotate("text", x=-16, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 2, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));pocTP1
+```
+
+```{r}
+poc_tp2_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Pocillopora")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint2")
+ 
+poc_tp2_data<-poc_tp2_data[complete.cases(poc_tp2_data), ]
+ 
+poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:9)], scale=TRUE, center=TRUE) 
+
+pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("March 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));pocTP2
+```
+
+```{r}
+poc_tp3_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Pocillopora")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint3")
+ 
+poc_tp3_data<-poc_tp3_data[complete.cases(poc_tp3_data), ]
+ 
+poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:9)], scale=TRUE, center=TRUE) 
+
+pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("September 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));pocTP3
+```
+
+```{r}
+poc_tp4_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Pocillopora")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint4")
+ 
+poc_tp4_data<-poc_tp4_data[complete.cases(poc_tp4_data), ]
+ 
+poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:9)], scale=TRUE, center=TRUE) 
+
+pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("November 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));pocTP4
+```
+
+
+#### Acropora  
+
+```{r}
+acr_tp1_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Acropora")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint1")
+
+acr_tp1_data<-acr_tp1_data[complete.cases(acr_tp1_data), ]
+ 
+acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:9)], scale=TRUE, center=TRUE) 
+
+acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  ggtitle("January 2020")+
+  coord_cartesian(xlim=c(-8, 8), ylim=c(-5, 5), clip = "off")+
+  annotate("text", x=-16, y=0, label="italic(Acropora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 2, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));acrTP1
+```
+
+```{r}
+acr_tp2_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Acropora")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint2")
+ 
+acr_tp2_data<-acr_tp2_data[complete.cases(acr_tp2_data), ]
+ 
+acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:9)], scale=TRUE, center=TRUE) 
+
+acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  ggtitle("March 2020")+
+  coord_cartesian(xlim=c(-8, 8), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));acrTP2
+```
+
+```{r}
+acr_tp3_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Acropora")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint3")
+ 
+acr_tp3_data<-acr_tp3_data[complete.cases(acr_tp3_data), ]
+ 
+acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:9)], scale=TRUE, center=TRUE) 
+
+acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  ggtitle("September 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));acrTP3
+```
+
+```{r}
+acr_tp4_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Acropora")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint4")
+ 
+acr_tp4_data<-acr_tp4_data[complete.cases(acr_tp4_data), ]
+ 
+acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:19)], scale=TRUE, center=TRUE) 
+
+acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  ggtitle("November 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));acrTP4
+```
+
+
+
+#### Porites  
+
+```{r}
+por_tp1_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint1")
+
+por_tp1_data<-por_tp1_data[complete.cases(por_tp1_data), ]
+ 
+por_tp1_scaled<-prcomp(por_tp1_data[c(5:9)], scale=TRUE, center=TRUE) 
+
+porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("January 2020")+
+  coord_cartesian(xlim=c(-8, 8), ylim=c(-5, 5), clip = "off")+
+  annotate("text", x=-16, y=0, label="italic(Porites)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 2, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));porTP1
+```
+
+```{r}
+por_tp2_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint2")
+ 
+por_tp2_data<-por_tp2_data[complete.cases(por_tp2_data), ]
+ 
+por_tp2_scaled<-prcomp(por_tp2_data[c(5:9)], scale=TRUE, center=TRUE) 
+
+porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("March 2020")+
+  coord_cartesian(xlim=c(-8, 8), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));porTP2
+```
+
+```{r}
+por_tp3_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint3")
+ 
+por_tp3_data<-por_tp3_data[complete.cases(por_tp3_data), ]
+ 
+por_tp3_scaled<-prcomp(por_tp3_data[c(5:9)], scale=TRUE, center=TRUE) 
+
+porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("September 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));porTP3
+```
+
+```{r}
+por_tp4_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  filter(timepoint=="timepoint4")
+ 
+por_tp4_data<-por_tp4_data[complete.cases(por_tp4_data), ]
+ 
+por_tp4_scaled<-prcomp(por_tp4_data[c(5:9)], scale=TRUE, center=TRUE) 
+
+porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+ # ggtitle("November 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));porTP4
+```
+
+#### Assemble grid plot of all metrics by species and time  
+
+```{r}
+all_grid<-plot_grid(acrTP1, acrTP2, acrTP3, acrTP4, pocTP1, pocTP2, pocTP3, pocTP4, porTP1, porTP2, porTP3, porTP4, ncol=4, nrow=3)
+all_grid2<-plot_grid(all_grid, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
+
+ggsave(filename="Figures/Matrix_Holobiont_Responses.pdf", plot=all_grid2, dpi=500, width=20, height=20, units="in")
+
+```
+
+
+## Symbiont Responses  
+
+### PCA's for centroid and trajectories  
+
+#### Acropora  
+
+Generate PCA using scaled (scaled_acr_afdw) from dataframe (acr_data_afdw).   
+ 
+```{r}
+acr_data_afdw<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2)%>%
+  filter(species=="Acropora")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)
+
+acr_data_afdw<-acr_data_afdw[complete.cases(acr_data_afdw), ]
+
+scaled_acr_afdw<-prcomp(acr_data_afdw[c(5:12)], scale=TRUE, center=TRUE) 
+
+acr_info<-acr_data_afdw[c(2,4)]
+
+acr_data<-scaled_acr_afdw%>%
+  augment(acr_info)%>%
+  group_by(timepoint, site_code)%>%
+  mutate(PC1.mean = mean(.fittedPC1),
+         PC2.mean = mean(.fittedPC2))
+
+acr.centroids<-acr_data %>% 
+  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site_code)%>%
+  summarise(PC1.mean = mean(PC1.mean),
+         PC2.mean = mean(PC2.mean))
+```
+
+Examine PERMANOVA results.  
+ 
+```{r}
+# scale data
+vegan <- scale(acr_data_afdw[ ,5:12])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis(vegan ~ timepoint*site_code, data = acr_data_afdw, method='eu')
+z_acr<-permanova$aov.tab
+z_acr
+``` 
+ 
+Assemble plot with background points
+```{r}
+#1. make plot with dots
+acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+  geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  ylim(-6,10)+
+  xlim(-7,10)+
+  ylab("PC2")+
+  xlab("PC1")+
+  ggtitle(expression(italic("Acropora")))+
+  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_acr$`Pr(>F)`[1]), size=4, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_acr$`Pr(>F)`[2]), size=4, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_acr$`Pr(>F)`[3]), size=4, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         plot.margin = margin(1, 1, 1, 1, "cm"),
+         axis.text = element_text(size=18), 
+         title = element_text(size=25, face="bold"), 
+         axis.title = element_text(size=18));acrPCA
+
+```
+
+Add centroids  
+
+```{r}
+#2. add centroids 
+acrPCAcen<-acrPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=acr.centroids, size=3, show.legend=FALSE) + 
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
+  theme(legend.position="none"); acrPCAcen
+
+```
+
+Add segments
+
+```{r}
+#3. add segments
+segpoints<-acr.centroids%>%
+  gather(variable, value, -(timepoint:site_code)) %>%
+  unite(temp, timepoint, variable) %>%
+  spread(temp, value)
+  
+acrPCAfull<-acrPCAcen + 
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); acrPCAfull
+```
+
+Add bi plot with loadings  
+```{r}
+#1. make plot with dots
+acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0.5, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
+  #scale_colour_manual(values=c("blue4", "darkgray", "springgreen4")) +
+  #scale_fill_manual(values=c("blue4", "darkgray", "springgreen4")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_blank(),
+         axis.text.y=element_blank(),
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         plot.margin = margin(1, 1, 1, 1, "cm"),
+         axis.text = element_text(size=18), 
+         title = element_text(size=25, face="bold"),
+         axis.title = element_blank());acrArrows
+```
+
+
+Asemble final figure with inset biplot.  
+```{r}
+acrFullPCA<-ggdraw(acrPCAfull) + #theme_half_open(12)) +
+  draw_plot(acrArrows, .5, .5, .5, .5); acrFullPCA #x, y, w, h
+
+#ggsave(filename="Figures/FullPCA_Acropora.pdf", plot=acrFullPCA, dpi=300, width=12, height=8, units="in")
+```
+
+#### Porites
+
+Generate PCA using scaled (scaled_por_afdw) from dataframe (por_data_afdw).   
+ 
+Calculate centroid locations for each site and timepoint and pull PC1 and PC2 locations.      
+ 
+```{r}
+por_data_afdw<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2)%>%
+  filter(species=="Porites")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)
+
+por_data_afdw<-por_data_afdw[complete.cases(por_data_afdw), ]
+
+scaled_por_afdw<-prcomp(por_data_afdw[c(5:12)], scale=TRUE, center=TRUE) 
+
+por_info<-por_data_afdw[c(2,4)]
+
+por_data<-scaled_por_afdw%>%
+  augment(por_info)%>%
+  group_by(timepoint, site_code)%>%
+  mutate(PC1.mean = mean(.fittedPC1),
+         PC2.mean = mean(.fittedPC2))
+
+por.centroids<-por_data %>% 
+  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site_code)%>%
+  summarise(PC1.mean = mean(PC1.mean),
+         PC2.mean = mean(PC2.mean))
+```
+
+```{r}
+# scale data
+vegan <- scale(por_data_afdw[ ,5:12])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis(vegan ~ timepoint*site_code, data = por_data_afdw, method='eu')
+z_por<-permanova$aov.tab
+z_por
+```
+
+Assemble plot with background points
+```{r}
+#1. make plot with dots
+porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+  geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  ylab("PC2")+
+  xlab("PC1")+
+  ylim(-6,10)+
+  xlim(-7,10)+
+  ggtitle(expression(italic("Porites")))+
+  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_por$`Pr(>F)`[1]), size=4, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_por$`Pr(>F)`[2]), size=4, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_por$`Pr(>F)`[3]), size=4, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         axis.text = element_text(size=18), 
+         plot.margin = margin(1, 1, 1, 1, "cm"),
+         title = element_text(size=25, face="bold"),
+         axis.title = element_text(size=18,  face="bold"));porPCA
+```
+
+Add centroids  
+
+```{r}
+#2. add centroids 
+porPCAcen<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=por.centroids, size=3, show.legend=FALSE) + 
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
+  theme(legend.position=c(1,0.3)); porPCAcen
+
+#build a plot for the legend
+legend_plot<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=por.centroids, size=3, show.legend=TRUE) + 
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
+  theme(legend.position="bottom")
+
+# extract the legend from one of the plots
+legend <- get_legend(
+  # create some space to the left of the legend
+  legend_plot + theme(legend.box.margin = margin(1,1,1,1))
+)
+
+```
+
+Add segments
+
+```{r}
+#3. add segments
+segpoints<-por.centroids%>%
+  gather(variable, value, -(timepoint:site_code)) %>%
+  unite(temp, timepoint, variable) %>%
+  spread(temp, value)
+  
+porPCAfull<-porPCAcen + 
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); porPCAfull
+```
+
+Add bi plot with loadings  
+```{r}
+#1. make plot with dots
+porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=FALSE, size=4, alpha=0.0) + 
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-0.5,0.1)+
+  #ylim(-0.5, 0.5)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_blank(),
+         axis.text.y=element_blank(),
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         plot.margin = margin(1, 1, 1, 1, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_blank());porArrows
+```
+ 
+
+Assemble final figure with inset biplot.  
+```{r}
+porFullPCA<-ggdraw(porPCAfull)+ #+ theme_half_open(12)) +
+  draw_plot(porArrows, .5, .5, .5, .5); porFullPCA #x, y, w, h
+
+#ggsave(filename="Figures/FullPCA_Porites.pdf", plot=porFullPCA, dpi=300, width=12, height=8, units="in")
+```
+ 
+#### Pocillopora   
+
+Generate PCA using scaled (scaled_poc_afdw) from dataframe (poc_data_afdw). 
+ 
+```{r}
+poc_data_afdw<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2)%>%
+  filter(species=="Pocillopora")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)
+
+poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
+ 
+scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:12)], scale=TRUE, center=TRUE) 
+
+poc_info<-poc_data_afdw[c(2,4)]
+
+poc_data<-scaled_poc_afdw%>%
+  augment(poc_info)%>%
+  group_by(timepoint, site_code)%>%
+  mutate(PC1.mean = mean(.fittedPC1),
+         PC2.mean = mean(.fittedPC2))
+
+poc.centroids<-poc_data %>% 
+  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site_code)%>%
+  summarise(PC1.mean = mean(PC1.mean),
+         PC2.mean = mean(PC2.mean))
+``` 
+  
+```{r}
+# scale data
+vegan <- scale(poc_data_afdw[ ,5:12])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis(vegan ~ timepoint*site_code, data = poc_data_afdw, method='eu')
+z_poc<-permanova$aov.tab
+z_poc
+```
+
+Assemble plot with background points
+```{r}
+#1. make plot with dots
+pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+  geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  ylim(-6,10)+
+  xlim(-5,10)+
+  ylab("PC2")+
+  xlab("PC1")+
+  ggtitle(expression(italic("Pocillopora")))+
+  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_poc$`Pr(>F)`[1]), size=4, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_poc$`Pr(>F)`[2]), size=4, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_poc$`Pr(>F)`[3]), size=4, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         plot.background = element_blank(),
+         plot.margin = margin(1, 1, 1, 1, "cm"),
+         legend.title = element_blank(), 
+         title = element_text(size=25, face="bold"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18,  face="bold"));pocPCA
+
+```
+
+Add centroids  
+
+```{r}
+#2. add centroids 
+pocPCAcen<-pocPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=poc.centroids, size=3, show.legend=FALSE) + 
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
+  theme(legend.position="none"); pocPCAcen
+
+```
+
+Add segments
+
+```{r}
+#3. add segments
+segpoints<-poc.centroids%>%
+  gather(variable, value, -(timepoint:site_code)) %>%
+  unite(temp, timepoint, variable) %>%
+  spread(temp, value)
+  
+pocPCAfull<-pocPCAcen + 
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); pocPCAfull
+```
+
+Add bi plot with loadings  
+```{r}
+
+pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, laodings.label.repel=FALSE, size=4, alpha=0.0) + 
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_blank(),
+         axis.text.y=element_blank(),
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         plot.margin = margin(1, 1, 1, 1, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_blank());pocArrows
+```
+
+ 
+Assemble final figure with inset biplot.  
+```{r}
+pocFullPCA<-ggdraw(pocPCAfull) + #theme_half_open(12)) +
+  draw_plot(pocArrows, .5, .5, .5, .5); pocFullPCA #x, y, w, h
+
+#ggsave(filename="Figures/FullPCA_Pocillopora.pdf", plot=pocFullPCA, dpi=300, width=12, height=8, units="in")
+```
+ 
+Assemble all plots.  
+
+```{r}
+PCA_full_panel<-plot_grid(acrFullPCA, pocFullPCA, porFullPCA, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
+
+# add the legend to the row we made earlier. Give it one-third of 
+# the width of one plot (via rel_widths).
+PCA_full_panel_legend<-plot_grid(PCA_full_panel, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
+
+ggsave(filename="Figures/Full_Panel_PCAs_Symbiont.png", plot=PCA_full_panel_legend, dpi=500, width=20, height=6, units="in")
+```  
+
+### Matrix of PCA's by species and time  
+
+Generate biplot showing groupings by site for each species and time point.  
+
+#### Pocillopora  
+
+```{r}
+poc_tp1_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2)%>%
+  filter(species=="Pocillopora")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  filter(timepoint=="timepoint1")
+
+poc_tp1_data<-poc_tp1_data[complete.cases(poc_tp1_data), ]
+ 
+poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:12)], scale=TRUE, center=TRUE) 
+
+pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("January 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  annotate("text", x=-16, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 2, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));pocTP1
+```
+
+```{r}
+poc_tp2_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2)%>%
+  filter(species=="Pocillopora")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  filter(timepoint=="timepoint2")
+ 
+poc_tp2_data<-poc_tp2_data[complete.cases(poc_tp2_data), ]
+ 
+poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:12)], scale=TRUE, center=TRUE) 
+
+pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("March 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));pocTP2
+```
+
+```{r}
+poc_tp3_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2)%>%
+  filter(species=="Pocillopora")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  filter(timepoint=="timepoint3")
+ 
+poc_tp3_data<-poc_tp3_data[complete.cases(poc_tp3_data), ]
+ 
+poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:12)], scale=TRUE, center=TRUE) 
+
+pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("September 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));pocTP3
+```
+
+```{r}
+poc_tp4_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2)%>%
+  filter(species=="Pocillopora")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  filter(timepoint=="timepoint4")
+ 
+poc_tp4_data<-poc_tp4_data[complete.cases(poc_tp4_data), ]
+ 
+poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:12)], scale=TRUE, center=TRUE) 
+
+pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("November 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));pocTP4
+```
+
+
+#### Acropora  
+
+```{r}
+acr_tp1_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2)%>%
+  filter(species=="Acropora")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  filter(timepoint=="timepoint1")
+
+acr_tp1_data<-acr_tp1_data[complete.cases(acr_tp1_data), ]
+ 
+acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:12)], scale=TRUE, center=TRUE) 
+
+acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  ggtitle("January 2020")+
+  coord_cartesian(xlim=c(-8, 8), ylim=c(-5, 5), clip = "off")+
+  annotate("text", x=-16, y=0, label="italic(Acropora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 2, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));acrTP1
+```
+
+```{r}
+acr_tp2_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2)%>%
+  filter(species=="Acropora")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  filter(timepoint=="timepoint2")
+ 
+acr_tp2_data<-acr_tp2_data[complete.cases(acr_tp2_data), ]
+ 
+acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:12)], scale=TRUE, center=TRUE) 
+
+acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  ggtitle("March 2020")+
+  coord_cartesian(xlim=c(-8, 8), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));acrTP2
+```
+
+```{r}
+acr_tp3_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2)%>%
+  filter(species=="Acropora")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  filter(timepoint=="timepoint3")
+ 
+acr_tp3_data<-acr_tp3_data[complete.cases(acr_tp3_data), ]
+ 
+acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:12)], scale=TRUE, center=TRUE) 
+
+acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  ggtitle("September 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));acrTP3
+```
+
+```{r}
+acr_tp4_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2)%>%
+  filter(species=="Acropora")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  filter(timepoint=="timepoint4")
+ 
+acr_tp4_data<-acr_tp4_data[complete.cases(acr_tp4_data), ]
+ 
+acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:12)], scale=TRUE, center=TRUE) 
+
+acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  ggtitle("November 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));acrTP4
+```
+
+
+
+#### Porites  
+
+```{r}
+por_tp1_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2)%>%
+  filter(species=="Porites")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  filter(timepoint=="timepoint1")
+
+por_tp1_data<-por_tp1_data[complete.cases(por_tp1_data), ]
+ 
+por_tp1_scaled<-prcomp(por_tp1_data[c(5:12)], scale=TRUE, center=TRUE) 
+
+porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("January 2020")+
+  coord_cartesian(xlim=c(-8, 8), ylim=c(-5, 5), clip = "off")+
+  annotate("text", x=-16, y=0, label="italic(Porites)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 2, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));porTP1
+```
+
+```{r}
+por_tp2_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2)%>%
+  filter(species=="Porites")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  filter(timepoint=="timepoint2")
+ 
+por_tp2_data<-por_tp2_data[complete.cases(por_tp2_data), ]
+ 
+por_tp2_scaled<-prcomp(por_tp2_data[c(5:12)], scale=TRUE, center=TRUE) 
+
+porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("March 2020")+
+  coord_cartesian(xlim=c(-8, 8), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));porTP2
+```
+
+```{r}
+por_tp3_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2)%>%
+  filter(species=="Porites")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  filter(timepoint=="timepoint3")
+ 
+por_tp3_data<-por_tp3_data[complete.cases(por_tp3_data), ]
+ 
+por_tp3_scaled<-prcomp(por_tp3_data[c(5:12)], scale=TRUE, center=TRUE) 
+
+porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+  #ggtitle("September 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));porTP3
+```
+
+```{r}
+por_tp4_data<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(chla.ug.mgAFDW<2)%>%
+  filter(species=="Porites")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  filter(timepoint=="timepoint4")
+ 
+por_tp4_data<-por_tp4_data[complete.cases(por_tp4_data), ]
+ 
+por_tp4_scaled<-prcomp(por_tp4_data[c(5:12)], scale=TRUE, center=TRUE) 
+
+porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site_code), size=3)+
+  scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  theme_classic()+
+  #xlim(-.3,.6)+
+  #ylim(-.3, .3)+
+ # ggtitle("November 2020")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
+   theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         axis.text.x=element_text(colour="black"),
+         axis.text.y=element_text(colour="black"),
+         plot.background = element_blank(),
+         plot.title = element_text(size=22, face="bold", hjust = 0.5), 
+         plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+         axis.text = element_text(size=18), 
+         axis.title = element_text(size=18));porTP4
+```
+
+#### Assemble grid plot of all metrics by species and time  
+
+```{r}
+all_grid<-plot_grid(acrTP1, acrTP2, acrTP3, acrTP4, pocTP1, pocTP2, pocTP3, pocTP4, porTP1, porTP2, porTP3, porTP4, ncol=4, nrow=3)
+all_grid2<-plot_grid(all_grid, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
+
+ggsave(filename="Figures/Matrix_Symbiont_Responses.pdf", plot=all_grid2, dpi=500, width=20, height=20, units="in")
+
+```
+
