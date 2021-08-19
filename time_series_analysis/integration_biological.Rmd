@@ -304,7 +304,7 @@ tacplot_prot<-master %>%
     xlab("Site") + 
     scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
                               "Manava High" = "Manava \nHigh"))+
-    ylab(expression(bold(paste("Copper Reducing Elements (", mu, "mol mg protein"^-1,")"))))+
+    ylab(expression(bold(paste("Antioxidant Capacity (", mu, "mol CRE mg afdw"^-1,")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -333,7 +333,7 @@ tacplot_afdw<-master %>%
     xlab("Site") + 
     scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
                               "Manava High" = "Manava \nHigh"))+
-    ylab(expression(bold(paste("Copper Reducing Elements (", mu, "mol mg afdw"^-1,")"))))+
+    ylab(expression(bold(paste("Antioxidant Capacity (", mu, "mol CRE mg afdw"^-1,")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -363,7 +363,7 @@ tacplot_cm2<-master %>%
     xlab("Site") + 
      scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
                               "Manava High" = "Manava \nHigh"))+
-    ylab(expression(bold(paste("Copper Reducing Elements (", mu, "mol cm"^-2,")"))))+
+    ylab(expression(bold(paste("Antioxidant Capacity (", mu, "mol CRE mg afdw"^-1,")"))))+
     theme_classic() + 
     theme(
       legend.position="right",
@@ -775,6 +775,14 @@ plot(allEffects(shAFDW_model))
 
 ## Chlorophyll  
 
+First, calculate chlorophyll as total chlorophyll per surface area (c2 + a) and per cell (c2+a) as a and c2 are highly correlated.  
+
+```{r}
+master<-master%>%
+  mutate(Total_Chl=chla.ug.mgAFDW+chlc2.ug.mgAFDW)%>%
+  mutate(Total_Chl_cell=chla.ug.cell+chlc2.ug.cell)
+```
+
 ### Plot: Surface area     
 
 View by site and timepoint for each species in Chl a.    
@@ -1013,6 +1021,64 @@ chl_figure<-plot_grid(chlaplot_prot, chlaplot_afdw, chlaplot_cell, chlaplot_cm2,
 ggsave(filename="Figures/Chlorophyll_Figure.pdf", plot=chl_figure, dpi=300, width=32, height=10, units="in")
 ```
 
+### Plot: Total chl  
+
+View by site and timepoint for each species for total chl per unit AFDW.     
+```{r}
+chlplot_total<-master %>%
+  filter(!is.na(Total_Chl)) %>%
+  filter(!is.na(species)) %>%
+  select(colony_id_corr, species, site_code, timepoint, Total_Chl)%>%
+  
+  ggplot(., aes(x = site_code, y = Total_Chl, fill = timepoint, group=interaction(site_code,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Total Chlorophyll (", mu, "g mg afdw"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); chlplot_total
+```
+
+View by site and timepoint for each species for total chl per cell.     
+```{r}
+chlplot_total_cell<-master %>%
+  filter(!is.na(Total_Chl_cell)) %>%
+  filter(!is.na(species)) %>%
+  select(colony_id_corr, species, site_code, timepoint, Total_Chl_cell)%>%
+  
+  ggplot(., aes(x = site_code, y = Total_Chl_cell, fill = timepoint, group=interaction(site_code,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Total Chlorophyll (", mu, "g cell"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      ); chlplot_total_cell
+```
+
 ### Analysis  
 
 Build a mixed model for univariate analysis and examine data distribution.
@@ -1084,6 +1150,75 @@ Generate model effect plots.
 
 ```{r}
 plot(allEffects(chlc2_model))
+```
+
+Total Chlorophyll (a + c2): 
+
+Build a mixed model for univariate analysis and examine data distribution.
+
+`chltotal_model<-lmer(Total_Chl~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+chltotal_model<-lmer(Total_Chl~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(chltotal_model))
+hist(residuals(chltotal_model))
+```
+
+Residuals are not normally distributed. Attempt with log transformation.      
+
+`chltotal_model<-lmer(log(Total_Chl)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+chltotal_model<-lmer(log(Total_Chl)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(chlc2_model))
+hist(residuals(chlc2_model))
+```
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(chltotal_model, type="II")
+```
+
+Generate model effect plots.  
+
+```{r}
+plot(allEffects(chltotal_model))
+```
+
+
+Total Chlorophyll per cell (a + c2): 
+
+Build a mixed model for univariate analysis and examine data distribution.
+
+`chltotalcell_model<-lmer(Total_Chl_cell~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+chltotalcell_model<-lmer(Total_Chl_cell~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(chltotalcell_model))
+hist(residuals(chltotalcell_model))
+```
+
+Residuals are not normally distributed. Attempt with log transformation.      
+
+`chltotalcell_model<-lmer(log(Total_Chl_cell)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+chltotalcell_model<-lmer(log(Total_Chl_cell)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(chltotalcell_model))
+hist(residuals(chltotalcell_model))
+```
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(chltotalcell_model, type="II")
+```
+
+Generate model effect plots.  
+
+```{r}
+plot(allEffects(chltotalcell_model))
 ```
 
 
@@ -1399,32 +1534,30 @@ plot(allEffects(rd_model))
 
 First, specify symbiont and holobiont responses for plotting in separate panels.  
 ```{r}
-symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "chla.ug.mgAFDW", "chlc2.ug.mgAFDW", "chla.ug.cell", "chlc2.ug.cell", "Am", "AQY") 
+symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY") 
 holobiont_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "Ratio_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd")
 ```
 
 Generate a panel of responses for symbiont metrics.  
 
 ```{r}
-chlc2plot_cell<-chlc2plot_cell+theme(legend.position="right")
+chlplot_total_cell<-chlplot_total_cell+theme(legend.position="bottom")
 
-symbiont_univ1<-plot_grid(symbplot_afdw, sAFDWplot, am_plot, aqy_plot, NULL, ncol=5, nrow=1, rel_widths = c(1,1,1,1,0.5))
-symbiont_univ2<-plot_grid(chlaplot_afdw, chlaplot_cell, chlc2plot_afdw, chlc2plot_cell, NULL, ncol=5, nrow=1, rel_widths = c(1,1,1,1.5,0.1))
-symbiont_univ<-plot_grid(symbiont_univ1, symbiont_univ2, ncol=1, nrow=2, rel_widths = c(1,1))
+symbiont_univ<-plot_grid(symbplot_afdw, sAFDWplot, am_plot, aqy_plot, chlplot_total, chlplot_total_cell, ncol=1, nrow=6, rel_widths = c(1,1), align="vh")
 
-ggsave(filename="Figures/Symbiont_Univariate_Panel.pdf", plot=symbiont_univ, dpi=150, width=22, height=8, units="in")
+ggsave(filename="Figures/Symbiont_Univariate_Panel.pdf", plot=symbiont_univ, dpi=150, width=11, height=30, units="in")
 ```
 
 Generate a panel of responses for host/holobiont metrics.  
 
 ```{r}
-ratioAFDWplot<-ratioAFDWplot+theme(legend.position="none")
+rd_plot<-rd_plot+theme(legend.position="bottom")
 
-holobiont_univ1<-plot_grid(tacplot_afdw, hAFDWplot, ratioAFDWplot, ncol=3, nrow=1, rel_widths = c(1))
-holobiont_univ2<-plot_grid(protplot_afdw, rd_plot, NULL, ncol=3, nrow=1, rel_widths = c(1.2, 1.5, 0.8))
-holobiont_univ<-plot_grid(holobiont_univ1, holobiont_univ2, ncol=1, nrow=2, rel_widths = c(1, 1))
+#holobiont_univ1<-plot_grid(tacplot_afdw, hAFDWplot, ratioAFDWplot, ncol=3, nrow=1, rel_widths = c(1))
+#holobiont_univ2<-plot_grid(protplot_afdw, rd_plot, NULL, ncol=3, nrow=1, rel_widths = c(1.2, 1.5, 0.8))
+holobiont_univ<-plot_grid(tacplot_afdw, hAFDWplot, ratioAFDWplot, protplot_afdw, rd_plot, ncol=1, nrow=5, rel_widths = c(1, 1), align="vh")
 
-ggsave(filename="Figures/Holobiont_Univariate_Panel.pdf", plot=holobiont_univ, dpi=150, width=22, height=8, units="in")
+ggsave(filename="Figures/Holobiont_Univariate_Panel.pdf", plot=holobiont_univ, dpi=150, width=10, height=30, units="in")
 ```
 
 # Correlations  
@@ -2542,7 +2675,7 @@ z_acr<-permanova$aov.tab
 z_acr
 ``` 
  
-Assemble plot with background points
+Assemble plot with background points 
 ```{r}
 #1. make plot with dots
 acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
@@ -2618,8 +2751,8 @@ acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,
 
 Asemble final figure with inset biplot.  
 ```{r}
-acrFullPCA<-ggdraw(acrPCAfull) + #theme_half_open(12)) +
-  draw_plot(acrArrows, .5, .5, .5, .5); acrFullPCA #x, y, w, h
+#acrFullPCA<-ggdraw(acrPCAfull) + #theme_half_open(12)) +
+  #draw_plot(acrArrows, .5, .5, .5, .5); acrFullPCA #x, y, w, h
 
 #ggsave(filename="Figures/FullPCA_Acropora.pdf", plot=acrFullPCA, dpi=300, width=12, height=8, units="in")
 ```
@@ -2836,8 +2969,8 @@ porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,
 
 Assemble final figure with inset biplot.  
 ```{r}
-porFullPCA<-ggdraw(porPCAfull)+ #+ theme_half_open(12)) +
-  draw_plot(porArrows, .5, .5, .5, .5); porFullPCA #x, y, w, h
+#porFullPCA<-ggdraw(porPCAfull)+ #+ theme_half_open(12)) +
+  #draw_plot(porArrows, .5, .5, .5, .5); porFullPCA #x, y, w, h
 
 #ggsave(filename="Figures/FullPCA_Porites.pdf", plot=porFullPCA, dpi=300, width=12, height=8, units="in")
 ```
@@ -3040,8 +3173,8 @@ pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,
  
 Assemble final figure with inset biplot.  
 ```{r}
-pocFullPCA<-ggdraw(pocPCAfull) + #theme_half_open(12)) +
-  draw_plot(pocArrows, .5, .5, .5, .5); pocFullPCA #x, y, w, h
+#pocFullPCA<-ggdraw(pocPCAfull) + #theme_half_open(12)) +
+  #draw_plot(pocArrows, .5, .5, .5, .5); pocFullPCA #x, y, w, h
 
 #ggsave(filename="Figures/FullPCA_Pocillopora.pdf", plot=pocFullPCA, dpi=300, width=12, height=8, units="in")
 ```
@@ -3049,7 +3182,7 @@ pocFullPCA<-ggdraw(pocPCAfull) + #theme_half_open(12)) +
 Assemble all plots.  
 
 ```{r}
-PCA_full_panel<-plot_grid(acrFullPCA, pocFullPCA, porFullPCA, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
+PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
 
 # add the legend to the row we made earlier. Give it one-third of 
 # the width of one plot (via rel_widths).
@@ -3880,8 +4013,8 @@ acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,
 
 Asemble final figure with inset biplot.  
 ```{r}
-acrFullPCA<-ggdraw(acrPCAfull) + #theme_half_open(12)) +
-  draw_plot(acrArrows, .5, .5, .5, .5); acrFullPCA #x, y, w, h
+#acrFullPCA<-ggdraw(acrPCAfull) + #theme_half_open(12)) +
+  #draw_plot(acrArrows, .5, .5, .5, .5); acrFullPCA #x, y, w, h
 
 #ggsave(filename="Figures/FullPCA_Acropora.pdf", plot=acrFullPCA, dpi=300, width=12, height=8, units="in")
 ```
@@ -4016,8 +4149,8 @@ porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,
 
 Assemble final figure with inset biplot.  
 ```{r}
-porFullPCA<-ggdraw(porPCAfull)+ #+ theme_half_open(12)) +
-  draw_plot(porArrows, .5, .5, .5, .5); porFullPCA #x, y, w, h
+#porFullPCA<-ggdraw(porPCAfull)+ #+ theme_half_open(12)) +
+  #draw_plot(porArrows, .5, .5, .5, .5); porFullPCA #x, y, w, h
 
 #ggsave(filename="Figures/FullPCA_Porites.pdf", plot=porFullPCA, dpi=300, width=12, height=8, units="in")
 ```
@@ -4139,8 +4272,8 @@ pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,
  
 Assemble final figure with inset biplot.  
 ```{r}
-pocFullPCA<-ggdraw(pocPCAfull) + #theme_half_open(12)) +
-  draw_plot(pocArrows, .5, .5, .5, .5); pocFullPCA #x, y, w, h
+#pocFullPCA<-ggdraw(pocPCAfull) + #theme_half_open(12)) +
+  #draw_plot(pocArrows, .5, .5, .5, .5); pocFullPCA #x, y, w, h
 
 #ggsave(filename="Figures/FullPCA_Pocillopora.pdf", plot=pocFullPCA, dpi=300, width=12, height=8, units="in")
 ```
@@ -4148,7 +4281,7 @@ pocFullPCA<-ggdraw(pocPCAfull) + #theme_half_open(12)) +
 Assemble all plots.  
 
 ```{r}
-PCA_full_panel<-plot_grid(acrFullPCA, pocFullPCA, porFullPCA, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
+PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
 
 # add the legend to the row we made earlier. Give it one-third of 
 # the width of one plot (via rel_widths).
@@ -4436,7 +4569,7 @@ acr_tp4_data<-master%>%
  
 acr_tp4_data<-acr_tp4_data[complete.cases(acr_tp4_data), ]
  
-acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:19)], scale=TRUE, center=TRUE) 
+acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:9)], scale=TRUE, center=TRUE) 
 
 acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -4632,14 +4765,14 @@ acr_data_afdw<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(chla.ug.mgAFDW<2)%>%
+  filter(Total_Chl<13)%>%
   filter(species=="Acropora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)
 
 acr_data_afdw<-acr_data_afdw[complete.cases(acr_data_afdw), ]
 
-scaled_acr_afdw<-prcomp(acr_data_afdw[c(5:12)], scale=TRUE, center=TRUE) 
+scaled_acr_afdw<-prcomp(acr_data_afdw[c(5:10)], scale=TRUE, center=TRUE) 
 
 acr_info<-acr_data_afdw[c(2,4)]
 
@@ -4660,7 +4793,7 @@ Examine PERMANOVA results.
  
 ```{r}
 # scale data
-vegan <- scale(acr_data_afdw[ ,5:12])
+vegan <- scale(acr_data_afdw[ ,5:10])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 permanova<-adonis(vegan ~ timepoint*site_code, data = acr_data_afdw, method='eu')
@@ -4744,8 +4877,8 @@ acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,
 
 Asemble final figure with inset biplot.  
 ```{r}
-acrFullPCA<-ggdraw(acrPCAfull) + #theme_half_open(12)) +
-  draw_plot(acrArrows, .5, .5, .5, .5); acrFullPCA #x, y, w, h
+#acrFullPCA<-ggdraw(acrPCAfull) + #theme_half_open(12)) +
+  #draw_plot(acrArrows, .5, .5, .5, .5); acrFullPCA #x, y, w, h
 
 #ggsave(filename="Figures/FullPCA_Acropora.pdf", plot=acrFullPCA, dpi=300, width=12, height=8, units="in")
 ```
@@ -4762,14 +4895,14 @@ por_data_afdw<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(chla.ug.mgAFDW<2)%>%
+  filter(Total_Chl<13)%>%
   filter(species=="Porites")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)
 
 por_data_afdw<-por_data_afdw[complete.cases(por_data_afdw), ]
 
-scaled_por_afdw<-prcomp(por_data_afdw[c(5:12)], scale=TRUE, center=TRUE) 
+scaled_por_afdw<-prcomp(por_data_afdw[c(5:10)], scale=TRUE, center=TRUE) 
 
 por_info<-por_data_afdw[c(2,4)]
 
@@ -4788,7 +4921,7 @@ por.centroids<-por_data %>%
 
 ```{r}
 # scale data
-vegan <- scale(por_data_afdw[ ,5:12])
+vegan <- scale(por_data_afdw[ ,5:10])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 permanova<-adonis(vegan ~ timepoint*site_code, data = por_data_afdw, method='eu')
@@ -4881,8 +5014,8 @@ porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,
 
 Assemble final figure with inset biplot.  
 ```{r}
-porFullPCA<-ggdraw(porPCAfull)+ #+ theme_half_open(12)) +
-  draw_plot(porArrows, .5, .5, .5, .5); porFullPCA #x, y, w, h
+#porFullPCA<-ggdraw(porPCAfull)+ #+ theme_half_open(12)) +
+ # draw_plot(porArrows, .5, .5, .5, .5); porFullPCA #x, y, w, h
 
 #ggsave(filename="Figures/FullPCA_Porites.pdf", plot=porFullPCA, dpi=300, width=12, height=8, units="in")
 ```
@@ -4897,14 +5030,14 @@ poc_data_afdw<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(chla.ug.mgAFDW<2)%>%
+  filter(Total_Chl<13)%>%
   filter(species=="Pocillopora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)
 
 poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
  
-scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:12)], scale=TRUE, center=TRUE) 
+scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:10)], scale=TRUE, center=TRUE) 
 
 poc_info<-poc_data_afdw[c(2,4)]
 
@@ -4923,7 +5056,7 @@ poc.centroids<-poc_data %>%
   
 ```{r}
 # scale data
-vegan <- scale(poc_data_afdw[ ,5:12])
+vegan <- scale(poc_data_afdw[ ,5:10])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 permanova<-adonis(vegan ~ timepoint*site_code, data = poc_data_afdw, method='eu')
@@ -5006,8 +5139,8 @@ pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,
  
 Assemble final figure with inset biplot.  
 ```{r}
-pocFullPCA<-ggdraw(pocPCAfull) + #theme_half_open(12)) +
-  draw_plot(pocArrows, .5, .5, .5, .5); pocFullPCA #x, y, w, h
+#pocFullPCA<-ggdraw(pocPCAfull) + #theme_half_open(12)) +
+  #draw_plot(pocArrows, .5, .5, .5, .5); pocFullPCA #x, y, w, h
 
 #ggsave(filename="Figures/FullPCA_Pocillopora.pdf", plot=pocFullPCA, dpi=300, width=12, height=8, units="in")
 ```
@@ -5015,7 +5148,7 @@ pocFullPCA<-ggdraw(pocPCAfull) + #theme_half_open(12)) +
 Assemble all plots.  
 
 ```{r}
-PCA_full_panel<-plot_grid(acrFullPCA, pocFullPCA, porFullPCA, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
+PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
 
 # add the legend to the row we made earlier. Give it one-third of 
 # the width of one plot (via rel_widths).
@@ -5036,15 +5169,15 @@ poc_tp1_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(chla.ug.mgAFDW<2)%>%
+  filter(Total_Chl<13)%>%
   filter(species=="Pocillopora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint1")
 
 poc_tp1_data<-poc_tp1_data[complete.cases(poc_tp1_data), ]
  
-poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:12)], scale=TRUE, center=TRUE) 
+poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:10)], scale=TRUE, center=TRUE) 
 
 pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5073,15 +5206,15 @@ poc_tp2_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(chla.ug.mgAFDW<2)%>%
+  filter(Total_Chl<13)%>%
   filter(species=="Pocillopora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint2")
  
 poc_tp2_data<-poc_tp2_data[complete.cases(poc_tp2_data), ]
  
-poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:12)], scale=TRUE, center=TRUE) 
+poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:10)], scale=TRUE, center=TRUE) 
 
 pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5110,15 +5243,15 @@ poc_tp3_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(chla.ug.mgAFDW<2)%>%
+  filter(Total_Chl<13)%>%
   filter(species=="Pocillopora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint3")
  
 poc_tp3_data<-poc_tp3_data[complete.cases(poc_tp3_data), ]
  
-poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:12)], scale=TRUE, center=TRUE) 
+poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:10)], scale=TRUE, center=TRUE) 
 
 pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5147,15 +5280,15 @@ poc_tp4_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(chla.ug.mgAFDW<2)%>%
+  filter(Total_Chl<13)%>%
   filter(species=="Pocillopora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint4")
  
 poc_tp4_data<-poc_tp4_data[complete.cases(poc_tp4_data), ]
  
-poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:12)], scale=TRUE, center=TRUE) 
+poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:10)], scale=TRUE, center=TRUE) 
 
 pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5187,15 +5320,15 @@ acr_tp1_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(chla.ug.mgAFDW<2)%>%
+  filter(Total_Chl<13)%>%
   filter(species=="Acropora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint1")
 
 acr_tp1_data<-acr_tp1_data[complete.cases(acr_tp1_data), ]
  
-acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:12)], scale=TRUE, center=TRUE) 
+acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:10)], scale=TRUE, center=TRUE) 
 
 acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5224,15 +5357,15 @@ acr_tp2_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(chla.ug.mgAFDW<2)%>%
+  filter(Total_Chl<13)%>%
   filter(species=="Acropora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint2")
  
 acr_tp2_data<-acr_tp2_data[complete.cases(acr_tp2_data), ]
  
-acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:12)], scale=TRUE, center=TRUE) 
+acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:10)], scale=TRUE, center=TRUE) 
 
 acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5261,15 +5394,15 @@ acr_tp3_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(chla.ug.mgAFDW<2)%>%
+  filter(Total_Chl<13)%>%
   filter(species=="Acropora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint3")
  
 acr_tp3_data<-acr_tp3_data[complete.cases(acr_tp3_data), ]
  
-acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:12)], scale=TRUE, center=TRUE) 
+acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:10)], scale=TRUE, center=TRUE) 
 
 acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5298,15 +5431,15 @@ acr_tp4_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(chla.ug.mgAFDW<2)%>%
+  filter(Total_Chl<13)%>%
   filter(species=="Acropora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint4")
  
 acr_tp4_data<-acr_tp4_data[complete.cases(acr_tp4_data), ]
  
-acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:12)], scale=TRUE, center=TRUE) 
+acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:10)], scale=TRUE, center=TRUE) 
 
 acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5339,15 +5472,15 @@ por_tp1_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(chla.ug.mgAFDW<2)%>%
+  filter(Total_Chl<13)%>%
   filter(species=="Porites")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint1")
 
 por_tp1_data<-por_tp1_data[complete.cases(por_tp1_data), ]
  
-por_tp1_scaled<-prcomp(por_tp1_data[c(5:12)], scale=TRUE, center=TRUE) 
+por_tp1_scaled<-prcomp(por_tp1_data[c(5:10)], scale=TRUE, center=TRUE) 
 
 porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5376,15 +5509,15 @@ por_tp2_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(chla.ug.mgAFDW<2)%>%
+  filter(Total_Chl<13)%>%
   filter(species=="Porites")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint2")
  
 por_tp2_data<-por_tp2_data[complete.cases(por_tp2_data), ]
  
-por_tp2_scaled<-prcomp(por_tp2_data[c(5:12)], scale=TRUE, center=TRUE) 
+por_tp2_scaled<-prcomp(por_tp2_data[c(5:10)], scale=TRUE, center=TRUE) 
 
 porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5413,15 +5546,15 @@ por_tp3_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(chla.ug.mgAFDW<2)%>%
+  filter(Total_Chl<13)%>%
   filter(species=="Porites")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint3")
  
 por_tp3_data<-por_tp3_data[complete.cases(por_tp3_data), ]
  
-por_tp3_scaled<-prcomp(por_tp3_data[c(5:12)], scale=TRUE, center=TRUE) 
+por_tp3_scaled<-prcomp(por_tp3_data[c(5:10)], scale=TRUE, center=TRUE) 
 
 porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5450,15 +5583,15 @@ por_tp4_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(chla.ug.mgAFDW<2)%>%
+  filter(Total_Chl<13)%>%
   filter(species=="Porites")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Symbiont_Density=cells.mgAFDW, Chl_a_cell=chla.ug.cell, Chl_c2_cell=chlc2.ug.cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint4")
  
 por_tp4_data<-por_tp4_data[complete.cases(por_tp4_data), ]
  
-por_tp4_scaled<-prcomp(por_tp4_data[c(5:12)], scale=TRUE, center=TRUE) 
+por_tp4_scaled<-prcomp(por_tp4_data[c(5:10)], scale=TRUE, center=TRUE) 
 
 porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
