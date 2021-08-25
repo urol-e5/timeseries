@@ -1,5 +1,9 @@
 # timeseries
 
+## Experimental Design
+![Sites](https://github.com/urol-e5/timeseries/blob/master/metadata/E5_Sites.png?raw=true)
+
+
 #### To run scripts, set Knit directory to "Project Directory"  
 
 #### Data standards
