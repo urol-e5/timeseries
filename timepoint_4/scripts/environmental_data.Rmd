@@ -77,26 +77,26 @@ dev.off()
 
 Temperature
 ```{r}
-Temp1 <- read.csv("data/3_environmental/3_20200918_SN20444035_Site1_Temp.csv", header=T, sep=",", na.strings="NA",skip=1) #load  data
+Temp1 <- read.csv("data/4_environmental/4_20201101_20444035_Site1_Temp.csv", header=T, sep=",", na.strings="NA",skip=1) #load  data
 Temp1 <- Temp1[,2:3]
 colnames(Temp1) <- c("Date.Time", "Temp")
 Temp1$Date.Time <- parse_date_time(Temp1$Date.Time, "m!/d!/y! H!:M!:S! %p") 
 Temp1$Temp <- (Temp1$Temp - 32)*(5/9)
 
-Temp2 <- read.csv("data/3_environmental/3_20200918_SN20444027_Site2_Temp.csv", header=T, sep=",", na.strings="NA",skip=1) #load  data
+Temp2 <- read.csv("data/4_environmental/4_20201030_20444027_Site2_Temp.csv", header=T, sep=",", na.strings="NA",skip=1) #load  data
 Temp2 <- Temp2[908:nrow(Temp2),2:3]
 colnames(Temp2) <- c("Date.Time", "Temp")
 Temp2$Date.Time <- parse_date_time(Temp2$Date.Time, "m!/d!/y! H!:M!:S! %p") 
 Temp2$Temp <- (Temp2$Temp - 32)*(5/9)
 
-Temp3 <- read.csv("data/3_environmental/3_20200909_SN20444041_Site3_Temp.csv", header=T, sep=",", na.strings="NA",skip=1) #load  data
+Temp3 <- read.csv("data/4_environmental/4_20201031_20444041_Site3_Temp.csv", header=T, sep=",", na.strings="NA",skip=1) #load  data
 Temp3 <- Temp3[11251:nrow(Temp3),2:3]
 colnames(Temp3) <- c("Date.Time", "Temp")
 Temp3$Date.Time <- parse_date_time(Temp3$Date.Time, "m!/d!/y! H!:M!S! %p") 
 #Temp3$Temp <- (Temp3$Temp - 32)*(5/9)
 
 
-pdf("output/timepoint3_Temp.pdf")
+pdf("output/timepoint4_Temp.pdf")
 par(mfrow=c(3,1))
 par(mar = c(5,5,2,5))
 with(Temp1, plot(Date.Time, Temp, type="l", col="black", 
