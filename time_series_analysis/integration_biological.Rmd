@@ -254,6 +254,17 @@ master<-master%>%
   mutate(chla.ug.cell = (chla.ug.cm2 * surface.area.cm2)/cells) %>% #normalize to chl per cell
   mutate(chlc2.ug.cell = (chlc2.ug.cm2 * surface.area.cm2)/cells) #normalize to chl per cell
 ```
+
+Subset data for D. Conetta Acropora colonies for separate analysis.  
+
+```{r}
+conetta_colonies<-c("ACR-140", "ACR-150", "ACR-173", "ACR-185", "ACR-187", "ACR-225", "ACR-228", "ACR-234", "ACR-237", "ACR-244", "ACR-343", "ACR-368", "ACR-379", "ACR-389", "ACR-390")
+conetta<-master%>%
+  filter(colony_id_corr %in% conetta_colonies)%>%
+  arrange(colony_id_corr)%>%
+  write.csv(., "Output/conetta_data.csv")
+```
+
  
 Write master file to csv.  
 ```{r}
