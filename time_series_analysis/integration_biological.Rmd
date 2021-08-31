@@ -258,7 +258,7 @@ master<-master%>%
 Subset data for D. Conetta Acropora colonies for separate analysis.  
 
 ```{r}
-conetta_colonies<-c("ACR-140", "ACR-150", "ACR-173", "ACR-185", "ACR-187", "ACR-225", "ACR-228", "ACR-234", "ACR-237", "ACR-244", "ACR-343", "ACR-368", "ACR-379", "ACR-389", "ACR-390")
+conetta_colonies<-c("ACR-140", "ACR-150", "ACR-173", "ACR-185", "ACR-187", "ACR-225", "ACR-228", "ACR-234", "ACR-237", "ACR-244", "ACR-343", "ACR-368", "ACR-379", "ACR-389", "ACR-390", "ACR-193", "ACR-180", "ACR-178", "ACR-243", "ACR-256", "ACR-374", "ACR-350", "ACR-351", "ACR-363")
 conetta<-master%>%
   filter(colony_id_corr %in% conetta_colonies)%>%
   arrange(colony_id_corr)%>%
