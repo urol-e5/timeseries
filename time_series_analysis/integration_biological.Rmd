@@ -1,11 +1,12 @@
 ---
 title: "Integrating E5 time series biological data"
 author: "Ariana S Huffmyer"
-date: "8/18/2021"
+date: "9/20/2021"
 output: html_document
 editor_options: 
   chunk_output_type: console
 --- 
+NOTE: If you want to run this script, do not Knit, instead "run all chunks below" and look at console output.   
  
 # Set Up    
 ```{r setup, include=FALSE}
@@ -63,7 +64,7 @@ protein_files<-list.files("../", pattern = "protein.csv", recursive=T, full.name
 symb_densities_files<-list.files("../", pattern = "symb_densities.csv", recursive=T, full.names=T)
 chlorophyll_files<-list.files("../", pattern = "chlorophyll.csv", recursive=T, full.names=T)
 
-#need to add calcification
+#need to add calcification once complete
 ```
  
 
@@ -152,7 +153,7 @@ rm(list = ls(pattern = "*_df"))
 
 ## Generate master data frame    
 
-Read in metadata frame. 
+Read in tag metadata frame. 
 ```{r}
 #Load tag metadata sheet 
 tags<-read.csv("../metadata/coral_id_metadata.csv")
@@ -182,11 +183,10 @@ symb_densities_dataset<-symb_densities_dataset%>%
 
 ```
 
-
-
+Join all data frames together.  
 
 ```{r}
-#can also use "join_all" - E. Strand
+#can also use "join_all"
 master <- full_join(full_join(full_join(full_join(full_join(full_join(
   antioxidant_dataset,
   biomass_dataset, by=c("colony_id", "timepoint")),
@@ -227,7 +227,7 @@ master<-master%>%
 master$site_code <- factor(master$site_code, levels = c("Mahana Low", "Hilton Medium", "Manava High"))
 ```
 
-# Normalization  
+# Normalization and write master file  
 
 In order to examine the effect of normalizer on all response variables, normalize each response to: 
 (1) Protein  (ug/cm2)  
@@ -253,6 +253,17 @@ master<-master%>%
   mutate(cre.umol.cm2=(cre.umol.mgprot*mgprot)/surface.area.cm2)%>% #normalize tac to surface area
   mutate(chla.ug.cell = (chla.ug.cm2 * surface.area.cm2)/cells) %>% #normalize to chl per cell
   mutate(chlc2.ug.cell = (chlc2.ug.cm2 * surface.area.cm2)/cells) #normalize to chl per cell
+```
+
+Calculate additional metrics of host:symbiont biomass ratio and total cholorophyll (a + c2).  
+
+```{r}
+master <- master %>% 
+  mutate(Ratio_AFDW.mg.cm2=Sym_AFDW.mg.cm2/(Sym_AFDW.mg.cm2+Host_AFDW.mg.cm2))%>%
+  mutate(Total_Chl=chla.ug.mgAFDW+chlc2.ug.mgAFDW)%>%
+  mutate(Total_Chl_cell=chla.ug.cell+chlc2.ug.cell)
+
+head(master)
 ```
 
 Subset data for D. Conetta Acropora colonies for separate analysis.  
@@ -296,6 +307,8 @@ summary_group<-master%>%
 
 # Univariate Responses  
 
+Plot univariate response plots and then generate panel of all plots at the end of this section. Individual plots will not be displayed.  
+
 ## Antioxidant capacity  
 
 ### Plot: CRE umol mgprot 
@@ -324,7 +337,7 @@ tacplot_prot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); tacplot_prot
+      )
 ```
 
 ### Plot: CRE umol mgafdw 
@@ -353,7 +366,7 @@ tacplot_afdw<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); tacplot_afdw
+      )
 ```
 
 
@@ -383,7 +396,7 @@ tacplot_cm2<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); tacplot_cm2
+      )
 
 ```
 
@@ -397,39 +410,89 @@ ggsave(filename="Figures/TAC_Figure.pdf", plot=tac_figure, dpi=300, width=24, he
 
 ### Analysis 
 
-Build a mixed model for univariate analysis and examine data distribution.
+Build a mixed model for univariate analysis and examine data distribution of biomass normalized antioxidant capacity.
 
-`antiox_model<-lmer(cre.umol.mgprot~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+`antiox_model<-lmer(cre.umol.mgafdw~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
 
 ```{r}
-antiox_model<-lmer(cre.umol.mgprot~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+antiox_model<-lmer(cre.umol.mgafdw~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(antiox_model))
-hist(residuals(antiox_model))
+#hist(residuals(antiox_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`antiox_model<-lmer(log(cre.umol.mgprot)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
+`antiox_model<-lmer(log(1+cre.umol.mgafdw)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
 
 ```{r}
-antiox_model<-lmer(log(cre.umol.mgprot)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
+antiox_model<-lmer(log(1+cre.umol.mgafdw)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(antiox_model))
-hist(residuals(antiox_model))
+#hist(residuals(antiox_model))
 ```
 
-Residuals are improved, but we need to revisit this model to improve fit.  
+Residuals are improved with log transformation.    
 
-Generate a Type II Anova of model.    
+Generate a Type III Anova of model.    
 
 ```{r}
-anova(antiox_model, type="II")
+anova(antiox_model, type="III")
+summary(antiox_model)
 ```
 
-Generate model effect plots.  
+Since species is significant, run a model for site and time effects within each species.  
+
+*Acropora*:
+
+`antiox_model_acr<-lmer(log(1+cre.umol.mgafdw)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
-plot(allEffects(antiox_model))
+antiox_model_acr<-lmer(log(1+cre.umol.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
+qqPlot(residuals(antiox_model_acr))
 ```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(antiox_model_acr, type="III")
+summary(antiox_model_acr)
+```
+
+*Pocillopora*: 
+
+`antiox_model_poc<-lmer(log(1+cre.umol.mgafdw)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
+
+```{r}
+antiox_model_poc<-lmer(log(1+cre.umol.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+qqPlot(residuals(antiox_model_poc))
+#hist(residuals(antiox_model_poc))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(antiox_model_poc, type="III")
+summary(antiox_model_poc)
+```
+
+
+*Porites*:  
+
+`antiox_model_por<-lmer(log(1+cre.umol.mgafdw)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
+
+```{r}
+antiox_model_por<-lmer(log(1+cre.umol.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+qqPlot(residuals(antiox_model_por))
+#hist(residuals(antiox_model_por))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(antiox_model_por, type="III")
+summary(antiox_model_por)
+```
+
+
 
 ## Symbiont Densities  
 
@@ -459,7 +522,7 @@ symbplot_cm2<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); symbplot_cm2
+      )
 ```
 
 ### Plot: Protein   
@@ -489,7 +552,7 @@ symbplot_prot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); symbplot_prot
+      )
 
 ```
 
@@ -520,7 +583,7 @@ symbplot_afdw<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); symbplot_afdw
+      )
 ```
 
 Join all plots for each normalization together.  
@@ -535,43 +598,82 @@ ggsave(filename="Figures/CellDensity_Figure.pdf", plot=symbcells_figure, dpi=300
 
 Build a mixed model for univariate analysis and examine data distribution.
 
-`density_model<-lmer(cells.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+`density_model<-lmer(cells.mgAFDW~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
 
 ```{r}
-density_model<-lmer(cells.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+density_model<-lmer(cells.mgAFDW~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0))
 qqPlot(residuals(density_model))
-hist(residuals(density_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`density_model<-lmer(log(cells.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
+`density_model<-lmer(log(cells.mgAFDW)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
 
 ```{r}
-density_model<-lmer(log(cells.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
+density_model<-lmer(log(cells.mgAFDW)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0))
 qqPlot(residuals(density_model))
-hist(residuals(density_model))
 ```
 
 Residuals are improved, but we need to revisit this model to improve fit.  
 
-Generate a Type II Anova of model.    
+Generate a Type III Anova of model.    
 
 ```{r}
-anova(density_model, type="II")
+anova(density_model, type="III")
 ```
 
-Generate model effect plots.  
+Since species is significant, test for effects of time and site within each species.  
+
+*Acropora*  
+
+`density_model_acr<-lmer(log(cells.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(subset=c(cells.mgAFDW>0 & species=="Acropora"))` 
 
 ```{r}
-#plot(allEffects(density_model)) #currently not working, need TP4 data 
+density_model_acr<-lmer(log(cells.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0 & species=="Acropora"))
+qqPlot(residuals(density_model_acr))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(density_model_acr, type="III")
+```
+
+*Pocillopora*  
+
+`density_model_poc<-lmer(log(cells.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
+
+```{r}
+density_model_poc<-lmer(log(cells.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0 & species=="Pocillopora"))
+qqPlot(residuals(density_model_poc))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(density_model_poc, type="III")
+```
+
+*Porites*  
+
+`density_model_por<-lmer(log(cells.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
+
+```{r}
+density_model_por<-lmer(log(cells.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0 & species=="Porites"))
+qqPlot(residuals(density_model_por))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(density_model_por, type="III")
 ```
 
 
 ## Biomass
 
-### Host Biomass  
-
+### Plot Host Biomass  
+ 
 View by site and timepoint for each species in the host.  
 ```{r} 
 hAFDWplot<-master %>%
@@ -598,11 +700,11 @@ hAFDWplot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); hAFDWplot
+      )
 ```
 
 
-### Symbiont biomass  
+### Plot Symbiont biomass  
 
 View by site and timepoint for each species in the symbiont  
 ```{r} 
@@ -630,10 +732,10 @@ sAFDWplot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); sAFDWplot
+      )
 ```
 
-### S:H Ratio  
+### Plot S:H Ratio  
 
 Calculate biomass as a ratio of host to symbiont and plot.  
 
@@ -660,12 +762,13 @@ ratioAFDWplot<-master %>%
     ylab(expression(bold(paste("Symbiont : Holobiont Biomass"))))+
     theme_classic() + 
     theme(
+      legend.position="none",
       legend.title=element_text(face="bold", size=14),
       legend.text=element_text(size=14),
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); ratioAFDWplot
+      )
 ```
 
 
@@ -681,118 +784,238 @@ ggsave(filename="Figures/Biomass_Figure.pdf", plot=afdw_figure, dpi=300, width=2
 
 Build a mixed model for univariate analysis and examine data distribution.
 
-Host Biomass:  
+#### Host Biomass:  
 
 `hAFDW_model<-lmer(Host_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))` 
 
 ```{r}
 hAFDW_model<-lmer(Host_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))
 qqPlot(residuals(hAFDW_model))
-hist(residuals(hAFDW_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`hAFDW_model<-lmer(log(Host_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))` 
+`hAFDW_model<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))` 
 
 ```{r}
-hAFDW_model<-lmer(log(Host_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))
+hAFDW_model<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))
 qqPlot(residuals(hAFDW_model))
-hist(residuals(hAFDW_model))
 ```
 
-Residuals are improved, but we need to revisit this model to improve fit.  
+Residuals are improved.
 
-Generate a Type II Anova of model.    
+Generate a Type III Anova of model.    
 
 ```{r}
-anova(hAFDW_model, type="II")
+anova(hAFDW_model, type="III")
+summary(hAFDW_model)
 ```
 
-Generate model effect plots.  
+Since species is significant, test for effects of site and time within each species.  
+
+*Acropora*  
+ 
+`hAFDW_model_acr<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0 & species=="Acropora"))` 
 
 ```{r}
-plot(allEffects(hAFDW_model))
+hAFDW_model_acr<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0 & species=="Acropora"))
+qqPlot(residuals(hAFDW_model_acr))
 ```
 
-Symbiont Biomass:  
+Generate a Type III Anova of model.    
+
+```{r}
+anova(hAFDW_model_acr, type="III")
+summary(hAFDW_model_acr)
+```
+
+*Pocillopora*  
+ 
+`hAFDW_model_poc<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0 & species=="Pocillopora"))` 
+
+```{r}
+hAFDW_model_poc<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0 & species=="Pocillopora"))
+qqPlot(residuals(hAFDW_model_poc))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(hAFDW_model_poc, type="III")
+summary(hAFDW_model_poc)
+```
+
+*Porites*  
+ 
+`hAFDW_model_por<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0 & species=="Porites"))` 
+
+```{r}
+hAFDW_model_por<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0 & species=="Porites"))
+qqPlot(residuals(hAFDW_model_por))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(hAFDW_model_por, type="III")
+summary(hAFDW_model_por)
+```
+
+#### Symbiont Biomass:  
 
 `sAFDW_model<-lmer(Sym_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))` 
-
 ```{r}
 sAFDW_model<-lmer(Sym_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))
 qqPlot(residuals(sAFDW_model))
-hist(residuals(sAFDW_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`sAFDW_model<-lmer(log(Sym_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))` 
+`sAFDW_model<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))` 
 
 ```{r}
-sAFDW_model<-lmer(log(Sym_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))
+sAFDW_model<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))
 qqPlot(residuals(sAFDW_model))
-hist(residuals(sAFDW_model))
 ```
 
-Residuals are improved, but we need to revisit this model to improve fit.  
+Residuals are improved.  
 
-Generate a Type II Anova of model.    
+Generate a Type III Anova of model.    
 
 ```{r}
-anova(sAFDW_model, type="II")
+anova(sAFDW_model, type="III")
+summary(sAFDW_model)
 ```
 
-Generate model effect plots.  
+Since species is significant, test for effects of site and time within each species.  
+
+*Acropora* 
+
+`sAFDW_model_acr<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0 & species=="Acropora"))` 
 
 ```{r}
-plot(allEffects(sAFDW_model))
+sAFDW_model_acr<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0 & species=="Acropora"))
+qqPlot(residuals(sAFDW_model_acr))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(sAFDW_model_acr, type="III")
+summary(sAFDW_model_acr)
+```
+
+*Pocillopora* 
+
+`sAFDW_model_poc<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0 & species=="Pocillopora"))` 
+
+```{r}
+sAFDW_model_poc<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0 & species=="Pocillopora"))
+qqPlot(residuals(sAFDW_model_poc))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(sAFDW_model_poc, type="III")
+summary(sAFDW_model_poc)
+```
+
+*Porites* 
+
+`sAFDW_model_poc<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0 & species=="Porites"))` 
+
+```{r}
+sAFDW_model_por<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0 & species=="Porites"))
+qqPlot(residuals(sAFDW_model_por))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(sAFDW_model_por, type="III")
+summary(sAFDW_model_por)
 ```
 
 
-S:H Biomass: 
+#### S:H Biomass: 
 
 `shAFDW_model<-lmer(Ratio_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))` 
 
 ```{r}
 shAFDW_model<-lmer(Ratio_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))
 qqPlot(residuals(shAFDW_model))
-hist(residuals(shAFDW_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`shAFDW_model<-lmer(log(Ratio_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))` 
+`shAFDW_model<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))` 
 
 ```{r}
-shAFDW_model<-lmer(log(Ratio_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))
+shAFDW_model<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))
 qqPlot(residuals(shAFDW_model))
-hist(residuals(shAFDW_model))
 ```
 
-Residuals are improved, but we need to revisit this model to improve fit.  
+Residuals are improved. 
 
-Generate a Type II Anova of model.    
+Generate a Type III Anova of model.    
 
 ```{r}
-anova(shAFDW_model, type="II")
+anova(shAFDW_model, type="III")
+summary(shAFDW_model)
 ```
 
-Generate model effect plots.  
+Since species is significant, test for effects of time and site within species.  
+
+*Acropora*   
+
+`shAFDW_model_acr<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0 & species=="Acropora"))` 
 
 ```{r}
-plot(allEffects(shAFDW_model))
+shAFDW_model_acr<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0 & species=="Acropora"))
+qqPlot(residuals(shAFDW_model_acr))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(shAFDW_model_acr, type="III")
+summary(shAFDW_model_acr)
+```
+
+*Pocillopora*   
+
+`shAFDW_model_poc<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0 & species=="Pocillopora"))` 
+
+```{r}
+shAFDW_model_poc<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0 & species=="Pocillopora"))
+qqPlot(residuals(shAFDW_model_poc))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(shAFDW_model_poc, type="III")
+summary(shAFDW_model_poc)
+```
+
+*Porites*   
+
+`shAFDW_model_por<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0 & species=="Porites"))` 
+
+```{r}
+shAFDW_model_por<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0 & species=="Porites"))
+qqPlot(residuals(shAFDW_model_por))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(shAFDW_model_por, type="III")
+summary(shAFDW_model_por)
 ```
 
 ## Chlorophyll  
-
-First, calculate chlorophyll as total chlorophyll per surface area (c2 + a) and per cell (c2+a) as a and c2 are highly correlated.  
-
-```{r}
-master<-master%>%
-  mutate(Total_Chl=chla.ug.mgAFDW+chlc2.ug.mgAFDW)%>%
-  mutate(Total_Chl_cell=chla.ug.cell+chlc2.ug.cell)
-```
 
 ### Plot: Surface area     
 
@@ -820,7 +1043,7 @@ chlaplot_cm2<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); chlaplot_cm2
+      )
 ```
 
 View by site and timepoint for each species in Chl c2.   
@@ -847,7 +1070,7 @@ chlc2plot_cm2<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); chlc2plot_cm2
+      )
 ```
 
 ### Plot: Protein    
@@ -877,7 +1100,7 @@ chlaplot_prot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); chlaplot_prot
+      )
 ```
 
 View by site and timepoint for each species in Chl c2.   
@@ -905,7 +1128,7 @@ chlc2plot_prot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); chlc2plot_prot
+      )
 ```
 
 ### Plot: Biomass    
@@ -935,7 +1158,7 @@ chlaplot_afdw<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); chlaplot_afdw
+      )
 ```
 
 View by site and timepoint for each species in Chl c2.   
@@ -963,7 +1186,7 @@ chlc2plot_afdw<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); chlc2plot_afdw
+      )
 ```
 
 ### Plot: Per cell    
@@ -993,7 +1216,7 @@ chlaplot_cell<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); chlaplot_cell
+      )
 ```
 
 View by site and timepoint for each species in Chl c2.   
@@ -1021,7 +1244,7 @@ chlc2plot_cell<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); chlc2plot_cell
+      )
 ```
 
 Join all plots for each normalization together.  
@@ -1059,7 +1282,7 @@ chlplot_total<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); chlplot_total
+      )
 ```
 
 View by site and timepoint for each species for total chl per cell.     
@@ -1087,151 +1310,325 @@ chlplot_total_cell<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); chlplot_total_cell
+      )
 ```
 
 ### Analysis  
 
 Build a mixed model for univariate analysis and examine data distribution.
 
-Chlorophyll a: 
+#### Chlorophyll a: 
 
-`chla_model<-lmer(chla.ug.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+`chla_model<-lmer(chla.ug.mgAFDW~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
 
 ```{r}
-chla_model<-lmer(chla.ug.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+chla_model<-lmer(chla.ug.mgAFDW~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(chla_model))
-hist(residuals(chla_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`chla_model<-lmer(log(chla.ug.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
+`chla_model<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0))` 
 
 ```{r}
-chla_model<-lmer(log(chla.ug.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
+chla_model<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0))
 qqPlot(residuals(chla_model))
-hist(residuals(chla_model))
 ```
 
-Generate a Type II Anova of model.    
+Generate a Type III Anova of model.    
 
 ```{r}
-anova(chla_model, type="II")
+anova(chla_model, type="III")
+summary(chla_model)
 ```
 
-Generate model effect plots.  
+Since species is significant, test for effects of site and time within each species.  
+
+*Acropora*  
+
+`chla_model_acr<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0 & species=="Acropora"))` 
 
 ```{r}
-plot(allEffects(chla_model))
+chla_model_acr<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0 & species=="Acropora"))
+qqPlot(residuals(chla_model_acr))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(chla_model_acr, type="III")
+summary(chla_model_acr)
+```
+
+*Pocillopora*  
+
+`chla_model_poc<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0 & species=="Pocillopora"))` 
+
+```{r}
+chla_model_poc<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0 & species=="Pocillopora"))
+qqPlot(residuals(chla_model_poc))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(chla_model_poc, type="III")
+summary(chla_model_poc)
+```
+
+*Porites*  
+
+`chla_model_por<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0 & species=="Porites"))` 
+
+```{r}
+chla_model_por<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0 & species=="Porites"))
+qqPlot(residuals(chla_model_por))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(chla_model_por, type="III")
+summary(chla_model_por)
 ```
 
 
-Chlorophyll c2: 
+### Chlorophyll c2: 
 
 Build a mixed model for univariate analysis and examine data distribution.
 
-`chlc2_model<-lmer(chlc2.ug.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+`chlc2_model<-lmer(chlc2.ug.mgAFDW~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0))` 
 
 ```{r}
-chlc2_model<-lmer(chlc2.ug.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+chlc2_model<-lmer(chlc2.ug.mgAFDW~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0))
 qqPlot(residuals(chlc2_model))
-hist(residuals(chlc2_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`chlc2_model<-lmer(log(chlc2.ug.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
+`chlc2_model<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0))` 
 
 ```{r}
-chlc2_model<-lmer(log(chlc2.ug.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
+chlc2_model<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0))
 qqPlot(residuals(chlc2_model))
-hist(residuals(chlc2_model))
 ```
 
-Return to check outliers in this model.  
+Return to check residual distribution in this model.  
 
-Generate a Type II Anova of model.    
+Generate a Type III Anova of model.    
 
 ```{r}
-anova(chlc2_model, type="II")
+anova(chlc2_model, type="III")
+summary(chlc2_model)
 ```
 
-Generate model effect plots.  
+Since species is significant, test for effects of site and time within species.  
+
+*Acropora* 
+
+`chlc2_model_acr<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0 & species=="Acropora))` 
 
 ```{r}
-plot(allEffects(chlc2_model))
+chlc2_model_acr<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0 & species=="Acropora"))
+qqPlot(residuals(chlc2_model_acr))
 ```
 
-Total Chlorophyll (a + c2): 
+Generate a Type III Anova of model.    
+
+```{r}
+anova(chlc2_model_acr, type="III")
+summary(chlc2_model_acr)
+```
+
+
+*Pocillopora* 
+
+`chlc2_model_poc<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0 & species=="Pocillopora))` 
+
+```{r}
+chlc2_model_poc<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0 & species=="Pocillopora"))
+qqPlot(residuals(chlc2_model_poc))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(chlc2_model_poc, type="III")
+summary(chlc2_model_poc)
+```
+
+
+*Porites* 
+
+`chlc2_model_por<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0 & species=="Porites))` 
+
+```{r}
+chlc2_model_por<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0 & species=="Porites"))
+qqPlot(residuals(chlc2_model_por))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(chlc2_model_por, type="III")
+summary(chlc2_model_por)
+```
+
+#### Total Chlorophyll (a + c2): 
 
 Build a mixed model for univariate analysis and examine data distribution.
 
-`chltotal_model<-lmer(Total_Chl~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+`chltotal_model<-lmer(Total_Chl~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0))` 
 
 ```{r}
-chltotal_model<-lmer(Total_Chl~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+chltotal_model<-lmer(Total_Chl~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0))
 qqPlot(residuals(chltotal_model))
-hist(residuals(chltotal_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`chltotal_model<-lmer(log(Total_Chl)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
+`chltotal_model<-lmer(log(1+Total_Chl)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0))` 
 
 ```{r}
-chltotal_model<-lmer(log(Total_Chl)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
-qqPlot(residuals(chlc2_model))
-hist(residuals(chlc2_model))
+chltotal_model<-lmer(log(1+Total_Chl)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0))
+qqPlot(residuals(chltotal_model))
 ```
 
-Generate a Type II Anova of model.    
+Generate a Type III Anova of model.    
 
 ```{r}
-anova(chltotal_model, type="II")
+anova(chltotal_model, type="III")
+summary(chltotal_model)
 ```
 
-Generate model effect plots.  
+Since species is significant, test for effects of time and site within species.  
+
+*Acropora*  
+
+`chltotal_model_acr<-lmer(log(1+Total_Chl)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0 & species=="Acropora"))` 
 
 ```{r}
-plot(allEffects(chltotal_model))
+chltotal_model_acr<-lmer(log(1+Total_Chl)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0 & species=="Acropora"))
+qqPlot(residuals(chltotal_model_acr))
 ```
 
+Generate a Type III Anova of model.    
 
-Total Chlorophyll per cell (a + c2): 
+```{r}
+anova(chltotal_model_acr, type="III")
+summary(chltotal_model_acr)
+```
+
+*Pocillopora*  
+
+`chltotal_model_poc<-lmer(log(1+Total_Chl)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0 & species=="Pocillopora"))` 
+
+```{r}
+chltotal_model_poc<-lmer(log(1+Total_Chl)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0 & species=="Pocillopora"))
+qqPlot(residuals(chltotal_model_poc))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(chltotal_model_poc, type="III")
+summary(chltotal_model_poc)
+```
+
+*Porites*  
+
+`chltotal_model_poc<-lmer(log(1+Total_Chl)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0 & species=="Porites"))` 
+
+```{r}
+chltotal_model_por<-lmer(log(1+Total_Chl)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0 & species=="Porites"))
+qqPlot(residuals(chltotal_model_por))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(chltotal_model_por, type="III")
+summary(chltotal_model_por)
+```
+
+#### Total Chlorophyll per cell (a + c2): 
 
 Build a mixed model for univariate analysis and examine data distribution.
 
-`chltotalcell_model<-lmer(Total_Chl_cell~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+`chltotalcell_model<-lmer(Total_Chl_cell~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0))` 
 
 ```{r}
-chltotalcell_model<-lmer(Total_Chl_cell~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+chltotalcell_model<-lmer(Total_Chl_cell~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0))
 qqPlot(residuals(chltotalcell_model))
-hist(residuals(chltotalcell_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`chltotalcell_model<-lmer(log(Total_Chl_cell)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
+`chltotalcell_model<-lmer(log(1+Total_Chl_cell)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0))` 
 
 ```{r}
-chltotalcell_model<-lmer(log(Total_Chl_cell)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
+chltotalcell_model<-lmer(log(1+Total_Chl_cell)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0))
 qqPlot(residuals(chltotalcell_model))
-hist(residuals(chltotalcell_model))
 ```
 
-Generate a Type II Anova of model.    
+Return to check distribution of residuals.  
+
+Generate a Type III Anova of model.    
 
 ```{r}
-anova(chltotalcell_model, type="II")
+anova(chltotalcell_model, type="III")
+summary(chltotalcell_model)
 ```
 
-Generate model effect plots.  
+Since species is significant, test for effects of time and set within species.  
+
+*Acropora*   
+
+`chltotalcell_model_acr<-lmer(log(1+Total_Chl_cell)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0 & species=="Acropora"))` 
 
 ```{r}
-plot(allEffects(chltotalcell_model))
+chltotalcell_model_acr<-lmer(log(1+Total_Chl_cell)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0 & species=="Acropora"))
+qqPlot(residuals(chltotalcell_model_acr))
 ```
 
+Generate a Type III Anova of model.    
+
+```{r}
+anova(chltotalcell_model_acr, type="III")
+summary(chltotalcell_model_acr)
+```
+
+*Pocillopora*   
+
+`chltotalcell_model_poc<-lmer(log(1+Total_Chl_cell)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0 & species=="Pocillopora"))` 
+
+```{r}
+chltotalcell_model_poc<-lmer(log(1+Total_Chl_cell)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0 & species=="Pocillopora"))
+qqPlot(residuals(chltotalcell_model_poc))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(chltotalcell_model_poc, type="III")
+summary(chltotalcell_model_poc)
+```
+
+*Porites*   
+
+`chltotalcell_model_por<-lmer(log(1+Total_Chl_cell)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0 & species=="Porites"))` 
+
+```{r}
+chltotalcell_model_por<-lmer(log(1+Total_Chl_cell)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0 & species=="Porites"))
+qqPlot(residuals(chltotalcell_model_por))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(chltotalcell_model_por, type="III")
+summary(chltotalcell_model_por)
+```
 
 ## Protein 
 
@@ -1261,7 +1658,7 @@ protplot_cm2<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); protplot_cm2
+      )
 ```
 
 ### Plot: AFDW  
@@ -1291,7 +1688,7 @@ protplot_afdw<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); protplot_afdw
+      )
 ```
 
 Join all plots for each normalization together.  
@@ -1304,43 +1701,84 @@ ggsave(filename="Figures/Protein_Figure.pdf", plot=prot_figure, dpi=300, width=1
 
 ### Analysis  
 
-Build a mixed model for univariate analysis and examine data distribution.
+Build a mixed model for univariate analysis and examine data distribution. 
 
-`prot_model<-lmer(prot_ug.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+`prot_model<-lmer(prot_mg.mgafdw~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_ug.mgAFDW>0))` 
 
 ```{r}
-prot_model<-lmer(prot_ug.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+prot_model<-lmer(prot_mg.mgafdw~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0))
 qqPlot(residuals(prot_model))
-hist(residuals(prot_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`prot_model<-lmer(log(prot_ug.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
+`prot_model<-lmer(log(1+prot_mg.mgafdw)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_ug.mgafdw>0))` 
 
 ```{r}
-prot_model<-lmer(log(prot_ug.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
+prot_model<-lmer(log(1+prot_mg.mgafdw)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0))
 qqPlot(residuals(prot_model))
-hist(residuals(prot_model))
 ```
 
-Return to check outliers in this model.  
-
-Generate a Type II Anova of model.    
+Generate a Type III Anova of model.    
 
 ```{r}
-anova(prot_model, type="II")
+anova(prot_model, type="III")
+summary(prot_model)
 ```
 
-Generate model effect plots.  
+Since species is significant, test for effects of site and time within each species.  
+
+*Acropora*  
+
+`prot_model_acr<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_ug.mgafdw>0 & species=="Acropora"))` 
 
 ```{r}
-plot(allEffects(prot_model))
+prot_model_acr<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & species=="Acropora"))
+qqPlot(residuals(prot_model_acr))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(prot_model_acr, type="III")
+summary(prot_model_acr)
+```
+
+*Pocillopora*  
+
+`prot_model_poc<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_ug.mgafdw>0 & species=="Pocillopora"))` 
+
+```{r}
+prot_model_poc<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & species=="Pocillopora"))
+qqPlot(residuals(prot_model_poc))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(prot_model_poc, type="III")
+summary(prot_model_poc)
+```
+
+*Porites*  
+
+`prot_model_por<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_ug.mgafdw>0 & species=="Porites"))` 
+
+```{r}
+prot_model_por<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & species=="Porites"))
+qqPlot(residuals(prot_model_por))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(prot_model_por, type="III")
+summary(prot_model_por)
 ```
 
 ## PI Curve Parameters   
 
-### Plot: Am  
+### Plot: Am   
 
 View by site and timepoint for each species.    
 ```{r}
@@ -1367,7 +1805,7 @@ am_plot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); am_plot
+      )
 ```
 
 ### Plot: AQY  
@@ -1397,7 +1835,7 @@ aqy_plot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); aqy_plot
+      )
 ```
 
 ### Plot: Rd  
@@ -1426,7 +1864,7 @@ rd_plot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      ); rd_plot
+      )
 ```
 
 Join all plots together.  
@@ -1446,7 +1884,6 @@ Build a mixed model for univariate analysis and examine data distribution.
 ```{r}
 am_model<-lmer(Am~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(am_model))
-hist(residuals(am_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
@@ -1456,20 +1893,65 @@ Residuals are not normally distributed. Attempt with log transformation.
 ```{r}
 am_model<-lmer(log(Am)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(am_model))
-hist(residuals(am_model))
 ```
 
-Generate a Type II Anova of model.    
+Generate a Type III Anova of model.    
 
 ```{r}
-anova(am_model, type="II")
+anova(am_model, type="III")
+summary(am_model)
 ```
 
-Generate model effect plots.  
+Since species is significant, test for effects of time and site within species.  
+
+*Acropora*  
+
+`am_model<-lmer(log(Am)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
-plot(allEffects(am_model))
+am_model_acr<-lmer(log(Am)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
+qqPlot(residuals(am_model_acr))
 ```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(am_model_acr, type="III")
+summary(am_model_acr)
+```
+
+*Pocillopora*  
+
+`am_model_poc<-lmer(log(Am)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
+
+```{r}
+am_model_poc<-lmer(log(Am)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+qqPlot(residuals(am_model_poc))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(am_model_poc, type="III")
+summary(am_model_poc)
+```
+
+*Porites*  
+
+`am_model_por<-lmer(log(Am)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
+
+```{r}
+am_model_por<-lmer(log(Am)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+qqPlot(residuals(am_model_por))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(am_model_por, type="III")
+summary(am_model_por)
+```
+
 
 ### Analysis of AQY   
 
@@ -1480,7 +1962,6 @@ Build a mixed model for univariate analysis and examine data distribution.
 ```{r}
 aqy_model<-lmer(AQY~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(aqy_model))
-hist(residuals(aqy_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
@@ -1490,22 +1971,64 @@ Residuals are not normally distributed. Attempt with log transformation.
 ```{r}
 aqy_model<-lmer(log(AQY)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(aqy_model))
-hist(residuals(aqy_model))
 ```
 
 Generate a Type II Anova of model.    
 
 ```{r}
 anova(aqy_model, type="II")
+summary(aqy_model)
 ```
 
-Generate model effect plots.  
+Since species is significant, test for effect of site and time within species.  
+
+*Acropora*  
+
+`aqy_model_acr<-lmer(log(AQY)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
-plot(allEffects(aqy_model))
+aqy_model_acr<-lmer(log(AQY)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
+qqPlot(residuals(aqy_model_acr))
 ```
 
-We have a time point issue here - TP 4 values are much higher than other time points.  
+Generate a Type III Anova of model.    
+
+```{r}
+anova(aqy_model_acr, type="III")
+summary(aqy_model_acr)
+```
+
+*Pocillopora*  
+
+`aqy_model_poc<-lmer(log(AQY)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
+
+```{r}
+aqy_model_poc<-lmer(log(AQY)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+qqPlot(residuals(aqy_model_poc))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(aqy_model_poc, type="III")
+summary(aqy_model_poc)
+```
+
+*Porites*  
+
+`aqy_model_por<-lmer(log(AQY)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
+
+```{r}
+aqy_model_por<-lmer(log(AQY)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+qqPlot(residuals(aqy_model_por))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(aqy_model_por, type="III")
+summary(aqy_model_por)
+```
 
 ### Analysis of Rd   
 
@@ -1516,7 +2039,6 @@ Build a mixed model for univariate analysis and examine data distribution.
 ```{r}
 rd_model<-lmer(Rd~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(rd_model))
-hist(residuals(rd_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
@@ -1526,20 +2048,65 @@ Residuals are not normally distributed. Attempt with log transformation.
 ```{r}
 rd_model<-lmer(log(Rd)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(rd_model))
-hist(residuals(rd_model))
 ```
 
 Generate a Type II Anova of model.    
 
 ```{r}
-anova(rd_model, type="II")
+anova(rd_model, type="III")
+summary(rd_model)
 ```
 
-Generate model effect plots.  
+Since species is significant, test for effects of site and time within species.  
+
+*Acropora*  
+
+`rd_model_acr<-lmer(log(Rd)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
-plot(allEffects(rd_model))
+rd_model_acr<-lmer(log(Rd)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
+qqPlot(residuals(rd_model_acr))
 ```
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(rd_model_acr, type="III")
+summary(rd_model_acr)
+```
+
+*Pocillopora*  
+
+`rd_model_poc<-lmer(log(Rd)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
+
+```{r}
+rd_model_poc<-lmer(log(Rd)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+qqPlot(residuals(rd_model_poc))
+```
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(rd_model_poc, type="III")
+summary(rd_model_poc)
+```
+
+*Porites*  
+
+`rd_model_por<-lmer(log(Rd)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
+
+```{r}
+rd_model_por<-lmer(log(Rd)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+qqPlot(residuals(rd_model_por))
+```
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(rd_model_por, type="III")
+summary(rd_model_por)
+```
+
 
 ## Generating univariate response panels  
 
@@ -1558,7 +2125,7 @@ symbiont_univ<-plot_grid(symbplot_afdw, sAFDWplot, am_plot, aqy_plot, chlplot_to
 
 ggsave(filename="Figures/Symbiont_Univariate_Panel.pdf", plot=symbiont_univ, dpi=150, width=11, height=30, units="in")
 ```
-
+ 
 Generate a panel of responses for host/holobiont metrics.  
 
 ```{r}
