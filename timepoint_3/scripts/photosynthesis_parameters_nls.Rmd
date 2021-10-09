@@ -3,6 +3,8 @@ title: "Photosynthesis parameters summary"
 output: html_document
 ---
 
+PI Curve Step #3: Explore photosynthesis data from nls models  
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```

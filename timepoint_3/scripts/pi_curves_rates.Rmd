@@ -4,6 +4,8 @@ edited by: "Danielle Becker"
 output: html_document
 ---
 
+PI Curve Step #1: Prepare data for modeling  
+
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
