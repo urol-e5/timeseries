@@ -59,13 +59,13 @@ Data <- left_join(Data, homog_vol)  %>%
 
 # Calculate Dry Biomass
 dw <- left_join(Data, metadata) %>%
-  mutate(dry.bioimass.g = (dry.pan.mass.g.vol.corr - burnt.pan.mass.g.vol.corr),
+  mutate(dry.bioimass.g = (dry.pan.mass.g.vol.corr - initial.mass.g),
          DW.mg.cm2 = ((dry.bioimass.g)*1000) / surface.area.cm2)
 
 
 # Calculate AFDW
 afdw <- left_join(Data, metadata) %>%
-  mutate(dry.bioimass.g = (dry.pan.mass.g.vol.corr - initial.mass.g),
+  mutate(dry.bioimass.g = (dry.pan.mass.g.vol.corr - burnt.pan.mass.g.vol.corr),
          AFDW.mg.cm2 = ((dry.bioimass.g)*1000) / surface.area.cm2)
 
 
