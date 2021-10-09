@@ -69,7 +69,7 @@ chlorophyll_files<-list.files("../", pattern = "chlorophyll.csv", recursive=T, f
  
 
 ## Read data files 
-
+ 
 Load all data frames.  
 
 ```{r}
@@ -234,7 +234,7 @@ In order to examine the effect of normalizer on all response variables, normaliz
 (2) AFDW  (mg/cm2)   
 (3) Surface area (cm2)  
 
-To do this, back-normalize variables that are already normalized and divide by each new normalizer.   
+To do this, back-normalize variables that are already normalized and divide by each new normalizer.    
 
 ```{r}
 master<-master%>%
@@ -285,7 +285,7 @@ write_csv(master, "Output/master_timeseries.csv")
 
 # Generating summary by groups   
 
-Summarize all response values by group (species + timepoint + site).     
+Summarize all response values by group (species + timepoint + site).      
 
 ```{r}
 summary_colony<-master%>%
@@ -317,6 +317,7 @@ View by site and timepoint for each species.
 ```{r}
 tacplot_prot<-master %>%
   filter(!is.na(cre.umol.mgprot)) %>% 
+  filter(!is.na(species))%>%
   select(colony_id_corr, species, site_code, timepoint, cre.umol.mgprot)%>%
   
   ggplot(., aes(x = site_code, y = cre.umol.mgprot, fill = timepoint, group=interaction(site_code,timepoint))) +
@@ -346,6 +347,7 @@ View by site and timepoint for each species.
 ```{r}
 tacplot_afdw<-master %>%
   filter(!is.na(cre.umol.mgafdw)) %>%
+  filter(!is.na(species))%>%
   select(colony_id_corr, species, site_code, timepoint, cre.umol.mgafdw)%>%
   
   ggplot(., aes(x = site_code, y = cre.umol.mgafdw, fill = timepoint, group=interaction(site_code,timepoint))) +
@@ -376,6 +378,7 @@ View by site and timepoint for each species.
 ```{r}
 tacplot_cm2<-master %>%
   filter(!is.na(cre.umol.cm2)) %>%
+  filter(!is.na(species))%>%
   select(colony_id_corr, species, site_code, timepoint, cre.umol.cm2)%>%
   
   ggplot(., aes(x = site_code, y = cre.umol.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
@@ -410,7 +413,7 @@ ggsave(filename="Figures/TAC_Figure.pdf", plot=tac_figure, dpi=300, width=24, he
 
 ### Analysis 
 
-Build a mixed model for univariate analysis and examine data distribution of biomass normalized antioxidant capacity.
+Build a mixed model for univariate analysis and examine data distribution of biomass normalized antioxidant capacity. 
 
 `antiox_model<-lmer(cre.umol.mgafdw~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
 
@@ -429,8 +432,6 @@ antiox_model<-lmer(log(1+cre.umol.mgafdw)~timepoint*site*species+(1|colony_id_co
 qqPlot(residuals(antiox_model))
 #hist(residuals(antiox_model))
 ```
-
-Residuals are improved with log transformation.    
 
 Generate a Type III Anova of model.    
 
@@ -706,12 +707,13 @@ hAFDWplot<-master %>%
 
 ### Plot Symbiont biomass  
 
-View by site and timepoint for each species in the symbiont  
+View by site and timepoint for each species in the symbiont   
 ```{r} 
 sAFDWplot<-master %>%
   filter(!is.na(Sym_AFDW.mg.cm2)) %>%
   filter(!is.na(species))%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   select(colony_id_corr, species, site_code, timepoint, Sym_AFDW.mg.cm2)%>%
   
   ggplot(., aes(x = site_code, y = Sym_AFDW.mg.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
@@ -740,13 +742,14 @@ sAFDWplot<-master %>%
 Calculate biomass as a ratio of host to symbiont and plot.  
 
 ```{r} 
-master <- master %>% 
-  mutate(Ratio_AFDW.mg.cm2=Sym_AFDW.mg.cm2/(Sym_AFDW.mg.cm2+Host_AFDW.mg.cm2))
+#master <- master %>% 
+  #mutate(Ratio_AFDW.mg.cm2=Sym_AFDW.mg.cm2/(Sym_AFDW.mg.cm2+Host_AFDW.mg.cm2))
 
 ratioAFDWplot<-master %>%
   filter(!is.na(Host_AFDW.mg.cm2)) %>%
   filter(!is.na(species))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   select(colony_id_corr, species, site_code, timepoint, Ratio_AFDW.mg.cm2)%>%
   
@@ -2158,9 +2161,11 @@ Generating matrix with ggcorrplot for all colonies of all species.
 p<-master%>%
   select(species, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
+  filter(!is.na(species))%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(prot_mg.mgafdw<1.5)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   ggpairs(., columns=2:14, ggplot2::aes(colour=species)) #try to bold significant stats
 
 #change colors
@@ -2188,6 +2193,7 @@ p<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   ggpairs(., columns=2:14, ggplot2::aes(colour=site_code)) 
 
 #change colors
@@ -2215,6 +2221,7 @@ p<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   ggpairs(., columns=2:14, ggplot2::aes(colour=site_code)) 
 
 #change colors
@@ -2243,6 +2250,7 @@ p<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(prot_mg.mgafdw<1.5)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   ggpairs(., columns=2:14, ggplot2::aes(colour=site_code)) 
 
 #change colors
@@ -2277,6 +2285,7 @@ pca_data_cm2<-master%>%
   select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.cm2, chlc2.ug.cm2, prot_mg.cm2, cells.cm2, cre.umol.cm2, Am, AQY, Rd)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)
 
 pca_data_cm2<-pca_data_cm2[complete.cases(pca_data_cm2), ]
@@ -2376,6 +2385,7 @@ por_data_cm2<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Porites")
 
 por_data_cm2<-por_data_cm2[complete.cases(por_data_cm2), ]
@@ -2388,6 +2398,7 @@ acr_data_cm2<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")
 
 acr_data_cm2<-acr_data_cm2[complete.cases(acr_data_cm2), ]
@@ -2400,6 +2411,7 @@ poc_data_cm2<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Pocillopora")
 
 poc_data_cm2<-poc_data_cm2[complete.cases(poc_data_cm2), ]
@@ -2577,6 +2589,7 @@ pca_data_prot<-master%>%
   select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgprot, chlc2.ug.mgprot, prot_mg.cm2, cells.mgprot, cre.umol.mgprot, Am, AQY, Rd)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)
 
 pca_data_prot<-pca_data_prot[complete.cases(pca_data_prot), ]
@@ -2675,6 +2688,7 @@ por_data_prot<-master%>%
   select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgprot, chlc2.ug.mgprot, prot_mg.cm2, cells.mgprot, cre.umol.mgprot, Am, AQY, Rd)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Porites")
 
@@ -2688,6 +2702,7 @@ acr_data_prot<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")
 
 acr_data_prot<-acr_data_prot[complete.cases(acr_data_prot), ]
@@ -2700,6 +2715,7 @@ poc_data_prot<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Pocillopora")
 
 poc_data_prot<-poc_data_prot[complete.cases(poc_data_prot), ]
@@ -2879,6 +2895,7 @@ pca_data_afdw<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5) #remove outliers
 
 
@@ -2993,6 +3010,7 @@ por_data_afdw<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Porites")
 
 por_data_afdw<-por_data_afdw[complete.cases(por_data_afdw), ]
@@ -3004,6 +3022,7 @@ acr_data_afdw<-master%>%
   select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Acropora")
 
@@ -3017,6 +3036,7 @@ poc_data_afdw<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Pocillopora")
 
 poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
@@ -3219,6 +3239,7 @@ acr_data_afdw<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Acropora")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)
 
@@ -3430,6 +3451,7 @@ por_data_afdw<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Porites")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)
 
@@ -3645,6 +3667,7 @@ poc_data_afdw<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Pocillopora")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)
 
 poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
@@ -3848,9 +3871,9 @@ plasticity.poc.species<-plasticity.poc%>%
   mutate(species="Pocillopora")
 plasticity.poc.species
 ```
-
+ 
 ### Examine plasticity scores generated from PCA's
-   
+    
 Generate plasticity dataframe from calculations for each species.   
 ```{r}
 plasticity.site<-bind_rows(acr.plasticity.site, poc.plasticity.site, por.plasticity.site);plasticity.site
@@ -4008,6 +4031,7 @@ poc_tp1_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Pocillopora")%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
@@ -4045,6 +4069,7 @@ poc_tp2_data<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(chla.ug.mgAFDW<2.2)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Pocillopora")%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint2")
@@ -4080,6 +4105,7 @@ poc_tp3_data<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Pocillopora")%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
@@ -4116,6 +4142,7 @@ poc_tp4_data<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Pocillopora")%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
@@ -4162,6 +4189,7 @@ acr_tp1_data<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Acropora")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint1")
 
@@ -4196,6 +4224,7 @@ acr_tp2_data<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Acropora")%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
@@ -4232,6 +4261,7 @@ acr_tp3_data<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Acropora")%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
@@ -4268,6 +4298,7 @@ acr_tp4_data<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Acropora")%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
@@ -4314,6 +4345,7 @@ por_tp1_data<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Porites")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint1")
 
@@ -4348,6 +4380,7 @@ por_tp2_data<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Porites")%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
@@ -4383,6 +4416,7 @@ por_tp3_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Porites")%>%
@@ -4420,6 +4454,7 @@ por_tp4_data<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Porites")%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw)%>%
@@ -4481,6 +4516,7 @@ acr_data_afdw<-master%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Acropora")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)
 
@@ -4609,6 +4645,7 @@ por_data_afdw<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Porites")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)
@@ -4742,6 +4779,7 @@ poc_data_afdw<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Pocillopora")%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)
@@ -4886,6 +4924,7 @@ poc_tp1_data<-master%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Pocillopora")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint1")
@@ -4922,6 +4961,7 @@ poc_tp2_data<-master%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Pocillopora")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint2")
@@ -4958,6 +4998,7 @@ poc_tp3_data<-master%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Pocillopora")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint3")
@@ -4993,6 +5034,7 @@ poc_tp4_data<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Pocillopora")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
@@ -5032,6 +5074,7 @@ acr_tp1_data<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
@@ -5068,6 +5111,7 @@ acr_tp2_data<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
@@ -5105,6 +5149,7 @@ acr_tp3_data<-master%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Acropora")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint3")
@@ -5140,6 +5185,7 @@ acr_tp4_data<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
@@ -5181,6 +5227,7 @@ por_tp1_data<-master%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Porites")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint1")
@@ -5216,6 +5263,7 @@ por_tp2_data<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Porites")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
@@ -5252,6 +5300,7 @@ por_tp3_data<-master%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Porites")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
@@ -5287,6 +5336,7 @@ por_tp4_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Porites")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
@@ -5344,6 +5394,7 @@ acr_data_afdw<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)
@@ -5474,6 +5525,7 @@ por_data_afdw<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Porites")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)
@@ -5607,6 +5659,7 @@ poc_data_afdw<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(species=="Pocillopora")%>%
@@ -5746,6 +5799,7 @@ poc_tp1_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(species=="Pocillopora")%>%
@@ -5785,6 +5839,7 @@ poc_tp2_data<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Pocillopora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
@@ -5823,6 +5878,7 @@ poc_tp3_data<-master%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(species=="Pocillopora")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint3")
@@ -5859,6 +5915,7 @@ poc_tp4_data<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Pocillopora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
@@ -5899,6 +5956,7 @@ acr_tp1_data<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
@@ -5936,6 +5994,7 @@ acr_tp2_data<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
@@ -5973,6 +6032,7 @@ acr_tp3_data<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
@@ -6008,6 +6068,7 @@ acr_tp4_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(species=="Acropora")%>%
@@ -6049,6 +6110,7 @@ por_tp1_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(species=="Porites")%>%
@@ -6089,6 +6151,7 @@ por_tp2_data<-master%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(species=="Porites")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint2")
@@ -6124,6 +6187,7 @@ por_tp3_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Total_Chl<13)%>%
   filter(species=="Porites")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
@@ -6160,6 +6224,7 @@ por_tp4_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(species=="Porites")%>%
