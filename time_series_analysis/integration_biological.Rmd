@@ -1,7 +1,7 @@
 ---
 title: "Integrating E5 time series biological data"
-author: "Ariana S Huffmyer"
-date: "9/20/2021"
+author: "Ariana S Huffmyer, E5 RoL Team"
+date: "10/19/2021"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -3329,7 +3329,7 @@ acrPCAfull<-acrPCAcen +
 Add bi plot with loadings  
 ```{r}
 #1. make plot with dots
-acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0.5, loadings.label.hjust=-0.1, loadings.label.repel=FALSE, size=4, alpha=0.0) + 
+acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0.5, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
   #scale_colour_manual(values=c("blue4", "darkgray", "springgreen4")) +
   #scale_fill_manual(values=c("blue4", "darkgray", "springgreen4")) + 
   theme_classic()+
@@ -3549,7 +3549,7 @@ porPCAfull<-porPCAcen +
 Add bi plot with loadings  
 ```{r}
 #1. make plot with dots
-porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=FALSE, size=4, alpha=0.0) + 
+porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -3754,7 +3754,7 @@ pocPCAfull<-pocPCAcen +
 Add bi plot with loadings  
 ```{r}
 
-pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, laodings.label.repel=FALSE, size=4, alpha=0.0) + 
+pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -4041,7 +4041,7 @@ poc_tp1_data<-poc_tp1_data[complete.cases(poc_tp1_data), ]
  
 poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:15)], scale=TRUE, center=TRUE) 
 
-pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -4078,7 +4078,7 @@ poc_tp2_data<-poc_tp2_data[complete.cases(poc_tp2_data), ]
  
 poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:15)], scale=TRUE, center=TRUE) 
 
-pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -4115,7 +4115,7 @@ poc_tp3_data<-poc_tp3_data[complete.cases(poc_tp3_data), ]
  
 poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:15)], scale=TRUE, center=TRUE) 
 
-pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -4152,7 +4152,7 @@ poc_tp4_data<-poc_tp4_data[complete.cases(poc_tp4_data), ]
  
 poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:15)], scale=TRUE, center=TRUE) 
 
-pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -4197,7 +4197,7 @@ acr_tp1_data<-acr_tp1_data[complete.cases(acr_tp1_data), ]
  
 acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:15)], scale=TRUE, center=TRUE) 
 
-acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -4234,7 +4234,7 @@ acr_tp2_data<-acr_tp2_data[complete.cases(acr_tp2_data), ]
  
 acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:15)], scale=TRUE, center=TRUE) 
 
-acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -4271,7 +4271,7 @@ acr_tp3_data<-acr_tp3_data[complete.cases(acr_tp3_data), ]
  
 acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:15)], scale=TRUE, center=TRUE) 
 
-acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -4308,7 +4308,7 @@ acr_tp4_data<-acr_tp4_data[complete.cases(acr_tp4_data), ]
  
 acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:15)], scale=TRUE, center=TRUE) 
 
-acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -4353,7 +4353,7 @@ por_tp1_data<-por_tp1_data[complete.cases(por_tp1_data), ]
  
 por_tp1_scaled<-prcomp(por_tp1_data[c(5:15)], scale=TRUE, center=TRUE) 
 
-porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -4390,7 +4390,7 @@ por_tp2_data<-por_tp2_data[complete.cases(por_tp2_data), ]
  
 por_tp2_scaled<-prcomp(por_tp2_data[c(5:15)], scale=TRUE, center=TRUE) 
 
-porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -4427,7 +4427,7 @@ por_tp3_data<-por_tp3_data[complete.cases(por_tp3_data), ]
  
 por_tp3_scaled<-prcomp(por_tp3_data[c(5:15)], scale=TRUE, center=TRUE) 
 
-porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -4464,7 +4464,7 @@ por_tp4_data<-por_tp4_data[complete.cases(por_tp4_data), ]
  
 por_tp4_scaled<-prcomp(por_tp4_data[c(5:15)], scale=TRUE, center=TRUE) 
 
-porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -4744,7 +4744,7 @@ porPCAfull<-porPCAcen +
 Add bi plot with loadings  
 ```{r}
 #1. make plot with dots
-porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=FALSE, size=4, alpha=0.0) + 
+porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -4868,7 +4868,7 @@ pocPCAfull<-pocPCAcen +
 Add bi plot with loadings  
 ```{r}
 
-pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, laodings.label.repel=FALSE, size=4, alpha=0.0) + 
+pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -4933,7 +4933,7 @@ poc_tp1_data<-poc_tp1_data[complete.cases(poc_tp1_data), ]
  
 poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -4970,7 +4970,7 @@ poc_tp2_data<-poc_tp2_data[complete.cases(poc_tp2_data), ]
  
 poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -5007,7 +5007,7 @@ poc_tp3_data<-poc_tp3_data[complete.cases(poc_tp3_data), ]
  
 poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -5044,7 +5044,7 @@ poc_tp4_data<-poc_tp4_data[complete.cases(poc_tp4_data), ]
  
 poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -5084,7 +5084,7 @@ acr_tp1_data<-acr_tp1_data[complete.cases(acr_tp1_data), ]
  
 acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -5121,7 +5121,7 @@ acr_tp2_data<-acr_tp2_data[complete.cases(acr_tp2_data), ]
  
 acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -5158,7 +5158,7 @@ acr_tp3_data<-acr_tp3_data[complete.cases(acr_tp3_data), ]
  
 acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -5195,7 +5195,7 @@ acr_tp4_data<-acr_tp4_data[complete.cases(acr_tp4_data), ]
  
 acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -5236,7 +5236,7 @@ por_tp1_data<-por_tp1_data[complete.cases(por_tp1_data), ]
  
 por_tp1_scaled<-prcomp(por_tp1_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -5273,7 +5273,7 @@ por_tp2_data<-por_tp2_data[complete.cases(por_tp2_data), ]
  
 por_tp2_scaled<-prcomp(por_tp2_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -5310,7 +5310,7 @@ por_tp3_data<-por_tp3_data[complete.cases(por_tp3_data), ]
  
 por_tp3_scaled<-prcomp(por_tp3_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -5347,7 +5347,7 @@ por_tp4_data<-por_tp4_data[complete.cases(por_tp4_data), ]
  
 por_tp4_scaled<-prcomp(por_tp4_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -5624,7 +5624,7 @@ porPCAfull<-porPCAcen +
 Add bi plot with loadings  
 ```{r}
 #1. make plot with dots
-porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=FALSE, size=4, alpha=0.0) + 
+porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -5750,7 +5750,7 @@ pocPCAfull<-pocPCAcen +
 Add bi plot with loadings  
 ```{r}
 
-pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, laodings.label.repel=FALSE, size=4, alpha=0.0) + 
+pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -5811,7 +5811,7 @@ poc_tp1_data<-poc_tp1_data[complete.cases(poc_tp1_data), ]
  
 poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:10)], scale=TRUE, center=TRUE) 
 
-pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -5849,7 +5849,7 @@ poc_tp2_data<-poc_tp2_data[complete.cases(poc_tp2_data), ]
  
 poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:10)], scale=TRUE, center=TRUE) 
 
-pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -5887,7 +5887,7 @@ poc_tp3_data<-poc_tp3_data[complete.cases(poc_tp3_data), ]
  
 poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:10)], scale=TRUE, center=TRUE) 
 
-pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -5925,7 +5925,7 @@ poc_tp4_data<-poc_tp4_data[complete.cases(poc_tp4_data), ]
  
 poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:10)], scale=TRUE, center=TRUE) 
 
-pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -5966,7 +5966,7 @@ acr_tp1_data<-acr_tp1_data[complete.cases(acr_tp1_data), ]
  
 acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:10)], scale=TRUE, center=TRUE) 
 
-acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -6004,7 +6004,7 @@ acr_tp2_data<-acr_tp2_data[complete.cases(acr_tp2_data), ]
  
 acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:10)], scale=TRUE, center=TRUE) 
 
-acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -6042,7 +6042,7 @@ acr_tp3_data<-acr_tp3_data[complete.cases(acr_tp3_data), ]
  
 acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:10)], scale=TRUE, center=TRUE) 
 
-acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -6080,7 +6080,7 @@ acr_tp4_data<-acr_tp4_data[complete.cases(acr_tp4_data), ]
  
 acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:10)], scale=TRUE, center=TRUE) 
 
-acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -6122,7 +6122,7 @@ por_tp1_data<-por_tp1_data[complete.cases(por_tp1_data), ]
  
 por_tp1_scaled<-prcomp(por_tp1_data[c(5:10)], scale=TRUE, center=TRUE) 
 
-porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -6160,7 +6160,7 @@ por_tp2_data<-por_tp2_data[complete.cases(por_tp2_data), ]
  
 por_tp2_scaled<-prcomp(por_tp2_data[c(5:10)], scale=TRUE, center=TRUE) 
 
-porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -6198,7 +6198,7 @@ por_tp3_data<-por_tp3_data[complete.cases(por_tp3_data), ]
  
 por_tp3_scaled<-prcomp(por_tp3_data[c(5:10)], scale=TRUE, center=TRUE) 
 
-porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
@@ -6236,7 +6236,7 @@ por_tp4_data<-por_tp4_data[complete.cases(por_tp4_data), ]
  
 por_tp4_scaled<-prcomp(por_tp4_data[c(5:10)], scale=TRUE, center=TRUE) 
 
-porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, laodings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
