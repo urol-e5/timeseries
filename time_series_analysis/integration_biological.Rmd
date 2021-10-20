@@ -2115,8 +2115,8 @@ summary(rd_model_por)
 
 First, specify symbiont and holobiont responses for plotting in separate panels.  
 ```{r}
-symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY") 
-holobiont_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "Ratio_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd")
+symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ratio_AFDW.mg.cm2") 
+holobiont_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd")
 ```
 
 Generate a panel of responses for symbiont metrics.  
@@ -4501,7 +4501,7 @@ ggsave(filename="Figures/Matrix_AllResponses.pdf", plot=all_grid2, dpi=500, widt
 
 
 
-## Holobiont Responses  
+## Host Responses  
 
 ### PCA's for centroid and trajectories  
 
@@ -4922,16 +4922,16 @@ poc_tp1_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Pocillopora")%>%
-  filter(Sym_AFDW.mg.cm2<20)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint1")
 
 poc_tp1_data<-poc_tp1_data[complete.cases(poc_tp1_data), ]
  
-poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:9)], scale=TRUE, center=TRUE) 
+poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:8)], scale=TRUE, center=TRUE) 
 
 pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -4959,16 +4959,16 @@ poc_tp2_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Pocillopora")%>%
-  filter(Sym_AFDW.mg.cm2<20)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint2")
  
 poc_tp2_data<-poc_tp2_data[complete.cases(poc_tp2_data), ]
  
-poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:9)], scale=TRUE, center=TRUE) 
+poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:8)], scale=TRUE, center=TRUE) 
 
 pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -4996,16 +4996,16 @@ poc_tp3_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Pocillopora")%>%
-  filter(Sym_AFDW.mg.cm2<20)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint3")
  
 poc_tp3_data<-poc_tp3_data[complete.cases(poc_tp3_data), ]
  
-poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:9)], scale=TRUE, center=TRUE) 
+poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:8)], scale=TRUE, center=TRUE) 
 
 pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5033,16 +5033,16 @@ poc_tp4_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(Sym_AFDW.mg.cm2<20)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Pocillopora")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint4")
  
 poc_tp4_data<-poc_tp4_data[complete.cases(poc_tp4_data), ]
  
-poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:9)], scale=TRUE, center=TRUE) 
+poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:8)], scale=TRUE, center=TRUE) 
 
 pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5073,16 +5073,16 @@ acr_tp1_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(Sym_AFDW.mg.cm2<20)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint1")
 
 acr_tp1_data<-acr_tp1_data[complete.cases(acr_tp1_data), ]
  
-acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:9)], scale=TRUE, center=TRUE) 
+acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:8)], scale=TRUE, center=TRUE) 
 
 acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5110,16 +5110,16 @@ acr_tp2_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(Sym_AFDW.mg.cm2<20)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint2")
  
 acr_tp2_data<-acr_tp2_data[complete.cases(acr_tp2_data), ]
  
-acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:9)], scale=TRUE, center=TRUE) 
+acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:8)], scale=TRUE, center=TRUE) 
 
 acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5147,16 +5147,16 @@ acr_tp3_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Acropora")%>%
-  filter(Sym_AFDW.mg.cm2<20)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint3")
  
 acr_tp3_data<-acr_tp3_data[complete.cases(acr_tp3_data), ]
  
-acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:9)], scale=TRUE, center=TRUE) 
+acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:8)], scale=TRUE, center=TRUE) 
 
 acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5184,16 +5184,16 @@ acr_tp4_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(Sym_AFDW.mg.cm2<20)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint4")
  
 acr_tp4_data<-acr_tp4_data[complete.cases(acr_tp4_data), ]
  
-acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:9)], scale=TRUE, center=TRUE) 
+acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:8)], scale=TRUE, center=TRUE) 
 
 acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5225,16 +5225,16 @@ por_tp1_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Porites")%>%
-  filter(Sym_AFDW.mg.cm2<20)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint1")
 
 por_tp1_data<-por_tp1_data[complete.cases(por_tp1_data), ]
  
-por_tp1_scaled<-prcomp(por_tp1_data[c(5:9)], scale=TRUE, center=TRUE) 
+por_tp1_scaled<-prcomp(por_tp1_data[c(5:8)], scale=TRUE, center=TRUE) 
 
 porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5262,16 +5262,16 @@ por_tp2_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(Sym_AFDW.mg.cm2<20)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Porites")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint2")
  
 por_tp2_data<-por_tp2_data[complete.cases(por_tp2_data), ]
  
-por_tp2_scaled<-prcomp(por_tp2_data[c(5:9)], scale=TRUE, center=TRUE) 
+por_tp2_scaled<-prcomp(por_tp2_data[c(5:8)], scale=TRUE, center=TRUE) 
 
 porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5299,16 +5299,16 @@ por_tp3_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(Sym_AFDW.mg.cm2<20)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Porites")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint3")
  
 por_tp3_data<-por_tp3_data[complete.cases(por_tp3_data), ]
  
-por_tp3_scaled<-prcomp(por_tp3_data[c(5:9)], scale=TRUE, center=TRUE) 
+por_tp3_scaled<-prcomp(por_tp3_data[c(5:8)], scale=TRUE, center=TRUE) 
 
 porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5336,16 +5336,16 @@ por_tp4_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Sym_AFDW.mg.cm2<20)%>%
-  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Porites")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)%>%
   filter(timepoint=="timepoint4")
  
 por_tp4_data<-por_tp4_data[complete.cases(por_tp4_data), ]
  
-por_tp4_scaled<-prcomp(por_tp4_data[c(5:9)], scale=TRUE, center=TRUE) 
+por_tp4_scaled<-prcomp(por_tp4_data[c(5:8)], scale=TRUE, center=TRUE) 
 
 porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5374,7 +5374,7 @@ porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  col
 all_grid<-plot_grid(acrTP1, acrTP2, acrTP3, acrTP4, pocTP1, pocTP2, pocTP3, pocTP4, porTP1, porTP2, porTP3, porTP4, ncol=4, nrow=3)
 all_grid2<-plot_grid(all_grid, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 
-ggsave(filename="Figures/Matrix_Holobiont_Responses.pdf", plot=all_grid2, dpi=500, width=20, height=20, units="in")
+ggsave(filename="Figures/Matrix_Host_Responses.pdf", plot=all_grid2, dpi=500, width=20, height=20, units="in")
 
 ```
 
@@ -5800,16 +5800,16 @@ poc_tp1_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
-  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(species=="Pocillopora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2)%>%
   filter(timepoint=="timepoint1")
 
 poc_tp1_data<-poc_tp1_data[complete.cases(poc_tp1_data), ]
  
-poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:10)], scale=TRUE, center=TRUE) 
+poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:11)], scale=TRUE, center=TRUE) 
 
 pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5837,17 +5837,17 @@ poc_tp2_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
-  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Pocillopora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint2")
  
 poc_tp2_data<-poc_tp2_data[complete.cases(poc_tp2_data), ]
  
-poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:10)], scale=TRUE, center=TRUE) 
+poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:11)], scale=TRUE, center=TRUE) 
 
 pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5875,17 +5875,17 @@ poc_tp3_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
-  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(species=="Pocillopora")%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint3")
  
 poc_tp3_data<-poc_tp3_data[complete.cases(poc_tp3_data), ]
  
-poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:10)], scale=TRUE, center=TRUE) 
+poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:11)], scale=TRUE, center=TRUE) 
 
 pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5913,17 +5913,17 @@ poc_tp4_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
-  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Pocillopora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint4")
  
 poc_tp4_data<-poc_tp4_data[complete.cases(poc_tp4_data), ]
  
-poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:10)], scale=TRUE, center=TRUE) 
+poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:11)], scale=TRUE, center=TRUE) 
 
 pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5954,17 +5954,17 @@ acr_tp1_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
-  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint1")
 
 acr_tp1_data<-acr_tp1_data[complete.cases(acr_tp1_data), ]
  
-acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:10)], scale=TRUE, center=TRUE) 
+acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:11)], scale=TRUE, center=TRUE) 
 
 acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -5992,17 +5992,17 @@ acr_tp2_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
-  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint2")
  
 acr_tp2_data<-acr_tp2_data[complete.cases(acr_tp2_data), ]
  
-acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:10)], scale=TRUE, center=TRUE) 
+acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:11)], scale=TRUE, center=TRUE) 
 
 acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -6030,17 +6030,17 @@ acr_tp3_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
-  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint3")
  
 acr_tp3_data<-acr_tp3_data[complete.cases(acr_tp3_data), ]
  
-acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:10)], scale=TRUE, center=TRUE) 
+acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:11)], scale=TRUE, center=TRUE) 
 
 acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -6069,16 +6069,16 @@ acr_tp4_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
-  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(species=="Acropora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint4")
  
 acr_tp4_data<-acr_tp4_data[complete.cases(acr_tp4_data), ]
  
-acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:10)], scale=TRUE, center=TRUE) 
+acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:11)], scale=TRUE, center=TRUE) 
 
 acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -6111,16 +6111,16 @@ por_tp1_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
-  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(species=="Porites")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint1")
 
 por_tp1_data<-por_tp1_data[complete.cases(por_tp1_data), ]
  
-por_tp1_scaled<-prcomp(por_tp1_data[c(5:10)], scale=TRUE, center=TRUE) 
+por_tp1_scaled<-prcomp(por_tp1_data[c(5:11)], scale=TRUE, center=TRUE) 
 
 porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -6148,17 +6148,17 @@ por_tp2_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
-  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(species=="Porites")%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint2")
  
 por_tp2_data<-por_tp2_data[complete.cases(por_tp2_data), ]
  
-por_tp2_scaled<-prcomp(por_tp2_data[c(5:10)], scale=TRUE, center=TRUE) 
+por_tp2_scaled<-prcomp(por_tp2_data[c(5:11)], scale=TRUE, center=TRUE) 
 
 porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -6186,17 +6186,17 @@ por_tp3_data<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
-  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Total_Chl<13)%>%
   filter(species=="Porites")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint3")
  
 por_tp3_data<-por_tp3_data[complete.cases(por_tp3_data), ]
  
-por_tp3_scaled<-prcomp(por_tp3_data[c(5:10)], scale=TRUE, center=TRUE) 
+por_tp3_scaled<-prcomp(por_tp3_data[c(5:11)], scale=TRUE, center=TRUE) 
 
 porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
@@ -6225,16 +6225,16 @@ por_tp4_data<-master%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
-  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Total_Chl<13)%>%
   filter(species=="Porites")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)%>%
   filter(timepoint=="timepoint4")
  
 por_tp4_data<-por_tp4_data[complete.cases(por_tp4_data), ]
  
-por_tp4_scaled<-prcomp(por_tp4_data[c(5:10)], scale=TRUE, center=TRUE) 
+por_tp4_scaled<-prcomp(por_tp4_data[c(5:11)], scale=TRUE, center=TRUE) 
 
 porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
   #geom_point(aes(colour=site_code), size=3)+
