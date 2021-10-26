@@ -26,7 +26,7 @@ prot_data_files <- setdiff(all_prot_files, prot_platemaps)                 # Lis
 df <- tibble(file = prot_data_files) %>%
   separate(file, into = c("trip", "date", "plate"), remove = FALSE) %>%
   unite(plate, trip, date, plate) %>%
-  mutate(platemap = map(plate, ~read_csv(paste0(prot_path, ., "_BCA_platemap.csv"))),
+  dplyr::mutate(platemap = map(plate, ~read_csv(paste0(prot_path, ., "_BCA_platemap.csv"))),
          prot_data = map(file, ~read_csv(paste0(prot_path, .)) %>% rename(well = Well)))
 
 # Merge platemap and data for each plate
@@ -88,6 +88,7 @@ prot <- df %>%
   select(plate, well, colony_id, abs562 = `562:562`) %>%        # Select only needed columns
   filter(!is.na(colony_id)) %>%                                 # Filter out empty wells
   filter(colony_id != "BK") %>%                                 # Filter out blank wells
+  mutate(colony_id = factor(ifelse(colony_id == "ACR-231", "ACR-237", colony_id)))%>%
   group_by(colony_id) %>%          
   summarise(abs562 = mean(abs562)) %>%                          # Average technical replicates for each colony
   mutate(abs562.adj = abs562 - std_curve$abs562[std_curve$std == "I"],     # Subtract blank standard (Standard I) from mean absorbance values
