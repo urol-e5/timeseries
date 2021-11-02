@@ -119,9 +119,9 @@ metadata <- read_csv("../metadata/coral_metadata.csv") %>% select(1:3)
 
 # Join homogenate volumes with sample metadata
 metadata <- full_join(metadata, homog_vols) %>%
-  full_join(prot)%>%
-  full_join(sa)%>%
-  full_join(biomass)
+  full_join(prot)
+  #full_join(sa)%>%
+  #full_join(biomass)
 
 # Join TAC data with metadata
 tac <- left_join(tac, metadata) %>%

@@ -1,8 +1,10 @@
 ---
 title: "biomass.Rmd"
-author: "HM Putnam"
-date: "2/12/2020"
+author: "HM Putnam, AS Huffmyer"
+date: "10/26/2021"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
