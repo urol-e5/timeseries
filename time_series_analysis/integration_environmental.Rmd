@@ -480,3 +480,9 @@ summary(aov(pH_range~site, radar_data))
 
 Mean daily pH, daily pH variability (stdev), max daily pH, min daily pH, and pH daily range are different by site.  
 
+Number of days of data included in this data set:  
+```{r}
+length(radar$Temp_mean)/3
+```
+
+We have 204 days of data from all variables.  
