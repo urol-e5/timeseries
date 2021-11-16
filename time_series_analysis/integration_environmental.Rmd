@@ -1,24 +1,405 @@
 ---
 title: "Integrating E5 time series environmental data"
 author: "Ariana S Huffmyer"
-date: "1/18/2021"
+date: "11/15/2021"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
+# Set Up    
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 ```
 
-## Steps to complete  
+```{r}
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("RColorBrewer")) install.packages("RColorBrewer")
+if (!require("lme4")) install.packages("lme4")
+if (!require("lmerTest")) install.packages("lmerTest")
+if (!require("car")) install.packages("car")
+if (!require("effects")) install.packages("effects")
+if (!require("ggfortify")) install.packages("ggfortify")
+if (!require("cowplot")) install.packages("cowplot")
+if (!require("vegan")) install.packages("vegan")
+if (!require("corrr")) install.packages("corrr")
+if (!require("ggcorrplot")) install.packages("ggcorrplot")
+if (!require("GGally")) install.packages("GGally")
+if (!require("broom")) install.packages("broom")
+if (!require("cowplot")) install.packages("cowplot")
+if (!require("scales")) install.packages("scales")
 
-1. Load all environmental data files 
-- temp (output/x_temp.csv)
-- pH (output/x_pH.csv)
-- salinity/conductivity (output/x_salinity.csv)
-- light (output/x_light.csv)
+# load packages
+library(tidyverse)
+library(ggplot2)
+library(RColorBrewer)
+library(lme4)
+library(lmerTest)
+library(car)
+library(effects)
+library(ggfortify)
+library(cowplot)
+library(vegan)
+library(corrr)
+library(ggcorrplot)
+library(GGally)
+library(broom)
+library(cowplot)
+library(scales)
+```
+ 
+# Load and manipulate data  
 
-2. Merge all files and generate output file  
+Load all .csv files from output of all timepoints for temp/pH, hobo temp, and light measurements.       
+ 
+```{r}
+temp_pH_files<-list.files("../", pattern = "pH_temp.csv", recursive=T, full.names=T)
+light_files<-list.files("../", pattern = "light.csv", recursive=T, full.names=T)
+hobo_files<-list.files("../", pattern = "hobo.csv", recursive=T, full.names=T)
+```
+ 
 
-3. Plot all parameters
+## Read data files 
+ 
+Load all data frames.  
 
-4. Statistical analysis and summary of all parameters 
+```{r}
+#temp and pH 
+temp_pH_dataset <- data.frame()
+
+for (i in 1:length(temp_pH_files)){
+  temp_pH_df <- read.csv(temp_pH_files[i]) #each file will be read in
+  temp_pH_dataset <- rbind(temp_pH_dataset, temp_pH_df) #for each iteration, bind the new data to the building dataset
+}
+
+```
+
+```{r}
+#light 
+light_dataset <- data.frame()
+
+for (i in 1:length(light_files)){
+  light_df <- read.csv(light_files[i]) #each file will be read in
+  light_dataset <- rbind(light_dataset, light_df) #for each iteration, bind the new data to the building dataset
+}
+
+```
+
+```{r}
+#hobo temp 
+hobo_dataset <- data.frame()
+
+for (i in 1:length(hobo_files)){
+  hobo_df <- read.csv(hobo_files[i]) #each file will be read in
+  hobo_dataset <- rbind(hobo_dataset, hobo_df) #for each iteration, bind the new data to the building dataset
+}
+
+```
+
+```{r}
+#remove files that are not needed from loops
+rm(list = ls(pattern = "*_df"))
+```
+
+## Generate master data frame    
+
+Format dataframes for date time.    
+
+```{r}
+light_dataset$Date.Time<-as.POSIXct(light_dataset$Date.Time, "%y/%m/%d %H:%M:%S")
+temp_pH_dataset$Date.Time<-as.POSIXct(temp_pH_dataset$Date.Time, "%y/%m/%d %H:%M:%S")
+hobo_dataset$Date.Time<-as.POSIXct(hobo_dataset$Date.Time, "%y/%m/%d %H:%M:%S")
+```
+
+Join all data frames together.  
+
+```{r}
+#can also use "join_all"
+master <- full_join(full_join(
+  temp_pH_dataset,
+  light_dataset, by=c("site", "timepoint", "Date.Time")),
+  hobo_dataset, by=c("site", "timepoint", "Date.Time"))
+
+head(master)
+```
+
+# Plot data over time series with RAW data  
+
+Plot temperature from pH probes.    
+
+```{r}
+temp_plot<-master%>%
+  ggplot(aes(x=Date.Time, y=Temp, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=Temp,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("Temperature, from pH probes (°C)")+
+  xlab("Date");temp_plot
+```
+
+Plot temperature from Hobo loggers    
+
+```{r}
+hobo_plot<-master%>%
+  ggplot(aes(x=Date.Time, y=Hobo, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=Hobo,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("Temperature, from Hobo loggers (°C)")+
+  xlab("Date");hobo_plot
+```
+
+Plot pH   
+
+```{r}
+pH_plot<-master%>%
+  ggplot(aes(x=Date.Time, y=pH, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=pH,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("pH")+
+  xlab("Date");pH_plot
+```
+
+Plot light   
+
+```{r}
+light_plot<-master%>%
+  ggplot(aes(x=Date.Time, y=light, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=light,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("Light (PAR)")+
+  xlab("Date");light_plot
+```
+
+Generate a panel of these three plots.  
+
+```{r}
+environmental_fig<-plot_grid(temp_plot,hobo_plot, pH_plot,light_plot,rel_widths=c(1,1,1,1), ncol=1, nrow=4, rel_heights= c(1,1,1,1),  label_y=1, align="vh")
+
+ggsave(filename="Figures/Environmental_Timeseries_Raw.jpg", plot=environmental_fig, dpi=300, width=10, height=8, units="in")
+```
+
+# Generate table of raw data summary statistics  
+
+```{r}
+summary_stats<-master%>%
+  dplyr::select(Date.Time, site, timepoint, Temp, pH, light, Hobo)%>%
+  group_by(site)%>%
+  summarise(across(Temp:Hobo, list(min=min, max=max, mean=mean, stdev=sd), na.rm=TRUE));summary_stats
+  #write_csv("Output/Environmental_Summary_Stats_Raw.csv")
+```
+
+# QC and plotting clean data  
+
+## Temperature from pH probes  
+
+Trim data out for temperature for data from site 3 after there appears to be a probe malfunction.  
+
+```{r}
+master_qc<-master%>%
+  mutate(Temp = if_else(site=="site1" & Date.Time > '2020-03-01 00:00:00', "NA", as.character(Temp)))%>%
+  mutate(Temp=as.numeric(Temp))
+```
+
+Trim out data from probe errors (likely from read outs).  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(Temp = if_else(Date.Time > '2019-12-30 00:00:00' & Date.Time < '2020-01-14 00:00:00', "NA", as.character(Temp)))%>%
+  mutate(Temp=as.numeric(Temp))%>%
+  mutate(Temp = if_else(Date.Time > '2020-02-29 00:00:00' & Date.Time < '2020-03-07 00:00:00', "NA", as.character(Temp)))%>%
+  mutate(Temp=as.numeric(Temp))
+```
+
+Trim out data from start of series from deployment.  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(Temp = if_else(Date.Time < '2019-10-30 00:00:00', "NA", as.character(Temp)))%>%
+  mutate(Temp=as.numeric(Temp))
+```
+
+View temperature plot again.  
+
+```{r}
+temp_plotQC<-master_qc%>%
+  ggplot(aes(x=Date.Time, y=Temp, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=Temp,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("Temperature (°C)")+
+  xlab("Date");temp_plotQC
+```
+
+## pH 
+
+Remove pH value from site 1 due to probe malfunction as above.   
+```{r}
+master_qc<-master_qc%>%
+  mutate(pH = if_else(site=="site1" & Date.Time > '2020-03-01 00:00:00', "NA", as.character(pH)))%>%
+  mutate(pH=as.numeric(pH))
+```
+
+Trim out data from probe errors (likely from read outs).  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(pH = if_else(Date.Time > '2019-12-30 00:00:00' & Date.Time < '2020-01-14 00:00:00', "NA", as.character(pH)))%>%
+  mutate(pH=as.numeric(pH))%>%
+  mutate(pH = if_else(Date.Time > '2020-02-29 00:00:00' & Date.Time < '2020-03-07 00:00:00', "NA", as.character(pH)))%>%
+  mutate(pH=as.numeric(pH))
+```
+
+Trim out data from start of series from deployment.  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(pH = if_else(Date.Time < '2019-10-30 00:00:00', "NA", as.character(pH)))%>%
+  mutate(pH=as.numeric(pH))
+```
+
+Remove pH probe malfunction at site 2.  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(pH = if_else(Date.Time > '2020-03-17 00:00:00' & Date.Time < '2020-05-16 00:00:00', "NA", as.character(pH)))%>%
+  mutate(pH=as.numeric(pH))
+```
+
+View pH plot again.    
+
+```{r}
+pH_plotQC<-master_qc%>%
+  ggplot(aes(x=Date.Time, y=pH, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=pH,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("pH")+
+  xlab("Date");pH_plotQC
+```
+
+Need to see if the lower site 2 values are valid after 2020-05-16.  
+
+## Light  
+
+Keep only the first couple weeks of each deployment due to fouling.  
+```{r}
+master_qc<-master_qc%>%
+  mutate(light = if_else(Date.Time > '2019-11-18 00:00:00' & Date.Time < '2020-01-15 00:00:00', "NA", as.character(light)))%>%
+  mutate(light=as.numeric(light))
+```
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(light = if_else(Date.Time > '2020-03-10 00:00:00' & Date.Time < '2020-09-29 00:00:00', "NA", as.character(light)))%>%
+  mutate(light=as.numeric(light))
+```
+
+View light plot again.  
+
+```{r}
+light_plotQC<-master_qc%>%
+  ggplot(aes(x=Date.Time, y=light, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=light,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("Light (PAR)")+
+  xlab("Date");light_plotQC
+```
+
+## Hobo temperature data, from loggers  
+
+Trim out data from start of series from deployment.  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(Hobo = if_else(Date.Time < '2019-10-30 00:00:00', "NA", as.character(Hobo)))%>%
+  mutate(Hobo=as.numeric(Hobo))
+```
+
+Trim out data from probe errors (likely from read outs).  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(Hobo = if_else(Date.Time > '2019-12-30 00:00:00' & Date.Time < '2020-01-14 00:00:00', "NA", as.character(Hobo)))%>%
+  mutate(Hobo=as.numeric(Hobo))%>%
+  mutate(Hobo = if_else(Date.Time > '2020-02-29 00:00:00' & Date.Time < '2020-03-07 00:00:00', "NA", as.character(Hobo)))%>%
+  mutate(Hobo=as.numeric(Hobo))
+```
+
+Trim out data from end of series from deployment.  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(Hobo = if_else(Date.Time > '2020-11-07 00:00:00', "NA", as.character(Hobo)))%>%
+  mutate(Hobo=as.numeric(Hobo))
+```
+
+View plot of Hobo temperature again.  
+
+```{r}
+hobo_plotQC<-master_qc%>%
+  ggplot(aes(x=Date.Time, y=Hobo, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=Hobo,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("Bobo Temperature (°C)")+
+  xlab("Date");hobo_plotQC
+```
+
+
+## Now assemble a revised plot after QC.  
+
+```{r}
+qc_fig<-plot_grid(temp_plotQC,hobo_plotQC,pH_plotQC,light_plotQC,rel_widths=c(1,1,1), ncol=1, nrow=4, rel_heights= c(1,1,1),  label_y=1, align="vh")
+
+ggsave(filename="Figures/Clean_Environmental_Timeseries.jpg", plot=qc_fig, dpi=300, width=10, height=8, units="in")
+```
+
+# Generate table of clean summary statistics  
+
+```{r}
+summary_stats_qc<-master_qc%>%
+  dplyr::select(Date.Time, site, timepoint, Temp, pH, light, Hobo)%>%
+  group_by(site)%>%
+  summarise(across(Temp:Hobo, list(min=min, max=max, mean=mean, stdev=sd), na.rm=TRUE))%>%
+  write_csv("Output/Clean_Environmental_Summary_Stats.csv")
+```
+
+# Check for correlations between Hobo logger temperatures and ph/temp logger temperature   
+
+Plot  
+```{r}
+corr_temp_plot<-master_qc%>%
+  ggplot(aes(x=Hobo, y=Temp))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=Temp,color=site),se=FALSE,span=0.15,size=0.5)+
+  theme_classic()+
+  ylab("Temp/pH logger temperature (°C)")+
+  xlab("Hobo logger temperature (°C)");corr_temp_plot
+
+ggsave(filename="Figures/Hobo_Temp_Correlation.jpg", plot=corr_temp_plot, dpi=300, width=6, height=6, units="in")
+```
+
+Very tight correlation between temperature probes, so we can use whichever we like.  
+
+
+
+# Output cleaned and qc dataframe  
+
+```{r}
+write_csv(master_qc, "Output/environmental_timeseries.csv")
+```
+
