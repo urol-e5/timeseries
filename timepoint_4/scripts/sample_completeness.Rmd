@@ -18,37 +18,37 @@ library(tidyverse)
 coral_metadata <- read_csv("../metadata/coral_metadata.csv") %>% 
   pull(colony_id)
 
-homog_vols <- read_csv("data/4_4homogenate_vols/4_4homogenate_vols.csv") %>% 
+homog_vols <- read_csv("data/4_homogenate_vols/4_homogenate_vols.csv") %>% 
   pull(colony_id)
 
-surface_area <- read_csv("data/4_4surface_area/4_4surface_area_data.csv") %>% 
+surface_area <- read_csv("data/4_surface_area/4_surface_area_data.csv") %>% 
   filter(!grepl("Standard", Sample)) %>%
   pull(colony_id)
 
-chl <- list.files("data/4_4chlorophyll/", "platemap", full.names = TRUE) %>%
+chl <- list.files("data/4_chlorophyll/", "platemap", full.names = TRUE) %>%
   map_df(read_csv) %>%
   drop_na() %>%
   filter(!colony_id == "BK") %>%
   pull(colony_id)
 
-afdw <- read_csv("data/4_4biomass/4_4biomass_data.csv") %>%
+afdw <- read_csv("data/4_biomass/4_biomass_data.csv") %>%
   drop_na() %>%
   pull(colony_id)
 
-molec <- read_csv("data/4_4molecular_backups/4_4molecular_backups.csv") %>%
+molec <- read_csv("data/4_molecular_backups/4_molecular_backups.csv") %>%
   distinct(colony_id) %>%
   pull()
 
-picurve <- list.files("data/4_4pi_curves/", "*.csv") %>%
+picurve <- list.files("data/4_pi_curves/", "*.csv") %>%
   gsub("_.*.csv", "", .) %>%
   subset(!grepl("BK", .))
 
-sym_counts <- read_csv("data/4_4sym_counts/4_4sym_counts_data.csv") %>%
+sym_counts <- read_csv("data/4_sym_counts/4_sym_counts_data.csv") %>%
   pull(colony_id)
 
 #tac
 
-tac <- list.files("data/4_4antioxidant_capacity/", "platemap", full.names = TRUE) %>%
+tac <- list.files("data/4_antioxidant_capacity/", "platemap", full.names = TRUE) %>%
   map_df(read_csv) %>%
   drop_na() %>%
   filter(!colony_id == "BK") %>%
@@ -56,7 +56,7 @@ tac <- list.files("data/4_4antioxidant_capacity/", "platemap", full.names = TRUE
 
 #protein
 
-protein <- list.files("data/4_4protein/", "platemap", full.names = TRUE) %>%
+protein <- list.files("data/4_protein/", "platemap", full.names = TRUE) %>%
   map_df(read_csv) %>%
   drop_na() %>%
   filter(!colony_id == "BK") %>%
