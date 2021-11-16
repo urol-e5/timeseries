@@ -11,7 +11,7 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 ```
-
+ 
 ```{r}
 ## install packages if you dont already have them
 if (!require("tidyverse")) install.packages("tidyverse")
@@ -30,6 +30,8 @@ if (!require("GGally")) install.packages("GGally")
 if (!require("broom")) install.packages("broom")
 if (!require("cowplot")) install.packages("cowplot")
 if (!require("scales")) install.packages("scales")
+if (!require("ggiraphExtra")) install.packages("ggiraphExtra")
+if (!require("ggradar")) remotes::install_github("ricardo-bion/ggradar")
 
 # load packages
 library(tidyverse)
@@ -48,6 +50,8 @@ library(GGally)
 library(broom)
 library(cowplot)
 library(scales)
+library(ggradar)
+library(ggiraphExtra)
 ```
  
 # Load and manipulate data  
@@ -125,7 +129,7 @@ master <- full_join(full_join(
 head(master)
 ```
 
-# Plot data over time series with RAW data  
+# Plot data over time series with raw data  
 
 Plot temperature from pH probes.    
 
@@ -136,7 +140,7 @@ temp_plot<-master%>%
   #geom_smooth(aes(x=Date.Time,y=Temp,color=site),se=FALSE,span=0.15,size=0.5)+
   scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
   theme_classic()+
-  ylab("Temperature, from pH probes (°C)")+
+  ylab("Temperature (°C)")+
   xlab("Date");temp_plot
 ```
 
@@ -149,7 +153,7 @@ hobo_plot<-master%>%
   #geom_smooth(aes(x=Date.Time,y=Hobo,color=site),se=FALSE,span=0.15,size=0.5)+
   scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
   theme_classic()+
-  ylab("Temperature, from Hobo loggers (°C)")+
+  ylab("Hobo Temperature (°C)")+
   xlab("Date");hobo_plot
 ```
 
@@ -355,7 +359,7 @@ hobo_plotQC<-master_qc%>%
   #geom_smooth(aes(x=Date.Time,y=Hobo,color=site),se=FALSE,span=0.15,size=0.5)+
   scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
   theme_classic()+
-  ylab("Bobo Temperature (°C)")+
+  ylab("Hobo Temperature (°C)")+
   xlab("Date");hobo_plotQC
 ```
 
@@ -402,4 +406,77 @@ Very tight correlation between temperature probes, so we can use whichever we li
 ```{r}
 write_csv(master_qc, "Output/environmental_timeseries.csv")
 ```
+
+
+
+# Plot radar plot of multivariate data  
+
+## Radar plot  
+
+To do this, we need to first summarize data by a unit of time becuase the loggers differ by seconds/minutes, producing a lot of na's. We can first summarize by day for temperature (using Hobo here), pH, and light. 
+
+Calculate additional metrics of daily min/max, range, variability, and number of days above 30C.  
+
+```{r}
+radar_data<-master_qc %>%
+    mutate(Date=as.factor(as.Date(Date.Time)))%>%
+    select(Date, site, Temp, pH, light)%>%
+    group_by(Date, site)%>%
+    summarise(across(Temp:light, list(mean=mean, min=min, max=max, sd=sd), na.rm=TRUE))%>%
+    mutate(Temp_range=(Temp_max-Temp_min), na.rm=TRUE)%>%
+    mutate(pH_range=(pH_max-pH_min), na.rm=TRUE)
+
+radar_data[mapply(is.infinite, radar_data)] <- NA
+radar_data[mapply(is.nan, radar_data)] <- NA
+
+#radar plot 
+
+radar<-radar_data%>%
+  select(site, pH_mean, Temp_mean, light_mean, Temp_sd, pH_sd, Temp_max, Temp_min, pH_max, pH_min, Temp_range, pH_range, light_max)%>%
+  mutate_each(funs(rescale), -site) %>%
+  drop_na()%>%
+  ungroup()%>%
+  droplevels()%>%
+  select(!Date)
+
+png(filename="Figures/Environmental_Radar.png", width=1980, heigh=1880, units="px", res=300)
+ggRadar(radar, aes(colour=site), scales="fixed")+ggplot2::theme_minimal()+ggplot2::theme(text=element_text(color="black"))
+dev.off()
+
+ggRadar(radar, aes(colour=site), scales="fixed")+ggplot2::theme_minimal()+ggplot2::theme(text=element_text(color="black"))
+```
+
+## Statistical tests  
+
+Conduct ANOVA across sites to look at differences in these environmental characteristics.  
+
+*Temperature variables*
+```{r}
+summary(aov(Temp_mean~site, radar_data))
+summary(aov(Temp_sd~site, radar_data))
+summary(aov(Temp_max~site, radar_data))
+summary(aov(Temp_min~site, radar_data))
+summary(aov(Temp_range~site, radar_data))
+```
+
+Temperature daily variability (stdev), max daily temperature, and daily temperature range are different by site.  
+
+*Light variables*
+```{r}
+summary(aov(light_mean~site, radar_data))
+summary(aov(light_max~site, radar_data))
+```
+
+Mean daily light and max daily light are different by site.  
+
+*pH variables*  
+```{r}
+summary(aov(pH_mean~site, radar_data))
+summary(aov(pH_sd~site, radar_data))
+summary(aov(pH_max~site, radar_data))
+summary(aov(pH_min~site, radar_data))
+summary(aov(pH_range~site, radar_data))
+```
+
+Mean daily pH, daily pH variability (stdev), max daily pH, min daily pH, and pH daily range are different by site.  
 
