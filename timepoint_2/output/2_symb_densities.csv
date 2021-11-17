@@ -67,7 +67,7 @@ POC-55,site1,Pocillopora,449482.2812998424,timepoint2
 POC-56,site1,Pocillopora,338251.77928480937,timepoint2
 POC-57,site1,Pocillopora,188840.19052672692,timepoint2
 POC-68,site1,Pocillopora,113089.10097082818,timepoint2
-POR-206,NA,NA,1257387.573212881,timepoint2
+POR-206,site2,Porites,1257387.573212881,timepoint2
 POR-209,site2,Porites,537224.9699837136,timepoint2
 POR-214,site2,Porites,734099.1716101333,timepoint2
 POR-216,site2,Porites,2027073.5309840883,timepoint2
@@ -138,3 +138,8 @@ POC-232,site2,Pocillopora,NA,timepoint2
 POC-358,site3,Pocillopora,NA,timepoint2
 POR-251,site2,Porites,NA,timepoint2
 POR-362,site3,Porites,NA,timepoint2
+ACR-210,site2,Acropora,NA,timepoint2
+ACR-213,site2,Acropora,NA,timepoint2
+ACR-218,site2,Acropora,NA,timepoint2
+ACR-220,site2,Acropora,NA,timepoint2
+ACR-241,site2,Acropora,NA,timepoint2
