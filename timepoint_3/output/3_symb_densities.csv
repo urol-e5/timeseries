@@ -8,14 +8,14 @@ ACR-175,site1,Acropora,279277.0482111566,timepoint3
 ACR-178,site1,Acropora,292661.9733300785,timepoint3
 ACR-186,site1,Acropora,255477.9633975107,timepoint3
 ACR-190,site1,Acropora,277551.0215367153,timepoint3
-ACR-210,NA,NA,166314.25398584793,timepoint3
-ACR-213,NA,NA,242517.49758018853,timepoint3
-ACR-218,NA,NA,186325.94583038025,timepoint3
-ACR-220,NA,NA,161204.35244581138,timepoint3
+ACR-210,site2,Acropora,166314.25398584793,timepoint3
+ACR-213,site2,Acropora,242517.49758018853,timepoint3
+ACR-218,site2,Acropora,186325.94583038025,timepoint3
+ACR-220,site2,Acropora,161204.35244581138,timepoint3
 ACR-225,site2,Acropora,274970.6107877984,timepoint3
 ACR-229,site2,Acropora,184575.75016233846,timepoint3
 ACR-237,site2,Acropora,200862.29690991505,timepoint3
-ACR-241,NA,NA,315663.044053663,timepoint3
+ACR-241,site2,Acropora,315663.044053663,timepoint3
 ACR-244,site2,Acropora,168710.16155175827,timepoint3
 ACR-265,site2,Acropora,246162.90209683424,timepoint3
 ACR-343,site3,Acropora,308263.5526364539,timepoint3
@@ -144,3 +144,4 @@ POR-235,site2,Porites,NA,timepoint3
 POR-236,site2,Porites,NA,timepoint3
 POR-266,site2,Porites,NA,timepoint3
 POR-385,site3,Porites,NA,timepoint3
+POR-206,site2,Porites,NA,timepoint3
