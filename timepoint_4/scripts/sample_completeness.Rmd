@@ -27,12 +27,12 @@ surface_area <- read_csv("data/4_surface_area/4_surface_area_data.csv") %>%
 
 chl <- list.files("data/4_chlorophyll/", "platemap", full.names = TRUE) %>%
   map_df(read_csv) %>%
-  drop_na() %>%
+  #drop_na() %>%
   filter(!colony_id == "BK") %>%
   pull(colony_id)
 
 afdw <- read_csv("data/4_biomass/4_biomass_data.csv") %>%
-  drop_na() %>%
+  #drop_na() %>%
   pull(colony_id)
 
 molec <- read_csv("data/4_molecular_backups/4_molecular_backups.csv") %>%
@@ -50,7 +50,7 @@ sym_counts <- read_csv("data/4_sym_counts/4_sym_counts_data.csv") %>%
 
 tac <- list.files("data/4_antioxidant_capacity/", "platemap", full.names = TRUE) %>%
   map_df(read_csv) %>%
-  drop_na() %>%
+  #drop_na() %>%
   filter(!colony_id == "BK") %>%
   pull(colony_id)
 
@@ -58,7 +58,7 @@ tac <- list.files("data/4_antioxidant_capacity/", "platemap", full.names = TRUE)
 
 protein <- list.files("data/4_protein/", "platemap", full.names = TRUE) %>%
   map_df(read_csv) %>%
-  drop_na() %>%
+  #drop_na() %>%
   filter(!colony_id == "BK") %>%
   pull(colony_id)
 
