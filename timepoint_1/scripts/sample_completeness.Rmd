@@ -67,7 +67,7 @@ protein <- list.files("data/1_protein/", "platemap", full.names = TRUE) %>%
 ### Filter out `colony_id` of any corals we know were *not collected*
 ```{r}
 coral_metadata <- coral_metadata %>%
-  .[!. %in% c("POC-215", "POC-232", "ACR-360", "ACR-370", "ACR-376", "ACR-178", "ACR-347")]
+  .[!. %in% c("POC-215", "POC-232", "ACR-360", "ACR-370", "ACR-376", "ACR-178", "ACR-347", "ACR-210", "ACR-213", "ACR-218", "ACR-220", "ACR-241", "POR-206")]
 ```
 
 ## Are there mystery samples in any of the datasets that are not part of the metadata? (data entry error?)

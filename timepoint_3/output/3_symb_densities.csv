@@ -84,7 +84,7 @@ POR-367,site3,Porites,2523065.8548119813,timepoint3
 POR-381,site3,Porites,723791.8088237038,timepoint3
 POR-383,site3,Porites,2882062.483103521,timepoint3
 POR-384,site3,Porites,1015122.7808685933,timepoint3
-POR-387,NA,NA,1154977.7177786778,timepoint3
+POR-385,site3,Porites,1154977.7177786778,timepoint3
 POR-69,site1,Porites,2101169.2907159897,timepoint3
 POR-70,site1,Porites,1595561.453422573,timepoint3
 POR-71,site1,Porites,1863817.874072089,timepoint3
@@ -143,5 +143,4 @@ POR-78,site1,Porites,NA,timepoint3
 POR-235,site2,Porites,NA,timepoint3
 POR-236,site2,Porites,NA,timepoint3
 POR-266,site2,Porites,NA,timepoint3
-POR-385,site3,Porites,NA,timepoint3
 POR-206,site2,Porites,NA,timepoint3
