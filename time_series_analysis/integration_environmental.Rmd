@@ -504,10 +504,6 @@ length(radar$FullTemp_mean)/3
 
 We have 68 days of data from all variables.  
 
-
-
-
-
 # Plot boxplots of data for each timepoint as a summary.    
 
 Summarize data.  
