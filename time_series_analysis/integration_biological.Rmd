@@ -199,19 +199,66 @@ master <- full_join(full_join(full_join(full_join(full_join(full_join(
 head(master)
 ```
 
-Control for colony id, site name, and timepoint names. 
+Correct all colony ID's and remove any colonies that are not collected in this data set (e.g., other projects, blanks).  
+
+```{r}
+#Change the coral id metadata from wide to long format
+test<-tags%>%
+  select(Original_Tag, Tag_ID_Jan, Tag_ID_Mar, Tag_ID_Nov, Tag_ID_Nov)%>%
+  gather(Tag_ID_Jan:Tag_ID_Nov, timepoint_tag)
+
+
+```
+
+
+
+
+Turn id metadata into long format and then have it do an if else matching by "tag" and "timepoint" and populating by "original tag". 
+Remove rows where all data columns are NA.   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Control for colony id, site name, and timepoint names. CHANGE TO IF ELSE FUNCTIONS TO AVOID SOME ISSUES 
 ```{r}
 #Add column for month of year for each timepoint
 master$month[master$timepoint == "timepoint1"] <- "January 2020"
 master$month[master$timepoint == "timepoint2"] <- "March 2020"
 master$month[master$timepoint == "timepoint3"] <- "September 2020"
 master$month[master$timepoint == "timepoint4"] <- "November 2020"
+```
+
+
+
+
+
+
+THIS PART IS MESSED UP, CHECK 
+```{r}
+#change colony id that was changed in the middle of the series
+test<-master%>%
+  mutate(colony_id=as.character(colony_id))%>%
+  mutate(colony_id=if_else(colony_id=="POR-206", "POR-251", colony_id))
+
 
 #replace colony id with the original tag number if the tag was changed during the timeseries, as shown by a new tag id at the end of the time series
 master$colony_id_corr<-tags$Original_Tag[match(master$colony_id, tags$Tag_ID_Nov)] 
 
 #if there is an na (because the colony tag id did not change over the timesereis), populate with the colonyid number from colony_id column
 master$colony_id_corr[is.na(master$colony_id_corr)] <- master$colony_id[is.na(master$colony_id_corr)]
+
+
+
 
 #match site name by site number and species from tag sheet 
 master$site<-tags$Site[match(master$colony_id_corr, tags$Original_Tag)]

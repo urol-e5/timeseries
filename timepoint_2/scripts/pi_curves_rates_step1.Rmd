@@ -57,12 +57,17 @@ df <- tibble(file.name = file.names) %>%
 
 # Select only Time, Value, and Temp columns from O2 data
 df <- df %>%
-  mutate(data0 = map(data0, ~select(., Time, Value, Temp)))    
+  mutate(data0 = map(data0, ~select(., Time, Value, Temp)))%>%
+  mutate(data0 = map(data0, ~(.x %>% filter(complete.cases(.))))) #remove NAs     
 ```
+
+Info needs to be same time format as the data0
+
+
 
 ## Use the time breaks in the sample info to link O2 data with light levels
 ```{r, warning = FALSE}
-df <- df %>%
+test <- df %>%
   mutate(intervals = map2(data0, info, function(.x, .y) {
     split(.x, f = cut(as.numeric(.x$Time), breaks = as.numeric(c(.y$Start.time, last(.y$Stop.time))),
                       labels = as.character(.y$Light_Value)))})) %>%
