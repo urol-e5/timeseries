@@ -27,7 +27,7 @@ Date,colony_id,Chamber.Channel,Position,Bin.ID,Run,Fragment.Number,Temp.Cat,Cham
 20201104,ACR-389,6,12,2,6,2,26.8,0.6,
 20201105,ACR-390,1,1,1,7,1,26.8,0.595,
 20201105,ACR-393,1,1,1,8,1,26.8,0.61,
-20201104,ACR-398,4,4,1,6,1,26.8,0.61,"Tag is actually ACR-396, verified by field photos by DC (haven't changed in any data but metadata sheets yet)"
+20201104,ACR-396,4,4,1,6,1,26.8,0.61,"Tag is actually ACR-396, verified by field photos by DC (haven't changed in any data but metadata sheets yet)"
 20201102,BK-1,2,2,1,1,NA,26.8,0.615,
 20201106,BK-10,8,8,2,10,NA,26.8,0.625,
 20201107,BK-11,7,7,2,11,NA,26.8,0.61,
