@@ -79,6 +79,8 @@ Output data to file.
 ```{r}
 sym_counts %>%
   select(colony_id, site, species, cells.cm2) %>%
+  group_by(colony_id, site, species)%>%
+  summarise(cells.cm2=mean(cells.cm2))%>%
   mutate(timepoint="timepoint3")%>%
   write_csv(., file = "output/3_symb_densities.csv")
 ```
