@@ -414,6 +414,8 @@ summary_stats_qc<-master_qc%>%
   dplyr::select(Date.Time, site, timepoint, FullTemp, pH, light)%>%
   group_by(site)%>%
   summarise(across(FullTemp:light, list(min=min, max=max, mean=mean, stdev=sd), na.rm=TRUE))%>%
+  mutate(FullTemp_range=(FullTemp_max-FullTemp_min), na.rm=TRUE)%>%
+  mutate(pH_range=(pH_max-pH_min), na.rm=TRUE)%>%
   write_csv("Output/Clean_Environmental_Summary_Stats.csv")
 ```
 
@@ -432,31 +434,60 @@ write_csv(master_qc, "Output/environmental_timeseries.csv")
 
 To do this, we need to first summarize data by a unit of time becuase the loggers differ by seconds/minutes, producing a lot of na's. We can first summarize by day for temperature (using Hobo here), pH, and light. 
 
-Calculate additional metrics of daily min/max, range, variability, and number of days above 30C.  
+Calculate additional metrics of daily min/max, range, and variability.  
 
+Temperature
 ```{r}
-radar_data<-master_qc %>%
+radar_data_temp<-master_qc %>%
     mutate(Date=as.factor(as.Date(Date.Time)))%>%
-    select(Date, site, FullTemp, pH, light)%>%
+    select(Date, site, FullTemp)%>%
     group_by(Date, site)%>%
-    summarise(across(FullTemp:light, list(mean=mean, min=min, max=max, sd=sd), na.rm=TRUE))%>%
-    mutate(FullTemp_range=(FullTemp_max-FullTemp_min), na.rm=TRUE)%>%
-    mutate(pH_range=(pH_max-pH_min), na.rm=TRUE)
+    summarise(across(FullTemp, list(mean=mean, min=min, max=max, sd=sd), na.rm=TRUE))%>%
+    mutate(FullTemp_range=(FullTemp_max-FullTemp_min), na.rm=TRUE)
 
-radar_data[mapply(is.infinite, radar_data)] <- NA
-radar_data[mapply(is.nan, radar_data)] <- NA
+radar_data_temp[mapply(is.infinite, radar_data_temp)] <- NA
+radar_data_temp[mapply(is.nan, radar_data_temp)] <- NA
 
-#radar plot 
+#radar plot for temperature
 
-radar<-radar_data%>%
-  select(site, pH_mean, FullTemp_mean, light_mean, FullTemp_sd, pH_sd, FullTemp_max, FullTemp_min, pH_max, pH_min, FullTemp_range, pH_range, light_max)%>%
+radar<-radar_data_temp%>%
+  select(site, FullTemp_mean, FullTemp_sd, FullTemp_max, FullTemp_min, FullTemp_range)%>%
   mutate_each(funs(rescale), -site) %>%
   drop_na()%>%
   ungroup()%>%
   droplevels()%>%
   select(!Date)
 
-png(filename="Figures/Environmental_Radar.png", width=2280, heigh=1880, units="px", res=300)
+png(filename="Figures/Environmental_Radar_Temperature.png", width=2280, heigh=1880, units="px", res=300)
+ggRadar(radar, aes(colour=site), scales="fixed")+ggplot2::theme_minimal()+ggplot2::theme(text=element_text(color="black"))
+dev.off()
+
+ggRadar(radar, aes(colour=site), scales="fixed")+ggplot2::theme_minimal()+ggplot2::theme(text=element_text(color="black"))
+```
+
+pH and light 
+```{r}
+radar_data_pH<-master_qc %>%
+    mutate(Date=as.factor(as.Date(Date.Time)))%>%
+    select(Date, site, FullTemp, pH, light)%>%
+    group_by(Date, site)%>%
+    summarise(across(pH:light, list(mean=mean, min=min, max=max, sd=sd), na.rm=TRUE))%>%
+    mutate(pH_range=(pH_max-pH_min), na.rm=TRUE)
+
+radar_data_pH[mapply(is.infinite, radar_data_pH)] <- NA
+radar_data_pH[mapply(is.nan, radar_data_pH)] <- NA
+
+#radar plot for ph/light
+
+radar<-radar_data_pH%>%
+  select(site, pH_mean, light_mean, pH_sd, pH_max, pH_min, pH_range, light_max)%>%
+  mutate_each(funs(rescale), -site) %>%
+  drop_na()%>%
+  ungroup()%>%
+  droplevels()%>%
+  select(!Date)
+
+png(filename="Figures/Environmental_Radar_pH_light.png", width=2280, heigh=1880, units="px", res=300)
 ggRadar(radar, aes(colour=site), scales="fixed")+ggplot2::theme_minimal()+ggplot2::theme(text=element_text(color="black"))
 dev.off()
 
@@ -469,40 +500,32 @@ Conduct ANOVA across sites to look at differences in these environmental charact
 
 *Temperature variables*
 ```{r}
-summary(aov(FullTemp_mean~site, radar_data))
-summary(aov(FullTemp_sd~site, radar_data))
-summary(aov(FullTemp_max~site, radar_data))
-summary(aov(FullTemp_min~site, radar_data))
-summary(aov(FullTemp_range~site, radar_data))
+summary(aov(FullTemp_mean~site, radar_data_temp))
+summary(aov(FullTemp_sd~site, radar_data_temp))
+summary(aov(FullTemp_max~site, radar_data_temp))
+summary(aov(FullTemp_min~site, radar_data_temp))
+summary(aov(FullTemp_range~site, radar_data_temp))
 ```
 
-Temperature daily variability (stdev), max daily temperature, min daily temperature, and daily temperature range are different by site.  
 
 *Light variables*
 ```{r}
-summary(aov(light_mean~site, radar_data))
-summary(aov(light_max~site, radar_data))
+summary(aov(light_mean~site, radar_data_pH))
+summary(aov(light_max~site, radar_data_pH))
 ```
 
 Mean daily light and max daily light are different by site.  
 
 *pH variables*  
 ```{r}
-summary(aov(pH_mean~site, radar_data))
-summary(aov(pH_sd~site, radar_data))
-summary(aov(pH_max~site, radar_data))
-summary(aov(pH_min~site, radar_data))
-summary(aov(pH_range~site, radar_data))
+summary(aov(pH_mean~site, radar_data_pH))
+summary(aov(pH_sd~site, radar_data_pH))
+summary(aov(pH_max~site, radar_data_pH))
+summary(aov(pH_min~site, radar_data_pH))
+summary(aov(pH_range~site, radar_data_pH))
 ```
 
 Mean daily pH, daily pH variability (stdev), max daily pH, min daily pH, and pH daily range are different by site.  
-
-Number of days of data included in this data set:  
-```{r}
-length(radar$FullTemp_mean)/3
-```
-
-We have 68 days of data from all variables.  
 
 # Plot boxplots of data for each timepoint as a summary.    
 
@@ -520,9 +543,6 @@ boxplot_data<-master_qc %>%
 boxplot_data[mapply(is.infinite, boxplot_data)] <- NA
 boxplot_data[mapply(is.nan, boxplot_data)] <- NA
 ```
-
-
-Make new boxplots faceted by time point. 
 
 Temperature
 ```{r}
