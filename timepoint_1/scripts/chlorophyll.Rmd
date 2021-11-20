@@ -114,6 +114,8 @@ chl <- filter(chl, !colony_id %in% c("NA", "BK"))
 chl %>%
   select(colony_id, chla.ug.cm2, chlc2.ug.cm2) %>%
   mutate(timepoint="timepoint1")%>%
+  filter(!is.na(chla.ug.cm2))%>%
+  filter(!is.na(chlc2.ug.cm2))%>%
   write_csv(path = "output/1_chlorophyll.csv")
 ```
 
