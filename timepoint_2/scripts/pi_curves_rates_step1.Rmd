@@ -53,7 +53,7 @@ metadata <- metadata %>%
 df <- tibble(file.name = file.names) %>%
   mutate(colony_id = gsub("_.*", "", file.name),                              # Get colony_id from filename
           info = map(colony_id, ~filter(metadata, colony_id == .)),           # Get associated sample info
-         data0 = map(file.name, ~read_csv(file.path(path.p, .), skip = 1)))   # Get associated O2 data
+         data0 = map(file.name, ~read_csv(file.path(path.p, .), skip = 1, col_types = cols(.default = "d", Time = "t"))))   # Get associated O2 data
 
 # Select only Time, Value, and Temp columns from O2 data
 df <- df %>%
@@ -61,13 +61,9 @@ df <- df %>%
   mutate(data0 = map(data0, ~(.x %>% filter(complete.cases(.))))) #remove NAs     
 ```
 
-Info needs to be same time format as the data0
-
-
-
 ## Use the time breaks in the sample info to link O2 data with light levels
 ```{r, warning = FALSE}
-test <- df %>%
+df <- df %>%
   mutate(intervals = map2(data0, info, function(.x, .y) {
     split(.x, f = cut(as.numeric(.x$Time), breaks = as.numeric(c(.y$Start.time, last(.y$Stop.time))),
                       labels = as.character(.y$Light_Value)))})) %>%
