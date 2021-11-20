@@ -54,11 +54,12 @@ metadata <- metadata %>%
 df <- tibble(file.name = file.names) %>%
   mutate(colony_id = gsub("_.*", "", file.name),                              # Get colony_id from filename
           info = map(colony_id, ~filter(metadata, colony_id == .)),           # Get associated sample info
-         data0 = map(file.name, ~read_csv(file.path(path.p, .), skip = 1)))   # Get associated O2 data
+         data0 = map(file.name, ~read_csv(file.path(path.p, .), skip = 1, col_types = cols(.default = "d", Time = "t"))))   # Get associated O2 data
 
 # Select only Time, Value, and Temp columns from O2 data
 df <- df %>%
-  mutate(data0 = map(data0, ~select(., Time, Value, Temp)))
+  mutate(data0 = map(data0, ~select(., Time, Value, Temp)))%>%
+  mutate(data0 = map(data0, ~(.x %>% filter(complete.cases(.))))) #remove NAs  
 ```
 
 ## Use the time breaks in the sample info to link O2 data with light levels
@@ -71,7 +72,7 @@ df <- df %>%
 
 ## 'data' now contains the O2 data with the corresponding light level as another column
 ## Example of what 'data' for each sample looks like:
-df$data[[1]]
+#df$data[[1]]
 ```
 
 ### Thin data
@@ -103,15 +104,15 @@ cowplot::plot_grid(df$data_plot[[1]], df$thin_data_plot[[1]], nrow = 2,
 
 Example of colony that runs: 
 ```{r}
-df %>%
-  filter(colony_id == c("ACR-139")) %>%
-  pull(thin_data_plot)
-df %>%
-  filter(colony_id == c("BK-10")) %>%
-  pull(thin_data_plot)
-df %>%
-  filter(colony_id == c("POR-83")) %>%
-  pull(thin_data_plot)
+# df %>%
+#   filter(colony_id == c("ACR-139")) %>%
+#   pull(thin_data_plot)
+# df %>%
+#   filter(colony_id == c("BK-10")) %>%
+#   pull(thin_data_plot)
+# df %>%
+#   filter(colony_id == c("POR-83")) %>%
+#   pull(thin_data_plot)
 
 #df %>%
   #group_by(colony_id)%>%
@@ -119,21 +120,21 @@ df %>%
 ```
 
 ```{r}
-df %>%
-  filter(colony_id == c("ACR-220")) %>%
-  pull(thin_data_plot)
-
-df %>%
-  filter(colony_id == c("BK-3")) %>%
-  pull(thin_data_plot)
-
-df %>%
-  filter(colony_id == c("POC-359")) %>%
-  pull(thin_data_plot)
-
-df %>%
-  filter(colony_id == c("POR-340")) %>%
-  pull(thin_data_plot)
+# df %>%
+#   filter(colony_id == c("ACR-220")) %>%
+#   pull(thin_data_plot)
+# 
+# df %>%
+#   filter(colony_id == c("BK-3")) %>%
+#   pull(thin_data_plot)
+# 
+# df %>%
+#   filter(colony_id == c("POC-359")) %>%
+#   pull(thin_data_plot)
+# 
+# df %>%
+#   filter(colony_id == c("POR-340")) %>%
+#   pull(thin_data_plot)
 
 
 #df %>%
@@ -160,15 +161,6 @@ df <- df %>%
     group_by(., Light_Value) %>%
     do(rankLcRg = fit_reg(.))
   }))
-
-
-#test <- df %>%
-      #filter(colony_id==c("POR-340"))%>%
-        #dplyr::mutate(regs = furrr::future_map(thin_data, function(.) {       # future_map executes function in parallel
-       #group_by(., Light_Value) %>%
-       # do(rankLcRg = fit_reg(.))
-  #}))
-
 
 ## Now 'regs' contains the fitted local regressions for each interval of each sample's thinned dataset
 
