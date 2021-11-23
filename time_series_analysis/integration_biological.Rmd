@@ -3108,7 +3108,7 @@ poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
 scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:15)], scale=TRUE, center=TRUE) 
 ```
 
-#### Porites PCA's   
+##### Porites PCA's   
 
 Groupings by timepoint:  
 ```{r}
@@ -3157,7 +3157,7 @@ PERMANOVA of the effect of site
 adonis(vegan_afdw ~ site_code, data = por_data_afdw, method='eu')
 ```
 
-#### Acropora PCA's  
+##### Acropora PCA's  
  
 Groupings by timepoint:  
 ```{r}
@@ -3206,7 +3206,7 @@ PERMANOVA of the effect of site
 adonis(vegan_afdw ~ site_code, data = acr_data_afdw, method='eu')
 ```
 
-#### Pocillopora PCA's  
+##### Pocillopora PCA's  
 
 Groupings by timepoint:   
 ```{r}
@@ -4086,7 +4086,8 @@ ggsave(filename="Figures/Plasticity_Panel_species_detail.png", plot=plasticity_f
 
 ### Matrix of PCA's by species and time  
 
-Generate biplot showing groupings by site for each species and time point.  
+Generate biplot showing groupings by site for each species and time point.  ADD PERMANOVA TO ALL PLOTS 
+
 
 #### Pocillopora  
 

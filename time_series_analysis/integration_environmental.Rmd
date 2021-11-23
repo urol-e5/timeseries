@@ -197,7 +197,8 @@ ggsave(filename="Figures/Environmental_Timeseries_Raw.jpg", plot=environmental_f
 summary_stats<-master%>%
   dplyr::select(Date.Time, site, timepoint, Temp, pH, light, Hobo)%>%
   group_by(site)%>%
-  summarise(across(Temp:Hobo, list(min=min, max=max, mean=mean, stdev=sd), na.rm=TRUE));summary_stats
+  summarise(across(Temp:Hobo, list(min=min, max=max, mean=mean, stdev=sd), na.rm=TRUE));summary_stats #%>%
+  #mutate(Temp30=sum(with(., Temp_max>30)));summary_stats
   #write_csv("Output/Environmental_Summary_Stats_Raw.csv")
 ```
 
@@ -436,6 +437,10 @@ To do this, we need to first summarize data by a unit of time becuase the logger
 
 Calculate additional metrics of daily min/max, range, and variability.  
 
+
+  
+
+
 Temperature
 ```{r}
 radar_data_temp<-master_qc %>%
@@ -443,6 +448,7 @@ radar_data_temp<-master_qc %>%
     select(Date, site, FullTemp)%>%
     group_by(Date, site)%>%
     summarise(across(FullTemp, list(mean=mean, min=min, max=max, sd=sd), na.rm=TRUE))%>%
+    mutate(Over30=if_else(FullTemp_max>30, 1, 0))%>%
     mutate(FullTemp_range=(FullTemp_max-FullTemp_min), na.rm=TRUE)
 
 radar_data_temp[mapply(is.infinite, radar_data_temp)] <- NA
@@ -451,18 +457,21 @@ radar_data_temp[mapply(is.nan, radar_data_temp)] <- NA
 #radar plot for temperature
 
 radar<-radar_data_temp%>%
-  select(site, FullTemp_mean, FullTemp_sd, FullTemp_max, FullTemp_min, FullTemp_range)%>%
+  select(site, FullTemp_mean, FullTemp_sd, FullTemp_max, FullTemp_min, FullTemp_range, Over30)%>%
   mutate_each(funs(rescale), -site) %>%
   drop_na()%>%
   ungroup()%>%
   droplevels()%>%
-  select(!Date)
+  select(!Date)%>%
+  rename(Mean=FullTemp_mean, Variability=FullTemp_sd, Max=FullTemp_max, Min=FullTemp_min, Range=FullTemp_range, DaysOver30=Over30)%>%
+    mutate(site = if_else(site == "site3", "Hilton", 
+                            if_else(site == "site2", "Mahana", 
+                                    if_else(site == "site1", "Manava", "NA"))))
 
-png(filename="Figures/Environmental_Radar_Temperature.png", width=2280, heigh=1880, units="px", res=300)
-ggRadar(radar, aes(colour=site), scales="fixed")+ggplot2::theme_minimal()+ggplot2::theme(text=element_text(color="black"))
+png(filename="Figures/Environmental_Radar_Temperature.png", width=3080, heigh=1880, units="px", res=300)
+ggRadar(radar, aes(colour=site), scales="fixed")+ggplot2::theme_minimal()+ggplot2::theme(text=element_text(color="black", size=11))+ggplot2::theme(legend.position="top")
 dev.off()
 
-ggRadar(radar, aes(colour=site), scales="fixed")+ggplot2::theme_minimal()+ggplot2::theme(text=element_text(color="black"))
 ```
 
 pH and light 
@@ -485,13 +494,16 @@ radar<-radar_data_pH%>%
   drop_na()%>%
   ungroup()%>%
   droplevels()%>%
-  select(!Date)
+  select(!Date)%>%
+  rename(pH_Mean=pH_mean, pH_Variability=pH_sd, pH_Max=pH_max, pH_Min=pH_min, pH_Range=pH_range, Light_Mean=light_mean, Light_Max=light_max)%>%
+  mutate(site = if_else(site == "site3", "Hilton", 
+                            if_else(site == "site2", "Mahana", 
+                                    if_else(site == "site1", "Manava", "NA"))))
 
 png(filename="Figures/Environmental_Radar_pH_light.png", width=2280, heigh=1880, units="px", res=300)
-ggRadar(radar, aes(colour=site), scales="fixed")+ggplot2::theme_minimal()+ggplot2::theme(text=element_text(color="black"))
+ggRadar(radar, aes(colour=site), scales="fixed")+ggplot2::theme_minimal()+ggplot2::theme(text=element_text(color="black", size=11))+ggplot2::theme(legend.position="top")
 dev.off()
 
-ggRadar(radar, aes(colour=site), scales="fixed")+ggplot2::theme_minimal()+ggplot2::theme(text=element_text(color="black"))
 ```
 
 ## Statistical tests  
