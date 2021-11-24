@@ -31,7 +31,7 @@ if (!require("broom")) install.packages("broom")
 if (!require("cowplot")) install.packages("cowplot")
 if (!require("scales")) install.packages("scales")
 if (!require("ggiraphExtra")) install.packages("ggiraphExtra")
-if (!require("ggradar")) remotes::install_github("ricardo-bion/ggradar")
+#if (!require("ggradar")) remotes::install_github("ricardo-bion/ggradar")
 
 # load packages
 library(tidyverse)
@@ -50,7 +50,7 @@ library(GGally)
 library(broom)
 library(cowplot)
 library(scales)
-library(ggradar)
+#library(ggradar)
 library(ggiraphExtra)
 ```
  
@@ -427,8 +427,6 @@ summary_stats_qc<-master_qc%>%
 write_csv(master_qc, "Output/environmental_timeseries.csv")
 ```
 
-
- 
 # Plot radar plot of multivariate data  
 
 ## Radar plot  
@@ -436,10 +434,6 @@ write_csv(master_qc, "Output/environmental_timeseries.csv")
 To do this, we need to first summarize data by a unit of time becuase the loggers differ by seconds/minutes, producing a lot of na's. We can first summarize by day for temperature (using Hobo here), pH, and light. 
 
 Calculate additional metrics of daily min/max, range, and variability.  
-
-
-  
-
 
 Temperature
 ```{r}
