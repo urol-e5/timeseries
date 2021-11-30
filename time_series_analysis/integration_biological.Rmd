@@ -4569,7 +4569,7 @@ ggsave(filename="Figures/Matrix_AllResponses.pdf", plot=all_grid2, dpi=500, widt
 ## Host Responses  
 
 ### PCA's for centroid and trajectories  
-
+ 
 #### Acropora  
 
 Generate PCA using scaled (scaled_acr_afdw) from dataframe (acr_data_afdw).   
@@ -4579,15 +4579,15 @@ acr_data_afdw<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Acropora")%>%
-  filter(Sym_AFDW.mg.cm2<20)%>%
-  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)
+  #filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(prot_mg.mgafdw<1.5) %>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw, Respiration=Rd)
 
 acr_data_afdw<-acr_data_afdw[complete.cases(acr_data_afdw), ]
 
-scaled_acr_afdw<-prcomp(acr_data_afdw[c(5:9)], scale=TRUE, center=TRUE) 
+scaled_acr_afdw<-prcomp(acr_data_afdw[c(5:8)], scale=TRUE, center=TRUE) 
 
 acr_info<-acr_data_afdw[c(2,4)]
 
@@ -4608,7 +4608,7 @@ Examine PERMANOVA results.
  
 ```{r}
 # scale data
-vegan <- scale(acr_data_afdw[ ,5:9])
+vegan <- scale(acr_data_afdw[ ,5:8])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 permanova<-adonis(vegan ~ timepoint*site_code, data = acr_data_afdw, method='eu')
@@ -4624,14 +4624,14 @@ acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site_code)) +
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
-  ylim(-6,10)+
-  xlim(-5,10)+
+  ylim(-5,5)+
+  xlim(-5,5)+
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Acropora")))+
-  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_acr$`Pr(>F)`[1]), size=4, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_acr$`Pr(>F)`[2]), size=4, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_acr$`Pr(>F)`[3]), size=4, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_acr$`Pr(>F)`[1]), size=4, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_acr$`Pr(>F)`[2]), size=4, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_acr$`Pr(>F)`[3]), size=4, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -4703,21 +4703,20 @@ Asemble final figure with inset biplot.
 Generate PCA using scaled (scaled_por_afdw) from dataframe (por_data_afdw).   
  
 Calculate centroid locations for each site and timepoint and pull PC1 and PC2 locations.      
- 
 ```{r}
 por_data_afdw<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Ratio_AFDW.mg.cm2>0)%>%
-  filter(Sym_AFDW.mg.cm2<20)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Porites")%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Respiration=Rd, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)
 
 por_data_afdw<-por_data_afdw[complete.cases(por_data_afdw), ]
 
-scaled_por_afdw<-prcomp(por_data_afdw[c(5:9)], scale=TRUE, center=TRUE) 
+scaled_por_afdw<-prcomp(por_data_afdw[c(5:8)], scale=TRUE, center=TRUE) 
 
 por_info<-por_data_afdw[c(2,4)]
 
@@ -4736,7 +4735,7 @@ por.centroids<-por_data %>%
 
 ```{r}
 # scale data
-vegan <- scale(por_data_afdw[ ,5:9])
+vegan <- scale(por_data_afdw[ ,5:8])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 permanova<-adonis(vegan ~ timepoint*site_code, data = por_data_afdw, method='eu')
@@ -4754,12 +4753,12 @@ porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site_code)) +
   theme_classic()+
   ylab("PC2")+
   xlab("PC1")+
-  ylim(-6,10)+
-  xlim(-5,10)+
+  ylim(-5,5)+
+  xlim(-5,5)+
   ggtitle(expression(italic("Porites")))+
-  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_por$`Pr(>F)`[1]), size=4, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_por$`Pr(>F)`[2]), size=4, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_por$`Pr(>F)`[3]), size=4, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_por$`Pr(>F)`[1]), size=4, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_por$`Pr(>F)`[2]), size=4, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_por$`Pr(>F)`[3]), size=4, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -4844,14 +4843,14 @@ poc_data_afdw<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
-  filter(Sym_AFDW.mg.cm2<20)%>%
-  filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Pocillopora")%>%
-  rename(Host_Biomass=Host_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Respiration=Rd, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw)
 
 poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
  
-scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:9)], scale=TRUE, center=TRUE) 
+scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:8)], scale=TRUE, center=TRUE) 
 
 poc_info<-poc_data_afdw[c(2,4)]
 
@@ -4870,7 +4869,7 @@ poc.centroids<-poc_data %>%
   
 ```{r}
 # scale data
-vegan <- scale(poc_data_afdw[ ,5:9])
+vegan <- scale(poc_data_afdw[ ,5:8])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 permanova<-adonis(vegan ~ timepoint*site_code, data = poc_data_afdw, method='eu')
@@ -4886,14 +4885,14 @@ pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site_code)) +
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
-  ylim(-6,10)+
-  xlim(-5,10)+
+  ylim(-5,5)+
+  xlim(-5,5)+
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Pocillopora")))+
-  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_poc$`Pr(>F)`[1]), size=4, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_poc$`Pr(>F)`[2]), size=4, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_poc$`Pr(>F)`[3]), size=4, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_poc$`Pr(>F)`[1]), size=4, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_poc$`Pr(>F)`[2]), size=4, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_poc$`Pr(>F)`[3]), size=4, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -5434,7 +5433,7 @@ porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  col
 ```
 
 #### Assemble grid plot of all metrics by species and time  
-
+ 
 ```{r}
 all_grid<-plot_grid(acrTP1, acrTP2, acrTP3, acrTP4, pocTP1, pocTP2, pocTP3, pocTP4, porTP1, porTP2, porTP3, porTP4, ncol=4, nrow=3)
 all_grid2<-plot_grid(all_grid, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
@@ -5442,7 +5441,7 @@ all_grid2<-plot_grid(all_grid, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 ggsave(filename="Figures/Matrix_Host_Responses.pdf", plot=all_grid2, dpi=500, width=20, height=20, units="in")
 
 ```
-
+ 
 
 ## Symbiont Responses  
 
@@ -5451,7 +5450,7 @@ ggsave(filename="Figures/Matrix_Host_Responses.pdf", plot=all_grid2, dpi=500, wi
 #### Acropora  
 
 Generate PCA using scaled (scaled_acr_afdw) from dataframe (acr_data_afdw).   
- 
+  
 ```{r}
 acr_data_afdw<-master%>%
   select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
@@ -5462,11 +5461,11 @@ acr_data_afdw<-master%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Acropora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell, SH_Ratio=Ratio_AFDW.mg.cm2)
 
 acr_data_afdw<-acr_data_afdw[complete.cases(acr_data_afdw), ]
 
-scaled_acr_afdw<-prcomp(acr_data_afdw[c(5:10)], scale=TRUE, center=TRUE) 
+scaled_acr_afdw<-prcomp(acr_data_afdw[c(5:11)], scale=TRUE, center=TRUE) 
 
 acr_info<-acr_data_afdw[c(2,4)]
 
@@ -5487,7 +5486,7 @@ Examine PERMANOVA results.
  
 ```{r}
 # scale data
-vegan <- scale(acr_data_afdw[ ,5:10])
+vegan <- scale(acr_data_afdw[ ,5:11])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 permanova<-adonis(vegan ~ timepoint*site_code, data = acr_data_afdw, method='eu')
@@ -5503,14 +5502,14 @@ acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site_code)) +
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
-  ylim(-6,10)+
-  xlim(-7,10)+
+  ylim(-5,6)+
+  xlim(-5,6)+
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Acropora")))+
-  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_acr$`Pr(>F)`[1]), size=4, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_acr$`Pr(>F)`[2]), size=4, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_acr$`Pr(>F)`[3]), size=4, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_acr$`Pr(>F)`[1]), size=4, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_acr$`Pr(>F)`[2]), size=4, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_acr$`Pr(>F)`[3]), size=4, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -5593,11 +5592,11 @@ por_data_afdw<-master%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Porites")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell, SH_Ratio=Ratio_AFDW.mg.cm2)
 
 por_data_afdw<-por_data_afdw[complete.cases(por_data_afdw), ]
 
-scaled_por_afdw<-prcomp(por_data_afdw[c(5:10)], scale=TRUE, center=TRUE) 
+scaled_por_afdw<-prcomp(por_data_afdw[c(5:11)], scale=TRUE, center=TRUE) 
 
 por_info<-por_data_afdw[c(2,4)]
 
@@ -5616,7 +5615,7 @@ por.centroids<-por_data %>%
 
 ```{r}
 # scale data
-vegan <- scale(por_data_afdw[ ,5:10])
+vegan <- scale(por_data_afdw[ ,5:11])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 permanova<-adonis(vegan ~ timepoint*site_code, data = por_data_afdw, method='eu')
@@ -5634,12 +5633,12 @@ porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site_code)) +
   theme_classic()+
   ylab("PC2")+
   xlab("PC1")+
-  ylim(-6,10)+
-  xlim(-7,10)+
+  ylim(-5,6)+
+  xlim(-5,6)+
   ggtitle(expression(italic("Porites")))+
-  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_por$`Pr(>F)`[1]), size=4, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_por$`Pr(>F)`[2]), size=4, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_por$`Pr(>F)`[3]), size=4, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_por$`Pr(>F)`[1]), size=4, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_por$`Pr(>F)`[2]), size=4, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_por$`Pr(>F)`[3]), size=4, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -5729,11 +5728,11 @@ poc_data_afdw<-master%>%
   filter(Total_Chl<13)%>%
   filter(species=="Pocillopora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell)
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell, SH_Ratio=Ratio_AFDW.mg.cm2)
 
 poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
  
-scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:10)], scale=TRUE, center=TRUE) 
+scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:11)], scale=TRUE, center=TRUE) 
 
 poc_info<-poc_data_afdw[c(2,4)]
 
@@ -5752,7 +5751,7 @@ poc.centroids<-poc_data %>%
   
 ```{r}
 # scale data
-vegan <- scale(poc_data_afdw[ ,5:10])
+vegan <- scale(poc_data_afdw[ ,5:11])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 permanova<-adonis(vegan ~ timepoint*site_code, data = poc_data_afdw, method='eu')
@@ -5768,14 +5767,14 @@ pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site_code)) +
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
-  ylim(-6,10)+
-  xlim(-5,10)+
+  ylim(-5,6)+
+  xlim(-5,6)+
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Pocillopora")))+
-  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_poc$`Pr(>F)`[1]), size=4, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_poc$`Pr(>F)`[2]), size=4, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_poc$`Pr(>F)`[3]), size=4, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_poc$`Pr(>F)`[1]), size=4, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_poc$`Pr(>F)`[2]), size=4, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_poc$`Pr(>F)`[3]), size=4, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
