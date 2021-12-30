@@ -98,8 +98,10 @@ time.data <- resp.data%>%
 full.calc.data <- left_join(calc.data2, time.data)
 ```
 
+We dont have time information in the resp.data or full.calc.data above. 
 
 Errors in this chunk below: Site is not included in datasheet (need to populate) and getting NA's in data calculations.  
+
 
 Calculate Net Ecosystem Calcification (NEC) from total alkalinity method.  .  
 ```{r}
