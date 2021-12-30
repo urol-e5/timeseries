@@ -18,24 +18,6 @@ library(tidyverse)
 
 ```
 
-For 9 colonies we need to take the values from Plate 2 and remove the ones from Plate 1. And use Plate 2 for the ones that are duplicates! Need to code this in this script.  Need to track down each colony 
-
-Calculate the variance between two replicates and then show those that are above a cutoff that isn't acceptable - then use those that are acceptable.  Flag anything >0.1 or some cutoff that we deem acceptable.  
-
-QC for "Are there duplicates in final output file"
-
-
-
-
-# ```{r}
-# chl_data <- read_csv("data/1_chlorophyll/1_20200106_Chl", skip = 24, n_max = 24) %>%
-#     select(-1) %>%
-#     magrittr::set_colnames(c("row", 1:12, "wavelength")) %>%
-#     fill(row) %>%
-#     gather("col", "absorbance", -wavelength, -row) %>%
-#     unite("well", c(row, col), sep = "")
-# ```
-
 # Import data
 ```{r}
 # Define function to read in chl data
@@ -84,12 +66,18 @@ df <- df %>%
 
 # calculate chla and chlc2 values based on equations from Jeffrey and Humphrey 1975
 # units µg/ml
-df <- df %>%
-  mutate(chla.ug.ml = 11.43 * adj663 - 0.64 * adj630,
-        chlc2.ug.ml = 27.09 * adj630 - 3.63 * adj663)
+#path length adjustment = 0.6 
 
-# path length adjustments for chlorophyll?
+df <- df %>%
+  mutate(chla.ug.ml = (11.43 * adj663)/0.6 - (0.64 * adj630)/0.6,
+        chlc2.ug.ml = (27.09 * adj630)/0.6 - (3.63 * adj663)/0.6)
+
+#previous, with no pathlength adjustment
+#df <- df %>%
+  #mutate(chla.ug.ml = (11.43 * adj663) - (0.64 * adj630),
+        #chlc2.ug.ml = (27.09 * adj630) - (3.63 * adj663))
 ```
+
 
 # Normalize to surface area
 ```{r}

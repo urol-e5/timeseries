@@ -64,12 +64,17 @@ df <- df %>%
 
 # calculate chla and chlc2 values based on equations from Jeffrey and Humphrey 1975
 # units µg/ml
-df <- df %>%
-  mutate(chla.ug.ml = 11.43 * adj663 - 0.64 * adj630,
-        chlc2.ug.ml = 27.09 * adj630 - 3.63 * adj663)
 
-# path length adjustments for chlorophyll?
+#path length adjustment = 0.6 
+
+df <- df %>%
+  mutate(chla.ug.ml = (11.43 * adj663)/0.6 - (0.64 * adj630)/0.6,
+        chlc2.ug.ml = (27.09 * adj630)/0.6 - (3.63 * adj663)/0.6)
 ```
+
+Path Length Adjustment
+
+
 
 # Normalize to surface area
 ```{r}
