@@ -98,17 +98,20 @@ time.data <- resp.data%>%
 full.calc.data <- left_join(calc.data2, time.data)
 ```
 
+
+Errors in this chunk below: Site is not included in datasheet (need to populate) and getting NA's in data calculations.  
+
 Calculate Net Ecosystem Calcification (NEC) from total alkalinity method.  .  
 ```{r}
-full.calc.data<-full.calc.data%>%
+test<-full.calc.data%>%
   mutate(start.time = strptime(as.character(TA.Start.Time), "%I:%M:%S %p"))%>% #convert time from character to time
   mutate(stop.time = strptime(as.character(TA.Stop.Time), "%I:%M:%S %p"))%>%
   mutate(deltaTA = (Ta.norm_initial - Ta.norm) - mean.blanks)%>% #calculate difference in TA corrected to blanks
   mutate(timediff = as.numeric(stop.time - start.time))%>% #calculate time difference
   mutate(umol.cm2.hr = (deltaTA/2)*(1.023)*((vol.L*1000)/surface.area.cm2)*(1/timediff)*(1/1000))%>% #convert volume (L) to mL and calculate net ecosystem calcification rates
   mutate(umol.cm2.hr=if_else(umol.cm2.hr<0, 0, umol.cm2.hr))%>% #make any negative values equal to 0
-  mutate(timepoint="timepoint3")%>%
-  drop_na()
+  mutate(timepoint="timepoint3") #%>%
+  #drop_na()
 
 write.csv(full.calc.data, 'output/3_calcification_rates.csv') 
 

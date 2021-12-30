@@ -1,4 +1,4 @@
-Date,Run.Number,Start.Time,Stop.Time,Chamber,Channel,Position,Species,Fragment.ID,Plug.ID,Site,Vol.ml,pH.mV,Temp.C,Salinity,Surface.Area,TA.Start.Time,TA.Stop.Time,Notes
+Date,Run.Number,Start.Time,Stop.Time,Chamber,Channel,Position,Species,colony_id,Plug.ID,Site,Vol.ml,pH.mV,Temp.C,Salinity,Surface.Area,TA.Start.Time,TA.Stop.Time,Notes
 20200909,1,12:00,13:34,1,1,4,Pocillopora,POC-386,386,3,,-64,28.8,36.58,,,,
 20200909,1,11:59,13:38,2,2,5,Porites,POR-353,353,3,,-61,28.6,36.22,,,,
 20200909,1,12:01,13:41,3,3,6,BK-1,BK-1,BK-1,3,,-60.9,28.5,36.2,,,,
