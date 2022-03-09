@@ -1,0 +1,274 @@
+---
+title: "Environmental Data"
+author: "HM Putnam, modified by AS Huffmyer"
+date: "2/12/2020, modified 11/15/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("dplyr")) install.packages("dplyr")
+if (!require("plotrix")) install.packages("plotrix")
+if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("lubridate")) install.packages("lubridate")
+
+# load packages
+library(tidyverse)
+library(dplyr)
+library(plotrix)
+library(ggplot2)
+library(lubridate)
+```
+
+pH  
+```{r}
+pH1 <- read.csv("data/1_environmental/1_20200102_SN20697597_Site1_pH.csv", header=T, sep=",", na.strings="NA",skip=1) #load  data
+colnames(pH1) <- c("Date.Time", "Temp", "mV", "pH")
+pH1$Date.Time <- parse_date_time(pH1$Date.Time, "Y!-m!*-d! H!:M!:S!") 
+#pH1$Temp <- (pH1$Temp - 32)*(5/9)
+
+pdf("output/timepoint1_pH_Temp.pdf")
+par(mfrow=c(3,1))
+par(mar = c(5,5,2,5))
+with(pH1, plot(Date.Time, pH, type="l", col="blue", 
+             ylim=c(8.05,8.55), ylab =NA, main="Site 1"))
+axis(2, col="blue",col.axis="blue")
+mtext("pH",side=2,col="blue",line=4) 
+par(new = T)
+with(pH1, plot(Date.Time, Temp,type="l", axes=F,col="black", xlab=NA, ylab=NA, ylim=c(27,32)))
+axis(side = 4)
+mtext(side = 4, line = 3, 'Temperature°C')
+#dev.off()
+
+pH2 <- read.csv("data/1_environmental/1_20200103_SN20697596_Site2_pH.csv", header=T, sep=",", na.strings="NA", skip=2) #load  data
+pH2 <- pH2[,1:4]
+colnames(pH2) <- c("Date.Time", "Temp", "mV", "pH")
+pH2$Date.Time <- parse_date_time(pH2$Date.Time, "Y!-m!*-d! H!:M!:S!")
+#pH2$Temp <- (pH2$Temp - 32)*(5/9)
+
+#pdf("output/20200103_Site2_pH_Temp.pdf")
+par(mar = c(5,5,2,5))
+with(pH2, plot(Date.Time, pH, type="l", col="blue", 
+              ylim=c(8.05,8.55), ylab =NA, main="Site 2"))
+axis(2, col="blue",col.axis="blue")
+mtext("pH",side=2,col="blue",line=4) 
+par(new = T)
+with(pH2, plot(Date.Time, Temp,type="l", axes=F,col="black", xlab=NA, ylab=NA, ylim=c(27,32)))
+axis(side = 4)
+mtext(side = 4, line = 3, 'Temperature°C')
+#dev.off()
+
+pH3 <- read.csv("data/1_environmental/1_20200106_SN20697595_Site3_pH.csv", header=T, sep=",", na.strings="NA", skip=2) #load  data
+pH3 <- pH3[,1:4]
+colnames(pH3) <- c("Date.Time", "Temp", "mV", "pH")
+pH3$Date.Time <- parse_date_time(pH3$Date.Time, "Y!-m!*-d! H!:M!:S!")
+#pH3$Temp <- (pH3$Temp - 32)*(5/9)
+
+#pdf("output/20200103_Site3_pH_Temp.pdf")
+par(mar = c(5,5,2,5))
+with(pH3, plot(Date.Time, pH, type="l", col="blue", 
+              ylim=c(8.05,8.55), ylab =NA, main="Site 3"))
+axis(2, col="blue",col.axis="blue")
+mtext("pH",side=2,col="blue",line=4) 
+par(new = T)
+with(pH3, plot(Date.Time, Temp,type="l", axes=F,col="black", xlab=NA, ylab=NA, ylim=c(27,32)))
+axis(side = 4)
+mtext(side = 4, line = 3, 'Temperature°C')
+#dev.off()
+```
+
+Temperature
+```{r}
+#Temp1 <- read.csv("data/1_environmental/", header=T, sep=",", na.strings="NA",skip=1) #load  data
+#Temp1 <- Temp1[,2:3]
+#colnames(Temp1) <- c("Date.Time", "Temp")
+#Temp1$Date.Time <- parse_date_time(Temp1$Date.Time, "m!/d!/y! H!:M!:S! %p") 
+#Temp1$Temp <- (Temp1$Temp - 32)*(5/9)
+
+Temp2 <- read.csv("data/1_environmental/1_20200103_20444027_Site2_Temp.csv", header=T, sep=",", na.strings="NA",skip=1) #load  data
+Temp2 <- Temp2[,2:3]
+colnames(Temp2) <- c("Date.Time", "Temp")
+Temp2$Date.Time <- parse_date_time(Temp2$Date.Time, "m!/d!/y! H!:M!:S! %p") 
+#Temp2$Temp <- (Temp2$Temp - 32)*(5/9)
+
+Temp3 <- read.csv("data/1_environmental/1_20200106_20444041_Site3_Temp.csv", header=T, sep=",", na.strings="NA",skip=1) #load  data
+Temp3 <- Temp3[,2:3]
+colnames(Temp3) <- c("Date.Time", "Temp")
+Temp3$Date.Time <- parse_date_time(Temp3$Date.Time, "m!/d!/y! H!:M!:S! %p") 
+#Temp3$Temp <- (Temp3$Temp - 32)*(5/9)
+
+
+pdf("output/timepoint1_Temp.pdf")
+par(mfrow=c(2,1))
+par(mar = c(5,5,2,5))
+with(Temp2, plot(Date.Time, Temp, type="l", col="black", 
+             ylim=c(26.5,31), ylab =NA, main="Site 2 Mahana"))
+axis(2, col="black",col.axis="black")
+mtext("Temperature °C",side=2,col="black",line=4) 
+par(mar = c(5,5,2,5))
+with(Temp3, plot(Date.Time, Temp, type="l", col="black", 
+             ylim=c(26.5,31), ylab =NA, main="Site 3 Hilton"))
+axis(2, col="black",col.axis="black")
+mtext("Temperature °C",side=2,col="black",line=4) 
+#dev.off()
+```
+
+Light
+```{r}
+#Read in licor data
+Licor.Data <- read.csv("data/1_environmental/Cross_Calibration/20200111/1_20200111_Licor_Light_Calib.csv", header=FALSE)
+
+#Read in odyssey data
+Site1 <- read.csv("data/1_environmental/Cross_Calibration/20200111/Logger1_FCDC4664E473_1578805794987.csv", header=FALSE, skip=81)
+Site2 <- read.csv("data/1_environmental/Cross_Calibration/20200111/Logger2_EA62F175DD93_1578805769597.csv", header=FALSE, skip=83)
+Site3 <- read.csv("data/1_environmental/Cross_Calibration/20200111/Logger3_ECB51D4FB2D6_1578805825453.csv", header=FALSE, skip=83)
+
+#truncate data to calibration timepoints
+Site1 <- Site1[1:49,]
+Site2 <- Site2[1:49,]
+Site3 <- Site3[1:49,]
+
+#Convert licor data from integrated to instantaneous
+# these data were recorded every 5 minutes
+Licor.Data$um.m2.s1 <- (Licor.Data$V2*10^4)/(5*60)
+
+#Calculate linear regressions between licor data and odyssey data
+#bind dataframe
+Data <- cbind(Licor.Data, Site1$V3,Site2$V3,Site3$V3)
+colnames(Data) <- c("Date.Time", "Intg.Licor", "Inst.Licor", "Logger1", "Logger2", "Logger3")
+
+#extract coefficients from regressions
+S1 <- coef(lm(Inst.Licor ~ Logger1, data=Data))
+S2 <- coef(lm(Inst.Licor ~ Logger2, data=Data))
+S3 <- coef(lm(Inst.Licor ~ Logger3, data=Data))
+
+#view coefficients
+summary(lm(Inst.Licor ~ Logger1, data=Data))
+summary(lm(Inst.Licor ~ Logger2, data=Data))
+summary(lm(Inst.Licor ~ Logger3, data=Data))
+```
+
+Read in and convert light data from each site
+```{r}
+#read in site data
+S1.Data <- read.csv("data/1_environmental/1_FCDC4664E473_1578713594885_Site1_Light.csv")
+S2.Data <- read.csv("data/1_environmental/1_EA62F175DD93_1578713736764_Site2_Light.csv")
+S3.Data <- read.csv("data/1_environmental/1_ECB51D4FB2D6_1578713762658_Site3_Light.csv")
+
+#run calibrations
+S1.Data$light <-(S1.Data$data1*S1[2])+S1[1]
+S2.Data$light <-(S2.Data$data1*S2[2])+S2[1]
+S3.Data$light <-(S3.Data$data1*S3[2])+S3[1]
+
+
+S1.Data$Date.Time <- gsub("T"," ", as.character(as.factor(S1.Data$dateTime)))
+S1.Data$Date.Time <- parse_date_time(S1.Data$Date.Time, "d!-m!-Y! H!:M!:S!") 
+S2.Data$Date.Time <- gsub("T"," ", as.character(as.factor(S2.Data$dateTime)))
+S2.Data$Date.Time <- parse_date_time(S2.Data$Date.Time, "d!-m!-Y! H!:M!:S!") 
+S3.Data$Date.Time <- gsub("T"," ", as.character(as.factor(S3.Data$dateTime)))
+S3.Data$Date.Time <- parse_date_time(S3.Data$Date.Time, "d!-m!-Y! H!:M!:S!") 
+
+#match starting times for each dataset
+S1.Data <- S1.Data[-1,]
+S2.Data <- S2.Data[-1,]
+# S2.Data <- S2.Data[-1,]
+
+#truncate dataset to the initial portion, where there was no logger fouling
+#S1.Data <- S1.Data[1:3000,]
+#S2.Data <- S2.Data[1:3000,]
+#S3.Data <- S3.Data[1:3000,]
+
+#plot data
+plot(S1.Data$light, cex=0.2, ylab="PAR µmol cm-2 s-1")
+points(S2.Data$light, cex=0.2, col="red")
+points(S3.Data$light, cex=0.2, col="blue")
+
+pdf("output/timepoint1_Light.pdf")
+par(mfrow=c(3,1))
+par(mar = c(5,5,2,5))
+with(S1.Data, plot(Date.Time, light, type="l", col="black", 
+             ylim=c(0,5000), ylab =NA, main="Site 1 Manava"))
+axis(2, col="black",col.axis="black")
+mtext("PAR µmol photons m-2 s-1",side=2,col="black",line=4) 
+par(mar = c(5,5,2,5))
+with(S2.Data, plot(Date.Time, light, type="l", col="black", 
+             ylim=c(0,5000), ylab =NA, main="Site 2 Mahana"))
+axis(2, col="black",col.axis="black")
+mtext("PAR µmol photons m-2 s-1",side=2,col="black",line=4) 
+par(mar = c(5,5,2,5))
+with(S3.Data, plot(Date.Time, light, type="l", col="black", 
+             ylim=c(0,5000), ylab =NA, main="Site 3 Hilton"))
+axis(2, col="black",col.axis="black")
+mtext("PAR µmol photons m-2 s-1",side=2,col="black",line=4) 
+#dev.off()
+```
+
+Assemble full dataset of environmental data for timepoint 1  
+```{r}
+#pH & temp
+head(pH1)
+head(pH2)
+head(pH3)
+
+#format files
+pH1<-pH1%>%
+  select(Date.Time, Temp, mV, pH)%>%
+  mutate(site=c("site1"))
+pH2<-pH2%>%
+  select(Date.Time, Temp, mV, pH)%>%
+  mutate(site=c("site2"))
+pH3<-pH3%>%
+  select(Date.Time, Temp, mV, pH)%>%
+  mutate(site=c("site3"))
+
+#create full file
+pH_temp_out<-rbind(pH1,pH2)%>%
+  rbind(.,pH3)%>%
+  select(Date.Time, Temp, pH, site)%>%
+  mutate(timepoint=c("timepoint1"))%>%
+  mutate(Date.Time=as.character(Date.Time))%>%
+  write_csv(., "output/timepoint1_pH_temp.csv")
+
+#light
+head(S1.Data)
+head(S2.Data)
+head(S3.Data)
+
+S1.Data<-S1.Data%>%
+  select(Date.Time, light)%>%
+  mutate(site=c("site1"))
+S2.Data<-S2.Data%>%
+  select(Date.Time, light)%>%
+  mutate(site=c("site2"))
+S3.Data<-S3.Data%>%
+  select(Date.Time, light)%>%
+  mutate(site=c("site3"))
+
+light_out<-rbind(S1.Data, S2.Data)%>%
+  rbind(.,S3.Data)%>%
+  mutate(timepoint=c("timepoint1"))%>%
+  mutate(Date.Time=as.character(Date.Time))%>%
+  write_csv(., "output/timepoint1_light.csv")
+
+#hobo temperature data
+head(Temp2)
+head(Temp3)
+
+Temp2<-Temp2%>%
+  select(Date.Time, Temp)%>%
+  rename(Hobo=Temp)%>%
+  mutate(site=c("site2"))
+Temp3<-Temp3%>%
+  select(Date.Time, Temp)%>%
+  rename(Hobo=Temp)%>%
+  mutate(site=c("site3"))
+
+hobo_out<-rbind(Temp2, Temp3)%>%
+  mutate(timepoint=c("timepoint1"))%>%
+  mutate(Date.Time=as.character(Date.Time))%>%
+  write_csv(., "output/timepoint1_hobo.csv")
+```
+

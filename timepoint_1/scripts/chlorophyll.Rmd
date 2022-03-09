@@ -1,0 +1,138 @@
+---
+title: "Chlorophyll analysis"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("plotrix")) install.packages("plotrix")
+
+# load packages
+library(plotrix)
+library(tidyverse)
+
+```
+
+# Import data
+```{r}
+# Define function to read in chl data
+read_chl <- function(file) {
+  chl_data <- read_csv(file, skip = 24, n_max = 24) %>%
+    select(-1) %>%
+    magrittr::set_colnames(c("row", 1:12, "wavelength")) %>%
+    fill(row) %>%
+    gather("col", "absorbance", -wavelength, -row) %>%
+    unite("well", c(row, col), sep = "")
+}
+
+# List chlorophyll data files
+chl_path <- "data/1_chlorophyll/"                                        # Path to chlorophyll data directory
+all_chl_files <- list.files(path = chl_path, pattern = "*.csv")          # List all files in directory
+chl_platemaps <- list.files(path = chl_path, pattern = "platemap")       # List platemap files
+chl_data_files <- setdiff(all_chl_files, chl_platemaps)                  # List absorbance data files
+
+# Read in all files into tibble
+df <- tibble(file = chl_data_files) %>%
+  mutate(platemap = map(file, ~ read_csv(paste0(chl_path, tools::file_path_sans_ext(.), "_platemap.csv"))),
+         chl_data = map(file, ~ read_chl(paste0(chl_path, .))))
+
+# Merge platemap and data for each plate
+df <- df %>%
+  mutate(merged = map2(platemap, chl_data, ~ right_join(.x, .y)))
+```
+
+# Calculate chlorophyll concentrations
+```{r}
+# average all technical replicates for each plate/sample/wavelength, including all acetone blanks together (per plate)
+df <- df %>%
+  unnest(merged) %>%
+  filter(!is.na(colony_id)) %>%                         # remove empty wells (colony_id is NA)
+  group_by(file, colony_id, wavelength) %>%
+  summarise(n = n(), mean_abs = mean(absorbance)) %>%
+  spread(wavelength, mean_abs)
+
+# get the acetone blank 750 absorbace for each file (i.e., plate), and subtract from 630 and 663 values for each sample
+df <- df %>%
+  group_by(file) %>%
+  mutate(blank750 = `750`[colony_id == "BK"]) %>%
+  ungroup() %>%
+  mutate(adj630 = `630` - blank750,
+         adj663 = `663` - blank750)
+
+# calculate chla and chlc2 values based on equations from Jeffrey and Humphrey 1975
+# units µg/ml
+#path length adjustment = 0.6 
+
+df <- df %>%
+  mutate(chla.ug.ml = (11.43 * adj663)/0.6 - (0.64 * adj630)/0.6,
+        chlc2.ug.ml = (27.09 * adj630)/0.6 - (3.63 * adj663)/0.6)
+
+#previous, with no pathlength adjustment
+#df <- df %>%
+  #mutate(chla.ug.ml = (11.43 * adj663) - (0.64 * adj630),
+        #chlc2.ug.ml = (27.09 * adj630) - (3.63 * adj663))
+```
+
+
+# Normalize to surface area
+```{r}
+# Load homogenate volume
+homog.vol <- read_csv("data/1_homogenate_vols/1_homogenate_vols.csv") %>%
+  select(colony_id, homog_vol_ml)
+chl <- full_join(df, homog.vol)
+
+# Load surface area
+sa <- read_csv("output/1_surface_area.csv")
+chl <- full_join(chl, sa)
+
+# Multiply chlorophyll by the homogenate volume and divide by surface area
+chl <- chl %>%
+  mutate(chla.ug.cm2 = chla.ug.ml * homog_vol_ml / surface.area.cm2,
+         chlc2.ug.cm2 = chlc2.ug.ml * homog_vol_ml / surface.area.cm2)
+
+# remove blanks and NAs
+chl <- filter(chl, !colony_id %in% c("NA", "BK"))
+
+# write chlorophyll data to file
+chl %>%
+  select(colony_id, chla.ug.cm2, chlc2.ug.cm2) %>%
+  mutate(timepoint="timepoint1")%>%
+  filter(!is.na(chla.ug.cm2))%>%
+  filter(!is.na(chlc2.ug.cm2))%>%
+  write_csv(path = "output/1_chlorophyll.csv")
+```
+
+# Plot results by species and site
+```{r, eval = TRUE}
+# Join with sample metadata
+meta <- read_csv("../metadata/coral_metadata.csv")
+chl <- right_join(chl, meta, by = "colony_id")
+
+# Plot chlorophyll a
+chl %>%
+  ggplot(aes(x = site, y = chla.ug.cm2, color = species)) +
+  facet_wrap(~species) +
+  labs(x = "", y = "chlorophyll a (µg/cm2)") +
+  geom_jitter(width = 0.1) +                                            # Plot all points
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", color = "black", width = 0.5) +
+  stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
+
+# Plot chlorophyll c2
+chl %>%
+  ggplot(aes(x = site, y = chlc2.ug.cm2, color = species)) +
+  facet_wrap(~species) +
+  labs(x = "", y = "chlorophyll c2 (µg/cm2)") +
+  geom_jitter(width = 0.1) +                                            # Plot all points
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", color = "black", width = 0.5) +
+  stat_summary(fun.y = mean, geom = "point", color = "black")           # Plot mean
+```
+
+
+

@@ -1,0 +1,183 @@
+---
+title: "Photosynthesis - Irradiance (PI) Curve Fitting - Bayesian"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, message = FALSE, warning = FALSE)
+```
+
+```{r load_packages}
+## install packages if you dont already have them in your library
+if (!require("devtools")) install.packages('devtools') 
+if (!require("segmented")) install.packages('segmented') 
+if (!require("plotrix")) install.packages('plotrix') 
+if (!require("gridExtra")) install.packages('gridExtra') 
+if (!require("LoLinR")) install_github('colin-olito/LoLinR') 
+if (!require("lubridate")) install.packages('lubridate') 
+if (!require("chron")) install.packages('chron') 
+if (!require("dplyr")) install.packages('dplyr') 
+if (!require("phytotools")) install.packages('phytotools') 
+if (!require("brms")) install.packages('brms') 
+if (!require("broom")) install_github('broom') 
+if (!require("tidybayes")) install.packages('tidybayes') 
+if (!require("purrr")) install.packages('purrr') 
+if (!require("modelr")) install.packages('modelr') 
+if (!require("bayesplot")) install.packages('bayesplot') 
+if (!require("cowplot")) install.packages('cowplot') 
+if (!require("future")) install.packages('future') 
+if (!require("furrr")) install.packages('furrr') 
+
+#Read in required libraries
+##### Include Versions of libraries
+library(devtools)
+library("tidyverse")
+library("segmented")
+library("plotrix")
+library("gridExtra")
+library("lubridate")
+library("chron")
+library('phytotools')
+library(brms)
+library(broom)
+library(tidybayes)
+library(purrr)
+library(modelr)
+library(bayesplot)
+library(cowplot)
+library(rstan)
+library(future)
+library(furrr)
+
+rstan_options(auto_write = TRUE)
+```
+
+# Import data
+```{r import_data}
+Data <- read.csv(file = 'output/1_pi_curve_rates.csv')
+#Data <- Data[1:40,]
+```
+
+# Define PI curve function
+```{r pi_curve_function}
+# Function to fit a Bayesian model of a non-rectangular hyperbola (Marshall & Biscoe, 1980)
+fit_pi_curve <- function(data) {
+  
+  # stan doesnt like scientific notation. This fixes that
+  options("scipen" = 100, digits = 12) 
+  
+  # this is for posterior predictive checks
+  stanvars <- stanvar(
+    scode = "vector[N] y_new; real Ic;
+             vector[N] nlp_theta = X_theta * b_theta;
+             vector[N] nlp_AQY = X_AQY * b_AQY; 
+             vector[N] nlp_Am = X_Am * b_Am;
+             vector[N] nlp_Rd = X_Rd * b_Rd;
+             Ic = nlp_Rd[1]/nlp_AQY[1];
+  
+             for (n in 1:N) {
+               y_new[n] = normal_rng((1 / (2 * nlp_theta[n])) * (nlp_AQY[n] * C_1[n] + nlp_Am[n] -       
+                          sqrt((nlp_AQY[n] * C_1[n] + nlp_Am[n]) ^ 2 - 4 * nlp_AQY[n] * nlp_theta[n] * 
+                          nlp_Am[n] * C_1[n])) - nlp_Rd[n], sigma);};",
+    block = "genquant"
+  )
+  
+  # model fit
+  fit <- brm(
+    bf(micromol.cm2.h ~ (1 / (2 * theta)) * (AQY * Light_Value + Am - sqrt((AQY * Light_Value + Am)^2 - 
+         4 * AQY * theta * Am * Light_Value)) - Rd,
+       AQY ~ 1, Am ~ 1, theta ~ 1, Rd ~ 1, nl = TRUE), 
+    data = data, family = gaussian(), 
+    prior = c(prior(normal(0,10), nlpar = "AQY", lb=0),  # set the priors
+              prior(normal(0,10), nlpar = "Am", lb=0),
+              prior(normal(0, 1), nlpar = "theta"),
+              prior(normal(0,1), nlpar = "Rd")),
+    control = list(adapt_delta = 0.99, 
+                   max_treedepth = 20), # force stan to take smaller steps to reduce divergent errors
+    cores = 1, chains = 4, seed = 126, iter = 3000, warmup = 2000, 
+    silent = TRUE, save_model = TRUE, 
+    stanvars = stanvars)
+  
+  return(fit)
+} 
+
+# Function to fit PI curve, but return NULL if an error is encountered
+fit_pi_curve_noerror <- possibly(fit_pi_curve, otherwise = NULL)
+```
+
+# Fit PI curve for each individual
+```{r fit_pi_curves}
+# Setup for parallel processing
+future::plan(multiprocess)
+
+# Fit Bayesian PI curve for all individuals, in parallel using all available cores
+Data <- Data %>%
+  nest(-colony_id) %>%
+  mutate(fit = furrr::future_map(data, ~ fit_pi_curve_noerror(.)))
+```
+
+# Extract parameters values and 95% confidence intervals
+```{r extract_pars}
+# Define function to extract parameter values and CI's from fitted model object
+getpars <- function(x) {
+  x %>% 
+    gather_draws(b_AQY_Intercept, b_Am_Intercept, b_theta_Intercept, b_Rd_Intercept, sigma, Ic) %>%
+    median_qi()
+}
+# Function to get parameters, but return NULL in case of error (where model fitting failed)
+getpars_noerror <- possibly(getpars, otherwise = NULL)
+
+# Get parameter values for all individuals
+Data <- Data %>%
+  mutate(pars = map(fit, getpars_noerror))
+```
+
+# Write PI curve parameters to file
+```{r save_pars}
+# Unnest parameter values
+pars.out <- Data %>%
+  select(colony_id, pars) %>%
+  unnest(cols = pars)
+
+# Join with colony_id to create rows of NA for individuals that failed Bayesian fitting
+pars.out2 <- Data %>% 
+  select(colony_id) %>%
+  left_join(pars.out) %>%
+  mutate(timepoint="timepoint1")
+
+write_csv(pars.out2, "output/1_pi_curve_pars.csv")
+```
+
+# Create plots for all individuals
+```{r create_plots}
+# Create plots for all individuals
+Data <- Data %>%
+  drop_na() %>%      # Drops individuals that didn't fit
+  mutate(
+    plot = pmap(list(colony_id = colony_id, data = data, fit = fit, pars = pars),
+                     function(colony_id, data, fit, pars) {
+      pt <- marginal_effects(fit)
+      ggplot(as.data.frame(pt$Light_Value)) +      # pull the fitted data
+        geom_line(aes(Light_Value, estimate__)) +  #
+        geom_ribbon(aes(Light_Value, ymin = lower__, ymax = upper__), alpha = 0.3) +
+        geom_point(data = data, aes(x = Light_Value, y = micromol.cm2.h)) +    # add the raw data
+        geom_hline(yintercept = pars %>% filter(.variable == "b_Am_Intercept") %>% pull(.value), lty = 2) +
+        geom_hline(yintercept = pars %>% filter(.variable == "b_Rd_Intercept") %>% pull(.value) * -1, lty = 2) +
+        geom_abline(intercept = pars %>% filter(.variable == "b_Rd_Intercept") %>% pull(.value) * -1,
+                    slope = pars %>% filter(.variable == "b_AQY_Intercept") %>% pull(.value), lty = 2) +
+        theme_bw() +
+        theme(text = element_text(size=18), title = element_text(face="italic")) +
+        labs(x = expression(paste('PAR (', mu, "mol photons m"^-2, 's'^-1,")")),
+             y = expression(paste('Photosynthetic rate (', mu, "mol cm"^-2, 'h'^-1,")")),
+             title = paste0("1_", colony_id))
+      }))
+```
+
+# Save PI curve plots to files
+```{r save_plots}
+Data %>%
+  mutate(filename = paste0("output/1_pi_curve_plots/1_", colony_id, ".pdf")) %>%
+  select(filename, plot) %>%
+  pwalk(ggsave)
+```
+

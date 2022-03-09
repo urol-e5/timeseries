@@ -1,0 +1,93 @@
+---
+title: "Photosynthesis parameters summary"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+```{r}
+library(plotrix)
+library(Hmisc)
+library(tidyverse)
+```
+
+# Import PI curve fitted parameters for each individual
+```{r}
+pars <- read_csv("output/4_pi_curve_pars.csv")
+```
+
+# Import sample metadata
+```{r}
+md <- read_csv("../metadata/coral_metadata.csv")
+
+df <- left_join(pars, md)
+```
+
+# Plot data with mean ± SE for each species/site
+```{r, fig.height = 8}
+# Facet grid with common y-scale for each variable
+pdf("output/PI_metrics.pdf")
+df %>%
+  filter(!.variable %in% c("sigma", "b_theta_Intercept", NA)) %>%
+  ggplot(aes(x = site, y = .value, color = species)) +
+  facet_grid(.variable~species, scales = "free_y") +
+  geom_jitter(width = 0.1) +
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", color = "black", width = 0.5) +
+  stat_summary(fun.y = mean, geom = "point", color = "black")   
+dev.off()
+
+# Facet wrap for free y-scale on each facet
+df <- df[-706,]
+pdf("output/PI_metrics.pdf")
+df %>%
+  filter(!.variable %in% c("sigma", "b_theta_Intercept", NA)) %>%
+  ggplot(aes(x = site, y = .value, color = species)) +
+  facet_wrap(~.variable+species, scales = "free_y", ncol = 3) +
+  geom_jitter(width = 0.1) +
+  stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
+               geom = "errorbar", color = "black", width = 0.5) +
+  stat_summary(fun.y = mean, geom = "point", color = "black")  
+dev.off()
+```
+
+# Plot species average PI curve for each site using mean parameter values
+```{r, fig.width = 10}
+# Get mean parameter values for each species and site
+meanpars <- df %>%
+  drop_na(.variable) %>%  # Drops rows with NA for .variable (samples that failed PI curve fitting)
+  group_by(species, site, .variable) %>%
+  dplyr::summarize(meanval = mean(.value)) %>%
+  pivot_wider(names_from = .variable, values_from = meanval) %>%
+  rename(Am = b_Am_Intercept, AQY = b_AQY_Intercept, Rd = b_Rd_Intercept, theta = b_theta_Intercept) %>%
+  ungroup()
+
+# Define PI curve function
+PIfun <- function(I, Am, AQY, Rd, theta, sigma) {
+  (1 / (2 * theta)) * (AQY * I + Am - sqrt((AQY * I + Am)^2 - 4 * AQY * theta * Am * I)) - Rd
+}
+
+# Produce PI curve for each species/site
+curves <- meanpars %>%
+  nest(pars = c(Am, AQY, Rd, theta, sigma)) %>%
+  mutate(I = list(1:1000),
+         PIcurve = map2(pars, I, ~ pmap_dfc(.x, .f = PIfun, I = .y)))   # curve for each par set and Irradiance
+
+# Plot
+curves %>% 
+  unnest(cols = c(I, PIcurve)) %>%
+  ggplot(aes(x = I, y = V1, color = species)) +
+  geom_line() +
+  facet_wrap(~ site) +
+  labs(x = expression(paste('PAR (', mu, "mol photons m"^-2, 's'^-1,")")),
+       y = expression(paste('Photosynthetic rate (', mu, "mol O2 cm"^-2, 'h'^-1,")")),
+       title = "Timepoint 4")
+
+# Save mean photosynthesis pars for each species/site to file
+meanpars
+meanpars %>% 
+  mutate(timepoint="timepoint4") %>%
+  write_csv(path = "output/4_photosynthesis_pars_summary.csv")
+```
