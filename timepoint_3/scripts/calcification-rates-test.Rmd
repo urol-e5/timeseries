@@ -45,43 +45,69 @@ library(stringr)
 
 ### Import raw data 
 
-For other time points, we will need better code for including the Initial1 and Initial2 verbiage. This only works well because it's 4 lines.
+Putnam_Sample_TA file (output from CSUN titrations) is only used for salinity. We are pulling TA values straight from raw output files in 'data/3_calcification/raw_files' folder.  
+I'm taking out initial 1 run 3 from CSUN for now (done at both CSUN and URI) -- circle back to which one to keep for analysis. 
 
 ```{r import_data}
 #bring in calcification data file with TA and chamber pH, temp, salinity measurements
 raw.data <- list.files(path = 'data/3_calcification/raw_files', pattern = ".csv", full.names = TRUE) %>% 
   set_names(.) %>% 
   map_dfr(read.table, .id = "titration.run", header=TRUE, sep=",") %>%
-  rename(Salinity.lab = Salinity) %>%
-  filter(!SampleID == "JUNK 1")
+  filter(!SampleID == "JUNK 1") %>% filter(!SampleID == "JUNK 2") %>% filter(!SampleID == "CRM") %>% 
+  select(-Sample.Index, -TA_evap) %>%
+  rename(Salinity.lab = Salinity) 
 
-deltaTA <- read.csv("data/3_calcification/3_DeltaTA_metadata.csv", header = TRUE, sep = ",")
-initial.raw <- read.csv("data/3_calcification/3_initial_TA_samples.csv", header = TRUE, sep = ",")
-initial.raw$colony_id <- c("Initial1", "Initial2", "Initial1", "Initial2")
+Putnam_Sample_TA <- read.csv("data/3_calcification/Putnam_Sample_TA.csv") %>% select(SampleID, Salinity) %>% filter(!SampleID == "Initial1_20200912_3")  
 
-deltaTA <- full_join(deltaTA, initial.raw) %>%
-  rename(Salinity.chamber = Salinity) %>% # only changing salinity because delta TA and raw.data have this; temperature and pH are only in deltaTA
-  unite(SampleID, colony_id, Date, Run.Number, sep = "_", remove = FALSE)
+raw.data <- full_join(raw.data, Putnam_Sample_TA, by = "SampleID") %>% 
+  gather("salinity.origin", "Salinity.lab", 5:6) %>% # this will combine both salinity columns into one
+  filter(!is.na(Salinity.lab)) %>% select(-salinity.origin) %>%
+  separate(SampleID, c("colony_id", "Date", "Run.Number"), sep = "_", convert = FALSE) # keeps new column as old string (character)
 
-data <- full_join(deltaTA, raw.data, by = "SampleID") %>%
+deltaTA <- read.csv("data/3_calcification/3_DeltaTA_metadata.csv", header = TRUE, sep = ",",
+                    colClasses=c(rep('character', 11), rep('numeric', 5), rep('character', 3))) %>%
+           rename(Salinity.chamber = Salinity) 
+
+data <- full_join(deltaTA, raw.data, by = c("colony_id", "Date", "Run.Number")) %>%
   mutate(sample.type = case_when(
-    startsWith(SampleID, "Initial") ~ "Initial",
-    startsWith(SampleID, "BK") ~ "Blank",
-    startsWith(SampleID, "P") ~ "Sample", #this covers POC, POR
-    startsWith(SampleID, "A") ~ "Sample")) # this covers ACR
+    startsWith(colony_id, "Initial") ~ "Initial",
+    startsWith(colony_id, "BK") ~ "Blank",
+    startsWith(colony_id, "P") ~ "Sample", #this covers POC, POR
+    startsWith(colony_id, "A") ~ "Sample")) # this covers ACR
+```
+
+
+```{r}
+### use this later?
+# initial.raw <- read.csv("data/3_calcification/3_initial_TA_samples.csv", header = TRUE, sep = ",") %>%
+#   mutate(colony_id = "Initial") #%>% unite(colony_id, colony_id, Run.Number, sep = "_", remove = FALSE)
+# 
+# deltaTA <- full_join(deltaTA, initial.raw) 
 ```
 
 ## Normalize TA values to salinity and separate blanks from samples.  
 
 ```{r}
 #add salinity normalization for TA values for blanks - add new column for TA initial normalized and TA normalized, then include TA.norm values below
-data <- data %>% 
-  mutate(Ta.norm_initial = ifelse(sample.type == "Initial", (TA * Salinity.lab/36), "NA"),
-         Ta.norm = ifelse(!sample.type == "Initial", (TA * Salinity.lab/36), "NA")) # Both blanks and samples get a Ta.normal value
+Calc.data2 <- data %>%
+  mutate(Ta.norm = TA*Salinity.lab/36) %>%
+  dplyr::group_by(Run.Number, sample.type) %>%
+  mutate(Ta.norm_initial_avg = mean(Ta.norm))
+  
+Calc.data <- data %>%
+  mutate(Ta.norm_initial = ifelse(sample.type == "Initial", (TA * Salinity.lab/36), NA), # for only initials, calculate Ta.norm.initial
+         Ta.norm = ifelse(!sample.type == "Initial", (TA * Salinity.lab/36), NA)) %>% # for all rows that are not Initials, calculate Ta.norm
+  dplyr::group_by(Run.Number, sample.type) %>% # grouping by run number and sample type to do the following calculation
+  mutate(Ta.norm_initial_avg = mean(Ta.norm_initial)) %>% ungroup(sample.type) %>% # averaging the 2 initial values for each run
+  mutate(delta.TA.blank = ifelse(sample.type == "Blank", (Ta.norm_initial_avg - Ta.norm), NA))
+  
+    
+### left off at trying to subset to initial values and group those by run.number to calculate average
+# average initial TA values (n=6)
 
 #blanks need TA.norm - initial for that run  
       
-         delta.TA.blank = ifelse(sample.type == "Blank", (Ta.norm_initial - Ta.norm), "NA"))
+         delta.TA.blank = ifelse(sample.type == "Blank", (Ta.norm_initial - Ta.norm), NA))
   
  
 initial <- data %>%
