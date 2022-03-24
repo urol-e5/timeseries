@@ -34,99 +34,131 @@ library(stringr)
 ```
 
 # Import data and format
+
 ```{r import_data}
 #bring in calcification data file with TA and chamber pH, temp, salinity measurements
-calc.data <- read.csv("data/1_calcification/1_TA_data.csv")
+raw.data <- list.files(path = 'data/1_calcification/raw_files', pattern = ".csv", full.names = TRUE) %>% 
+  set_names(.) %>% 
+  map_dfr(read.table, .id = "titration.run", header=TRUE, sep=",") %>%
+  filter(!SampleID == "JUNK 1") %>% filter(!SampleID == "JUNK 2") %>% filter(!SampleID == "CRM") %>% 
+  rename(Salinity.lab = Salinity) %>%
+  separate(SampleID, c("colony_id", "Date", "Run.Number"), sep = "_", convert = FALSE)
 
-#create new data frame of just the initial data (initial bottles taken before each run for initial TA measurements), pull out initial data from sample.type
+# load field data for calcification runs 
+deltaTA <- read.csv("data/1_calcification/1_DeltaTA_metadata.csv", header = TRUE, sep = ",",
+                    colClasses=c(rep('character', 11), rep('numeric', 5), rep('character', 3))) %>%
+           rename(Salinity.chamber = Salinity) %>% select(-Surface.Area) %>% filter(!colony_id == "BK-5_2") %>%
+           rename(Vol.L = Vol.ml)
+
+# changing BK-5_1 to BK-5 because this is the only blank 5 used 
+deltaTA$colony_id <- gsub("BK-5_1", "BK-5", deltaTA$colony_id)
+
+# load surface area values 
+SA <- read.csv("output/1_surface_area.csv", header = TRUE, sep = ",",
+                    colClasses=c('character', 'numeric', 'character')) %>% select(colony_id, surface.area.cm2)
+
+data <- full_join(deltaTA, raw.data, by = c("colony_id", "Date", "Run.Number")) %>% 
+  mutate(sample.type = case_when(
+    startsWith(colony_id, "Initial") ~ "Initial",
+    startsWith(colony_id, "BK") ~ "Blank",
+    startsWith(colony_id, "P") ~ "Sample", #this covers POC, POR
+    startsWith(colony_id, "A") ~ "Sample")) # this covers ACR
+
+data <- full_join(data, SA, by = "colony_id")
 ```
 
-Normalize TA values to salinity and separate blanks from samples.  
-```{r}
-calc.data<-calc.data%>%
-  mutate(Ta.norm = TA * salinity.lab/36) #add salinity normalization for TA values for blanks - add new column for TA initial normalized and TA normalized, then include TA.norm values below 
+*Volume of blanks --- variations.* 
+Some blank very low - especially chamber 10. 
 
-initial<-calc.data%>%
-  dplyr::filter(sample.type=="Initial")%>% #create a data frame of the initial values
-  select(date,run.number, salinity.chamber, salinity.lab, TA, mV.chamber, Ta.norm)%>%
-  rename_all(~ paste0(.x, "_initial"))%>% #add "_initial" to all columns 
-  rename(date=date_initial, run=run.number_initial)
+## Normalize TA values to salinity and separate blanks from samples.  
+
+```{r}
+# Normalize data to the salinity measurement taken at the same time as titration
+data <- data %>% mutate(Ta.norm = TA * Salinity.lab/36)
+
+# Calculate initial TA norm averages for each run
+initial <- data %>% subset(sample.type == "Initial") %>% dplyr::group_by(Run.Number) %>%
+  mutate(Ta.norm_initial_avg = mean(Ta.norm)) %>% select(Run.Number, Ta.norm_initial_avg) %>% distinct()
+
+# Rejoining initial data back to the full df   
+calc.data <- full_join(data, initial, by = "Run.Number") %>% subset(!sample.type == "Initial")
+
+# Calculating delta TA for the blank samples
+blanks <- calc.data %>% subset(sample.type == "Blank") %>%
+  mutate(delta.TA.blank = Ta.norm_initial_avg - Ta.norm) %>% select(Run.Number, delta.TA.blank)
+
+# Rejoining blank data back to the full df 
+calc.data <- full_join(calc.data, blanks, by = "Run.Number") %>% subset(!sample.type == "Blank")   
+```
+
+#### Looking at variation in samples across blanks, initials, and titration data source (CSUN vs URI)
+
+```{r}
+data %>% filter(!is.na(Ta.norm)) %>%
+  ggplot(aes(x=Run.Number, y=Ta.norm, group = sample.type, color = sample.type)) + theme_bw() + geom_point()
   
-blanks<-calc.data%>%
-  dplyr::filter(sample.type=="Blank") #create a data frame of the blanks 
-
-calc.data<-calc.data%>%
-  dplyr::filter(!sample.type=="Initial")%>% #remove the initial rows from data frame
-  dplyr::filter(!sample.type=="Blank") #remove the blank rows from data frame
-
-#join blanks and carb chem data frame
-calc.data <- left_join(calc.data, initial) #joining the initials to the data frame for carb chem
-blanks <- left_join(blanks,initial)
+data %>% subset(!sample.type == "Sample") %>%
+  ggplot(aes(x=Run.Number, y=Ta.norm, group = sample.type, color = sample.type)) + theme_bw() + geom_point()
 ```
 
-Calculate delta TA and mean blank values.  
+## Calculate Net Ecosystem Calcification (NEC) from total alkalinity method
+
+1. Convert time from character to time for both start and stop time.  
+2. Calculate deltaTA (for each coral) as the sample TA.norm subtracted from the initial from that run, then subtracting the blank from that run.  
+3. Calculate the time difference between start and stop times for each chamber(coral).  
+4. Calculate calcification rate according the Net Ecosystem Calcification rates equation, normalizing to the surface area of the coral.  
+5. Make any negative values equal to zero.  
+6. Add the time point for the exported df (to then bring into a larger df with all time points in a different script). 
+
 ```{r}
-#figure out delta TA, initial-final
-blanks<-blanks%>%
-  mutate(delta.TA.blank = Ta.norm_initial - Ta.norm)
+NEC <- calc.data %>%
+  mutate(start.time = strptime(as.character(TA.Start.Time), "%H:%M")) %>% #convert time from character to time
+  mutate(stop.time = strptime(as.character(TA.Stop.Time), "%H:%M")) %>%
+  mutate(deltaTA = (Ta.norm_initial_avg - Ta.norm) - delta.TA.blank) %>% #calculate difference in TA corrected to blanks
+  mutate(timediff = as.numeric(stop.time - start.time)) %>% #calculate time difference
+  mutate(umol.cm2.hr = (deltaTA/2)*(1.023)*((Vol.L*1000)/surface.area.cm2)*(1/timediff)*(1/1000)) %>% # convert L to mL and calculate net ecosystem calcification rates
+  mutate(umol.cm2.hr=if_else(umol.cm2.hr<0, 0, umol.cm2.hr)) %>% #make any negative values equal to 0
+  mutate(timepoint="timepoint1") 
 
-#getting the averages of blanks for each temperature and each date
-mean.blanks <- blanks %>% 
-  group_by(date) %>%
-  summarise(mean.blanks=mean(delta.TA.blank))
+write.csv(NEC, 'output/1_calcification_rates.csv') 
 
-calc.data <- left_join(calc.data, mean.blanks) #bring in mean blanks to calc.data
-
-#need to join in SA, time data by colony ID, before calculating NEC
+NEC %>% filter(is.na(umol.cm2.hr)) # missing calc rates 
 ```
 
-Read in metadata and surface area data.  
+#### Check sample variation one more time post normalizing to surface area
+#### TA as a function of chamber temperature, salinity, pH, initial measurements temperature and pH
+
+Do we need to do any correction for this? 
+
 ```{r}
-sample.data <- read.csv("../timepoint_1/output/1_surface_area.csv") #bring in SA and volume data sheet
+NEC %>% filter(!is.na(umol.cm2.hr)) %>%
+  ggplot(aes(x=Run.Number, y=umol.cm2.hr, color = Species)) + theme_bw() + geom_point() + facet_grid(~Species)
 
-SA <- sample.data%>%
-  select("colony_id", "surface.area.cm2") #pull out the necessary columns and treatment 
+NEC %>% filter(!is.na(umol.cm2.hr)) %>%
+  ggplot(aes(x=Temp.C, y=umol.cm2.hr, color = Species)) + theme_bw() + geom_point() 
 
-calc.data2 <- left_join(calc.data, SA) # join carb chem and SA data
+NEC %>% filter(!is.na(umol.cm2.hr)) %>%
+  ggplot(aes(x=pH.mV, y=umol.cm2.hr, color = Species)) + theme_bw() + geom_point() 
 
-#bring in the time data from resp.data sheet
-resp.data <- read.csv("data/1_calcification/1_DeltaTA_metadata.csv")
+NEC %>% filter(!is.na(umol.cm2.hr)) %>%
+  ggplot(aes(x=Salinity.chamber, y=umol.cm2.hr, color = Species)) + theme_bw() + geom_point() 
 
-#pull out columns that we want to use for our bind to the calc.data2 sheet
-
-time.data <- resp.data%>%
-  select("colony_id","TA.Start.Time", "TA.Stop.Time") 
-
-full.calc.data <- left_join(calc.data2, time.data)
+NEC %>% filter(!is.na(umol.cm2.hr)) %>%
+  ggplot(aes(x=Chamber, y=umol.cm2.hr, color = Species)) + theme_bw() + geom_point() # this accounts for chamber and channel # 
 ```
 
-Calculate Net Ecosystem Calcification (NEC) from total alkalinity method.  .  
+## Visuals 
+
 ```{r}
-full.calc.data<-full.calc.data%>%
-  mutate(start.time = strptime(as.character(TA.Start.Time), "%I:%M:%S %p"))%>% #convert time from character to time
-  mutate(stop.time = strptime(as.character(TA.Stop.Time), "%I:%M:%S %p"))%>%
-  mutate(deltaTA = (Ta.norm_initial - Ta.norm) - mean.blanks)%>% #calculate difference in TA corrected to blanks
-  mutate(timediff = as.numeric(stop.time - start.time))%>% #calculate time difference
-  mutate(umol.cm2.hr = (deltaTA/2)*(1.023)*((vol.L*1000)/surface.area.cm2)*(1/timediff)*(1/1000))%>% #convert volume (L) to mL and calculate net ecosystem calcification rates
-  mutate(umol.cm2.hr=if_else(umol.cm2.hr<0, 0, umol.cm2.hr))%>% #make any negative values equal to 0
-  mutate(timepoint="timepoint1")%>%
-  drop_na()
-
-write.csv(full.calc.data, 'output/1_calcification_rates.csv') 
-
-```
-
-
-Plot data.  
-```{r}
-full.calc.data %>%
-  filter(!run.number=="NA")%>%
-  filter(!species=="NA")%>%
-  filter(!site=="NA")%>%
-  ggplot(aes(x = as.factor(site), y = umol.cm2.hr, color = species), position=position_dodge(0.5)) +
-  geom_boxplot()+
+NEC %>%
+  filter(!Run.Number=="NA")%>%
+  filter(!Species=="NA")%>%
+  filter(!Site=="NA")%>%
+  ggplot(aes(x = as.factor(Site), y = umol.cm2.hr, color = Species), position=position_dodge(0.5)) +
+  geom_boxplot() +
   geom_point(size=3, position=position_jitterdodge(0.6))+
-  facet_wrap(~species) +
+  facet_wrap(~Species) +
   labs(x = "Site", y = expression(paste(mu,"mol Ca", CO[3], " cm"^-2, " hr"^-1))) +                                       # Plot all points
   theme_classic() 
 ```
+

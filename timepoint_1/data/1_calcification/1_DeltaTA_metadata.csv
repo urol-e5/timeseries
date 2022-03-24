@@ -1,4 +1,4 @@
-Date,Run.Number,Start.Time,Stop.Time,Chamber,Channel,Position,Species,Fragment.ID,Plug.ID,Site,Vol.ml,pH.mV,Temp.C,Salinity,Surface.Area,TA.Start.Time,TA.Stop.Time,Notes
+Date,Run.Number,Start.Time,Stop.Time,Chamber,Channel,Position,Species,colony_id,Plug.ID,Site,Vol.ml,pH.mV,Temp.C,Salinity,Surface.Area,TA.Start.Time,TA.Stop.Time,Notes
 20200104,1,14:27,15:32,4,4,6,Acropora,ACR-247,ACR-247,2,0.615,NA,27.71,36.58,30,14:10,15:32,
 20200104,1,14:27,15:32,6,6,3,Pocillopora,POC-219,POC-219,2,0.605,NA,28.04,36.62,30,14:18,15:42,
 20200104,1,14:27,15:32,8,8,1,Porites,POR-242,POR-242,2,0.595,NA,27.97,36.5,30,14:13,15:46,
@@ -15,7 +15,7 @@ Date,Run.Number,Start.Time,Stop.Time,Chamber,Channel,Position,Species,Fragment.I
 20200104,2,19:19,20:19,4,4,7,Pocillopora,POC-248,POC-248,2,0.615,NA,28.44,36.69,30,19:14,20:29,
 20200104,2,19:19,20:19,9,9,1,Pocillopora,POC-201,POC-201,2,0.605,NA,28.71,36.63,30,19:06,20:27,
 20200104,2,19:19,20:19,5,5,4,Porites,POR-236,POR-236,2,0.615,NA,28.56,36.7,30,19:18,20:22,
-20200104,1,19:19,20:19,2,2,3,Porites,POR-235,POR-235,2,0.61,NA,28.7,36.83,30,19:15,20:24,
+20200104,2,19:19,20:19,2,2,3,Porites,POR-235,POR-235,2,0.61,NA,28.7,36.83,30,19:15,20:24,
 20200104,2,19:19,20:19,7,7,9,Pocillopora,POC-255,POC-255,2,0.615,NA,28.47,36.63,30,19:18,20:31,
 20200104,2,19:19,20:19,6,6,6,Acropora,ACR-228,ACR-228,2,0.61,NA,28.35,36.61,30,19:07,20:19,
 20200104,2,19:19,20:19,1,1,2,BK,BK-2,BK-2,2,0.575,NA,28.68,36.69,30,19:10,20:25,"chamber lost a bit of water when it was removed from tank, need to redo Volume measurment"
