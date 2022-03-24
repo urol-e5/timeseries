@@ -16,10 +16,7 @@ knitr::opts_chunk$set(echo = TRUE, cache = TRUE, message = FALSE, warning = FALS
 We want to avoid manual entry when possible. So this script tests loading in:  
 - `raw_files` folder with raw data file (example = `TA_Output_20220303_PutnamTitrations_PutnamLab`)
 - `3_DeltaTA_metadata`  
-- `3_DeltaTA_metadata`  
-
-To produce with any manual entry:  
-- `3_TA_data`
+- *finish this list* 
 
 ### Load all packages needed
 
@@ -35,7 +32,7 @@ if ("stringr" %in% rownames(installed.packages()) == 'FALSE') install.packages('
 #Read in required libraries
 
 library(broom)
-library(plyr)
+library(plyr) # load before dplyr 
 library(dplyr)
 library(purrr)
 library(lubridate)
@@ -73,6 +70,13 @@ deltaTA <- read.csv("data/3_calcification/3_DeltaTA_metadata.csv", header = TRUE
                     colClasses=c(rep('character', 11), rep('numeric', 5), rep('character', 3))) %>%
            rename(Salinity.chamber = Salinity) %>% select(-Surface.Area)
 
+## fix mis-labeled coral fragments 
+## ACR-143 to ACR-145
+## POC-365 to POR-365 
+## POC-367 to POR-367
+## POR-387 to POR-367
+## POR-373 to POC-373
+
 # load surface area values 
 SA <- read.csv("output/3_surface_area.csv") 
 SA$surface.area.cm2 <- as.numeric(SA$surface.area.cm2)
@@ -87,6 +91,9 @@ data <- full_join(deltaTA, raw.data, by = c("colony_id", "Date", "Run.Number")) 
 
 data <- full_join(data, SA, by = "colony_id")
 ```
+
+*Volume of blanks --- variations.* 
+
 
 ## Normalize TA values to salinity and separate blanks from samples.  
 
@@ -121,7 +128,7 @@ data %>% subset(!sample.type == "Sample") %>%
 data %>% filter(!is.na(Ta.norm)) %>% mutate(titration.location = case_when(
     endsWith(titration.run, "CSUN.csv") ~ "CSUN",
     endsWith(titration.run, "Lab.csv") ~ "URI")) %>%
-  ggplot(aes(x=sample.type, y=Ta.norm))  + theme_bw() + geom_point() + facet_grid(~titration.location)
+  ggplot(aes(x=sample.type, y=Ta.norm, color = Run.Number))  + theme_bw() + geom_point() + facet_grid(~titration.location)
 ```
 
 
@@ -145,6 +152,9 @@ NEC <- calc.data %>%
   mutate(timepoint="timepoint3") 
 
 write.csv(NEC, 'output/3_calcification_rates.csv') 
+
+NEC %>% filter(is.na(surface.area.cm2)) # missing SA for these corals 
+NEC %>% filter(is.na(umol.cm2.hr)) # missing calc rates 
 ```
 
 #### Check sample variation one more time post normalizing to surface area
@@ -164,6 +174,9 @@ NEC %>% filter(!is.na(umol.cm2.hr)) %>%
 
 NEC %>% filter(!is.na(umol.cm2.hr)) %>%
   ggplot(aes(x=Salinity.chamber, y=umol.cm2.hr, color = Species)) + theme_bw() + geom_point() 
+
+## fxn of chamber # 
+## fxn of channel # 
 ```
 
 ## Visuals 
