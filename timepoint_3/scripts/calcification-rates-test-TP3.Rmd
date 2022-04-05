@@ -95,6 +95,17 @@ data$colony_id <- gsub("POR-387", "POR-385", data$colony_id)
 data$colony_id <- gsub("POR-373", "POC-373", data$colony_id)
 
 data <- full_join(data, SA, by = "colony_id")
+
+## read in corrected salinity values 
+corr.salinity <- read.csv("data/3_calcification/3_corrected_salinity.csv", header=TRUE) %>%
+  separate(colony_id, c("colony_id", "Date", "Run.Number"), sep = "_", convert = FALSE)
+
+# merging correct salinity and data df
+data <- left_join(data, corr.salinity)
+
+# if there is an NA in the corrected salinity value, fill in with previous salinity value
+data <- data %>%
+  mutate(corrected_salinity = if_else(is.na(corrected_salinity), Salinity.lab, corrected_salinity))
 ```
 
 *Volume of blanks --- variations.* 
@@ -104,7 +115,7 @@ Blank 3 and Blank 4 are both from chamber 10 but have different volumes -- this 
 
 ```{r}
 # Normalize data to the salinity measurement taken at the same time as titration
-data <- data %>% mutate(Ta.norm = TA * Salinity.lab/36)
+data <- data %>% mutate(Ta.norm = TA * corrected_salinity/36)
 
 # Calculate initial TA norm averages for each run
 initial <- data %>% subset(sample.type == "Initial") %>% dplyr::group_by(Run.Number) %>%
@@ -130,10 +141,13 @@ data %>% filter(!is.na(Ta.norm)) %>%
 data %>% subset(!sample.type == "Sample") %>%
   ggplot(aes(x=Run.Number, y=Ta.norm, group = sample.type, color = sample.type)) + theme_bw() + geom_point()
 
-data %>% filter(!is.na(Ta.norm)) %>% mutate(titration.location = case_when(
+data %>% filter(!is.na(Ta.norm)) %>% subset(sample.type=="Sample") %>% mutate(titration.location = case_when(
     endsWith(titration.run, "CSUN.csv") ~ "CSUN",
     endsWith(titration.run, "Lab.csv") ~ "URI")) %>%
-  ggplot(aes(x=sample.type, y=Ta.norm, color = Run.Number))  + theme_bw() + geom_point() + facet_grid(~titration.location)
+  ggplot(aes(x=sample.type, y=Ta.norm, color = titration.location))  + theme_bw() + geom_point() + facet_grid(~Species)
+
+data %>% filter(!is.na(Ta.norm)) %>%
+  ggplot(aes(x=Mass, y=Ta.norm, group = sample.type, color = Run.Number)) + theme_bw() + geom_point() + facet_wrap(~sample.type)
 ```
 
 
@@ -181,6 +195,9 @@ NEC %>% filter(!is.na(umol.cm2.hr)) %>%
 
 NEC %>% filter(!is.na(umol.cm2.hr)) %>%
   ggplot(aes(x=Chamber, y=umol.cm2.hr, color = Species)) + theme_bw() + geom_point() # this accounts for chamber and channel # 
+
+NEC %>% filter(!is.na(umol.cm2.hr)) %>%
+  ggplot(aes(x=titration.run, y=umol.cm2.hr, color = Species)) + theme_bw() + geom_point()  
 ```
 
 ## Visuals 

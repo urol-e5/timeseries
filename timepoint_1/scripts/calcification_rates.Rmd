@@ -5,7 +5,7 @@ date: "7/9/2021"
 output:
   html_document: default
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 # Time point 1 - January 
@@ -64,7 +64,24 @@ data <- full_join(deltaTA, raw.data, by = c("colony_id", "Date", "Run.Number")) 
     startsWith(colony_id, "P") ~ "Sample", #this covers POC, POR
     startsWith(colony_id, "A") ~ "Sample")) # this covers ACR
 
+data$colony_id <- gsub("POR-261", "POR-216", data$colony_id)
+data$colony_id <- gsub("POR-387", "POR-385", data$colony_id)
+
 data <- full_join(data, SA, by = "colony_id")
+
+## read in corrected salinity values 
+corr.salinity <- read.csv("data/1_calcification/corrected_salinity.csv", header=TRUE) %>%
+  separate(colony_id, c("colony_id", "Date", "Run.Number"), sep = "_", convert = FALSE)
+
+# merging correct salinity and data df
+data <- left_join(data, corr.salinity)
+
+# if there is an NA in the corrected salinity value, fill in with previous salinity value
+data <- data %>%
+  mutate(corrected_salinity = if_else(is.na(corrected_salinity), Salinity.lab, corrected_salinity))
+
+# bk-2 spilled out during volume measurement - replaced with another chamber 1 used as BK value
+data$Vol.L[which(data$colony_id == "BK-2")] <- 0.610
 ```
 
 *Volume of blanks --- variations.* 
@@ -99,6 +116,9 @@ data %>% filter(!is.na(Ta.norm)) %>%
   
 data %>% subset(!sample.type == "Sample") %>%
   ggplot(aes(x=Run.Number, y=Ta.norm, group = sample.type, color = sample.type)) + theme_bw() + geom_point()
+
+data %>% filter(!is.na(Ta.norm)) %>%
+  ggplot(aes(x=Mass, y=Ta.norm, group = sample.type, color = Run.Number)) + theme_bw() + geom_point() + facet_wrap(~sample.type)
 ```
 
 ## Calculate Net Ecosystem Calcification (NEC) from total alkalinity method
@@ -145,6 +165,9 @@ NEC %>% filter(!is.na(umol.cm2.hr)) %>%
 
 NEC %>% filter(!is.na(umol.cm2.hr)) %>%
   ggplot(aes(x=Chamber, y=umol.cm2.hr, color = Species)) + theme_bw() + geom_point() # this accounts for chamber and channel # 
+
+NEC %>% filter(!is.na(umol.cm2.hr)) %>%
+  ggplot(aes(x=titration.run, y=umol.cm2.hr, color = Species)) + theme_bw() + geom_point()  
 ```
 
 ## Visuals 
