@@ -51,6 +51,7 @@ deltaTA <- read.csv("data/4_calcification/4_DeltaTA_metadata.csv", header = TRUE
            rename(Vol.L = Vol.ml)
 
 deltaTA$colony_id <- gsub("BLK", "BK", deltaTA$colony_id)
+deltaTA$colony_id <- gsub("POR-355", "POR-365", deltaTA$colony_id)
 
 # load surface area values 
 SA <- read.csv("output/4_surface_area.csv", header = TRUE, sep = ",",
@@ -62,6 +63,7 @@ data <- full_join(deltaTA, raw.data, by = c("colony_id", "Date", "Run.Number")) 
     startsWith(colony_id, "BK") ~ "Blank",
     startsWith(colony_id, "P") ~ "Sample", #this covers POC, POR
     startsWith(colony_id, "A") ~ "Sample")) # this covers ACR
+data$colony_id <- gsub("ACR-398", "ACR-396", data$colony_id)
 
 data <- full_join(data, SA, by = "colony_id")
 ```
