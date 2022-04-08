@@ -75,7 +75,8 @@ data <- full_join(data, SA, by = "colony_id")
 data <- data %>% mutate(Ta.norm = TA * Salinity.lab/36)
 
 # Calculate initial TA norm averages for each run
-initial <- data %>% subset(sample.type == "Initial") %>% dplyr::group_by(Run.Number) %>%
+# Taking out initial 2 run 2 b/c it seems to be an outlier (value of 2217.185)
+initial <- data %>% subset(sample.type == "Initial") %>% filter(!Ta.norm < 2300) %>% dplyr::group_by(Run.Number) %>%
   mutate(Ta.norm_initial_avg = mean(Ta.norm)) %>% select(Run.Number, Ta.norm_initial_avg) %>% distinct()
 
 # Rejoining initial data back to the full df   
@@ -95,8 +96,8 @@ calc.data <- full_join(calc.data, blanks, by = "Run.Number") %>% subset(!sample.
 data %>% filter(!is.na(Ta.norm)) %>%
   ggplot(aes(x=Run.Number, y=Ta.norm, group = sample.type, color = sample.type)) + theme_bw() + geom_point()
   
-data %>% subset(!sample.type == "Sample") %>%
-  ggplot(aes(x=Run.Number, y=Ta.norm, group = sample.type, color = sample.type)) + theme_bw() + geom_point()
+data %>% subset(!sample.type == "Sample") %>% 
+  ggplot(aes(x=Run.Number, y=Ta.norm, group = sample.type, color = sample.type)) + theme_bw() + geom_point() + ggtitle("Initial2 Run2 taken out of futher analyses in calc.data df")
 
 data %>% filter(!is.na(Ta.norm)) %>%
   ggplot(aes(x=Mass, y=Ta.norm, group = sample.type, color = Run.Number)) + theme_bw() + geom_point() + facet_wrap(~sample.type)
