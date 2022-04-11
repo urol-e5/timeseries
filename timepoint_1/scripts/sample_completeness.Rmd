@@ -46,6 +46,10 @@ picurve <- list.files("data/1_pi_curves/", "*.csv") %>%
 sym_counts <- read_csv("data/1_sym_counts/1_sym_counts_data.csv") %>%
   pull(colony_id)
 
+#pull calcification from output file that has gone through QC and colony ID corrections
+calc <-read_csv("output/1_calcification_rates.csv") %>%
+  pull(colony_id)
+
 #tac
 
 tac <- list.files("data/1_antioxidant_capacity/", "platemap", full.names = TRUE) %>%
@@ -74,7 +78,7 @@ coral_metadata <- coral_metadata %>%
 ```{r}
 mysteries <- list(molec = molec, homog_vols = homog_vols, 
                   surface_area = surface_area, chl = chl, 
-                  afdw = afdw, picurve = picurve, sym_counts = sym_counts, 
+                  afdw = afdw, picurve = picurve, sym_counts = sym_counts, calc = calc,
                   tac = tac, protein = protein) %>%
   map(~ .[!. %in% coral_metadata])
 
@@ -85,7 +89,7 @@ mysteries
 ```{r}
 completeness <- list(molec = molec, homog_vols = homog_vols, 
                      surface_area = surface_area, chl = chl, 
-                     afdw = afdw, picurve = picurve, sym_counts = sym_counts, 
+                     afdw = afdw, picurve = picurve, sym_counts = sym_counts, calc = calc,
                      tac = tac, protein = protein) %>%
   map(~ coral_metadata %in% .) %>%
   as_tibble() %>%
