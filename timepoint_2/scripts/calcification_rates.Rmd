@@ -186,3 +186,13 @@ NEC %>%
   labs(x = "Site", y = expression(paste(mu,"mol Ca", CO[3], " cm"^-2, " hr"^-1))) +                                       # Plot all points
   theme_classic() 
 ```
+
+Write data to file for time series analysis.  
+```{r}
+# write calcification data to file for use in time series output
+NEC %>%
+  select(colony_id, umol.cm2.hr) %>%
+  mutate(timepoint="timepoint2")%>%
+  filter(!is.na(umol.cm2.hr))%>%
+  write_csv(path = "output/2_calcification_output.csv")
+```

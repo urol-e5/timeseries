@@ -167,3 +167,12 @@ NEC %>%
   theme_classic() 
 ```
 
+Write data to file for time series analysis.  
+```{r}
+# write calcification data to file for use in time series output
+NEC %>%
+  select(colony_id, umol.cm2.hr) %>%
+  mutate(timepoint="timepoint4")%>%
+  filter(!is.na(umol.cm2.hr))%>%
+  write_csv(path = "output/4_calcification_output.csv")
+```
