@@ -313,12 +313,14 @@ list<-levels(duplicates$code)
    write_csv(file="output/timeseries_duplicates_qc.csv")
 ```
 
-# Normalization and write master file NEED TO REVISIT HOST VS SYMBIONT BIOMASS FOR NORMALIZATION 
+There are no duplicates.  
+
+# Normalization and write master file  
 
 In order to examine the effect of normalizer on all response variables, normalize each response to: 
-(1) Protein  (ug/cm2)  
-(2) AFDW  (mg/cm2)   
-(3) Surface area (cm2)  
+(1) Host protein  (ug/cm2)  
+(2) Host AFDW  (mg/cm2)   
+(3) Host surface area (cm2)  
 
 To do this, back-normalize variables that are already normalized and divide by each new normalizer.     
 
