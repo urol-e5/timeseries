@@ -139,7 +139,7 @@ NEC <- calc.data %>%
   mutate(umol.cm2.hr = (deltaTA/2)*(1.023)*((Vol.L*1000)/surface.area.cm2)*(1/timediff)*(1/1000)) %>% # convert L to mL and calculate net ecosystem calcification rates
   mutate(umol.cm2.hr=if_else(umol.cm2.hr<0, 0, umol.cm2.hr)) %>% #make any negative values equal to 0
   mutate(timepoint="timepoint1") 
-
+  
 write.csv(NEC, 'output/1_calcification_rates.csv') 
 
 NEC %>% filter(is.na(umol.cm2.hr)) # missing calc rates 
@@ -187,10 +187,14 @@ NEC %>%
 
 ```{r}
 # write calcification data to file for use in time series output
+#Note here I am summarizing a mean for every colony to remove the duplicate POC-50. Come back to this to see why we have a duplicate.  
+
 NEC %>%
   select(colony_id, umol.cm2.hr) %>%
   mutate(timepoint="timepoint1")%>%
   filter(!is.na(umol.cm2.hr))%>%
+  group_by(colony_id, timepoint)%>%
+  summarise(umol.cm2.hr=mean(umol.cm2.hr))%>%
   write_csv(path = "output/1_calcification_output.csv")
 ```
 
