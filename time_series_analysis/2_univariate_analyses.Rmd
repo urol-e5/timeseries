@@ -1,5 +1,5 @@
 ---
-title: "Integrating E5 time series biological data"
+title: "Univariate analysis of E5 time series biological data"
 author: "Ariana S Huffmyer, E5 RoL Team"
 date: "04/14/2022"
 output: html_document
