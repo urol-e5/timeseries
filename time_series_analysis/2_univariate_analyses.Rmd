@@ -8,6 +8,10 @@ editor_options:
 --- 
 NOTE: If you want to run this script, do not Knit, instead "run all chunks below" and look at console output.   
 
+NOTE: Need to add outlier removal/detection in this script & write into new "master" file. 
+
+NOTE: Ik for PI curves as an additional metric
+
 # Set Up    
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)

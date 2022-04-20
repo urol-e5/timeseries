@@ -8,6 +8,12 @@ editor_options:
 --- 
 NOTE: If you want to run this script, do not Knit, instead "run all chunks below" and look at console output.   
 
+IDEA: Host phenotype = calcification (host fitness); could also do symbiont fitness (perhaps max photosynthesis AM)? 
+
+Next script: Models of 1) best predictors of host fitness (calcification); 2) best predictors of symbiont fitness (Am first, then could look into Ik or E) or holobiont fitness (P:R ratios); 3) Lag times between symbiont and host responses
+
+To do: Calculate plasticity metrics for host and symbiont separately 
+
 # Set Up    
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
