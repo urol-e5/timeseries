@@ -32,8 +32,6 @@ if ("stringr" %in% rownames(installed.packages()) == 'FALSE') install.packages('
 #Read in required libraries
 
 library(broom)
-library(plyr) # load before dplyr 
-library(dplyr)
 library(purrr)
 library(lubridate)
 library(tidyverse)
