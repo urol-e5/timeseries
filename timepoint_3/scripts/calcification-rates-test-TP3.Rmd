@@ -2,7 +2,7 @@
 title: "Calcification-test.Rmd"
 author: "Emma Strand"
 date: "3/10/2022"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -103,7 +103,10 @@ data <- left_join(data, corr.salinity)
 
 # if there is an NA in the corrected salinity value, fill in with previous salinity value
 data <- data %>%
-  mutate(corrected_salinity = if_else(is.na(corrected_salinity), Salinity.lab, corrected_salinity))
+  mutate(corrected_salinity = if_else(is.na(corrected_salinity), Salinity.lab, corrected_salinity),
+         corrected_salinity2 = if_else(corrected_salinity > 37.5, 36.5, corrected_salinity)) ## circle back to make sure this is correct
+
+data %>% subset(Run.Number == "3")
 ```
 
 *Volume of blanks --- variations.* 
@@ -113,7 +116,11 @@ Blank 3 and Blank 4 are both from chamber 10 but have different volumes -- this 
 
 ```{r}
 # Normalize data to the salinity measurement taken at the same time as titration
-data <- data %>% mutate(Ta.norm = TA * corrected_salinity/36)
+data <- data %>% mutate(Ta.norm = TA * corrected_salinity/36,
+                        Ta.norm_test = TA *corrected_salinity2/36)
+
+## select for Initial 1 Run 3 output (comment out the filter function further above in this chunk prior to running this)
+data %>% subset(colony_id == "Initial1") %>% subset(Run.Number == "3")
 
 # Calculate initial TA norm averages for each run
 initial <- data %>% subset(sample.type == "Initial") %>% dplyr::group_by(Run.Number) %>%
@@ -133,6 +140,19 @@ calc.data <- full_join(calc.data, blanks, by = "Run.Number") %>% subset(!sample.
 #### Looking at variation in samples across blanks, initials, and titration data source (CSUN vs URI)
 
 ```{r}
+### those that are under 37 for the "problem runs": 1, 2, and 3 - could use these values?
+data %>% subset(Run.Number == "1" | Run.Number == "2" | Run.Number == "3") %>% group_by(Run.Number) %>%
+  filter(corrected_salinity < 37)
+### average salinity value from CSUN = 36.164
+data %>% mutate(titration.location = case_when(
+    endsWith(titration.run, "CSUN.csv") ~ "CSUN",
+    endsWith(titration.run, "Lab.csv") ~ "URI")) %>%
+  subset(titration.location == "CSUN") %>%
+  mutate(mean=mean(corrected_salinity))
+
+data %>% filter(!is.na(Ta.norm)) %>% gather("TA_test", "value", 28:29) %>%
+  ggplot(aes(x=Run.Number, y=value, group = sample.type, color = sample.type)) + facet_wrap(~TA_test) + theme_bw() + geom_point()
+
 data %>% filter(!is.na(Ta.norm)) %>%
   ggplot(aes(x=Run.Number, y=Ta.norm, group = sample.type, color = sample.type)) + theme_bw() + geom_point()
   
