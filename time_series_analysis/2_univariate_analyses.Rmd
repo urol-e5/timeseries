@@ -6,7 +6,6 @@ output: html_document
 editor_options: 
   chunk_output_type: console
 --- 
-NOTE: If you want to run this script, do not Knit, instead "run all chunks below" and look at console output.   
 
 NOTE: Need to add outlier removal/detection in this script & write into new "master" file. 
 
