@@ -4,7 +4,7 @@ author: "Ariana S Huffmyer"
 date: "11/15/2021"
 output: html_document
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 # Set Up    
@@ -463,7 +463,12 @@ radar<-radar_data_temp%>%
                                     if_else(site == "site1", "Manava", "NA"))))
 
 png(filename="Figures/Environmental_Radar_Temperature.png", width=2280, heigh=1880, units="px", res=300)
-ggRadar(radar, aes(colour=site), scales="fixed")+ggplot2::theme_minimal()+ggplot2::theme(text=element_text(color="black", size=11))+ggplot2::theme(legend.position="top")
+ggRadar(radar, aes(colour=site), scales="fixed")+
+  ggplot2::theme_minimal()+
+  ggplot2::scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  ggplot2::theme(text=element_text(color="black", size=11))+
+  ggplot2::theme(legend.position="top")
 dev.off()
 
 ```
@@ -495,10 +500,26 @@ radar<-radar_data_pH%>%
                                     if_else(site == "site1", "Manava", "NA"))))
 
 png(filename="Figures/Environmental_Radar_pH_light.png", width=2280, heigh=1880, units="px", res=300)
-ggRadar(radar, aes(colour=site), scales="fixed")+ggplot2::theme_minimal()+ggplot2::theme(text=element_text(color="black", size=11))+ggplot2::theme(legend.position="top")
+ggRadar(radar, aes(colour=site), scales="fixed")+
+  ggplot2::theme_minimal()+
+  ggplot2::theme(text=element_text(color="black", size=11))+
+  ggplot2::theme(legend.position="top")+
+  ggplot2::scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  ggplot2::scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633"))
 dev.off()
 
 ```
+
+## Temperature summary plot 
+
+```{r}
+temp_summary_plot <- master_qc %>%
+  ggplot(., aes(x=Date.Time, y=FullTemp)) + theme_classic() + 
+  geom_line(size=0.3)
+
+ggsave(file="Figures/Environmental_Temperature_summary.png", temp_summary_plot, width = 7, height = 4, units = c("in"))
+```
+
 
 ## Statistical tests  
 
