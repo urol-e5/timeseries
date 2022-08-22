@@ -1,0 +1,279 @@
+---
+title: "Modeling analysis of E5 time series biological data"
+author: "Ariana S Huffmyer, E5 RoL Team"
+date: "08/15/2022"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+--- 
+NOTE: If you want to run this script, do not Knit, instead "run all chunks below" and look at console output.   
+
+IDEA: Host phenotype = calcification (host fitness); could also do symbiont fitness (perhaps max photosynthesis AM)? 
+
+Next script: Models of 1) best predictors of host fitness (calcification); 2) best predictors of symbiont fitness (Am first, then could look into Ik or E) or holobiont fitness (P:R ratios); 3) Lag times between symbiont and host responses
+
+# Set Up    
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+```
+
+```{r}
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("RColorBrewer")) install.packages("RColorBrewer")
+if (!require("lme4")) install.packages("lme4")
+if (!require("lmerTest")) install.packages("lmerTest")
+if (!require("car")) install.packages("car")
+if (!require("effects")) install.packages("effects")
+if (!require("ggfortify")) install.packages("ggfortify")
+if (!require("cowplot")) install.packages("cowplot")
+if (!require("vegan")) install.packages("vegan")
+if (!require("corrr")) install.packages("corrr")
+if (!require("ggcorrplot")) install.packages("ggcorrplot")
+if (!require("GGally")) install.packages("GGally")
+if (!require("broom")) install.packages("broom")
+if (!require("Hmisc")) install.packages("Hmisc")
+
+# load packages
+library(tidyverse)
+library(ggplot2)
+library(RColorBrewer)
+library(lme4)
+library(lmerTest)
+library(car)
+library(effects)
+library(ggfortify)
+library(cowplot)
+library(vegan)
+library(corrr)
+library(ggcorrplot)
+library(GGally)
+library(broom)
+library(Hmisc)
+```
+
+# Load dataframe
+
+Load in master dataframe generated from 1_assemble_data.Rmd.  
+```{r}
+master<-read.csv("Output/master_timeseries.csv")
+```
+
+# Run models 
+
+## All species 
+
+Model the influence of physiological metrics on calcification. 
+```{r}
+df<-master%>%
+  select(Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Am, AQY, Rd, calc.umol.mgAFDW.hr, cells.mgAFDW, prot_mg.mgafdw, cre.umol.mgafdw, Ratio_AFDW.mg.cm2, Total_Chl_cell, Total_Chl)
+
+model1<-lm(calc.umol.mgAFDW.hr~ ., data=df)
+
+summary(model1)
+```
+
+From this first look, Am, Rd, and protein.AFDW are most significant (<0.01) and antioxidant (cre.AFDW) and ratio host:symbiont AFDW are also significant (<0.05) as predictors of calcification.  
+
+Show effect plot
+```{r}
+plot(allEffects(model1)) 
+```
+
+Next, look for covariates and simplify the model by removing highly correlated variables.  
+
+```{r}
+cor_all<-rcorr(as.matrix(df))
+#combine all values 
+flattenCorrMatrix <- function(cormat, pmat) {
+  ut <- upper.tri(cormat)
+  data.frame(
+    row = rownames(cormat)[row(cormat)[ut]],
+    column = rownames(cormat)[col(cormat)[ut]],
+    cor  =(cormat)[ut],
+    p = pmat[ut]
+    )
+}
+
+cor_all_df<-flattenCorrMatrix(cor_all$r, cor_all$P)
+```
+
+List correlations with absolute value r>0.9.  
+```{r}
+cor_all_df%>%
+  filter(abs(cor)>0.85)
+```
+Respiration and Am are > 0.85.  
+
+List correlations with high significance p<0.01.  
+```{r}
+cor_all_df%>%
+  filter(p<0.01)
+```
+Many correlations are highly significant.  
+
+View the correlations between calcification and other physiological parameters.  
+```{r}
+cor_all_df%>%
+  filter(p<0.01)%>%
+  filter(row=="calc.umol.mgAFDW.hr")
+```
+There are significant, but weak positive correlations between calcification & symbiont cell density, protein, symbiont:host biomass ratio, and total chlorophyll. 
+
+
+## Acropora 
+
+Model the influence of physiological metrics on calcification. 
+```{r}
+df_acr<-master%>%
+  filter(species=="Acropora")%>%
+  select(Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Am, AQY, Rd, calc.umol.mgAFDW.hr, cells.mgAFDW, prot_mg.mgafdw, cre.umol.mgafdw, Ratio_AFDW.mg.cm2, Total_Chl_cell, Total_Chl)
+
+model1_acr<-lm(calc.umol.mgAFDW.hr~ ., data=df_acr)
+
+summary(model1_acr)
+```
+
+From this first look, protein.AFDW, total chlorophyll.AFDW and total chlorophyll per cell are significant (<0.01).    
+
+Show effect plot
+```{r}
+plot(allEffects(model1_acr)) 
+```
+
+Next, look for covariates and simplify the model by removing highly correlated variables.  
+
+```{r}
+cor_acr<-rcorr(as.matrix(df_acr))
+#combine all values 
+
+cor_acr_df<-flattenCorrMatrix(cor_acr$r, cor_acr$P)
+```
+
+List correlations with absolute value r>0.9.  
+```{r}
+cor_acr_df%>%
+  filter(abs(cor)>0.85)
+```
+No correlations > 0.85.  
+
+List correlations with high significance p<0.01.  
+```{r}
+cor_acr_df%>%
+  filter(p<0.01)
+```
+Many correlations are highly significant. 
+
+View the correlations between calcification and other physiological parameters.  
+```{r}
+cor_acr_df%>%
+  filter(p<0.01)%>%
+  filter(row=="calc.umol.mgAFDW.hr")
+```
+There are significant positive correlations between calcification & protein, antioxidant capacity, host:symbiont biomass ratio, total chlorophyll, and total chlorophyll per symbiont cell. 
+
+## Pocillopora 
+
+Model the influence of physiological metrics on calcification. 
+```{r}
+df_poc<-master%>%
+  filter(species=="Pocillopora")%>%
+  select(Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Am, AQY, Rd, calc.umol.mgAFDW.hr, cells.mgAFDW, prot_mg.mgafdw, cre.umol.mgafdw, Ratio_AFDW.mg.cm2, Total_Chl_cell, Total_Chl)
+
+model1_poc<-lm(calc.umol.mgAFDW.hr~ ., data=df_poc)
+
+summary(model1_poc)
+```
+
+From this first look, antioxidant.AFDW is the only effect that is significant (<0.01).    
+
+Show effect plot
+```{r}
+plot(allEffects(model1_poc)) 
+```
+
+Next, look for covariates and simplify the model by removing highly correlated variables.  
+
+```{r}
+cor_poc<-rcorr(as.matrix(df_poc))
+#combine all values 
+
+cor_poc_df<-flattenCorrMatrix(cor_poc$r, cor_poc$P)
+```
+
+List correlations with absolute value r>0.9.  
+```{r}
+cor_poc_df%>%
+  filter(abs(cor)>0.85)
+```
+No correlations > 0.85.  
+
+List correlations with high significance p<0.01.  
+```{r}
+cor_poc_df%>%
+  filter(p<0.01)
+```
+Many correlations are highly significant. 
+
+View the correlations between calcification and other physiological parameters.  
+```{r}
+cor_poc_df%>%
+  filter(p<0.01)%>%
+  filter(row=="calc.umol.mgAFDW.hr")
+```
+There is one significant negative correlation between calcification and antioxidant capacity.   
+
+## Porites 
+
+Model the influence of physiological metrics on calcification. 
+```{r}
+df_por<-master%>%
+  filter(species=="Porites")%>%
+  select(Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Am, AQY, Rd, calc.umol.mgAFDW.hr, cells.mgAFDW, prot_mg.mgafdw, cre.umol.mgafdw, Ratio_AFDW.mg.cm2, Total_Chl_cell, Total_Chl)
+
+model1_por<-lm(calc.umol.mgAFDW.hr~ ., data=df_por)
+
+summary(model1_por)
+```
+
+From this first look, Host AFDW is the only effect that is higly significant (<0.01) and Am is also significant (<0.05).      
+
+Show effect plot
+```{r}
+plot(allEffects(model1_poc)) 
+```
+
+Next, look for covariates and simplify the model by removing highly correlated variables.  
+
+```{r}
+cor_por<-rcorr(as.matrix(df_por))
+#combine all values 
+
+cor_por_df<-flattenCorrMatrix(cor_por$r, cor_por$P)
+```
+
+List correlations with absolute value r>0.9.  
+```{r}
+cor_por_df%>%
+  filter(abs(cor)>0.85)
+```
+No correlations > 0.85.  
+
+List correlations with high significance p<0.01.  
+```{r}
+cor_por_df%>%
+  filter(p<0.01)
+```
+Many correlations are highly significant. 
+
+Based on correlation analysis there are no strongly correlated variables and we can leave all responses in the model.  
+
+View the correlations between calcification and other physiological parameters.  
+```{r}
+cor_por_df%>%
+  filter(p<0.01)%>%
+  filter(row=="calc.umol.mgAFDW.hr")
+```
+There is  nothing that correlates with calcification in Porites.  
+
