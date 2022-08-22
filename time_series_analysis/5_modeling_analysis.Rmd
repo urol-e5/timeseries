@@ -2,7 +2,7 @@
 title: "Modeling analysis of E5 time series biological data"
 author: "Ariana S Huffmyer, E5 RoL Team"
 date: "08/15/2022"
-output: html_document
+output: github_document
 editor_options: 
   chunk_output_type: console
 --- 

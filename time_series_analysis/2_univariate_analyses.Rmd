@@ -2,14 +2,13 @@
 title: "Univariate analysis of E5 time series biological data"
 author: "Ariana S Huffmyer, E5 RoL Team"
 date: "04/14/2022"
-output: html_document
+output: github_document
 editor_options: 
   chunk_output_type: console
 --- 
 
 NOTE: Need to add outlier removal/detection in this script & write into new "master" file. 
 
-NOTE: Ik for PI curves as an additional metric
 
 # Set Up    
 ```{r setup, include=FALSE}

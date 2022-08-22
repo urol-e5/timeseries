@@ -2,7 +2,7 @@
 title: "Examining normalizers and preliminary PCA plots"
 author: "Ariana S Huffmyer, E5 RoL Team"
 date: "04/14/2022"
-output: html_document
+output: github_document
 editor_options: 
   chunk_output_type: console
 --- 
