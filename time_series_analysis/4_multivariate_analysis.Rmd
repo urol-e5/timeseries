@@ -68,14 +68,14 @@ Generate PCA using scaled (scaled_acr_afdw) from dataframe (acr_data_afdw).
  
 ```{r}
 acr_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Acropora")%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)
 
 acr_data_afdw<-acr_data_afdw[complete.cases(acr_data_afdw), ]
 
@@ -182,95 +182,6 @@ acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,
 ```
 
 
-Asemble final figure with inset biplot.  
-```{r}
-#acrFullPCA<-ggdraw(acrPCAfull) + #theme_half_open(12)) +
-  #draw_plot(acrArrows, .5, .5, .5, .5); acrFullPCA #x, y, w, h
-
-#ggsave(filename="Figures/FullPCA_Acropora.pdf", plot=acrFullPCA, dpi=300, width=12, height=8, units="in")
-```
-
-##### Calculate plasticity using centroid travel calculations.  
-
-1 - calculate sd of mean distance between all points and the centroid of all points (spread)
-
-```{r}
-
-#calculate mean centroid location
-mean.centroid.acr <- acr.centroids%>%
-  select(PC1.mean, PC2.mean)%>%
-  summarise(x.mean = mean(PC1.mean), 
-         y.mean = mean(PC2.mean))%>%
-  summarise(x.mean = mean(x.mean), 
-         y.mean = mean(y.mean))
-
-#calculate average standard deviation of mean distance between mean centroid and location of each point using formula for distance between two points
-spread.acr<-acr_data%>%
-  mutate(distance=sqrt((PC1.mean-mean.centroid.acr[1])^2+(PC2.mean-mean.centroid.acr[2])^2))%>%
-  summarise(distance=mean(distance$x.mean))%>% #summarize across groups
-  summarise(distance=sd(distance))%>% #calculate the sd of distances
-  summarise(distance=mean(distance)) #summarize across groups
-
-#spread<-acr_data[c(12,13)]
-#spread<-as.matrix(dist(spread, mean.centroid, method="euclidean"))
-#spread<-mean(spread)
-spread.acr$distance
-```
-
-
-2 - calculate distance between each time point centroids for each site (distance) 
-
-```{r}
-distance.acr<-acr.centroids%>%
-  arrange(site_code)%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
-  unite(temp, timepoint, variable) %>%
-  spread(temp, value)%>%
-  group_by(site_code)%>%
-  mutate(tp1.2=sqrt((timepoint1_PC1.mean-timepoint2_PC1.mean)^2+(timepoint1_PC2.mean-timepoint2_PC2.mean)^2), #calculate distance between tp1 and tp2 centroids, do for each pair of time points
-         tp2.3=sqrt((timepoint2_PC1.mean-timepoint3_PC1.mean)^2+(timepoint2_PC2.mean-timepoint3_PC2.mean)^2),
-         tp3.4=sqrt((timepoint3_PC1.mean-timepoint4_PC1.mean)^2+(timepoint3_PC2.mean-timepoint4_PC2.mean)^2))
-```
-
-3 - divide distance by spread, generating a plasticity ratio for each site, higher ratio = more plasticity
-
-```{r}
-plasticity.acr<-distance.acr%>%
-  select(site_code, tp1.2, tp2.3, tp3.4)%>% #keep desired columns
-  gather(key="comparison", value="distance_time", -site_code)%>% #gather and generate new rows to designate time comparisons
-  mutate(ratio=distance_time/spread.acr$distance)
-plasticity.acr
-```
-
-4 - average these ratios across sites to generate a mean plasticity ratio for time, site, and species
-
-Display mean plasticity scores by site:  
-```{r}
-acr.plasticity.site<-plasticity.acr%>%
-  group_by(site_code)%>%
-  summarise(mean_site=mean(ratio))%>%
-  mutate(species="Acropora")
-acr.plasticity.site
-```
-
-Display mean plasticity scores by timepoint comparison: 
-```{r}
-plasticity.acr.time<-plasticity.acr%>%
-  group_by(comparison)%>%
-  summarise(mean_timepoint=mean(ratio))%>%
-  mutate(species="Acropora")
-plasticity.acr.time
-```
-
-Display mean plasticity score for the species:  
-```{r}
-plasticity.acr.species<-plasticity.acr%>%
-  summarise(mean_species=mean(ratio))%>%
-  summarise(mean_species=mean(mean_species))%>%
-  mutate(species="Acropora")
-plasticity.acr.species
-```
-
 
 #### Porites
 
@@ -280,14 +191,14 @@ Calculate centroid locations for each site and timepoint and pull PC1 and PC2 lo
  
 ```{r}
 por_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Porites")%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
-  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)
 
 por_data_afdw<-por_data_afdw[complete.cases(por_data_afdw), ]
 
@@ -399,95 +310,6 @@ porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,
          axis.text = element_text(size=18), 
          axis.title = element_blank());porArrows
 ```
- 
-
-Assemble final figure with inset biplot.  
-```{r}
-#porFullPCA<-ggdraw(porPCAfull)+ #+ theme_half_open(12)) +
-  #draw_plot(porArrows, .5, .5, .5, .5); porFullPCA #x, y, w, h
-
-#ggsave(filename="Figures/FullPCA_Porites.pdf", plot=porFullPCA, dpi=300, width=12, height=8, units="in")
-```
- 
-##### Calculate plasticity using centroid travel calculations.  
-
-1 - calculate mean distance between all points and the centroid of all points (spread)   
-
-```{r}
-#calculate mean centroid location
-mean.centroid.por <- por.centroids%>%
-  select(PC1.mean, PC2.mean)%>%
-  summarise(x.mean = mean(PC1.mean), 
-         y.mean = mean(PC2.mean))%>%
-  summarise(x.mean = mean(x.mean), 
-         y.mean = mean(y.mean))
-
-#calculate average standard deviation of mean distance between mean centroid and location of each point using formula for distance between two points
-spread.por<-por_data%>%
-  mutate(distance=sqrt((PC1.mean-mean.centroid.por[1])^2+(PC2.mean-mean.centroid.por[2])^2))%>%
-  summarise(distance=mean(distance$x.mean))%>% #summarize across groups
-  summarise(distance=sd(distance))%>% #summarize across groups
-  summarise(distance=mean(distance)) #summarize across groups
-
-#spread<-acr_data[c(12,13)]
-#spread<-as.matrix(dist(spread, mean.centroid, method="euclidean"))
-#spread<-mean(spread)
-spread.por
-```
-
-
-2 - calculate distance between each time point centroids for each site (distance) 
-
-```{r}
-distance.por<-por.centroids%>%
-  arrange(site_code)%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
-  unite(temp, timepoint, variable) %>%
-  spread(temp, value)%>%
-  group_by(site_code)%>%
-  mutate(tp1.2=sqrt((timepoint1_PC1.mean-timepoint2_PC1.mean)^2+(timepoint1_PC2.mean-timepoint2_PC2.mean)^2), #calculate distance between tp1 and tp2 centroids, do for each pair of time points
-         tp2.3=sqrt((timepoint2_PC1.mean-timepoint3_PC1.mean)^2+(timepoint2_PC2.mean-timepoint3_PC2.mean)^2),
-         tp3.4=sqrt((timepoint3_PC1.mean-timepoint4_PC1.mean)^2+(timepoint3_PC2.mean-timepoint4_PC2.mean)^2))
-```
-
-3 - divide distance by spread, generating a plasticity ratio for each site, higher ratio = more plasticity
-
-```{r}
-plasticity.por<-distance.por%>%
-  select(site_code, tp1.2, tp2.3, tp3.4)%>% #keep desired columns
-  gather(key="comparison", value="distance_time", -site_code)%>% #gather and generate new rows to designate time comparisons
-  mutate(ratio=distance_time/spread.por$distance)
-plasticity.por
-```
-
-4 - average these ratios across sites to generate a mean plasticity ratio for time, site, and species
-
-Display mean plasticity scores by site:  
-```{r}
-por.plasticity.site<-plasticity.por%>%
-  group_by(site_code)%>%
-  summarise(mean_site=mean(ratio))%>%
-  mutate(species="Porites")
-por.plasticity.site
-```
-
-Display mean plasticity scores by timepoint comparison: 
-```{r}
-plasticity.por.time<-plasticity.por%>%
-  group_by(comparison)%>%
-  summarise(mean_timepoint=mean(ratio))%>%
-  mutate(species="Porites")
-plasticity.por.time
-```
-
-Display mean plasticity score for the species:  
-```{r}
-plasticity.por.species<-plasticity.por%>%
-  summarise(mean_species=mean(ratio))%>%
-  summarise(mean_species=mean(mean_species))%>%
-  mutate(species="Porites")
-plasticity.por.species
-```
 
 
 #### Pocillopora   
@@ -496,13 +318,13 @@ Generate PCA using scaled (scaled_poc_afdw) from dataframe (poc_data_afdw).
  
 ```{r}
 poc_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Pocillopora")%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
-  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)
 
 poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
  
@@ -604,15 +426,6 @@ pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,
          axis.text = element_text(size=18), 
          axis.title = element_blank());pocArrows
 ```
-
- 
-Assemble final figure with inset biplot.  
-```{r}
-#pocFullPCA<-ggdraw(pocPCAfull) + #theme_half_open(12)) +
-  #draw_plot(pocArrows, .5, .5, .5, .5); pocFullPCA #x, y, w, h
-
-#ggsave(filename="Figures/FullPCA_Pocillopora.pdf", plot=pocFullPCA, dpi=300, width=12, height=8, units="in")
-```
  
 Assemble all plots.  
 
@@ -626,233 +439,6 @@ PCA_full_panel_legend<-plot_grid(PCA_full_panel, legend, rel_heights = c(4, .2),
 ggsave(filename="Figures/Full_Panel_PCAs.png", plot=PCA_full_panel_legend, dpi=500, width=20, height=6, units="in")
 ```  
 
-##### Calculate plasticity using centroid travel calculations.  
-
-1 - calculate mean distance between all points and the centroid of all points (spread)
-
-```{r}
-#calculate mean centroid location
-mean.centroid.poc <- poc.centroids%>%
-  select(PC1.mean, PC2.mean)%>%
-  summarise(x.mean = mean(PC1.mean), 
-         y.mean = mean(PC2.mean))%>%
-  summarise(x.mean = mean(x.mean), 
-         y.mean = mean(y.mean))
-
-#calculate average distance between mean centroid and location of each point using formula for distance between two points
-spread.poc<-poc_data%>%
-  mutate(distance=sqrt((PC1.mean-mean.centroid.poc[1])^2+(PC2.mean-mean.centroid.poc[2])^2))%>%
-  summarise(distance=mean(distance$x.mean))%>% #summarize across groups
-  summarise(distance=sd(distance))%>% #summarize across groups
-  summarise(distance=mean(distance)) #summarize across groups
-
-#spread<-acr_data[c(12,13)]
-#spread<-as.matrix(dist(spread, mean.centroid, method="euclidean"))
-#spread<-mean(spread)
-spread.poc
-```
-
- 
-2 - calculate distance between each time point centroids for each site (distance) 
-
-```{r}
-distance.poc<-poc.centroids%>%
-  arrange(site_code)%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
-  unite(temp, timepoint, variable) %>%
-  spread(temp, value)%>%
-  group_by(site_code)%>%
-  mutate(tp1.2=sqrt((timepoint1_PC1.mean-timepoint2_PC1.mean)^2+(timepoint1_PC2.mean-timepoint2_PC2.mean)^2), #calculate distance between tp1 and tp2 centroids, do for each pair of time points
-         tp2.3=sqrt((timepoint2_PC1.mean-timepoint3_PC1.mean)^2+(timepoint2_PC2.mean-timepoint3_PC2.mean)^2),
-         tp3.4=sqrt((timepoint3_PC1.mean-timepoint4_PC1.mean)^2+(timepoint3_PC2.mean-timepoint4_PC2.mean)^2))
-```
-
-3 - divide distance by spread, generating a plasticity ratio for each site, higher ratio = more plasticity
-
-```{r}
-plasticity.poc<-distance.poc%>%
-  select(site_code, tp1.2, tp2.3, tp3.4)%>% #keep desired columns
-  gather(key="comparison", value="distance_time", -site_code)%>% #gather and generate new rows to designate time comparisons
-  mutate(ratio=distance_time/spread.poc$distance)
-plasticity.poc
-```
-
-4 - average these ratios across sites to generate a mean plasticity ratio for time, site, and species
-
-Display mean plasticity scores by site:  
-```{r}
-poc.plasticity.site<-plasticity.poc%>%
-  group_by(site_code)%>%
-  summarise(mean_site=mean(ratio))%>%
-  mutate(species="Pocillopora")
-poc.plasticity.site
-```
-
-Display mean plasticity scores by timepoint comparison: 
-```{r}
-plasticity.poc.time<-plasticity.poc%>%
-  group_by(comparison)%>%
-  summarise(mean_timepoint=mean(ratio))%>%
-  mutate(species="Pocillopora")
-plasticity.poc.time
-```
-
-Display mean plasticity score for the species:  
-```{r}
-plasticity.poc.species<-plasticity.poc%>%
-  summarise(mean_species=mean(ratio))%>%
-  summarise(mean_species=mean(mean_species))%>%
-  mutate(species="Pocillopora")
-plasticity.poc.species
-```
- 
-### Examine plasticity scores generated from PCA's
-    
-Generate plasticity dataframe from calculations for each species.   
-```{r}
-plasticity.site<-bind_rows(acr.plasticity.site, poc.plasticity.site, por.plasticity.site);plasticity.site
-
-plasticity.time<-bind_rows(plasticity.acr.time, plasticity.poc.time, plasticity.por.time);plasticity.time
-  
-plasticity.species<-bind_rows(plasticity.acr.species, plasticity.poc.species, plasticity.por.species);plasticity.species
-```
-
-Plot plasticity scores for site values.    
-
-```{r}
-plasticity_site<-plasticity.site%>%
-                group_by(site_code)%>%
-                summarise(mean=mean(mean_site))%>%
-
-  ggplot(., aes(x = site_code, y = mean, fill = site_code, group=interaction(site_code))) +
-    geom_point(pch = 21, size=5, position = position_jitterdodge(0)) + 
-    scale_fill_manual(values = c("#374d7c", "#00cccc", "#ff6633"))+
-    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
-                              "Manava High" = "Manava \nHigh"))+
-    #facet_wrap(~species) +
-    xlab("Site") + 
-    ylab(expression(bold("Plasticity (Distance / Spread)")))+
-    theme_classic() + 
-    ylim(0,5)+
-    theme(
-      legend.position="none",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=12),
-      axis.text=element_text(size=10, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); plasticity_site
-```
-
-Plot plasticity scores for timepoint values.    
-```{r}
-plasticity_time<-plasticity.time%>%
-                group_by(comparison)%>%
-                summarise(mean=mean(mean_timepoint))%>%
-  
-  ggplot(., aes(x = comparison, y = mean, group=interaction(comparison))) +
-    geom_point(pch = 21, size=5, fill="gray") + 
-    #scale_fill_manual(values = c("#374d7c", "#00cccc", "#ff6633"))+
-    scale_x_discrete(labels=c("tp1.2" = "Jan-March", "tp2.3" = "March-Sept", "tp3.4" = "Sept-Nov"))+
-    #facet_wrap(~species) +
-    xlab("Timepoint") + 
-    ylab(expression(bold("Plasticity (Distance / Spread)")))+
-    theme_classic() + 
-    ylim(0,5)+
-    theme(
-      legend.position="none",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=12),
-      axis.text=element_text(size=10, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); plasticity_time
-```
-
-Plot plasticity scores for species values.    
-
-```{r}
-plasticity_species<-ggplot(plasticity.species, aes(x = species, y = mean_species, fill=species, group=interaction(species))) +
-    geom_point(pch = 21, size=5, position = position_jitterdodge(0)) + 
-    scale_fill_manual(values = c("darkgray", "orange", "purple"))+
-    #scale_x_discrete(labels=c("tp1.2" = "Jan-March", "tp2.3" = "March-Sept", "tp3.4" = "Sept-Nov"))+
-    #facet_wrap(~species) +
-    xlab("Species") + 
-    ylab(expression(bold("Plasticity (Distance / Spread)")))+
-    theme_classic() + 
-    ylim(0,5)+
-    theme(
-      legend.position="none",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=12),
-      axis.text=element_text(size=10, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); plasticity_species
-```
-
-Assemble full plasticity figure.  
-
-```{r}
-plasticity_full_panel<-plot_grid(plasticity_species, plasticity_site, plasticity_time, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
-
-ggsave(filename="Figures/Plasticity_Panel.png", plot=plasticity_full_panel, dpi=500, width=10, height=4, units="in")
-```  
-
-Generate plots for within species.  
-
-Plot plasticity scores for site values.     
-
-```{r}
-plasticity_site2<-ggplot(plasticity.site, aes(x = site_code, y = mean_site, fill = site_code, group=interaction(site_code))) +
-    geom_point(pch = 21, size=5, position = position_jitterdodge(0)) + 
-    scale_fill_manual(values = c("#374d7c", "#00cccc", "#ff6633"))+
-    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
-                              "Manava High" = "Manava \nHigh"))+
-    facet_wrap(~species) +
-    xlab("Site") + 
-    ylab(expression(bold("Plasticity (Distance / Spread)")))+
-    theme_classic() + 
-    ylim(0,5)+
-    theme(
-      legend.position="none",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=12),
-      axis.text=element_text(size=10, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); plasticity_site2
-```
-
-Plot plasticity scores for timepoint values.    
-```{r}
-plasticity_time2<-ggplot(plasticity.time, aes(x = comparison, y = mean_timepoint, group=interaction(comparison))) +
-    geom_point(pch = 21, size=5, fill="gray") + 
-    #scale_fill_manual(values = c("#374d7c", "#00cccc", "#ff6633"))+
-    scale_x_discrete(labels=c("tp1.2" = "Jan-March", "tp2.3" = "March-Sept", "tp3.4" = "Sept-Nov"))+
-    facet_wrap(~species) +
-    xlab("Timepoint") + 
-    ylab(expression(bold("Plasticity (Distance / Spread)")))+
-    theme_classic() + 
-    ylim(0,5)+
-    theme(
-      legend.position="none",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=12),
-      axis.text=element_text(size=10, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); plasticity_time2
-```
-
-
-Assemble full plasticity figure.  
-
-```{r}
-plasticity_full_panel2<-plot_grid(plasticity_species, plasticity_site2, plasticity_time2, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(0.5,1,1), rel_widths = c(0.5,1,1), label_size = 20, label_y=1, align="vh")
-
-ggsave(filename="Figures/Plasticity_Panel_species_detail.png", plot=plasticity_full_panel2, dpi=500, width=20, height=4, units="in")
-```  
 
 ### Matrix of PCA's by species and time  
 
@@ -862,13 +448,13 @@ Generate biplot showing groupings by site for each species and time point.
 
 ```{r}
 poc_tp1_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Pocillopora")%>%
-  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
   filter(timepoint=="timepoint1")
 
 poc_tp1_data<-poc_tp1_data[complete.cases(poc_tp1_data), ]
@@ -898,14 +484,14 @@ pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  col
 
 ```{r}
 poc_tp2_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(species=="Pocillopora")%>%
-  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
   filter(timepoint=="timepoint2")
  
 poc_tp2_data<-poc_tp2_data[complete.cases(poc_tp2_data), ]
@@ -935,14 +521,14 @@ pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  col
 
 ```{r}
 poc_tp3_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Pocillopora")%>%
-  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
   filter(timepoint=="timepoint3")
  
 poc_tp3_data<-poc_tp3_data[complete.cases(poc_tp3_data), ]
@@ -972,14 +558,14 @@ pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  col
 
 ```{r}
 poc_tp4_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Pocillopora")%>%
-  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
   filter(timepoint=="timepoint4")
  
 poc_tp4_data<-poc_tp4_data[complete.cases(poc_tp4_data), ]
@@ -1011,13 +597,13 @@ pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp1_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Acropora")%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
-  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
   filter(timepoint=="timepoint1")
 
 acr_tp1_data<-acr_tp1_data[complete.cases(acr_tp1_data), ]
@@ -1047,14 +633,14 @@ acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp2_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Acropora")%>%
-  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
   filter(timepoint=="timepoint2")
  
 acr_tp2_data<-acr_tp2_data[complete.cases(acr_tp2_data), ]
@@ -1084,14 +670,14 @@ acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp3_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Acropora")%>%
-  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
   filter(timepoint=="timepoint3")
  
 acr_tp3_data<-acr_tp3_data[complete.cases(acr_tp3_data), ]
@@ -1121,14 +707,14 @@ acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp4_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Acropora")%>%
-  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
   filter(timepoint=="timepoint4")
  
 acr_tp4_data<-acr_tp4_data[complete.cases(acr_tp4_data), ]
@@ -1143,7 +729,7 @@ acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  col
   #xlim(-.3,.6)+
   #ylim(-.3, .3)+
   ggtitle("November 2020")+
-  coord_cartesian(xlim=c(-8, 9), ylim=c(-5, 5), clip = "off")+
+  coord_cartesian(xlim=c(-8, 9), ylim=c(-7, 5), clip = "off")+
   #annotate("text", x=-8, y=0, label="italic(Pocillopora)", fontface="bold", parse = TRUE, angle=90, size=10)+
    theme(legend.text = element_text(size=18), 
          legend.position="none",
@@ -1161,13 +747,13 @@ acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  col
 
 ```{r}
 por_tp1_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(species=="Porites")%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
-  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
   filter(timepoint=="timepoint1")
 
 por_tp1_data<-por_tp1_data[complete.cases(por_tp1_data), ]
@@ -1197,14 +783,14 @@ porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  col
 
 ```{r}
 por_tp2_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Porites")%>%
-  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
   filter(timepoint=="timepoint2")
  
 por_tp2_data<-por_tp2_data[complete.cases(por_tp2_data), ]
@@ -1234,14 +820,14 @@ porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  col
 
 ```{r}
 por_tp3_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Porites")%>%
-  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
   filter(timepoint=="timepoint3")
  
 por_tp3_data<-por_tp3_data[complete.cases(por_tp3_data), ]
@@ -1271,14 +857,14 @@ porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  col
 
 ```{r}
 por_tp4_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(chla.ug.mgAFDW<2.2)%>%
   filter(species=="Porites")%>%
-  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Chl_a=chla.ug.mgAFDW, Chl_c2=chlc2.ug.mgAFDW, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)%>%
   filter(timepoint=="timepoint4")
  
 por_tp4_data<-por_tp4_data[complete.cases(por_tp4_data), ]
@@ -1446,92 +1032,12 @@ acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,
          axis.title = element_blank());acrArrows
 ```
 
-
-Asemble final figure with inset biplot.  
+Assemble final figure with inset biplot.  
 ```{r}
 #acrFullPCA<-ggdraw(acrPCAfull) + #theme_half_open(12)) +
   #draw_plot(acrArrows, .5, .5, .5, .5); acrFullPCA #x, y, w, h
 
 #ggsave(filename="Figures/FullPCA_Acropora.pdf", plot=acrFullPCA, dpi=300, width=12, height=8, units="in")
-```
-
-##### Calculate plasticity using centroid travel calculations.  
-
-1 - calculate sd of mean distance between all points and the centroid of all points (spread)
-
-```{r}
-#calculate mean centroid location
-mean.centroid.acr <- acr.centroids%>%
-  select(PC1.mean, PC2.mean)%>%
-  summarise(x.mean = mean(PC1.mean), 
-         y.mean = mean(PC2.mean))%>%
-  summarise(x.mean = mean(x.mean), 
-         y.mean = mean(y.mean))
-
-#calculate average standard deviation of mean distance between mean centroid and location of each point using formula for distance between two points
-spread.acr<-acr_data%>%
-  mutate(distance=sqrt((PC1.mean-mean.centroid.acr[1])^2+(PC2.mean-mean.centroid.acr[2])^2))%>%
-  summarise(distance=mean(distance$x.mean))%>% #summarize across groups
-  summarise(distance=sd(distance))%>% #calculate the sd of distances
-  summarise(distance=mean(distance)) #summarize across groups
-
-#spread<-acr_data[c(12,13)]
-#spread<-as.matrix(dist(spread, mean.centroid, method="euclidean"))
-#spread<-mean(spread)
-spread.acr$distance
-```
-
-2 - calculate distance between each time point centroids for each site (distance) 
-
-```{r}
-distance.acr<-acr.centroids%>%
-  arrange(site_code)%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
-  unite(temp, timepoint, variable) %>%
-  spread(temp, value)%>%
-  group_by(site_code)%>%
-  mutate(tp1.2=sqrt((timepoint1_PC1.mean-timepoint2_PC1.mean)^2+(timepoint1_PC2.mean-timepoint2_PC2.mean)^2), #calculate distance between tp1 and tp2 centroids, do for each pair of time points
-         tp2.3=sqrt((timepoint2_PC1.mean-timepoint3_PC1.mean)^2+(timepoint2_PC2.mean-timepoint3_PC2.mean)^2),
-         tp3.4=sqrt((timepoint3_PC1.mean-timepoint4_PC1.mean)^2+(timepoint3_PC2.mean-timepoint4_PC2.mean)^2))
-```
-
-3 - divide distance by spread, generating a plasticity ratio for each site, higher ratio = more plasticity
-
-```{r}
-plasticity.acr<-distance.acr%>%
-  select(site_code, tp1.2, tp2.3, tp3.4)%>% #keep desired columns
-  gather(key="comparison", value="distance_time", -site_code)%>% #gather and generate new rows to designate time comparisons
-  mutate(ratio=distance_time/spread.acr$distance)
-plasticity.acr
-```
-
-4 - average these ratios across sites to generate a mean plasticity ratio for time, site, and species
-
-Display mean plasticity scores by site:  
-```{r}
-acr.plasticity.site<-plasticity.acr%>%
-  group_by(site_code)%>%
-  summarise(mean_site=mean(ratio))%>%
-  mutate(species="Acropora")
-acr.plasticity.site
-```
-
-Display mean plasticity scores by timepoint comparison: 
-```{r}
-plasticity.acr.time<-plasticity.acr%>%
-  group_by(comparison)%>%
-  summarise(mean_timepoint=mean(ratio))%>%
-  mutate(species="Acropora")
-plasticity.acr.time
-```
-
-Display mean plasticity score for the species:  
-```{r}
-plasticity.acr.species<-plasticity.acr%>%
-  summarise(mean_species=mean(ratio))%>%
-  summarise(mean_species=mean(mean_species))%>%
-  mutate(species="Acropora")
-plasticity.acr.species
 ```
 
 #### Porites
@@ -1662,95 +1168,6 @@ porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,
 ```
  
 
-Assemble final figure with inset biplot.  
-```{r}
-#porFullPCA<-ggdraw(porPCAfull)+ #+ theme_half_open(12)) +
-  #draw_plot(porArrows, .5, .5, .5, .5); porFullPCA #x, y, w, h
-
-#ggsave(filename="Figures/FullPCA_Porites.pdf", plot=porFullPCA, dpi=300, width=12, height=8, units="in")
-```
- 
-##### Calculate plasticity using centroid travel calculations.  
-
-1 - calculate mean distance between all points and the centroid of all points (spread)   
-
-```{r}
-#calculate mean centroid location
-mean.centroid.por <- por.centroids%>%
-  select(PC1.mean, PC2.mean)%>%
-  summarise(x.mean = mean(PC1.mean), 
-         y.mean = mean(PC2.mean))%>%
-  summarise(x.mean = mean(x.mean), 
-         y.mean = mean(y.mean))
-
-#calculate average standard deviation of mean distance between mean centroid and location of each point using formula for distance between two points
-spread.por<-por_data%>%
-  mutate(distance=sqrt((PC1.mean-mean.centroid.por[1])^2+(PC2.mean-mean.centroid.por[2])^2))%>%
-  summarise(distance=mean(distance$x.mean))%>% #summarize across groups
-  summarise(distance=sd(distance))%>% #summarize across groups
-  summarise(distance=mean(distance)) #summarize across groups
-
-#spread<-acr_data[c(12,13)]
-#spread<-as.matrix(dist(spread, mean.centroid, method="euclidean"))
-#spread<-mean(spread)
-spread.por
-```
-
-
-2 - calculate distance between each time point centroids for each site (distance) 
-
-```{r}
-distance.por<-por.centroids%>%
-  arrange(site_code)%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
-  unite(temp, timepoint, variable) %>%
-  spread(temp, value)%>%
-  group_by(site_code)%>%
-  mutate(tp1.2=sqrt((timepoint1_PC1.mean-timepoint2_PC1.mean)^2+(timepoint1_PC2.mean-timepoint2_PC2.mean)^2), #calculate distance between tp1 and tp2 centroids, do for each pair of time points
-         tp2.3=sqrt((timepoint2_PC1.mean-timepoint3_PC1.mean)^2+(timepoint2_PC2.mean-timepoint3_PC2.mean)^2),
-         tp3.4=sqrt((timepoint3_PC1.mean-timepoint4_PC1.mean)^2+(timepoint3_PC2.mean-timepoint4_PC2.mean)^2))
-```
-
-3 - divide distance by spread, generating a plasticity ratio for each site, higher ratio = more plasticity
-
-```{r}
-plasticity.por<-distance.por%>%
-  select(site_code, tp1.2, tp2.3, tp3.4)%>% #keep desired columns
-  gather(key="comparison", value="distance_time", -site_code)%>% #gather and generate new rows to designate time comparisons
-  mutate(ratio=distance_time/spread.por$distance)
-plasticity.por
-```
-
-4 - average these ratios across sites to generate a mean plasticity ratio for time, site, and species
-
-Display mean plasticity scores by site:  
-```{r}
-por.plasticity.site<-plasticity.por%>%
-  group_by(site_code)%>%
-  summarise(mean_site=mean(ratio))%>%
-  mutate(species="Porites")
-por.plasticity.site
-```
-
-Display mean plasticity scores by timepoint comparison: 
-```{r}
-plasticity.por.time<-plasticity.por%>%
-  group_by(comparison)%>%
-  summarise(mean_timepoint=mean(ratio))%>%
-  mutate(species="Porites")
-plasticity.por.time
-```
-
-Display mean plasticity score for the species:  
-```{r}
-plasticity.por.species<-plasticity.por%>%
-  summarise(mean_species=mean(ratio))%>%
-  summarise(mean_species=mean(mean_species))%>%
-  mutate(species="Porites")
-plasticity.por.species
-```
-
-
 #### Pocillopora   
 
 Generate PCA using scaled (scaled_poc_afdw) from dataframe (poc_data_afdw). 
@@ -1865,15 +1282,6 @@ pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,
          axis.text = element_text(size=18), 
          axis.title = element_blank());pocArrows
 ```
-
- 
-Assemble final figure with inset biplot.  
-```{r}
-#pocFullPCA<-ggdraw(pocPCAfull) + #theme_half_open(12)) +
-  #draw_plot(pocArrows, .5, .5, .5, .5); pocFullPCA #x, y, w, h
-
-#ggsave(filename="Figures/FullPCA_Pocillopora.pdf", plot=pocFullPCA, dpi=300, width=12, height=8, units="in")
-```
  
 Assemble all plots.  
 
@@ -1887,233 +1295,6 @@ PCA_full_panel_legend<-plot_grid(PCA_full_panel, legend, rel_heights = c(4, .2),
 ggsave(filename="Figures/Full_Panel_PCAs_Holobiont.png", plot=PCA_full_panel_legend, dpi=500, width=20, height=6, units="in")
 ```  
 
-##### Calculate plasticity using centroid travel calculations.  
-
-1 - calculate mean distance between all points and the centroid of all points (spread)
-
-```{r}
-#calculate mean centroid location
-mean.centroid.poc <- poc.centroids%>%
-  select(PC1.mean, PC2.mean)%>%
-  summarise(x.mean = mean(PC1.mean), 
-         y.mean = mean(PC2.mean))%>%
-  summarise(x.mean = mean(x.mean), 
-         y.mean = mean(y.mean))
-
-#calculate average distance between mean centroid and location of each point using formula for distance between two points
-spread.poc<-poc_data%>%
-  mutate(distance=sqrt((PC1.mean-mean.centroid.poc[1])^2+(PC2.mean-mean.centroid.poc[2])^2))%>%
-  summarise(distance=mean(distance$x.mean))%>% #summarize across groups
-  summarise(distance=sd(distance))%>% #summarize across groups
-  summarise(distance=mean(distance)) #summarize across groups
-
-#spread<-acr_data[c(12,13)]
-#spread<-as.matrix(dist(spread, mean.centroid, method="euclidean"))
-#spread<-mean(spread)
-spread.poc
-```
-
- 
-2 - calculate distance between each time point centroids for each site (distance) 
-
-```{r}
-distance.poc<-poc.centroids%>%
-  arrange(site_code)%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
-  unite(temp, timepoint, variable) %>%
-  spread(temp, value)%>%
-  group_by(site_code)%>%
-  mutate(tp1.2=sqrt((timepoint1_PC1.mean-timepoint2_PC1.mean)^2+(timepoint1_PC2.mean-timepoint2_PC2.mean)^2), #calculate distance between tp1 and tp2 centroids, do for each pair of time points
-         tp2.3=sqrt((timepoint2_PC1.mean-timepoint3_PC1.mean)^2+(timepoint2_PC2.mean-timepoint3_PC2.mean)^2),
-         tp3.4=sqrt((timepoint3_PC1.mean-timepoint4_PC1.mean)^2+(timepoint3_PC2.mean-timepoint4_PC2.mean)^2))
-```
-
-3 - divide distance by spread, generating a plasticity ratio for each site, higher ratio = more plasticity
-
-```{r}
-plasticity.poc<-distance.poc%>%
-  select(site_code, tp1.2, tp2.3, tp3.4)%>% #keep desired columns
-  gather(key="comparison", value="distance_time", -site_code)%>% #gather and generate new rows to designate time comparisons
-  mutate(ratio=distance_time/spread.poc$distance)
-plasticity.poc
-```
-
-4 - average these ratios across sites to generate a mean plasticity ratio for time, site, and species
-
-Display mean plasticity scores by site:  
-```{r}
-poc.plasticity.site<-plasticity.poc%>%
-  group_by(site_code)%>%
-  summarise(mean_site=mean(ratio))%>%
-  mutate(species="Pocillopora")
-poc.plasticity.site
-```
-
-Display mean plasticity scores by timepoint comparison: 
-```{r}
-plasticity.poc.time<-plasticity.poc%>%
-  group_by(comparison)%>%
-  summarise(mean_timepoint=mean(ratio))%>%
-  mutate(species="Pocillopora")
-plasticity.poc.time
-```
-
-Display mean plasticity score for the species:  
-```{r}
-plasticity.poc.species<-plasticity.poc%>%
-  summarise(mean_species=mean(ratio))%>%
-  summarise(mean_species=mean(mean_species))%>%
-  mutate(species="Pocillopora")
-plasticity.poc.species
-```
- 
-### Examine plasticity scores generated from PCA's
-    
-Generate plasticity dataframe from calculations for each species.   
-```{r}
-plasticity.site<-bind_rows(acr.plasticity.site, poc.plasticity.site, por.plasticity.site);plasticity.site
-
-plasticity.time<-bind_rows(plasticity.acr.time, plasticity.poc.time, plasticity.por.time);plasticity.time
-  
-plasticity.species<-bind_rows(plasticity.acr.species, plasticity.poc.species, plasticity.por.species);plasticity.species
-```
-
-Plot plasticity scores for site values.    
-
-```{r}
-plasticity_site<-plasticity.site%>%
-                group_by(site_code)%>%
-                summarise(mean=mean(mean_site))%>%
-
-  ggplot(., aes(x = site_code, y = mean, fill = site_code, group=interaction(site_code))) +
-    geom_point(pch = 21, size=5, position = position_jitterdodge(0)) + 
-    scale_fill_manual(values = c("#374d7c", "#00cccc", "#ff6633"))+
-    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
-                              "Manava High" = "Manava \nHigh"))+
-    #facet_wrap(~species) +
-    xlab("Site") + 
-    ylab(expression(bold("Plasticity (Distance / Spread)")))+
-    theme_classic() + 
-    ylim(0,5)+
-    theme(
-      legend.position="none",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=12),
-      axis.text=element_text(size=10, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); plasticity_site
-```
-
-Plot plasticity scores for timepoint values.    
-```{r}
-plasticity_time<-plasticity.time%>%
-                group_by(comparison)%>%
-                summarise(mean=mean(mean_timepoint))%>%
-  
-  ggplot(., aes(x = comparison, y = mean, group=interaction(comparison))) +
-    geom_point(pch = 21, size=5, fill="gray") + 
-    #scale_fill_manual(values = c("#374d7c", "#00cccc", "#ff6633"))+
-    scale_x_discrete(labels=c("tp1.2" = "Jan-March", "tp2.3" = "March-Sept", "tp3.4" = "Sept-Nov"))+
-    #facet_wrap(~species) +
-    xlab("Timepoint") + 
-    ylab(expression(bold("Plasticity (Distance / Spread)")))+
-    theme_classic() + 
-    ylim(0,5)+
-    theme(
-      legend.position="none",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=12),
-      axis.text=element_text(size=10, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); plasticity_time
-```
-
-Plot plasticity scores for species values.    
-
-```{r}
-plasticity_species<-ggplot(plasticity.species, aes(x = species, y = mean_species, fill=species, group=interaction(species))) +
-    geom_point(pch = 21, size=5, position = position_jitterdodge(0)) + 
-    scale_fill_manual(values = c("darkgray", "orange", "purple"))+
-    #scale_x_discrete(labels=c("tp1.2" = "Jan-March", "tp2.3" = "March-Sept", "tp3.4" = "Sept-Nov"))+
-    #facet_wrap(~species) +
-    xlab("Species") + 
-    ylab(expression(bold("Plasticity (Distance / Spread)")))+
-    theme_classic() + 
-    ylim(0,5)+
-    theme(
-      legend.position="none",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=12),
-      axis.text=element_text(size=10, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); plasticity_species
-```
-
-Assemble full plasticity figure.  
-
-```{r}
-plasticity_full_panel<-plot_grid(plasticity_species, plasticity_site, plasticity_time, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
-
-ggsave(filename="Figures/Plasticity_Panel_Host.png", plot=plasticity_full_panel, dpi=500, width=10, height=4, units="in")
-```  
-
-Generate plots for within species.  
-
-Plot plasticity scores for site values.     
-
-```{r}
-plasticity_site2<-ggplot(plasticity.site, aes(x = site_code, y = mean_site, fill = site_code, group=interaction(site_code))) +
-    geom_point(pch = 21, size=5, position = position_jitterdodge(0)) + 
-    scale_fill_manual(values = c("#374d7c", "#00cccc", "#ff6633"))+
-    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
-                              "Manava High" = "Manava \nHigh"))+
-    facet_wrap(~species) +
-    xlab("Site") + 
-    ylab(expression(bold("Plasticity (Distance / Spread)")))+
-    theme_classic() + 
-    ylim(0,6)+
-    theme(
-      legend.position="none",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=12),
-      axis.text=element_text(size=10, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); plasticity_site2
-```
-
-Plot plasticity scores for timepoint values.    
-```{r}
-plasticity_time2<-ggplot(plasticity.time, aes(x = comparison, y = mean_timepoint, group=interaction(comparison))) +
-    geom_point(pch = 21, size=5, fill="gray") + 
-    #scale_fill_manual(values = c("#374d7c", "#00cccc", "#ff6633"))+
-    scale_x_discrete(labels=c("tp1.2" = "Jan-March", "tp2.3" = "March-Sept", "tp3.4" = "Sept-Nov"))+
-    facet_wrap(~species) +
-    xlab("Timepoint") + 
-    ylab(expression(bold("Plasticity (Distance / Spread)")))+
-    theme_classic() + 
-    ylim(0,6)+
-    theme(
-      legend.position="none",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=12),
-      axis.text=element_text(size=10, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); plasticity_time2
-```
-
-
-Assemble full plasticity figure.  
-
-```{r}
-plasticity_full_panel2<-plot_grid(plasticity_species, plasticity_site2, plasticity_time2, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(0.5,1,1), rel_widths = c(0.5,1,1), label_size = 20, label_y=1, align="vh")
-
-ggsave(filename="Figures/Plasticity_Panel_species_detail_host.png", plot=plasticity_full_panel2, dpi=500, width=20, height=4, units="in")
-```  
 
 ### Matrix of PCA's by species and time  
 
@@ -2708,92 +1889,6 @@ acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,
 ```
 
 
-Asemble final figure with inset biplot.  
-```{r}
-#acrFullPCA<-ggdraw(acrPCAfull) + #theme_half_open(12)) +
-  #draw_plot(acrArrows, .5, .5, .5, .5); acrFullPCA #x, y, w, h
-
-#ggsave(filename="Figures/FullPCA_Acropora.pdf", plot=acrFullPCA, dpi=300, width=12, height=8, units="in")
-```
-
-##### Calculate plasticity using centroid travel calculations.  
-
-1 - calculate sd of mean distance between all points and the centroid of all points (spread)
-
-```{r}
-#calculate mean centroid location
-mean.centroid.acr <- acr.centroids%>%
-  select(PC1.mean, PC2.mean)%>%
-  summarise(x.mean = mean(PC1.mean), 
-         y.mean = mean(PC2.mean))%>%
-  summarise(x.mean = mean(x.mean), 
-         y.mean = mean(y.mean))
-
-#calculate average standard deviation of mean distance between mean centroid and location of each point using formula for distance between two points
-spread.acr<-acr_data%>%
-  mutate(distance=sqrt((PC1.mean-mean.centroid.acr[1])^2+(PC2.mean-mean.centroid.acr[2])^2))%>%
-  summarise(distance=mean(distance$x.mean))%>% #summarize across groups
-  summarise(distance=sd(distance))%>% #calculate the sd of distances
-  summarise(distance=mean(distance)) #summarize across groups
-
-#spread<-acr_data[c(12,13)]
-#spread<-as.matrix(dist(spread, mean.centroid, method="euclidean"))
-#spread<-mean(spread)
-spread.acr$distance
-```
-
-2 - calculate distance between each time point centroids for each site (distance) 
-
-```{r}
-distance.acr<-acr.centroids%>%
-  arrange(site_code)%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
-  unite(temp, timepoint, variable) %>%
-  spread(temp, value)%>%
-  group_by(site_code)%>%
-  mutate(tp1.2=sqrt((timepoint1_PC1.mean-timepoint2_PC1.mean)^2+(timepoint1_PC2.mean-timepoint2_PC2.mean)^2), #calculate distance between tp1 and tp2 centroids, do for each pair of time points
-         tp2.3=sqrt((timepoint2_PC1.mean-timepoint3_PC1.mean)^2+(timepoint2_PC2.mean-timepoint3_PC2.mean)^2),
-         tp3.4=sqrt((timepoint3_PC1.mean-timepoint4_PC1.mean)^2+(timepoint3_PC2.mean-timepoint4_PC2.mean)^2))
-```
-
-3 - divide distance by spread, generating a plasticity ratio for each site, higher ratio = more plasticity
-
-```{r}
-plasticity.acr<-distance.acr%>%
-  select(site_code, tp1.2, tp2.3, tp3.4)%>% #keep desired columns
-  gather(key="comparison", value="distance_time", -site_code)%>% #gather and generate new rows to designate time comparisons
-  mutate(ratio=distance_time/spread.acr$distance)
-plasticity.acr
-```
-
-4 - average these ratios across sites to generate a mean plasticity ratio for time, site, and species
-
-Display mean plasticity scores by site:  
-```{r}
-acr.plasticity.site<-plasticity.acr%>%
-  group_by(site_code)%>%
-  summarise(mean_site=mean(ratio))%>%
-  mutate(species="Acropora")
-acr.plasticity.site
-```
-
-Display mean plasticity scores by timepoint comparison: 
-```{r}
-plasticity.acr.time<-plasticity.acr%>%
-  group_by(comparison)%>%
-  summarise(mean_timepoint=mean(ratio))%>%
-  mutate(species="Acropora")
-plasticity.acr.time
-```
-
-Display mean plasticity score for the species:  
-```{r}
-plasticity.acr.species<-plasticity.acr%>%
-  summarise(mean_species=mean(ratio))%>%
-  summarise(mean_species=mean(mean_species))%>%
-  mutate(species="Acropora")
-plasticity.acr.species
-```
 
 #### Porites
 
@@ -2933,87 +2028,6 @@ Assemble final figure with inset biplot.
 #ggsave(filename="Figures/FullPCA_Porites.pdf", plot=porFullPCA, dpi=300, width=12, height=8, units="in")
 ```
 
-##### Calculate plasticity using centroid travel calculations.  
-
-1 - calculate mean distance between all points and the centroid of all points (spread)   
-
-```{r}
-#calculate mean centroid location
-mean.centroid.por <- por.centroids%>%
-  select(PC1.mean, PC2.mean)%>%
-  summarise(x.mean = mean(PC1.mean), 
-         y.mean = mean(PC2.mean))%>%
-  summarise(x.mean = mean(x.mean), 
-         y.mean = mean(y.mean))
-
-#calculate average standard deviation of mean distance between mean centroid and location of each point using formula for distance between two points
-spread.por<-por_data%>%
-  mutate(distance=sqrt((PC1.mean-mean.centroid.por[1])^2+(PC2.mean-mean.centroid.por[2])^2))%>%
-  summarise(distance=mean(distance$x.mean))%>% #summarize across groups
-  summarise(distance=sd(distance))%>% #summarize across groups
-  summarise(distance=mean(distance)) #summarize across groups
-
-#spread<-acr_data[c(12,13)]
-#spread<-as.matrix(dist(spread, mean.centroid, method="euclidean"))
-#spread<-mean(spread)
-spread.por
-```
-
-
-2 - calculate distance between each time point centroids for each site (distance) 
-
-```{r}
-distance.por<-por.centroids%>%
-  arrange(site_code)%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
-  unite(temp, timepoint, variable) %>%
-  spread(temp, value)%>%
-  group_by(site_code)%>%
-  mutate(tp1.2=sqrt((timepoint1_PC1.mean-timepoint2_PC1.mean)^2+(timepoint1_PC2.mean-timepoint2_PC2.mean)^2), #calculate distance between tp1 and tp2 centroids, do for each pair of time points
-         tp2.3=sqrt((timepoint2_PC1.mean-timepoint3_PC1.mean)^2+(timepoint2_PC2.mean-timepoint3_PC2.mean)^2),
-         tp3.4=sqrt((timepoint3_PC1.mean-timepoint4_PC1.mean)^2+(timepoint3_PC2.mean-timepoint4_PC2.mean)^2))
-```
-
-3 - divide distance by spread, generating a plasticity ratio for each site, higher ratio = more plasticity
-
-```{r}
-plasticity.por<-distance.por%>%
-  select(site_code, tp1.2, tp2.3, tp3.4)%>% #keep desired columns
-  gather(key="comparison", value="distance_time", -site_code)%>% #gather and generate new rows to designate time comparisons
-  mutate(ratio=distance_time/spread.por$distance)
-plasticity.por
-```
-
-4 - average these ratios across sites to generate a mean plasticity ratio for time, site, and species
-
-Display mean plasticity scores by site:  
-```{r}
-por.plasticity.site<-plasticity.por%>%
-  group_by(site_code)%>%
-  summarise(mean_site=mean(ratio))%>%
-  mutate(species="Porites")
-por.plasticity.site
-```
-
-Display mean plasticity scores by timepoint comparison: 
-```{r}
-plasticity.por.time<-plasticity.por%>%
-  group_by(comparison)%>%
-  summarise(mean_timepoint=mean(ratio))%>%
-  mutate(species="Porites")
-plasticity.por.time
-```
-
-Display mean plasticity score for the species:  
-```{r}
-plasticity.por.species<-plasticity.por%>%
-  summarise(mean_species=mean(ratio))%>%
-  summarise(mean_species=mean(mean_species))%>%
-  mutate(species="Porites")
-plasticity.por.species
-```
-
-
 #### Pocillopora   
 
 Generate PCA using scaled (scaled_poc_afdw) from dataframe (poc_data_afdw). 
@@ -3130,15 +2144,6 @@ pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,
          axis.text = element_text(size=18), 
          axis.title = element_blank());pocArrows
 ```
-
- 
-Assemble final figure with inset biplot.  
-```{r}
-#pocFullPCA<-ggdraw(pocPCAfull) + #theme_half_open(12)) +
-  #draw_plot(pocArrows, .5, .5, .5, .5); pocFullPCA #x, y, w, h
-
-#ggsave(filename="Figures/FullPCA_Pocillopora.pdf", plot=pocFullPCA, dpi=300, width=12, height=8, units="in")
-```
  
 Assemble all plots.  
 
@@ -3152,233 +2157,6 @@ PCA_full_panel_legend<-plot_grid(PCA_full_panel, legend, rel_heights = c(4, .2),
 ggsave(filename="Figures/Full_Panel_PCAs_Symbiont.png", plot=PCA_full_panel_legend, dpi=500, width=20, height=6, units="in")
 ```  
 
-##### Calculate plasticity using centroid travel calculations.  
-
-1 - calculate mean distance between all points and the centroid of all points (spread)
-
-```{r}
-#calculate mean centroid location
-mean.centroid.poc <- poc.centroids%>%
-  select(PC1.mean, PC2.mean)%>%
-  summarise(x.mean = mean(PC1.mean), 
-         y.mean = mean(PC2.mean))%>%
-  summarise(x.mean = mean(x.mean), 
-         y.mean = mean(y.mean))
-
-#calculate average distance between mean centroid and location of each point using formula for distance between two points
-spread.poc<-poc_data%>%
-  mutate(distance=sqrt((PC1.mean-mean.centroid.poc[1])^2+(PC2.mean-mean.centroid.poc[2])^2))%>%
-  summarise(distance=mean(distance$x.mean))%>% #summarize across groups
-  summarise(distance=sd(distance))%>% #summarize across groups
-  summarise(distance=mean(distance)) #summarize across groups
-
-#spread<-acr_data[c(12,13)]
-#spread<-as.matrix(dist(spread, mean.centroid, method="euclidean"))
-#spread<-mean(spread)
-spread.poc
-```
-
- 
-2 - calculate distance between each time point centroids for each site (distance) 
-
-```{r}
-distance.poc<-poc.centroids%>%
-  arrange(site_code)%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
-  unite(temp, timepoint, variable) %>%
-  spread(temp, value)%>%
-  group_by(site_code)%>%
-  mutate(tp1.2=sqrt((timepoint1_PC1.mean-timepoint2_PC1.mean)^2+(timepoint1_PC2.mean-timepoint2_PC2.mean)^2), #calculate distance between tp1 and tp2 centroids, do for each pair of time points
-         tp2.3=sqrt((timepoint2_PC1.mean-timepoint3_PC1.mean)^2+(timepoint2_PC2.mean-timepoint3_PC2.mean)^2),
-         tp3.4=sqrt((timepoint3_PC1.mean-timepoint4_PC1.mean)^2+(timepoint3_PC2.mean-timepoint4_PC2.mean)^2))
-```
-
-3 - divide distance by spread, generating a plasticity ratio for each site, higher ratio = more plasticity
-
-```{r}
-plasticity.poc<-distance.poc%>%
-  select(site_code, tp1.2, tp2.3, tp3.4)%>% #keep desired columns
-  gather(key="comparison", value="distance_time", -site_code)%>% #gather and generate new rows to designate time comparisons
-  mutate(ratio=distance_time/spread.poc$distance)
-plasticity.poc
-```
-
-4 - average these ratios across sites to generate a mean plasticity ratio for time, site, and species
-
-Display mean plasticity scores by site:  
-```{r}
-poc.plasticity.site<-plasticity.poc%>%
-  group_by(site_code)%>%
-  summarise(mean_site=mean(ratio))%>%
-  mutate(species="Pocillopora")
-poc.plasticity.site
-```
-
-Display mean plasticity scores by timepoint comparison: 
-```{r}
-plasticity.poc.time<-plasticity.poc%>%
-  group_by(comparison)%>%
-  summarise(mean_timepoint=mean(ratio))%>%
-  mutate(species="Pocillopora")
-plasticity.poc.time
-```
-
-Display mean plasticity score for the species:  
-```{r}
-plasticity.poc.species<-plasticity.poc%>%
-  summarise(mean_species=mean(ratio))%>%
-  summarise(mean_species=mean(mean_species))%>%
-  mutate(species="Pocillopora")
-plasticity.poc.species
-```
- 
-### Examine plasticity scores generated from PCA's
-    
-Generate plasticity dataframe from calculations for each species.   
-```{r}
-plasticity.site<-bind_rows(acr.plasticity.site, poc.plasticity.site, por.plasticity.site);plasticity.site
-
-plasticity.time<-bind_rows(plasticity.acr.time, plasticity.poc.time, plasticity.por.time);plasticity.time
-  
-plasticity.species<-bind_rows(plasticity.acr.species, plasticity.poc.species, plasticity.por.species);plasticity.species
-```
-
-Plot plasticity scores for site values.    
-
-```{r}
-plasticity_site<-plasticity.site%>%
-                group_by(site_code)%>%
-                summarise(mean=mean(mean_site))%>%
-
-  ggplot(., aes(x = site_code, y = mean, fill = site_code, group=interaction(site_code))) +
-    geom_point(pch = 21, size=5, position = position_jitterdodge(0)) + 
-    scale_fill_manual(values = c("#374d7c", "#00cccc", "#ff6633"))+
-    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
-                              "Manava High" = "Manava \nHigh"))+
-    #facet_wrap(~species) +
-    xlab("Site") + 
-    ylab(expression(bold("Plasticity (Distance / Spread)")))+
-    theme_classic() + 
-    ylim(0,8)+
-    theme(
-      legend.position="none",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=12),
-      axis.text=element_text(size=10, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); plasticity_site
-```
-
-Plot plasticity scores for timepoint values.    
-```{r}
-plasticity_time<-plasticity.time%>%
-                group_by(comparison)%>%
-                summarise(mean=mean(mean_timepoint))%>%
-  
-  ggplot(., aes(x = comparison, y = mean, group=interaction(comparison))) +
-    geom_point(pch = 21, size=5, fill="gray") + 
-    #scale_fill_manual(values = c("#374d7c", "#00cccc", "#ff6633"))+
-    scale_x_discrete(labels=c("tp1.2" = "Jan-March", "tp2.3" = "March-Sept", "tp3.4" = "Sept-Nov"))+
-    #facet_wrap(~species) +
-    xlab("Timepoint") + 
-    ylab(expression(bold("Plasticity (Distance / Spread)")))+
-    theme_classic() + 
-    ylim(0,8)+
-    theme(
-      legend.position="none",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=12),
-      axis.text=element_text(size=10, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); plasticity_time
-```
-
-Plot plasticity scores for species values.    
-
-```{r}
-plasticity_species<-ggplot(plasticity.species, aes(x = species, y = mean_species, fill=species, group=interaction(species))) +
-    geom_point(pch = 21, size=5, position = position_jitterdodge(0)) + 
-    scale_fill_manual(values = c("darkgray", "orange", "purple"))+
-    #scale_x_discrete(labels=c("tp1.2" = "Jan-March", "tp2.3" = "March-Sept", "tp3.4" = "Sept-Nov"))+
-    #facet_wrap(~species) +
-    xlab("Species") + 
-    ylab(expression(bold("Plasticity (Distance / Spread)")))+
-    theme_classic() + 
-    ylim(0,8)+
-    theme(
-      legend.position="none",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=12),
-      axis.text=element_text(size=10, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); plasticity_species
-```
-
-Assemble full plasticity figure.  
-
-```{r}
-plasticity_full_panel<-plot_grid(plasticity_species, plasticity_site, plasticity_time, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
-
-ggsave(filename="Figures/Plasticity_Panel_Symbiont.png", plot=plasticity_full_panel, dpi=500, width=10, height=4, units="in")
-```  
-
-Generate plots for within species.  
-
-Plot plasticity scores for site values.     
-
-```{r}
-plasticity_site2<-ggplot(plasticity.site, aes(x = site_code, y = mean_site, fill = site_code, group=interaction(site_code))) +
-    geom_point(pch = 21, size=5, position = position_jitterdodge(0)) + 
-    scale_fill_manual(values = c("#374d7c", "#00cccc", "#ff6633"))+
-    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
-                              "Manava High" = "Manava \nHigh"))+
-    facet_wrap(~species) +
-    xlab("Site") + 
-    ylab(expression(bold("Plasticity (Distance / Spread)")))+
-    theme_classic() + 
-    ylim(0,8)+
-    theme(
-      legend.position="none",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=12),
-      axis.text=element_text(size=10, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); plasticity_site2
-```
-
-Plot plasticity scores for timepoint values.    
-```{r}
-plasticity_time2<-ggplot(plasticity.time, aes(x = comparison, y = mean_timepoint, group=interaction(comparison))) +
-    geom_point(pch = 21, size=5, fill="gray") + 
-    #scale_fill_manual(values = c("#374d7c", "#00cccc", "#ff6633"))+
-    scale_x_discrete(labels=c("tp1.2" = "Jan-March", "tp2.3" = "March-Sept", "tp3.4" = "Sept-Nov"))+
-    facet_wrap(~species) +
-    xlab("Timepoint") + 
-    ylab(expression(bold("Plasticity (Distance / Spread)")))+
-    theme_classic() + 
-    ylim(0,9)+
-    theme(
-      legend.position="none",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=12),
-      axis.text=element_text(size=10, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); plasticity_time2
-```
-
-
-Assemble full plasticity figure.  
-
-```{r}
-plasticity_full_panel2<-plot_grid(plasticity_species, plasticity_site2, plasticity_time2, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(0.5,1,1), rel_widths = c(0.5,1,1), label_size = 20, label_y=1, align="vh")
-
-ggsave(filename="Figures/Plasticity_Panel_species_detail_symbiont.png", plot=plasticity_full_panel2, dpi=500, width=20, height=4, units="in")
-```  
 
 ### Matrix of PCA's by species and time  
 
