@@ -54,6 +54,10 @@ library(cowplot)
 Load in master dataframe generated from 1_assemble_data.Rmd.  
 ```{r}
 master<-read.csv("Output/master_timeseries.csv")
+
+#reorder site levels 
+master$side_code<-as.factor(master$site_code)
+master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
 ```
 
 # Build trajectory PCA plots  
@@ -103,8 +107,8 @@ Examine PERMANOVA results.
 vegan <- scale(acr_data_afdw[ ,5:16])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis(vegan ~ timepoint*site_code, data = acr_data_afdw, method='eu')
-z_acr<-permanova$aov.tab
+permanova<-adonis2(vegan ~ timepoint*site_code, data = acr_data_afdw, method='eu')
+z_acr<-permanova
 z_acr
 ``` 
  
@@ -224,8 +228,8 @@ por.centroids<-por_data %>%
 vegan <- scale(por_data_afdw[ ,5:16])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis(vegan ~ timepoint*site_code, data = por_data_afdw, method='eu')
-z_por<-permanova$aov.tab
+permanova<-adonis2(vegan ~ timepoint*site_code, data = por_data_afdw, method='eu')
+z_por<-permanova
 z_por
 ```
 
@@ -350,8 +354,8 @@ poc.centroids<-poc_data %>%
 vegan <- scale(poc_data_afdw[ ,5:16])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis(vegan ~ timepoint*site_code, data = poc_data_afdw, method='eu')
-z_poc<-permanova$aov.tab
+permanova<-adonis2(vegan ~ timepoint*site_code, data = poc_data_afdw, method='eu')
+z_poc<-permanova
 z_poc
 ```
 
@@ -954,8 +958,8 @@ Examine PERMANOVA results.
 vegan <- scale(acr_data_afdw[ ,5:9])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis(vegan ~ timepoint*site_code, data = acr_data_afdw, method='eu')
-z_acr<-permanova$aov.tab
+permanova<-adonis2(vegan ~ timepoint*site_code, data = acr_data_afdw, method='eu')
+z_acr<-permanova
 z_acr
 ``` 
  
@@ -1080,8 +1084,8 @@ por.centroids<-por_data %>%
 vegan <- scale(por_data_afdw[ ,5:8])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis(vegan ~ timepoint*site_code, data = por_data_afdw, method='eu')
-z_por<-permanova$aov.tab
+permanova<-adonis2(vegan ~ timepoint*site_code, data = por_data_afdw, method='eu')
+z_por<-permanova
 z_por
 ```
 
@@ -1206,8 +1210,8 @@ poc.centroids<-poc_data %>%
 vegan <- scale(poc_data_afdw[ ,5:9])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis(vegan ~ timepoint*site_code, data = poc_data_afdw, method='eu')
-z_poc<-permanova$aov.tab
+permanova<-adonis2(vegan ~ timepoint*site_code, data = poc_data_afdw, method='eu')
+z_poc<-permanova
 z_poc
 ```
 
@@ -1810,8 +1814,8 @@ Examine PERMANOVA results.
 vegan <- scale(acr_data_afdw[ ,5:11])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis(vegan ~ timepoint*site_code, data = acr_data_afdw, method='eu')
-z_acr<-permanova$aov.tab
+permanova<-adonis2(vegan ~ timepoint*site_code, data = acr_data_afdw, method='eu')
+z_acr<-permanova
 z_acr
 ``` 
  
@@ -1932,8 +1936,8 @@ por.centroids<-por_data %>%
 vegan <- scale(por_data_afdw[ ,5:11])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis(vegan ~ timepoint*site_code, data = por_data_afdw, method='eu')
-z_por<-permanova$aov.tab
+permanova<-adonis2(vegan ~ timepoint*site_code, data = por_data_afdw, method='eu')
+z_por<-permanova
 z_por
 ```
 
@@ -2068,8 +2072,8 @@ poc.centroids<-poc_data %>%
 vegan <- scale(poc_data_afdw[ ,5:11])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis(vegan ~ timepoint*site_code, data = poc_data_afdw, method='eu')
-z_poc<-permanova$aov.tab
+permanova<-adonis2(vegan ~ timepoint*site_code, data = poc_data_afdw, method='eu')
+z_poc<-permanova
 z_poc
 ```
 

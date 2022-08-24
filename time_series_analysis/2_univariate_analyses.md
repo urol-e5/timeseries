@@ -3,9 +3,6 @@ Univariate analysis of E5 time series biological data
 Ariana S Huffmyer, E5 RoL Team
 04/14/2022
 
-NOTE: Need to add outlier removal/detection in this script & write into
-new “master” file.
-
 # Set Up
 
 ``` r
@@ -50,6 +47,10 @@ Load in master dataframe generated from 1_assemble_data.Rmd.
 
 ``` r
 master<-read.csv("Output/master_timeseries.csv")
+
+#reorder site levels 
+master$side_code<-as.factor(master$site_code)
+master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
 ```
 
 # Univariate Responses
@@ -8215,24 +8216,35 @@ holobiont_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", 
 Generate a panel of responses for symbiont metrics.
 
 ``` r
-chlplot_total_cell<-chlplot_total_cell+theme(legend.position="bottom")
+#build a plot for the legend
+legend_plot<-chlplot_total_cell+theme(legend.position="bottom")
 
-symbiont_univ<-plot_grid(symbplot_afdw, sAFDWplot, am_plot, aqy_plot, chlplot_total, chlplot_total_cell, ncol=1, nrow=6, rel_widths = c(1,1), align="vh")
+# extract the legend from one of the plots
+legend <- get_legend(
+  # create some space to the left of the legend
+  legend_plot + theme(legend.box.margin = margin(1,1,1,1))
+)
 
-ggsave(filename="Figures/Symbiont_Univariate_Panel.pdf", plot=symbiont_univ, dpi=150, width=11, height=30, units="in")
+symbiont_univ<-plot_grid(symbplot_afdw, sAFDWplot, am_plot, aqy_plot, chlplot_total, chlplot_total_cell, ncol=3, nrow=2, rel_widths = c(1,1), align="h")
+
+symbiont_univ2<-plot_grid(symbiont_univ, legend, ncol=1, nrow=2, rel_heights = c(4, .2))
+
+ggsave(filename="Figures/Symbiont_Univariate_Panel.png", plot=symbiont_univ2, dpi=150, width=30, height=11, units="in")
 ```
 
 Generate a panel of responses for host/holobiont metrics.
 
 ``` r
+#build a plot for the legend
+legend_plot<-calcplot_afdw+theme(legend.position="bottom")
 rd_plot<-rd_plot+theme(legend.position="none")
-calcplot_afdw<-calcplot_afdw+theme(legend.position="bottom")
+calcplot_afdw<-calcplot_afdw+theme(legend.position="none") 
 
-#holobiont_univ1<-plot_grid(tacplot_afdw, hAFDWplot, ratioAFDWplot, ncol=3, nrow=1, rel_widths = c(1))
-#holobiont_univ2<-plot_grid(protplot_afdw, rd_plot, NULL, ncol=3, nrow=1, rel_widths = c(1.2, 1.5, 0.8))
-holobiont_univ<-plot_grid(tacplot_afdw, hAFDWplot, ratioAFDWplot, protplot_afdw, rd_plot, calcplot_afdw, ncol=1, nrow=6, rel_widths = c(1, 1), align="vh")
+holobiont_univ<-plot_grid(tacplot_afdw, hAFDWplot, ratioAFDWplot, protplot_afdw, rd_plot, calcplot_afdw, ncol=3, nrow=2, rel_widths = c(1, 1), align="h")
 
-ggsave(filename="Figures/Holobiont_Univariate_Panel.pdf", plot=holobiont_univ, dpi=150, width=10, height=34, units="in")
+holobiont_univ2<-plot_grid(holobiont_univ, legend, ncol=1, nrow=2, rel_heights = c(4, .2))
+
+ggsave(filename="Figures/Holobiont_Univariate_Panel.png", plot=holobiont_univ2, dpi=150, width=30, height=11, units="in")
 ```
 
 # Correlations
