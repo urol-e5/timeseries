@@ -1077,7 +1077,7 @@ Export figure.
 ``` r
 plasticity_grid<-plot_grid(figure1a, figure1b, ncol=1, nrow=2)
 
-ggsave(filename="Figures/Plasiticity_Figure.pdf", plot=plasticity_grid, dpi=500, width=14, height=8, units="in")
+ggsave(filename="Figures/Plasiticity_Figure.png", plot=plasticity_grid, dpi=500, width=14, height=8, units="in")
 ```
 
 # Colony - level analysis
