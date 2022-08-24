@@ -902,7 +902,7 @@ porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  col
 all_grid<-plot_grid(acrTP1, acrTP2, acrTP3, acrTP4, pocTP1, pocTP2, pocTP3, pocTP4, porTP1, porTP2, porTP3, porTP4, ncol=4, nrow=3)
 all_grid2<-plot_grid(all_grid, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 
-ggsave(filename="Figures/Matrix_AllResponses.pdf", plot=all_grid2, dpi=500, width=20, height=20, units="in")
+ggsave(filename="Figures/Matrix_AllResponses.png", plot=all_grid2, dpi=500, width=20, height=20, units="in")
 
 ```
 
@@ -1763,7 +1763,7 @@ porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  col
 all_grid<-plot_grid(acrTP1, acrTP2, acrTP3, acrTP4, pocTP1, pocTP2, pocTP3, pocTP4, porTP1, porTP2, porTP3, porTP4, ncol=4, nrow=3)
 all_grid2<-plot_grid(all_grid, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 
-ggsave(filename="Figures/Matrix_Host_Responses.pdf", plot=all_grid2, dpi=500, width=20, height=20, units="in")
+ggsave(filename="Figures/Matrix_Host_Responses.png", plot=all_grid2, dpi=500, width=20, height=20, units="in")
 
 ```
  
@@ -2637,6 +2637,6 @@ porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  col
 all_grid<-plot_grid(acrTP1, acrTP2, acrTP3, acrTP4, pocTP1, pocTP2, pocTP3, pocTP4, porTP1, porTP2, porTP3, porTP4, ncol=4, nrow=3)
 all_grid2<-plot_grid(all_grid, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 
-ggsave(filename="Figures/Matrix_Symbiont_Responses.pdf", plot=all_grid2, dpi=500, width=20, height=20, units="in")
+ggsave(filename="Figures/Matrix_Symbiont_Responses.png", plot=all_grid2, dpi=500, width=20, height=20, units="in")
 
 ```

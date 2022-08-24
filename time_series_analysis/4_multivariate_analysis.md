@@ -115,7 +115,7 @@ z_acr
     ##                      Df SumOfSqs      R2       F Pr(>F)    
     ## timepoint             3   342.87 0.28012 14.4921  0.001 ***
     ## site_code             2    85.26 0.06966  5.4055  0.001 ***
-    ## timepoint:site_code   6    78.22 0.06391  1.6531  0.021 *  
+    ## timepoint:site_code   6    78.22 0.06391  1.6531  0.023 *  
     ## Residual             91   717.65 0.58632                   
     ## Total               102  1224.00 1.00000                   
     ## ---
@@ -259,7 +259,7 @@ z_por
     ##                      Df SumOfSqs      R2       F Pr(>F)    
     ## timepoint             3   274.09 0.16672 10.5063  0.001 ***
     ## site_code             2   185.52 0.11285 10.6669  0.001 ***
-    ## timepoint:site_code   6    88.68 0.05394  1.6996  0.016 *  
+    ## timepoint:site_code   6    88.68 0.05394  1.6996  0.012 *  
     ## Residual            126  1095.71 0.66649                   
     ## Total               137  1644.00 1.00000                   
     ## ---
@@ -990,7 +990,7 @@ porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  col
 all_grid<-plot_grid(acrTP1, acrTP2, acrTP3, acrTP4, pocTP1, pocTP2, pocTP3, pocTP4, porTP1, porTP2, porTP3, porTP4, ncol=4, nrow=3)
 all_grid2<-plot_grid(all_grid, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 
-ggsave(filename="Figures/Matrix_AllResponses.pdf", plot=all_grid2, dpi=500, width=20, height=20, units="in")
+ggsave(filename="Figures/Matrix_AllResponses.png", plot=all_grid2, dpi=500, width=20, height=20, units="in")
 ```
 
 ## Host Responses
@@ -1060,7 +1060,7 @@ z_acr
     ##                      Df SumOfSqs      R2       F Pr(>F)    
     ## timepoint             3   184.06 0.35740 20.9953  0.001 ***
     ## site_code             2    35.97 0.06984  6.1539  0.001 ***
-    ## timepoint:site_code   6    26.13 0.05074  1.4902  0.097 .  
+    ## timepoint:site_code   6    26.13 0.05074  1.4902  0.094 .  
     ## Residual             92   268.85 0.52203                   
     ## Total               103   515.00 1.00000                   
     ## ---
@@ -1213,7 +1213,7 @@ z_por
     ##                      Df SumOfSqs      R2       F Pr(>F)    
     ## timepoint             3    78.00 0.14029  8.8182  0.001 ***
     ## site_code             2    73.11 0.13149 12.3978  0.001 ***
-    ## timepoint:site_code   6    27.48 0.04943  1.5535  0.062 .  
+    ## timepoint:site_code   6    27.48 0.04943  1.5535  0.067 .  
     ## Residual            128   377.41 0.67879                   
     ## Total               139   556.00 1.00000                   
     ## ---
@@ -1947,7 +1947,7 @@ porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  col
 all_grid<-plot_grid(acrTP1, acrTP2, acrTP3, acrTP4, pocTP1, pocTP2, pocTP3, pocTP4, porTP1, porTP2, porTP3, porTP4, ncol=4, nrow=3)
 all_grid2<-plot_grid(all_grid, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 
-ggsave(filename="Figures/Matrix_Host_Responses.pdf", plot=all_grid2, dpi=500, width=20, height=20, units="in")
+ggsave(filename="Figures/Matrix_Host_Responses.png", plot=all_grid2, dpi=500, width=20, height=20, units="in")
 ```
 
 ## Symbiont Responses
@@ -2011,7 +2011,7 @@ z_acr
     ##                      Df SumOfSqs      R2       F Pr(>F)    
     ## timepoint             3   172.28 0.21974 11.5172  0.001 ***
     ## site_code             2    49.19 0.06274  4.9324  0.001 ***
-    ## timepoint:site_code   6    58.93 0.07517  1.9698  0.009 ** 
+    ## timepoint:site_code   6    58.93 0.07517  1.9698  0.011 *  
     ## Residual            101   503.60 0.64235                   
     ## Total               112   784.00 1.00000                   
     ## ---
@@ -2156,7 +2156,7 @@ z_por
     ##                      Df SumOfSqs      R2       F Pr(>F)    
     ## timepoint             3   125.81 0.11521  7.6005  0.001 ***
     ## site_code             2   122.49 0.11217 11.0993  0.001 ***
-    ## timepoint:site_code   6    43.63 0.03996  1.3179  0.126    
+    ## timepoint:site_code   6    43.63 0.03996  1.3179  0.125    
     ## Residual            145   800.07 0.73267                   
     ## Total               156  1092.00 1.00000                   
     ## ---
@@ -2318,7 +2318,7 @@ z_poc
     ## adonis2(formula = vegan ~ timepoint * site_code, data = poc_data_afdw, method = "eu")
     ##                      Df SumOfSqs      R2       F Pr(>F)    
     ## timepoint             3   218.61 0.20960 14.0694  0.001 ***
-    ## site_code             2    32.32 0.03099  3.1200  0.003 ** 
+    ## site_code             2    32.32 0.03099  3.1200  0.001 ***
     ## timepoint:site_code   6    77.34 0.07415  2.4887  0.001 ***
     ## Residual            138   714.74 0.68527                   
     ## Total               149  1043.00 1.00000                   
@@ -2913,5 +2913,5 @@ porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  col
 all_grid<-plot_grid(acrTP1, acrTP2, acrTP3, acrTP4, pocTP1, pocTP2, pocTP3, pocTP4, porTP1, porTP2, porTP3, porTP4, ncol=4, nrow=3)
 all_grid2<-plot_grid(all_grid, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 
-ggsave(filename="Figures/Matrix_Symbiont_Responses.pdf", plot=all_grid2, dpi=500, width=20, height=20, units="in")
+ggsave(filename="Figures/Matrix_Symbiont_Responses.png", plot=all_grid2, dpi=500, width=20, height=20, units="in")
 ```
