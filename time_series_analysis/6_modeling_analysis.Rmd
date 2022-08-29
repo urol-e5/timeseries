@@ -2,16 +2,15 @@
 title: "Modeling analysis of E5 time series biological data"
 author: "Ariana S Huffmyer, E5 RoL Team"
 date: "08/15/2022"
-output: github_document
+output: 
+  html_document:
+    code_folding: hide
+    toc: yes
+    toc_depth: 6
+    toc_float: yes
 editor_options: 
   chunk_output_type: console
 --- 
-NOTE: If you want to run this script, do not Knit, instead "run all chunks below" and look at console output.   
-
-IDEA: Host phenotype = calcification (host fitness); could also do symbiont fitness (perhaps max photosynthesis AM)? 
-
-Next script: Models of 1) best predictors of host fitness (calcification); 2) best predictors of symbiont fitness (Am first, then could look into Ik or E) or holobiont fitness (P:R ratios); 3) Lag times between symbiont and host responses
-
 # Set Up    
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
