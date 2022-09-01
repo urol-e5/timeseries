@@ -83,6 +83,8 @@ data_all<-master%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)
 
+head(data_all) 
+
 data_all<-data_all[complete.cases(data_all), ]
 
 scaled_all<-prcomp(data_all[c(5:16)], scale=TRUE, center=TRUE) 
@@ -105,6 +107,8 @@ head(all_data)
 dist_all<-dist(all_data, diag = FALSE, upper = FALSE, method="euclidean")
 
 dist_all <- melt(as.matrix(dist_all), varnames = c("row", "col"))
+
+head(dist_all)
 ```
 
 Now only keep the comparisons we care about (comparisons between observations of the same colony). For example, we only want distances between timepoints for the same colony. We are not comparing between colonies here.  
