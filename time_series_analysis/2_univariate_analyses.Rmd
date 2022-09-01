@@ -60,7 +60,7 @@ Load in master dataframe generated from 1_assemble_data.Rmd.
 master<-read.csv("Output/master_timeseries.csv")
 
 #reorder site levels 
-master$side_code<-as.factor(master$site_code)
+master$site_code<-as.factor(master$site_code)
 master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
 ```
 

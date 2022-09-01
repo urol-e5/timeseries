@@ -12,6 +12,7 @@ editor_options:
   chunk_output_type: console
 --- 
   
+Note: make biplot panel that matches trajectory plot 
 
 # Set Up    
 ```{r setup, include=FALSE}
@@ -61,7 +62,7 @@ Load in master dataframe generated from 1_assemble_data.Rmd.
 master<-read.csv("Output/master_timeseries.csv")
 
 #reorder site levels 
-master$side_code<-as.factor(master$site_code)
+master$site_code<-as.factor(master$site_code)
 master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
 ```
 
@@ -116,7 +117,9 @@ permanova<-adonis2(vegan ~ timepoint*site_code, data = acr_data_afdw, method='eu
 z_acr<-permanova
 z_acr
 ``` 
- 
+
+
+
 Assemble plot with background points 
 ```{r}
 #1. make plot with dots
