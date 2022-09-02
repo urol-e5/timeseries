@@ -164,7 +164,6 @@ Generate a plot of all PCA's for surface area normalization.
 ```{r}
 pcaplots_cm2<-plot_grid(pcaSpecies_cm2, pcaSite_cm2, pcaTimepoint_cm2, labels = c("Species: Surface Area", "Site: Surface Area", "Timepoint: Surface Area"), ncol=3, nrow=1, rel_widths = c(1, 1, 1), label_size = 20, label_x = 0.01)
 
-#ggsave(filename="Figures/All_PCAs_cm2.pdf", plot=pcaplots_cm2, dpi=300, width=24, height=5, units="in")
 ```  
 
 ##### Species-specific PCA's   
@@ -366,11 +365,7 @@ Generate a plot of all PCA's for all Species
 ```{r}
 species_plots_cm2<-plot_grid(porSite_cm2, porTimepoint_cm2, acrSite_cm2, acrTimepoint_cm2, pocSite_cm2, pocTimepoint_cm2, labels = c("Porites: Surface Area", "Porites: Surface Area", "Acropora: Surface Area", "Acropora: Surface Area", "Pocillopora: Surface Area", "Pocillopora: Surface Area"), ncol=2, nrow=3, rel_widths = c(1, 1, 1, 1, 1, 1), label_size = 20, label_x = 0.01, label_y=1.0)
 
-#ggsave(filename="Figures/Species_PCAs_cm2.pdf", plot=species_plots_cm2, dpi=300, width=18, height=15, units="in")
 ``` 
-
-
-
 
 #### PCAs: Protein normalizers  
 
@@ -468,7 +463,6 @@ Generate a plot of all PCA's for protein normalization.
 ```{r}
 pcaplots_prot<-plot_grid(pcaSpecies_prot, pcaSite_prot, pcaTimepoint_prot, labels = c("Species: Protein", "Site: Protein", "Timepoint: Protein"), ncol=3, nrow=1, rel_widths = c(1, 1, 1), label_size = 20, label_x = 0.02)
 
-#ggsave(filename="Figures/All_PCAs_prot.pdf", plot=pcaplots_prot, dpi=300, width=24, height=5, units="in")
 ```  
 
 ##### Species-specific PCA's   
@@ -670,7 +664,6 @@ Generate a plot of all PCA's for all Species
 ```{r}
 species_plots_prot<-plot_grid(porSite_prot, porTimepoint_prot, acrSite_prot, acrTimepoint_prot, pocSite_prot, pocTimepoint_prot, labels = c("Porites: Protein", "Porites: Protein", "Acropora: Protein", "Acropora: Protein", "Pocillopora: Protein", "Pocillopora: Protein"), ncol=2, nrow=3, rel_widths = c(1, 1, 1, 1, 1, 1), label_size = 20, label_x = 0.01, label_y=1.0)
 
-#ggsave(filename="Figures/Species_PCAs_prot.pdf", plot=species_plots_prot, dpi=300, width=18, height=15, units="in")
 ``` 
 
 
@@ -727,7 +720,7 @@ pcaSpecies_afdw<-ggplot2::autoplot(scaled_data_afdw, data=pca_data_afdw, frame.c
         axis.text = element_text(size=18, color="black"), 
         axis.title = element_text(size=18, color="black"));pcaSpecies_afdw
 
-ggsave(filename="Figures/Species_Overall_PCA.png", plot=pcaSpecies_afdw, dpi=300, width=7, height=5, units="in")
+ggsave(filename="Figures/NormalizerPCA/Species_Overall_PCA.png", plot=pcaSpecies_afdw, dpi=300, width=7, height=5, units="in")
 ```
 
 PERMANOVA of the effect of species  
@@ -788,8 +781,6 @@ Generate a plot of all PCA's for afdw normalization.
 
 ```{r}
 pcaplots_afdw<-plot_grid(pcaSpecies_afdw, pcaSite_afdw, pcaTimepoint_afdw, labels = c("Species: Biomass", "Site: Biomass", "Timepoint: Biomass"), ncol=3, nrow=1, rel_widths = c(1, 1, 1), label_size = 20, label_x = 0.02)
-
-#ggsave(filename="Figures/All_PCAs_afdw.pdf", plot=pcaplots_afdw, dpi=300, width=24, height=5, units="in")
 ```  
 
 ##### Species-specific PCA's   
@@ -991,7 +982,6 @@ Generate a plot of all PCA's for all Species
 ```{r}
 species_plots_afdw<-plot_grid(porSite_afdw, porTimepoint_afdw, acrSite_afdw, acrTimepoint_afdw, pocSite_afdw, pocTimepoint_afdw, labels = c("Porites: Biomass", "Porites: Biomass", "Acropora: Biomass", "Acropora: Biomass", "Pocillopora: Biomass", "Pocillopora: Biomass"), ncol=2, nrow=3, rel_widths = c(1, 1, 1, 1, 1, 1), label_size = 20, label_x = 0.01, label_y=1.0)
 
-#ggsave(filename="Figures/Species_PCAs_afdw.pdf", plot=species_plots_afdw, dpi=300, width=18, height=15, units="in")
 ``` 
 
 
@@ -1002,7 +992,7 @@ Generate plot of all combined PCA's
 ```{r}
 All_PCAs<-plot_grid(pcaSpecies_prot, pcaSite_prot, pcaTimepoint_prot, pcaSpecies_afdw, pcaSite_afdw, pcaTimepoint_afdw, pcaSpecies_cm2, pcaSite_cm2, pcaTimepoint_cm2, labels = c("Protein", "Protein", "Protein", "Biomass", "Biomass", "Biomass","Surface Area", "Surface Area", "Surface Area"), ncol=3, nrow=3, rel_widths = c(1, 1, 1, 1, 1, 1, 1, 1, 1), label_size = 20, label_x = 0.06, label_y=1.0)
 
-ggsave(filename="Figures/All_PCAs.pdf", plot=All_PCAs, dpi=300, width=24, height=15, units="in")
+ggsave(filename="Figures/NormalizerPCA/All_PCAs.pdf", plot=All_PCAs, dpi=300, width=24, height=15, units="in")
 ``` 
 
 Generate plot of all species specific PCA's
@@ -1015,7 +1005,7 @@ All_PCAs_species<-plot_grid(porSite_prot, porTimepoint_prot, porSite_afdw, porTi
                                "Acropora: Protein", "Acropora: Protein", "Acropora: Biomass", "Acropora: Biomass", "Acropora: SA", "Acropora: SA",
                                "Pocillopora: Protein", "Pocillopora: Protein", "Pocillopora: Biomass", "Pocillopora: Biomass", "Pocillopora: SA", "Pocillopora: SA"), ncol=6, nrow=3, rel_widths = c(1), label_size = 20, label_x = 0.06, label_y=1.0)
 
-ggsave(filename="Figures/All_Species_PCAs.pdf", plot=All_PCAs_species, dpi=300, width=48, height=15, units="in")
+ggsave(filename="Figures/NormalizerPCA/All_Species_PCAs.pdf", plot=All_PCAs_species, dpi=300, width=48, height=15, units="in")
 ``` 
 
 

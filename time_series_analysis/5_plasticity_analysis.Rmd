@@ -503,7 +503,7 @@ dist_holo_plot3<-dist_holo_plot2+theme(legend.position="none")
 
 panel<-plot_grid(dist_all_plot3, dist_holo_plot3, dist_sym_plot2, nrow=1, ncol=3, rel_widths = c(1,1,1.3))
 
-ggsave(panel, file="Figures/Plasticity_Figure.png", width=18, height=5)
+ggsave(panel, file="Figures/Plasticity/Plasticity_Figure.png", width=18, height=5)
 ```
 
 

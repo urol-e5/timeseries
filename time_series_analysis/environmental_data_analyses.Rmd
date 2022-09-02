@@ -188,7 +188,7 @@ Generate a panel of these three plots.
 ```{r}
 environmental_fig<-plot_grid(temp_plot,hobo_plot, pH_plot,light_plot,rel_widths=c(1,1,1,1), ncol=1, nrow=4, rel_heights= c(1,1,1,1),  label_y=1, align="vh")
 
-ggsave(filename="Figures/Environmental_Timeseries_Raw.jpg", plot=environmental_fig, dpi=300, width=10, height=8, units="in")
+ggsave(filename="Figures/Environmental/Environmental_Timeseries_Raw.jpg", plot=environmental_fig, dpi=300, width=10, height=8, units="in")
 ```
 
 # Generate table of raw data summary statistics  
@@ -379,7 +379,7 @@ hobo_plotQC<-master_qc%>%
 ```{r}
 qc_fig<-plot_grid(temp_plotQC,hobo_plotQC,pH_plotQC,light_plotQC,rel_widths=c(1,1,1), ncol=1, nrow=4, rel_heights= c(1,1,1),  label_y=1, align="vh")
 
-ggsave(filename="Figures/Clean_Environmental_Timeseries.jpg", plot=qc_fig, dpi=300, width=10, height=8, units="in")
+ggsave(filename="Figures/Environmental/Clean_Environmental_Timeseries.jpg", plot=qc_fig, dpi=300, width=10, height=8, units="in")
 ```
 
 # Combine temperature data     
@@ -394,7 +394,7 @@ corr_temp_plot<-master_qc%>%
   ylab("Temp/pH logger temperature (°C)")+
   xlab("Hobo logger temperature (°C)");corr_temp_plot
 
-ggsave(filename="Figures/Hobo_Temp_Correlation.jpg", plot=corr_temp_plot, dpi=300, width=6, height=6, units="in")
+ggsave(filename="Figures/Environmental/Hobo_Temp_Correlation.jpg", plot=corr_temp_plot, dpi=300, width=6, height=6, units="in")
 ```
 
 Very tight correlation between temperature probes, so we can use the full hobo time series filled in with temperature from pH probe wherever data is missing (site 1 at the beginning of the time series). 
@@ -431,7 +431,7 @@ write_csv(master_qc, "Output/environmental_timeseries.csv")
 
 ## Radar plot  
 
-To do this, we need to first summarize data by a unit of time becuase the loggers differ by seconds/minutes, producing a lot of na's. We can first summarize by day for temperature (using Hobo here), pH, and light. 
+To do this, we need to first summarize data by a unit of time because the loggers differ by seconds/minutes, producing a lot of na's. We can first summarize by day for temperature (using Hobo here), pH, and light. 
 
 Calculate additional metrics of daily min/max, range, and variability.  
 
@@ -462,7 +462,7 @@ radar<-radar_data_temp%>%
                             if_else(site == "site2", "Mahana", 
                                     if_else(site == "site1", "Manava", "NA"))))
 
-png(filename="Figures/Environmental_Radar_Temperature.png", width=2280, heigh=1880, units="px", res=300)
+png(filename="Figures/Environmental/Environmental_Radar_Temperature.png", width=2280, heigh=1880, units="px", res=300)
 ggRadar(radar, aes(colour=site), scales="fixed")+
   ggplot2::theme_minimal()+
   ggplot2::scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
@@ -499,7 +499,7 @@ radar<-radar_data_pH%>%
                             if_else(site == "site2", "Mahana", 
                                     if_else(site == "site1", "Manava", "NA"))))
 
-png(filename="Figures/Environmental_Radar_pH_light.png", width=2280, heigh=1880, units="px", res=300)
+png(filename="Figures/Environmental/Environmental_Radar_pH_light.png", width=2280, heigh=1880, units="px", res=300)
 ggRadar(radar, aes(colour=site), scales="fixed")+
   ggplot2::theme_minimal()+
   ggplot2::theme(text=element_text(color="black", size=11))+
@@ -517,7 +517,7 @@ temp_summary_plot <- master_qc %>%
   ggplot(., aes(x=Date.Time, y=FullTemp)) + theme_classic() + 
   geom_line(size=0.3)
 
-ggsave(file="Figures/Environmental_Temperature_summary.png", temp_summary_plot, width = 7, height = 4, units = c("in"))
+ggsave(file="Figures/Environmental/Environmental_Temperature_summary.png", temp_summary_plot, width = 7, height = 4, units = c("in"))
 ```
 
 
@@ -681,7 +681,7 @@ temp_plot5<-boxplot_data %>%
 #assemble plot
 temp_fig<-plot_grid(temp_plot1, temp_plot2, temp_plot3,temp_plot4,temp_plot5,rel_widths=c(1,1,1,1,1), ncol=5, nrow=1, rel_heights= c(1,1,1,1,1),  label_y=1, align="vh")
 
-ggsave(filename="Figures/temp_boxplots.jpg", plot=temp_fig, dpi=200, width=24, height=6, units="in")
+ggsave(filename="Figures/Environmental/temp_boxplots.jpg", plot=temp_fig, dpi=200, width=24, height=6, units="in")
 
 ```
 
@@ -795,7 +795,7 @@ pH_plot5<-boxplot_data %>%
 #assemble plot
 pH_fig<-plot_grid(pH_plot1, pH_plot2, pH_plot3,pH_plot4,pH_plot5,rel_widths=c(1,1,1,1,1), ncol=5, nrow=1, rel_heights= c(1,1,1,1,1),  label_y=1, align="vh")
 
-ggsave(filename="Figures/pH_boxplots.jpg", plot=pH_fig, dpi=200, width=24, height=6, units="in")
+ggsave(filename="Figures/Environmental/pH_boxplots.jpg", plot=pH_fig, dpi=200, width=24, height=6, units="in")
 ```
 
 Light
@@ -872,5 +872,5 @@ light_plot3<-boxplot_data %>%
 #assemble plot
 light_fig<-plot_grid(light_plot1, light_plot2, light_plot3,rel_widths=c(1,1,1), ncol=3, nrow=1, rel_heights= c(1,1,1),  label_y=1, align="vh")
 
-ggsave(filename="Figures/light_boxplots.jpg", plot=light_fig, dpi=200, width=16, height=6, units="in")
+ggsave(filename="Figures/Environmental/light_boxplots.jpg", plot=light_fig, dpi=200, width=16, height=6, units="in")
 ```

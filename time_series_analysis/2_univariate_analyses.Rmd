@@ -167,7 +167,7 @@ Join all plots for each normalization together.
 ```{r}
 tac_figure<-plot_grid(tacplot_prot, tacplot_afdw, tacplot_cm2, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1);tac_figure
 
-ggsave(filename="Figures/TAC_Figure.pdf", plot=tac_figure, dpi=300, width=24, height=5, units="in")
+ggsave(filename="Figures/Univariate/TAC_Figure.pdf", plot=tac_figure, dpi=300, width=24, height=5, units="in")
 ```
 
 ### Analysis 
@@ -351,7 +351,7 @@ Join all plots for each normalization together.
 ```{r}
 symbcells_figure<-plot_grid(symbplot_prot, symbplot_afdw, symbplot_cm2, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1)
 
-ggsave(filename="Figures/CellDensity_Figure.pdf", plot=symbcells_figure, dpi=300, width=24, height=5, units="in")
+ggsave(filename="Figures/Univariate/CellDensity_Figure.pdf", plot=symbcells_figure, dpi=300, width=24, height=5, units="in")
 ```
 
 ### Analysis  
@@ -539,7 +539,7 @@ Join all plots together.
 ```{r}
 afdw_figure<-plot_grid(hAFDWplot, sAFDWplot, ratioAFDWplot, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1)
 
-ggsave(filename="Figures/Biomass_Figure.pdf", plot=afdw_figure, dpi=300, width=24, height=5, units="in")
+ggsave(filename="Figures/Univariate/Biomass_Figure.pdf", plot=afdw_figure, dpi=300, width=24, height=5, units="in")
 ```
 
 ### Analysis  
@@ -1014,7 +1014,7 @@ Join all plots for each normalization together.
 ```{r}
 chl_figure<-plot_grid(chlaplot_prot, chlaplot_afdw, chlaplot_cell, chlaplot_cm2,chlc2plot_prot, chlc2plot_afdw, chlc2plot_cell, chlc2plot_cm2,  labels = c("", "", ""), ncol=4, nrow=2, rel_widths = c(.8, .8, .8, 1, .8, .8, .8, 1), label_size = 20, label_x = 0.1)
 
-ggsave(filename="Figures/Chlorophyll_Figure.pdf", plot=chl_figure, dpi=300, width=32, height=10, units="in")
+ggsave(filename="Figures/Univariate/Chlorophyll_Figure.pdf", plot=chl_figure, dpi=300, width=32, height=10, units="in")
 ```
 
 ### Plot: Total chl  
@@ -1458,7 +1458,7 @@ Join all plots for each normalization together.
 ```{r}
 prot_figure<-plot_grid(protplot_afdw, protplot_cm2, labels = c("", "", ""), ncol=2, nrow=1, rel_widths = c(.8, 1), label_size = 20, label_x = 0.1)
 
-ggsave(filename="Figures/Protein_Figure.pdf", plot=prot_figure, dpi=300, width=16, height=5, units="in")
+ggsave(filename="Figures/Univariate/Protein_Figure.pdf", plot=prot_figure, dpi=300, width=16, height=5, units="in")
 ```
 
 ### Analysis  
@@ -1634,7 +1634,7 @@ Join all plots together.
 ```{r}
 pi_figure<-plot_grid(am_plot, aqy_plot, rd_plot, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1)
 
-ggsave(filename="Figures/PI_Figure.pdf", plot=pi_figure, dpi=300, width=22, height=5, units="in")
+ggsave(filename="Figures/Univariate/PI_Figure.pdf", plot=pi_figure, dpi=300, width=22, height=5, units="in")
 ```
 
 ### Analysis of Am   
@@ -1970,7 +1970,7 @@ Join all plots for each normalization together.
 ```{r}
 calc_figure<-plot_grid(calcplot_prot, calcplot_afdw, calcplot_cm2, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1);calc_figure
 
-ggsave(filename="Figures/Calcification_Figure.pdf", plot=calc_figure, dpi=300, width=24, height=5, units="in")
+ggsave(filename="Figures/Univariate/Calcification_Figure.pdf", plot=calc_figure, dpi=300, width=24, height=5, units="in")
 ```
 
 ### Analysis 
@@ -2082,7 +2082,7 @@ symbiont_univ<-plot_grid(symbplot_afdw, sAFDWplot, am_plot, aqy_plot, chlplot_to
 
 symbiont_univ2<-plot_grid(symbiont_univ, legend, ncol=1, nrow=2, rel_heights = c(4, .2))
 
-ggsave(filename="Figures/Symbiont_Univariate_Panel.png", plot=symbiont_univ2, dpi=150, width=30, height=11, units="in")
+ggsave(filename="Figures/Univariate/Symbiont_Univariate_Panel.png", plot=symbiont_univ2, dpi=150, width=30, height=11, units="in")
 ```
  
 Generate a panel of responses for host/holobiont metrics.  
@@ -2097,7 +2097,7 @@ holobiont_univ<-plot_grid(tacplot_afdw, hAFDWplot, ratioAFDWplot, protplot_afdw,
 
 holobiont_univ2<-plot_grid(holobiont_univ, legend, ncol=1, nrow=2, rel_heights = c(4, .2))
 
-ggsave(filename="Figures/Holobiont_Univariate_Panel.png", plot=holobiont_univ2, dpi=150, width=30, height=11, units="in")
+ggsave(filename="Figures/Univariate/Holobiont_Univariate_Panel.png", plot=holobiont_univ2, dpi=150, width=30, height=11, units="in")
 ```
 
 # Correlations  
@@ -2142,7 +2142,7 @@ for(i in 1:p$nrow) {
 
 p
 
-ggsave(plot=p, "Figures/Correlation_Matrix.pdf", width=20, height=12, unit="in", dpi=300)
+ggsave(plot=p, "Figures/Univariate/Correlation_Matrix.pdf", width=20, height=12, unit="in", dpi=300)
 ```
  
 Acropora: 
@@ -2171,7 +2171,7 @@ for(i in 1:p$nrow) {
 
 p
 
-ggsave(plot=p, "Figures/Correlation_Matrix_Acropora.pdf", width=20, height=12, unit="in", dpi=300)
+ggsave(plot=p, "Figures/Univariate/Correlation_Matrix_Acropora.pdf", width=20, height=12, unit="in", dpi=300)
 ```
 
 Pocillopora
@@ -2200,7 +2200,7 @@ for(i in 1:p$nrow) {
 
 p
 
-ggsave(plot=p, "Figures/Correlation_Matrix_Pocillopora.pdf", width=20, height=12, unit="in", dpi=300)
+ggsave(plot=p, "Figures/Univariate/Correlation_Matrix_Pocillopora.pdf", width=20, height=12, unit="in", dpi=300)
 ```
 
 Porites 
@@ -2230,7 +2230,7 @@ for(i in 1:p$nrow) {
 
 p
 
-ggsave(plot=p, "Figures/Correlation_Matrix_Porites.pdf", width=20, height=12, unit="in", dpi=300)
+ggsave(plot=p, "Figures/Univariate/Correlation_Matrix_Porites.pdf", width=20, height=12, unit="in", dpi=300)
 ```
 
 
