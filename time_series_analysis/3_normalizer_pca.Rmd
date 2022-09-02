@@ -713,7 +713,7 @@ pcaSpecies_afdw<-ggplot2::autoplot(scaled_data_afdw, data=pca_data_afdw, frame.c
   #geom_text(x=0.3, y=-0.15, label=paste("p(Species)=", z_species$`Pr(>F)`[1]), size=6, color="black") + 
   xlab("PC1")+
   ylab("PC2")+
-   theme(legend.text = element_text(size=18), 
+   theme(legend.text = element_text(size=18, face="italic"), 
          legend.position="right",
         plot.background = element_blank(),
         legend.title = element_blank(), 
