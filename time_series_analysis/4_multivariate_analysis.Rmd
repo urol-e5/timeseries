@@ -10,9 +10,7 @@ output:
     toc_float: yes
 editor_options: 
   chunk_output_type: console
---- 
-  
-Note: make biplot panel that matches trajectory plot 
+---
 
 # Set Up    
 ```{r setup, include=FALSE}
@@ -175,7 +173,7 @@ Make bi plot with loadings
 ```{r}
 #1. make plot with dots
 acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0.5, loadings.label.hjust=-0.1, loadings.label.repel=FALSE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code))+
+  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -307,7 +305,7 @@ Add bi plot with loadings
 ```{r}
 #1. make plot with dots
 porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=FALSE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code))+
+  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -426,7 +424,7 @@ Add bi plot with loadings
 ```{r}
 
 pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code))+
+  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -449,7 +447,7 @@ pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,
 
 Assemble trajectory PCAs
 ```{r}
-PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
+PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("A", "B", "C"), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=0.85, align="vh")
 
 # add the legend to the row we made earlier. Give it one-third of 
 # the width of one plot (via rel_widths).
@@ -460,7 +458,7 @@ ggsave(filename="Figures/Multivariate/Full_Panel_PCAs_All.png", plot=PCA_full_pa
 
 Assemble biplots  
 ```{r}
-biplot_full_panel<-plot_grid(acrArrows, pocArrows, porArrows, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
+biplot_full_panel<-plot_grid(acrArrows, pocArrows, porArrows, labels = c("A", "B", "C"), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=0.85, align="vh")
 
 # add the legend to the row we made earlier. Give it one-third of 
 # the width of one plot (via rel_widths).
@@ -1044,7 +1042,7 @@ Add bi plot with loadings
 ```{r}
 #1. make plot with dots
 acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0.5, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code))+
+  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1182,7 +1180,7 @@ Add bi plot with loadings
 ```{r}
 #1. make plot with dots
 porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code))+
+  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1300,7 +1298,7 @@ Add bi plot with loadings
 ```{r}
 
 pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code))+
+  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1322,7 +1320,7 @@ pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,
 #### Assemble all plots    
 
 ```{r}
-PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
+PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("D", "E", "F"), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=0.85, align="vh")
 
 # add the legend to the row we made earlier. Give it one-third of 
 # the width of one plot (via rel_widths).
@@ -1333,7 +1331,7 @@ ggsave(filename="Figures/Multivariate/Full_Panel_PCAs_Holobiont.png", plot=PCA_f
 
 Assemble biplots  
 ```{r}
-biplot_full_panel<-plot_grid(acrArrows, pocArrows, porArrows, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
+biplot_full_panel<-plot_grid(acrArrows, pocArrows, porArrows, labels = c("D", "E", "F"), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=0.85, align="vh")
 
 # add the legend to the row we made earlier. Give it one-third of 
 # the width of one plot (via rel_widths).
@@ -1341,7 +1339,6 @@ biplot_full_panel_legend<-plot_grid(biplot_full_panel, legend, rel_heights = c(4
 
 ggsave(filename="Figures/Multivariate/Full_Biplots_Holobiont.png", plot=biplot_full_panel_legend, dpi=500, width=20, height=6, units="in")
 ``` 
-
 
 
 ### Matrix of PCA's by species and time  
@@ -1919,7 +1916,7 @@ Add bi plot with loadings
 ```{r}
 #1. make plot with dots
 acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0.5, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code))+
+  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2051,7 +2048,7 @@ Add bi plot with loadings
 ```{r}
 #1. make plot with dots
 porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code))+
+  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2181,7 +2178,7 @@ Add bi plot with loadings
 ```{r}
 
 pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code))+
+  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2203,7 +2200,7 @@ pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,
 #### Assemble all plots    
 
 ```{r}
-PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
+PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("G", "H", "I"), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=0.85, align="vh")
 
 # add the legend to the row we made earlier. Give it one-third of 
 # the width of one plot (via rel_widths).
@@ -2214,7 +2211,7 @@ ggsave(filename="Figures/Multivariate/Full_Panel_PCAs_Symbiont.png", plot=PCA_fu
 
 Assemble biplots  
 ```{r}
-biplot_full_panel<-plot_grid(acrArrows, pocArrows, porArrows, labels = c("", "", ""), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=1, align="vh")
+biplot_full_panel<-plot_grid(acrArrows, pocArrows, porArrows, labels = c("G", "H", "I"), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=0.85, align="vh")
 
 # add the legend to the row we made earlier. Give it one-third of 
 # the width of one plot (via rel_widths).
