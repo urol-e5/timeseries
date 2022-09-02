@@ -2078,7 +2078,7 @@ legend <- get_legend(
   legend_plot + theme(legend.box.margin = margin(1,1,1,1))
 )
 
-symbiont_univ<-plot_grid(symbplot_afdw, sAFDWplot, am_plot, aqy_plot, chlplot_total, chlplot_total_cell, ncol=3, nrow=2, rel_widths = c(1,1), align="h")
+symbiont_univ<-plot_grid(symbplot_afdw, sAFDWplot, am_plot, aqy_plot, chlplot_total, chlplot_total_cell, ncol=3, nrow=2, rel_widths = c(1,1), align="h", label_y=1, labels=c("A", "B", "C", "D", "E", "F"), label_size=20)
 
 symbiont_univ2<-plot_grid(symbiont_univ, legend, ncol=1, nrow=2, rel_heights = c(4, .2))
 
@@ -2093,7 +2093,7 @@ legend_plot<-calcplot_afdw+theme(legend.position="bottom")
 rd_plot<-rd_plot+theme(legend.position="none")
 calcplot_afdw<-calcplot_afdw+theme(legend.position="none") 
 
-holobiont_univ<-plot_grid(tacplot_afdw, hAFDWplot, ratioAFDWplot, protplot_afdw, rd_plot, calcplot_afdw, ncol=3, nrow=2, rel_widths = c(1, 1), align="h")
+holobiont_univ<-plot_grid(tacplot_afdw, hAFDWplot, ratioAFDWplot, protplot_afdw, rd_plot, calcplot_afdw, ncol=3, nrow=2, rel_widths = c(1, 1), align="h", label_y=1, labels=c("A", "B", "C", "D", "E", "F"), label_size=20)
 
 holobiont_univ2<-plot_grid(holobiont_univ, legend, ncol=1, nrow=2, rel_heights = c(4, .2))
 
