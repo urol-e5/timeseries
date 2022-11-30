@@ -2262,7 +2262,7 @@ head(z, 10)
 
 # Plotting relative change over time in each species  
 
-## All species  
+## Over time    
 
 Prepare data frame and calculate relative change in each metric compared to 
 ```{r}
@@ -2320,4 +2320,5 @@ time_plot2<-timeseries%>%
 
 ggsave(plot=time_plot2, "Figures/Univariate/Relative_Change_EachSpecies.png", width=15, height=6, unit="in", dpi=300)
 ```
+
 
