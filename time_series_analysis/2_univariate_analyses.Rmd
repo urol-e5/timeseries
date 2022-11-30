@@ -34,6 +34,7 @@ if (!require("ggcorrplot")) install.packages("ggcorrplot")
 if (!require("GGally")) install.packages("GGally")
 if (!require("broom")) install.packages("broom")
 if (!require("cowplot")) install.packages("cowplot")
+if (!require("directlabels")) install.packages("directlabels")
 
 # load packages
 library(tidyverse)
@@ -51,6 +52,7 @@ library(ggcorrplot)
 library(GGally)
 library(broom)
 library(cowplot)
+library(directlabels)
 ```
 
 # Load dataframe
@@ -2233,4 +2235,89 @@ p
 ggsave(plot=p, "Figures/Univariate/Correlation_Matrix_Porites.pdf", width=20, height=12, unit="in", dpi=300)
 ```
 
+Plot the most highly correlated variables across all species to determine which variables to plot over time.
+
+View top 10.  
+```{r}
+p<-master%>%
+  select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(prot_mg.mgafdw<1.5)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(calc.umol.mgAFDW.hr>-.06)
+
+p<-na.omit(p)
+
+z<-cor(p)
+  
+z[lower.tri(z,diag=TRUE)]=NA  #Prepare to drop duplicates and meaningless information
+z=as.data.frame(as.table(z))  #Turn into a 3-column table
+z=na.omit(z)  #Get rid of the junk we flagged above
+z=z[order(-abs(z$Freq)),]    #Sort by highest correlation (whether +ve or -ve)
+
+head(z, 10)
+```
+
+# Plotting relative change over time in each species  
+
+## All species  
+
+Prepare data frame and calculate relative change in each metric compared to 
+```{r}
+timeseries<-master%>%
+  select(species, site_code, month, colony_id_corr, timepoint, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2,  cells.mgAFDW, Total_Chl_cell, Am, AQY, Rd)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  gather(key="Metric", value="Value", Host_AFDW.mg.cm2:Rd)%>%
+  group_by(Metric, colony_id_corr, timepoint)%>%
+  arrange(colony_id_corr, .by_group = TRUE)%>%
+  group_by(colony_id_corr, Metric)%>%
+  mutate(rel_change=((Value-first(Value))/first(Value)))
+
+head(timeseries)
+```
+
+Plot relative change in each metric over time for all species together.  
+```{r}
+# x=month
+# y=rel_change
+# color=Metric
+# loess by Metric 
+
+timeseries$month<-factor(timeseries$month, levels = c("January 2020", "March 2020", "September 2020", "November 2020"))
+
+time_plot1<-timeseries%>%
+  
+  ggplot(., aes(x=month, y=rel_change, fill=Metric, colour=Metric))+
+  #facet_wrap(~species) +
+  #geom_point() +
+  #geom_line(aes(group = "1"))+
+  scale_colour_brewer(palette="Dark2")+
+  geom_hline(yintercept=0)+
+  ylab("Relative Change")+
+  xlab("Time Point")+
+  geom_smooth(inherit.aes=T, method="loess", aes(group = Metric), se=FALSE)+
+  theme_classic(); time_plot1
+
+ggsave(plot=time_plot1, "Figures/Univariate/Relative_Change_AllSpecies.png", width=9, height=6, unit="in", dpi=300)
+```
+
+Plot by species.   
+```{r}
+time_plot2<-timeseries%>%
+  
+  ggplot(., aes(x=month, y=rel_change, fill=Metric, colour=Metric))+
+  facet_wrap(~species) +
+  scale_colour_brewer(palette="Dark2")+
+  geom_hline(yintercept=0)+
+  ylab("Relative Change")+
+  xlab("Time Point")+
+  geom_smooth(inherit.aes=T, method="loess", aes(group = Metric), se=FALSE)+
+  theme_classic(); time_plot2
+
+ggsave(plot=time_plot2, "Figures/Univariate/Relative_Change_EachSpecies.png", width=15, height=6, unit="in", dpi=300)
+```
 
