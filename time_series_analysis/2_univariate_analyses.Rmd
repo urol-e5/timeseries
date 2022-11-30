@@ -2267,8 +2267,9 @@ head(z, 10)
 Prepare data frame and calculate relative change in each metric compared to 
 ```{r}
 timeseries<-master%>%
-  select(species, site_code, month, colony_id_corr, timepoint, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2,  cells.mgAFDW, Total_Chl_cell, cre.umol.mgafdw, Am, AQY, Rd)%>%
+  select(species, site_code, month, colony_id_corr, timepoint, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2,  cells.mgAFDW, Total_Chl_cell, Total_Chl, prot_mg.mgafdw, cre.umol.mgafdw, Am, AQY, Rd)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
+  filter(prot_mg.mgafdw<1.5)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   gather(key="Metric", value="Value", Host_AFDW.mg.cm2:Rd)%>%
@@ -2282,12 +2283,11 @@ head(timeseries)
 
 Plot relative change in each metric over time for all species together.  
 ```{r}
-# x=month
-# y=rel_change
-# color=Metric
-# loess by Metric 
 
 timeseries$month<-factor(timeseries$month, levels = c("January 2020", "March 2020", "September 2020", "November 2020"))
+
+nb.cols <- 10
+mycolors <- colorRampPalette(brewer.pal(8, "Dark2"))(nb.cols)
 
 time_plot1<-timeseries%>%
   
@@ -2295,7 +2295,7 @@ time_plot1<-timeseries%>%
   #facet_wrap(~species) +
   #geom_point() +
   #geom_line(aes(group = "1"))+
-  scale_colour_brewer(palette="Dark2")+
+  scale_colour_manual(values=mycolors)+
   geom_hline(yintercept=0)+
   ylab("Relative Change")+
   xlab("Time Point")+
@@ -2311,7 +2311,7 @@ time_plot2<-timeseries%>%
   
   ggplot(., aes(x=month, y=rel_change, fill=Metric, colour=Metric))+
   facet_wrap(~species) +
-  scale_colour_brewer(palette="Dark2")+
+  scale_colour_manual(values=mycolors)+
   geom_hline(yintercept=0)+
   ylab("Relative Change")+
   xlab("Time Point")+
