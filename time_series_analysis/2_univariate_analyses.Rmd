@@ -2264,7 +2264,7 @@ head(z, 10)
 
 ## Over time    
 
-Prepare data frame and calculate relative change in each metric compared to 
+Prepare data frame and calculate relative change in each metric compared to January 2020 timepoint  
 ```{r}
 timeseries<-master%>%
   select(species, site_code, month, colony_id_corr, timepoint, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2,  cells.mgAFDW, Total_Chl_cell, Total_Chl, prot_mg.mgafdw, cre.umol.mgafdw, Am, AQY, Rd)%>%
@@ -2286,16 +2286,13 @@ Plot relative change in each metric over time for all species together.
 
 timeseries$month<-factor(timeseries$month, levels = c("January 2020", "March 2020", "September 2020", "November 2020"))
 
-nb.cols <- 10
-mycolors <- colorRampPalette(brewer.pal(8, "Dark2"))(nb.cols)
-
 time_plot1<-timeseries%>%
   
   ggplot(., aes(x=month, y=rel_change, fill=Metric, colour=Metric))+
   #facet_wrap(~species) +
   #geom_point() +
   #geom_line(aes(group = "1"))+
-  scale_colour_manual(values=mycolors)+
+  scale_colour_brewer(palette="Paired")+
   geom_hline(yintercept=0)+
   ylab("Relative Change")+
   xlab("Time Point")+
@@ -2311,7 +2308,7 @@ time_plot2<-timeseries%>%
   
   ggplot(., aes(x=month, y=rel_change, fill=Metric, colour=Metric))+
   facet_wrap(~species) +
-  scale_colour_manual(values=mycolors)+
+   scale_colour_brewer(palette="Paired")+
   geom_hline(yintercept=0)+
   ylab("Relative Change")+
   xlab("Time Point")+
