@@ -2267,7 +2267,7 @@ head(z, 10)
 Prepare data frame and calculate relative change in each metric compared to 
 ```{r}
 timeseries<-master%>%
-  select(species, site_code, month, colony_id_corr, timepoint, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2,  cells.mgAFDW, Total_Chl_cell, Am, AQY, Rd)%>%
+  select(species, site_code, month, colony_id_corr, timepoint, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2,  cells.mgAFDW, Total_Chl_cell, cre.umol.mgafdw, Am, AQY, Rd)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
