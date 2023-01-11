@@ -12,6 +12,8 @@ editor_options:
   chunk_output_type: console
 --- 
 
+AH to do: Write loops to run PCA's to make the script more efficient 
+
 # Set Up    
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
