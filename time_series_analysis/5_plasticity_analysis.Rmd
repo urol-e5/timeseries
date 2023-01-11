@@ -335,7 +335,7 @@ dist_holo_plot2<-dist_holo_mean%>%
     geom_text(x=2, y=0.1, size=4, label="p(Site x Species)=0.027", color="black")+
     theme_classic() + 
     ylim(0,7)+
-    ggtitle("Holobiont Responses")+
+    ggtitle("Host Responses")+
     theme(
       legend.position="right",
       legend.title=element_text(face="bold", size=14),
