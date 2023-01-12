@@ -2264,39 +2264,37 @@ head(z, 10)
 
 ## Over time    
 
-Prepare data frame and calculate relative change in each metric compared to January 2020 timepoint  
+Prepare data frame and calculate relative change in each metric compared to January 2020 timepoint. Not including calcification, relative change is far off the scale of other metrics. 
+
 ```{r}
 timeseries<-master%>%
-  select(species, site_code, month, colony_id_corr, timepoint, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2,  cells.mgAFDW, Total_Chl_cell, Total_Chl, prot_mg.mgafdw, cre.umol.mgafdw, Am, AQY, Rd)%>%
+  select(species, site_code, month, colony_id_corr, timepoint, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2,  cells.mgAFDW, Total_Chl_cell, Total_Chl, prot_mg.mgafdw, cre.umol.mgafdw, Am, AQY, Rd, Ratio_AFDW.mg.cm2)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(prot_mg.mgafdw<1.5)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
-  gather(key="Metric", value="Value", Host_AFDW.mg.cm2:Rd)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  gather(key="Metric", value="Value", -species, -site_code, -month, -colony_id_corr, -timepoint)%>%
   group_by(Metric, colony_id_corr, timepoint)%>%
   arrange(colony_id_corr, .by_group = TRUE)%>%
   group_by(colony_id_corr, Metric)%>%
-  mutate(rel_change=((Value-first(Value))/first(Value)))
+  mutate(rel_change=((Value-first(Value))/abs(first(Value))))
 
 head(timeseries)
 ```
 
 Plot relative change in each metric over time for all species together.  
 ```{r}
-
 timeseries$month<-factor(timeseries$month, levels = c("January 2020", "March 2020", "September 2020", "November 2020"))
 
 time_plot1<-timeseries%>%
   
   ggplot(., aes(x=month, y=rel_change, colour=Metric))+
-  #facet_wrap(~species) +
-  #geom_point() +
-  #geom_line(aes(group = "1"))+
   scale_colour_brewer(palette="Paired")+
   geom_hline(yintercept=0)+
   ylab("Relative Change")+
   xlab("Time Point")+
-  geom_smooth(inherit.aes=T, method="loess", aes(group = Metric), se=TRUE)+
+  geom_smooth(inherit.aes=T, method="loess", aes(group = Metric), se=FALSE)+
   theme_classic(); time_plot1
 
 ggsave(plot=time_plot1, "Figures/Univariate/Relative_Change_AllSpecies.png", width=9, height=6, unit="in", dpi=300)
@@ -2312,7 +2310,7 @@ time_plot2<-timeseries%>%
   geom_hline(yintercept=0)+
   ylab("Relative Change")+
   xlab("Time Point")+
-  geom_smooth(inherit.aes=T, method="loess", aes(group = Metric), se=TRUE)+
+  geom_smooth(inherit.aes=T, method="loess", aes(group = Metric), se=FALSE)+
   theme_classic(); time_plot2
 
 ggsave(plot=time_plot2, "Figures/Univariate/Relative_Change_EachSpecies.png", width=15, height=6, unit="in", dpi=300)
