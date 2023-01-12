@@ -4,8 +4,10 @@ author: "Ariana S Huffmyer"
 date: "11/15/2021"
 output: html_document
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
+
+AH needs to recalculate temperature metrics - how do we determine temperatures from a time point? Are these ranges between time points or do we want it to be 2 weeks around each time point? 
 
 # Set Up    
 ```{r setup, include=FALSE}
@@ -418,6 +420,17 @@ summary_stats_qc<-master_qc%>%
   mutate(FullTemp_range=(FullTemp_max-FullTemp_min), na.rm=TRUE)%>%
   mutate(pH_range=(pH_max-pH_min), na.rm=TRUE)%>%
   write_csv("Output/Clean_Environmental_Summary_Stats.csv")
+```
+
+# Generate table of temperature statistics to correlate responses to  
+
+```{r}
+summary_stats_temp<-master_qc%>%
+  dplyr::select(Date.Time, site, timepoint, FullTemp)%>%
+  group_by(timepoint, site)%>%
+  summarise(across(FullTemp, list(min=min, max=max, mean=mean, stdev=sd), na.rm=TRUE))%>%
+  mutate(FullTemp_range=(FullTemp_max-FullTemp_min))%>%
+  write_csv("Output/Clean_Environmental_Temp_Means.csv"); summary_stats_temp
 ```
 
 
