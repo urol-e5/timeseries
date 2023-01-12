@@ -2288,7 +2288,7 @@ timeseries$month<-factor(timeseries$month, levels = c("January 2020", "March 202
 
 time_plot1<-timeseries%>%
   
-  ggplot(., aes(x=month, y=rel_change, fill=Metric, colour=Metric))+
+  ggplot(., aes(x=month, y=rel_change, colour=Metric))+
   #facet_wrap(~species) +
   #geom_point() +
   #geom_line(aes(group = "1"))+
@@ -2296,7 +2296,7 @@ time_plot1<-timeseries%>%
   geom_hline(yintercept=0)+
   ylab("Relative Change")+
   xlab("Time Point")+
-  geom_smooth(inherit.aes=T, method="loess", aes(group = Metric), se=FALSE)+
+  geom_smooth(inherit.aes=T, method="loess", aes(group = Metric), se=TRUE)+
   theme_classic(); time_plot1
 
 ggsave(plot=time_plot1, "Figures/Univariate/Relative_Change_AllSpecies.png", width=9, height=6, unit="in", dpi=300)
@@ -2306,13 +2306,13 @@ Plot by species.
 ```{r}
 time_plot2<-timeseries%>%
   
-  ggplot(., aes(x=month, y=rel_change, fill=Metric, colour=Metric))+
+  ggplot(., aes(x=month, y=rel_change,  colour=Metric))+
   facet_wrap(~species) +
-   scale_colour_brewer(palette="Paired")+
+  scale_colour_brewer(palette="Paired")+
   geom_hline(yintercept=0)+
   ylab("Relative Change")+
   xlab("Time Point")+
-  geom_smooth(inherit.aes=T, method="loess", aes(group = Metric), se=FALSE)+
+  geom_smooth(inherit.aes=T, method="loess", aes(group = Metric), se=TRUE)+
   theme_classic(); time_plot2
 
 ggsave(plot=time_plot2, "Figures/Univariate/Relative_Change_EachSpecies.png", width=15, height=6, unit="in", dpi=300)
