@@ -1,4 +1,4 @@
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/urol-e5/timeseries) ![GitHub last commit](https://img.shields.io/github/last-commit/urol-e5/timeseries) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/urol-e5/timeseries) ![GitHub issues](https://img.shields.io/github/issues/urol-e5/timeseries) ![GitHub closed issues](https://img.shields.io/github/issues-closed/urol-e5/timeseries) 
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/urol-e5/timeseries) ![GitHub last commit](https://img.shields.io/github/last-commit/urol-e5/timeseries) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/urol-e5/timeseries) ![GitHub issues](https://img.shields.io/github/issues/urol-e5/timeseries) ![GitHub closed issues](https://img.shields.io/github/issues-closed/urol-e5/timeseries) ![GitHub contributors](https://img.shields.io/github/contributors/urol-e5/timeseries)
 
 # timeseries
 
