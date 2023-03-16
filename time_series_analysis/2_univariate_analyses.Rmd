@@ -12,8 +12,6 @@ editor_options:
   chunk_output_type: console
 --- 
 
-AH TO DO: Change to Holoboint (all), Host and Symbiont responses
-
 # Set Up    
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
