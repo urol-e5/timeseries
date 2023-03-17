@@ -12,8 +12,6 @@ editor_options:
   chunk_output_type: console
 --- 
 
-Note: Need to discuss how to handle colonies that we only have information for at some, not all, time points.  
-
 # Set Up     
 
 ```{r setup, include=FALSE}
@@ -69,9 +67,9 @@ master$site_code<-as.factor(master$site_code)
 master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
 ```
 
-# All responses   
+# Holobiont responses   
 
-Calculate plasticity as euclidean distance between multivariate physiology positions generated in a PCA between time points.  
+Calculate plasticity as total euclidean distance between multivariate physiology positions generated in a PCA between time points for all metrics.  
 
 ```{r}
 data_all<-master%>%
@@ -104,91 +102,83 @@ row.names(all_data)<-all_data$code
 all_data<-all_data[6:17]
 head(all_data)
 
-dist_all<-dist(all_data, diag = FALSE, upper = FALSE, method="euclidean")
+dist_all<-dist(all_data, diag = FALSE, upper = FALSE, method="euclidean") #calculate euclidian distance
 
 dist_all <- melt(as.matrix(dist_all), varnames = c("row", "col"))
 
 head(dist_all)
 ```
 
-Now only keep the comparisons we care about (comparisons between observations of the same colony). For example, we only want distances between timepoints for the same colony. We are not comparing between colonies here.  
+Now calculate the dispersion (total distance traveled in euclidian distance) for each colony. We are calculating dispersion only for colony that were found at at least 3 timepoints so that we have a good representation of dispersion. Distances are calculated as the distance between timepoint 1 and 2, timepoint 2 and 3, and time point 3 and 4 summed together. If a colony was missing at one time point, the distance from the two adjancent time points was used. For example, if a colony was missing at time point 3, we will use distances from timepoint 1 to 2, timepoint 1 to 3, and timepoint 3 to 4.   
 
 ```{r}
-dist_all<-dist_all%>%
+#calculate distances between subsequent time points (T1-T2, T2-T3, T3-T4) and sum them together
+dist_all_calc<-dist_all%>%
   separate(row, into=c("Timepoint1", "Colony1"), sep=" ")%>%
   separate(col, into=c("Timepoint2", "Colony2"), sep=" ")%>%
   filter(value>0.0)%>% #remove distances between the same points
   mutate(condition=if_else(Colony1==Colony2, "TRUE", "FALSE"))%>%
   filter(condition=="TRUE")%>% #keep within colony comparisons
-  filter(Timepoint1=="timepoint1")%>% #only keep comparisons that are relative to TP1
-  select(Timepoint1, Timepoint2, Colony1, value)
+  arrange(Colony1, Timepoint1, Timepoint2)%>% #arrange by time points
+  select(Timepoint1, Timepoint2, Colony1, value)%>%
+  mutate(comparison=paste(Timepoint1, "-", Timepoint2))%>% #add a comparison column
+  filter(!duplicated(paste(Colony1, value)))%>% #remove duplicated/reciprocal timepoint matches 
+  select(!Timepoint1)%>%
+  select(!Timepoint2)%>%
+  pivot_wider(names_from = comparison, values_from = value, id_cols=Colony1)%>%
+  rename("T1_T2"="timepoint1 - timepoint2", 
+         "T2_T3"="timepoint2 - timepoint3", 
+         "T3-T4"="timepoint3 - timepoint4", 
+         "T1_T3"="timepoint1 - timepoint3", 
+         "T1_T4"="timepoint1 - timepoint4",
+         "T3_T4"="timepoint3 - timepoint4", 
+         "T2_T4"="timepoint2 - timepoint4")%>%
+  mutate(sum_1=rowSums(.[ , c("T1_T2", "T2_T3", "T3_T4")]))%>% #summarize rows with complete timeseries data 
+  mutate(sum_2=case_when(is.na(T1_T2) ~ rowSums(.[ , c("T1_T3", "T3_T4")])))%>% #If T2 is missing, instead sum T1-T3 and T3-T4
+  mutate(sum_3=case_when(is.na(T1_T4) ~ rowSums(.[ , c("T1_T2", "T2_T3")])))%>% #If T4 is missing, instead sum T1-T2 and T2-T3
+ mutate(sum_4=case_when(is.na(T1_T3) ~ rowSums(.[ , c("T1_T2", "T2_T4")])))%>% #If T3 is missing, instead sum T1-T2 and T2-T4
+  mutate(sum_5=case_when(is.na(T1_T2) & is.na(T1_T3) & is.na(T1_T4) ~ rowSums(.[ , c("T2_T3", "T3_T4")])))%>% #If T1 is missing, instead sum T2-T3 and T3-T4 
+  mutate(colony_dispersion=coalesce(sum_1, sum_2, sum_3, sum_4, sum_5))%>%
+  select(Colony1, colony_dispersion)
   
+dist_all_calc$site_code<-master$site_code[match(dist_all_calc$Colony1, master$colony_id_corr)]
+dist_all_calc$species<-master$species[match(dist_all_calc$Colony1, master$colony_id_corr)]
+
+head(dist_all_calc)
 ```
 
-Now, add a column that accounts for the specific time series comparison.  
+Plot as a dot plot with an overlay for means of each group.  
 ```{r}
-dist_all_mean<-dist_all%>%
-  mutate(timepoint=paste(Timepoint1, "-", Timepoint2))
-
-head(dist_all_mean)
-```
-
-Next, generate a summary for each species at each site faceted by time point comparison and plot with points and error bars.  
-```{r}
-dist_all_mean$site_code<-all_info$site_code[match(dist_all_mean$Colony1, all_info$colony_id_corr)]
-dist_all_mean$species<-all_info$species[match(dist_all_mean$Colony1, all_info$colony_id_corr)]
-
-dist_all_plot<-dist_all_mean%>%
-  group_by(species, site_code, timepoint)%>%
-  summarise(mean=mean(value), sd=sd(value), N=length(value), se=sd/sqrt(N))%>% 
-  
-    ggplot(aes(x = timepoint, y = mean, fill=species, group=interaction(species, timepoint))) +
-    facet_wrap(~site_code)+
-    geom_point(pch = 21, size=5, position = position_dodge(0.15)) + 
-    geom_errorbar(aes(ymin=mean-se, ymax=mean+se, group=interaction(species, timepoint)), width=0, color="black", position=position_dodge(0.15))+
-    scale_fill_manual(values = c("darkgray", "orange", "purple"))+
-    xlab("Site") + 
-    ylab(expression(bold("Colony-Specific Euclidean Distance")))+
-    theme_classic() + 
-    ylim(0,7)+
-    theme(
-      legend.position="right",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=14),
-      axis.text=element_text(size=14, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); dist_all_plot
-```
-
-Run anova on these values.  
-```{r}
-dist_all_model<-aov(value~site_code*species*timepoint, data=dist_all_mean)
-summary(dist_all_model)
-```
-
-Site and species as well as time point have a significant effect on intra-colony distances.  
-
-Next, analyze by averaging all timepoint comparisons to plot only by species and site.  
-```{r}
-dist_all_plot2<-dist_all_mean%>%
+#Calculate means to add to 
+dist_all_means<-dist_all_calc%>%
   group_by(species, site_code)%>%
-  summarise(mean=mean(value), sd=sd(value), N=length(value), se=sd/sqrt(N))%>% 
+  summarise(mean=mean(colony_dispersion, na.rm=TRUE), sd=sd(colony_dispersion, na.rm=TRUE), N=sum(!is.na(colony_dispersion)), se=sd/sqrt(N))
+
+dist_all_dotplot<-dist_all_calc%>%
   
-    ggplot(aes(x = site_code, y = mean, fill=species, group=interaction(species, site_code))) +
-    geom_line(aes(group=species, color=species), position=position_dodge(0.15), size=2)+
-    geom_point(pch = 21, size=5, position = position_dodge(0.15)) + 
-    geom_errorbar(aes(ymin=mean-se, ymax=mean+se, group=interaction(species, site_code)), width=0, color="black", position=position_dodge(0.15))+
+    ggplot(aes(x = site_code, y = colony_dispersion)) +
+  
+    #add individual data points 
+    geom_point(aes(fill=species, color=species, group=interaction(species, site_code)), pch = 21, size=4, position = position_jitterdodge(0.2), alpha=0.3) + 
+  
+    #add mean points and lines between groups
+    geom_line(data=dist_all_means, aes(y=mean, x=site_code, group=species, color=species), position=position_dodge(0.2), size=2) +
+    geom_point(data=dist_all_means, aes(y=mean, x=site_code, color=species, fill=species), pch = 21, size=5, position = position_dodge(0.2), alpha=0.8) + 
+  
+    #add stats
+    geom_text(x=2, y=20, size=4, label="p(Site)=0.061", color="darkgray")+
+    geom_text(x=2, y=19, size=4, label="p(Species)<0.001", color="black")+
+    geom_text(x=2, y=18, size=4, label="p(Site x Species)=0.185", color="darkgray")+
+  
+    #aesthetics 
     scale_fill_manual(name="Species", values = c("darkgray", "orange", "purple"))+
     scale_color_manual(name="Species", values = c("darkgray", "orange", "purple"))+
+    scale_x_discrete(labels=c("Mahana\nLow", "Hilton\nMedium", "Manava\nHigh"))+
     xlab("Site") + 
-    ylab(expression(bold("Colony-Specific Euclidean Distance")))+
-    geom_text(x=2, y=0.7, size=4, label="p(Site)<0.001", color="black")+
-    geom_text(x=2, y=0.4, size=4, label="p(Species)<0.001", color="black")+
-    geom_text(x=2, y=0.1, size=4, label="p(Site x Species)=0.040", color="black")+
+    ylim(0,20)+
+    ylab(expression(bold("Multivariate Dispersion")))+
     theme_classic() + 
-    ylim(0,7)+
-    ggtitle("All Responses")+
+    ggtitle("Holobiont")+
     theme(
       legend.position="right",
       legend.title=element_text(face="bold", size=14),
@@ -197,32 +187,37 @@ dist_all_plot2<-dist_all_mean%>%
       axis.text=element_text(size=14, color="black"), 
       strip.text.x=element_text(face="italic", size=14),
       title=element_text(face="bold", size=16)
-      ); dist_all_plot2
+      ); dist_all_dotplot
+
 ```
 
 Run anova on these values.  
 ```{r}
-dist_all_model<-aov(value~site_code*species, data=dist_all_mean)
+dist_all_model<-aov(colony_dispersion~site_code*species, data=dist_all_calc)
 summary(dist_all_model)
 ```
 
-Site and species as well as time point have a significant effect on plasticity.   
+                  Df Sum Sq Mean Sq F value   Pr(>F)    
+site_code          2   42.7   21.34   2.896 0.061627 .  
+species            2  126.9   63.45   8.611 0.000439 ***
+site_code:species  4   47.0   11.75   1.595 0.184857    
+Residuals         73  537.9    7.37    
 
-# Holobiont responses  
+# Host responses  
 
-Calculate distances for only holobiont responses.  
+Calculate distances for only host responses.  
 
-Generate a list of symbiont and holobiont responses.  
+Generate a list of symbiont and host responses.  
 ```{r}
 symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ratio_AFDW.mg.cm2") 
-holobiont_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd", "calc.umol.mgAFDW.hr")
+host_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd", "calc.umol.mgAFDW.hr")
 ```
 
-Calculate plasticity as euclidean distance between multivariate physiology positions generated in a PCA between time points.  
+Calculate plasticity as total euclidean distance between multivariate physiology positions generated in a PCA between time points for all metrics.  
 
 ```{r}
-data_holo<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(holobiont_responses))%>%
+data_host<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -230,112 +225,102 @@ data_holo<-master%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.mgAFDW.hr)
 
-data_holo<-data_holo[complete.cases(data_holo), ]
+data_host<-data_host[complete.cases(data_host), ]
 
-scaled_holo<-prcomp(data_holo[c(5:9)], scale=TRUE, center=TRUE) 
+scaled_host<-prcomp(data_host[c(5:9)], scale=TRUE, center=TRUE) 
 
-holo_info<-data_holo[c(1:4)]
+host_info<-data_host[c(1:4)]
 
 #generate a euclidean distance matrix between all samples (colony x time point)
-holo_data<-scaled_holo%>%
-  augment(holo_info)%>%
+host_data<-scaled_host%>%
+  augment(host_info)%>%
   group_by(timepoint, site_code, species, colony_id_corr)%>%
   mutate(code=paste(timepoint, colony_id_corr))
 
-holo_data<-as.data.frame(holo_data)
+host_data<-as.data.frame(host_data)
 
-row.names(holo_data)<-holo_data$code
+row.names(host_data)<-host_data$code
 
-holo_data<-holo_data[6:10]
-head(holo_data)
+host_data<-host_data[6:10]
+head(host_data)
 
-dist_holo<-dist(holo_data, diag = FALSE, upper = FALSE, method="euclidean")
+dist_host<-dist(host_data, diag = FALSE, upper = FALSE, method="euclidean")
 
-dist_holo <- melt(as.matrix(dist_holo), varnames = c("row", "col"))
+dist_host <- melt(as.matrix(dist_host), varnames = c("row", "col"))
 
-head(dist_holo)
+head(dist_host)
 ```
 
-Now only keep the comparisons we care about (comparisons between observations of the same colony). For example, we only want distances between timepoints for the same colony. We are not comparing between colonies here.  
+Now calculate the dispersion (total distance traveled in euclidian distance) for each colony. We are calculating dispersion only for colony that were found at at least 3 timepoints so that we have a good representation of dispersion. Distances are calculated as the distance between timepoint 1 and 2, timepoint 2 and 3, and time point 3 and 4 summed together. If a colony was missing at one time point, the distance from the two adjancent time points was used. For example, if a colony was missing at time point 3, we will use distances from timepoint 1 to 2, timepoint 1 to 3, and timepoint 3 to 4.   
 
 ```{r}
-dist_holo<-dist_holo%>%
+#calculate distances between subsequent time points (T1-T2, T2-T3, T3-T4) and sum them together
+dist_host_calc<-dist_host%>%
   separate(row, into=c("Timepoint1", "Colony1"), sep=" ")%>%
   separate(col, into=c("Timepoint2", "Colony2"), sep=" ")%>%
   filter(value>0.0)%>% #remove distances between the same points
   mutate(condition=if_else(Colony1==Colony2, "TRUE", "FALSE"))%>%
   filter(condition=="TRUE")%>% #keep within colony comparisons
-  filter(Timepoint1=="timepoint1")%>% #only keep comparisons that are relative to TP1
-  select(Timepoint1, Timepoint2, Colony1, value)
-
-head(dist_holo)
+  arrange(Colony1, Timepoint1, Timepoint2)%>% #arrange by time points
+  select(Timepoint1, Timepoint2, Colony1, value)%>%
+  mutate(comparison=paste(Timepoint1, "-", Timepoint2))%>% #add a comparison column
+  filter(!duplicated(paste(Colony1, value)))%>% #remove duplicated/reciprocal timepoint matches 
+  select(!Timepoint1)%>%
+  select(!Timepoint2)%>%
+  pivot_wider(names_from = comparison, values_from = value, id_cols=Colony1)%>%
+  rename("T1_T2"="timepoint1 - timepoint2", 
+         "T2_T3"="timepoint2 - timepoint3", 
+         "T3-T4"="timepoint3 - timepoint4", 
+         "T1_T3"="timepoint1 - timepoint3", 
+         "T1_T4"="timepoint1 - timepoint4",
+         "T3_T4"="timepoint3 - timepoint4", 
+         "T2_T4"="timepoint2 - timepoint4")%>%
+  mutate(sum_1=rowSums(.[ , c("T1_T2", "T2_T3", "T3_T4")]))%>% #summarize rows with complete timeseries data 
+  mutate(sum_2=case_when(is.na(T1_T2) ~ rowSums(.[ , c("T1_T3", "T3_T4")])))%>% #If T2 is missing, instead sum T1-T3 and T3-T4
+  mutate(sum_3=case_when(is.na(T1_T4) ~ rowSums(.[ , c("T1_T2", "T2_T3")])))%>% #If T4 is missing, instead sum T1-T2 and T2-T3
+ mutate(sum_4=case_when(is.na(T1_T3) ~ rowSums(.[ , c("T1_T2", "T2_T4")])))%>% #If T3 is missing, instead sum T1-T2 and T2-T4
+  mutate(sum_5=case_when(is.na(T1_T2) & is.na(T1_T3) & is.na(T1_T4) ~ rowSums(.[ , c("T2_T3", "T3_T4")])))%>% #If T1 is missing, instead sum T2-T3 and T3-T4 
+  mutate(colony_dispersion=coalesce(sum_1, sum_2, sum_3, sum_4, sum_5))%>%
+  select(Colony1, colony_dispersion)
   
+dist_host_calc$site_code<-master$site_code[match(dist_host_calc$Colony1, master$colony_id_corr)]
+dist_host_calc$species<-master$species[match(dist_host_calc$Colony1, master$colony_id_corr)]
+
+head(dist_host_calc)
 ```
 
-Now, add a column that accounts for the specific time series comparison.  
+Plot as a dot plot with an overlay for means of each group.  
 ```{r}
-dist_holo_mean<-dist_holo%>%
-  mutate(timepoint=paste(Timepoint1, "-", Timepoint2))
-
-head(dist_holo_mean)
-```
-
-Next, generate a summary for each species at each site faceted by time point comparison and plot with points and error bars.  
-```{r}
-dist_holo_mean$site_code<-holo_info$site_code[match(dist_holo_mean$Colony1, holo_info$colony_id_corr)]
-dist_holo_mean$species<-holo_info$species[match(dist_holo_mean$Colony1, holo_info$colony_id_corr)]
-
-dist_holo_plot<-dist_holo_mean%>%
-  group_by(species, site_code, timepoint)%>%
-  summarise(mean=mean(value), sd=sd(value), N=length(value), se=sd/sqrt(N))%>% 
-  
-    ggplot(aes(x = timepoint, y = mean, fill=species, group=interaction(species, timepoint))) +
-    facet_wrap(~site_code)+
-    geom_point(pch = 21, size=5, position = position_dodge(0.15)) + 
-    geom_errorbar(aes(ymin=mean-se, ymax=mean+se, group=interaction(species, timepoint)), width=0, color="black", position=position_dodge(0.15))+
-    scale_fill_manual(values = c("darkgray", "orange", "purple"))+
-    xlab("Timepoint") + 
-    ylab(expression(bold("Colony-Specific Euclidean Distance")))+
-    theme_classic() + 
-    ylim(0,7)+
-    theme(
-      legend.position="right",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=14),
-      axis.text=element_text(size=14, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); dist_holo_plot
-```
-
-Run anova on these values.  
-```{r}
-dist_holo_model<-aov(value~site_code*species*timepoint, data=dist_holo_mean)
-summary(dist_holo_model)
-```
-
-Timepoint and species as well as site x species and species x timepoint have a significant effect on intra-colony distances.  
-
-Next, analyze by averaging all timepoint comparisons to plot only by species and site.  
-```{r}
-dist_holo_plot2<-dist_holo_mean%>%
+#Calculate means to add to 
+dist_host_means<-dist_host_calc%>%
   group_by(species, site_code)%>%
-  summarise(mean=mean(value), sd=sd(value), N=length(value), se=sd/sqrt(N))%>% 
+  summarise(mean=mean(colony_dispersion, na.rm=TRUE), sd=sd(colony_dispersion, na.rm=TRUE), N=sum(!is.na(colony_dispersion)), se=sd/sqrt(N))
+
+dist_host_dotplot<-dist_host_calc%>%
   
-    ggplot(aes(x = site_code, y = mean, fill=species, group=interaction(species, site_code))) +
-    geom_line(aes(group=species, color=species), position=position_dodge(0.15), size=2)+
-    geom_point(pch = 21, size=5, position = position_dodge(0.15)) + 
-    geom_errorbar(aes(ymin=mean-se, ymax=mean+se, group=interaction(species, site_code)), width=0, color="black", position=position_dodge(0.15))+
+    ggplot(aes(x = site_code, y = colony_dispersion)) +
+  
+    #add individual data points 
+    geom_point(aes(fill=species, color=species, group=interaction(species, site_code)), pch = 21, size=4, position = position_jitterdodge(0.2), alpha=0.3) + 
+  
+    #add mean points and lines between groups
+    geom_line(data=dist_host_means, aes(y=mean, x=site_code, group=species, color=species), position=position_dodge(0.2), size=2) +
+    geom_point(data=dist_host_means, aes(y=mean, x=site_code, color=species, fill=species), pch = 21, size=5, position = position_dodge(0.2), alpha=0.8) + 
+  
+    #add stats
+    geom_text(x=2, y=20, size=4, label="p(Site)=0.058", color="darkgray")+
+    geom_text(x=2, y=19, size=4, label="p(Species)<0.001", color="black")+
+    geom_text(x=2, y=18, size=4, label="p(Site x Species)=0.003", color="black")+
+  
+    #aesthetics 
     scale_fill_manual(name="Species", values = c("darkgray", "orange", "purple"))+
     scale_color_manual(name="Species", values = c("darkgray", "orange", "purple"))+
+    scale_x_discrete(labels=c("Mahana\nLow", "Hilton\nMedium", "Manava\nHigh"))+
     xlab("Site") + 
-    ylab(expression(bold("Colony-Specific Euclidean Distance")))+
-    geom_text(x=2, y=0.7, size=4, label="p(Site)=0.866", color="darkgray")+
-    geom_text(x=2, y=0.4, size=4, label="p(Species)<0.001", color="black")+
-    geom_text(x=2, y=0.1, size=4, label="p(Site x Species)=0.027", color="black")+
+    ylim(0,20)+
+    ylab(expression(bold("Multivariate Dispersion")))+
     theme_classic() + 
-    ylim(0,7)+
-    ggtitle("Host Responses")+
+    ggtitle("Host")+
     theme(
       legend.position="right",
       legend.title=element_text(face="bold", size=14),
@@ -344,20 +329,34 @@ dist_holo_plot2<-dist_holo_mean%>%
       axis.text=element_text(size=14, color="black"), 
       strip.text.x=element_text(face="italic", size=14),
       title=element_text(face="bold", size=16)
-      ); dist_holo_plot2
+      ); dist_host_dotplot
+
 ```
 
 Run anova on these values.  
 ```{r}
-dist_holo_model<-aov(value~site_code*species, data=dist_holo_mean)
-summary(dist_holo_model)
+dist_host_model<-aov(colony_dispersion~site_code*species, data=dist_host_calc)
+summary(dist_host_model)
 ```
 
-Species and site x species have a significant effect on plasticity.   
+                  Df Sum Sq Mean Sq F value   Pr(>F)    
+site_code          2   26.1   13.05   2.939  0.05851 .  
+species            2  190.5   95.23  21.440 3.24e-08 ***
+site_code:species  4   78.3   19.58   4.407  0.00281 ** 
+Residuals         82  364.2    4.44    
+
 
 # Symbiont responses  
 
-Calculate plasticity as euclidean distance between multivariate physiology positions generated in a PCA between time points for symbiont specific responses.    
+Calculate distances for only host responses.  
+
+Generate a list of symbiont and host responses.  
+```{r}
+symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ratio_AFDW.mg.cm2") 
+host_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd", "calc.umol.mgAFDW.hr")
+```
+
+Calculate plasticity as total euclidean distance between multivariate physiology positions generated in a PCA between time points for all metrics.  
 
 ```{r}
 data_sym<-master%>%
@@ -395,86 +394,76 @@ dist_sym <- melt(as.matrix(dist_sym), varnames = c("row", "col"))
 head(dist_sym)
 ```
 
-Now only keep the comparisons we care about (comparisons between observations of the same colony). For example, we only want distances between timepoints for the same colony. We are not comparing between colonies here.  
+Now calculate the dispersion (total distance traveled in euclidian distance) for each colony. We are calculating dispersion only for colony that were found at at least 3 timepoints so that we have a good representation of dispersion. Distances are calculated as the distance between timepoint 1 and 2, timepoint 2 and 3, and time point 3 and 4 summed together. If a colony was missing at one time point, the distance from the two adjancent time points was used. For example, if a colony was missing at time point 3, we will use distances from timepoint 1 to 2, timepoint 1 to 3, and timepoint 3 to 4.   
 
 ```{r}
-dist_sym<-dist_sym%>%
+#calculate distances between subsequent time points (T1-T2, T2-T3, T3-T4) and sum them together
+dist_sym_calc<-dist_sym%>%
   separate(row, into=c("Timepoint1", "Colony1"), sep=" ")%>%
   separate(col, into=c("Timepoint2", "Colony2"), sep=" ")%>%
   filter(value>0.0)%>% #remove distances between the same points
   mutate(condition=if_else(Colony1==Colony2, "TRUE", "FALSE"))%>%
   filter(condition=="TRUE")%>% #keep within colony comparisons
-  filter(Timepoint1=="timepoint1")%>% #only keep comparisons that are relative to TP1
-  select(Timepoint1, Timepoint2, Colony1, value)
-
-head(dist_sym)
+  arrange(Colony1, Timepoint1, Timepoint2)%>% #arrange by time points
+  select(Timepoint1, Timepoint2, Colony1, value)%>%
+  mutate(comparison=paste(Timepoint1, "-", Timepoint2))%>% #add a comparison column
+  filter(!duplicated(paste(Colony1, value)))%>% #remove duplicated/reciprocal timepoint matches 
+  select(!Timepoint1)%>%
+  select(!Timepoint2)%>%
+  pivot_wider(names_from = comparison, values_from = value, id_cols=Colony1)%>%
+  rename("T1_T2"="timepoint1 - timepoint2", 
+         "T2_T3"="timepoint2 - timepoint3", 
+         "T3-T4"="timepoint3 - timepoint4", 
+         "T1_T3"="timepoint1 - timepoint3", 
+         "T1_T4"="timepoint1 - timepoint4",
+         "T3_T4"="timepoint3 - timepoint4", 
+         "T2_T4"="timepoint2 - timepoint4")%>%
+  mutate(sum_1=rowSums(.[ , c("T1_T2", "T2_T3", "T3_T4")]))%>% #summarize rows with complete timeseries data 
+  mutate(sum_2=case_when(is.na(T1_T2) ~ rowSums(.[ , c("T1_T3", "T3_T4")])))%>% #If T2 is missing, instead sum T1-T3 and T3-T4
+  mutate(sum_3=case_when(is.na(T1_T4) ~ rowSums(.[ , c("T1_T2", "T2_T3")])))%>% #If T4 is missing, instead sum T1-T2 and T2-T3
+ mutate(sum_4=case_when(is.na(T1_T3) ~ rowSums(.[ , c("T1_T2", "T2_T4")])))%>% #If T3 is missing, instead sum T1-T2 and T2-T4
+  mutate(sum_5=case_when(is.na(T1_T2) & is.na(T1_T3) & is.na(T1_T4) ~ rowSums(.[ , c("T2_T3", "T3_T4")])))%>% #If T1 is missing, instead sum T2-T3 and T3-T4 
+  mutate(colony_dispersion=coalesce(sum_1, sum_2, sum_3, sum_4, sum_5))%>%
+  select(Colony1, colony_dispersion)
   
+dist_sym_calc$site_code<-master$site_code[match(dist_sym_calc$Colony1, master$colony_id_corr)]
+dist_sym_calc$species<-master$species[match(dist_sym_calc$Colony1, master$colony_id_corr)]
+
+head(dist_sym_calc)
 ```
 
-Now, add a column that accounts for the specific time series comparison.  
+Plot as a dot plot with an overlay for means of each group.  
 ```{r}
-dist_sym_mean<-dist_sym%>%
-  mutate(timepoint=paste(Timepoint1, "-", Timepoint2))
-
-head(dist_sym_mean)
-```
-
-Next, generate a summary for each species at each site faceted by time point comparison and plot with points and error bars.  
-```{r}
-dist_sym_mean$site_code<-sym_info$site_code[match(dist_sym_mean$Colony1, sym_info$colony_id_corr)]
-dist_sym_mean$species<-sym_info$species[match(dist_sym_mean$Colony1, sym_info$colony_id_corr)]
-
-dist_sym_plot<-dist_sym_mean%>%
-  group_by(species, site_code, timepoint)%>%
-  summarise(mean=mean(value), sd=sd(value), N=length(value), se=sd/sqrt(N))%>% 
-  
-    ggplot(aes(x = timepoint, y = mean, fill=species, group=interaction(species, timepoint))) +
-    facet_wrap(~site_code)+
-    geom_point(pch = 21, size=5, position = position_dodge(0.15)) + 
-    geom_errorbar(aes(ymin=mean-se, ymax=mean+se, group=interaction(species, timepoint)), width=0, color="black", position=position_dodge(0.15))+
-    scale_fill_manual(values = c("darkgray", "orange", "purple"))+
-    xlab("Timepoint") + 
-    ylab(expression(bold("Colony-Specific Euclidean Distance")))+
-    theme_classic() + 
-    ylim(0,7)+
-    theme(
-      legend.position="right",
-      legend.title=element_text(face="bold", size=14),
-      legend.text=element_text(size=14),
-      axis.title=element_text(face="bold", size=14),
-      axis.text=element_text(size=14, color="black"), 
-      strip.text.x=element_text(face="italic", size=14)
-      ); dist_sym_plot
-```
-
-Run anova on these values.  
-```{r}
-dist_sym_model<-aov(value~site_code*species*timepoint, data=dist_sym_mean)
-summary(dist_sym_model)
-```
-
-Site and species as well as species x timepoint have a significant effect on intra-colony distances.  
-
-Next, analyze by averaging all timepoint comparisons to plot only by species and site.  
-```{r}
-dist_sym_plot2<-dist_sym_mean%>%
+#Calculate means to add to 
+dist_sym_means<-dist_sym_calc%>%
   group_by(species, site_code)%>%
-  summarise(mean=mean(value), sd=sd(value), N=length(value), se=sd/sqrt(N))%>% 
+  summarise(mean=mean(colony_dispersion, na.rm=TRUE), sd=sd(colony_dispersion, na.rm=TRUE), N=sum(!is.na(colony_dispersion)), se=sd/sqrt(N))
+
+dist_sym_dotplot<-dist_sym_calc%>%
   
-    ggplot(aes(x = site_code, y = mean, fill=species, group=interaction(species, site_code))) +
-    geom_line(aes(group=species, color=species), position=position_dodge(0.15), size=2)+
-    geom_point(pch = 21, size=5, position = position_dodge(0.15)) + 
-    geom_errorbar(aes(ymin=mean-se, ymax=mean+se, group=interaction(species, site_code)), width=0, color="black", position=position_dodge(0.15))+
+    ggplot(aes(x = site_code, y = colony_dispersion)) +
+  
+    #add individual data points 
+    geom_point(aes(fill=species, color=species, group=interaction(species, site_code)), pch = 21, size=4, position = position_jitterdodge(0.2), alpha=0.3) + 
+  
+    #add mean points and lines between groups
+    geom_line(data=dist_sym_means, aes(y=mean, x=site_code, group=species, color=species), position=position_dodge(0.2), size=2) +
+    geom_point(data=dist_sym_means, aes(y=mean, x=site_code, color=species, fill=species), pch = 21, size=5, position = position_dodge(0.2), alpha=0.8) + 
+  
+    #add stats
+    geom_text(x=2, y=20, size=4, label="p(Site)=0.253", color="darkgray")+
+    geom_text(x=2, y=19, size=4, label="p(Species)=0.201", color="darkgray")+
+    geom_text(x=2, y=18, size=4, label="p(Site x Species)=0.207", color="darkgray")+
+  
+    #aesthetics 
     scale_fill_manual(name="Species", values = c("darkgray", "orange", "purple"))+
     scale_color_manual(name="Species", values = c("darkgray", "orange", "purple"))+
+    scale_x_discrete(labels=c("Mahana\nLow", "Hilton\nMedium", "Manava\nHigh"))+
     xlab("Site") + 
-    ylab(expression(bold("Colony-Specific Euclidean Distance")))+
-    geom_text(x=2, y=0.7, size=4, label="p(Site)=0.001", color="black")+
-    geom_text(x=2, y=0.4, size=4, label="p(Species)=0.004", color="black")+
-    geom_text(x=2, y=0.1, size=4, label="p(Site x Species)=0.766", color="darkgray")+
+    ylim(0,20)+
+    ylab(expression(bold("Multivariate Dispersion")))+
     theme_classic() + 
-    ylim(0,7)+
-    ggtitle("Symbiont Responses")+
+    ggtitle("Symbiont")+
     theme(
       legend.position="right",
       legend.title=element_text(face="bold", size=14),
@@ -483,27 +472,34 @@ dist_sym_plot2<-dist_sym_mean%>%
       axis.text=element_text(size=14, color="black"), 
       strip.text.x=element_text(face="italic", size=14),
       title=element_text(face="bold", size=16)
-      ); dist_sym_plot2
+      ); dist_sym_dotplot
+
 ```
 
 Run anova on these values.  
 ```{r}
-dist_sym_model<-aov(value~site_code*species, data=dist_sym_mean)
+dist_sym_model<-aov(colony_dispersion~site_code*species, data=dist_sym_calc)
 summary(dist_sym_model)
 ```
 
-Species and site have a significant effect on plasticity.  
+                  Df Sum Sq Mean Sq F value Pr(>F)
+site_code          2   19.1   9.529   1.397  0.253
+species            2   22.3  11.140   1.633  0.201
+site_code:species  4   41.1  10.279   1.507  0.207
+Residuals         85  579.8   6.821 
+
 
 # Generate figure 
 
 Generate a panel figure.  
 ```{r}
-dist_all_plot3<-dist_all_plot2+theme(legend.position="none")
-dist_holo_plot3<-dist_holo_plot2+theme(legend.position="none")
+dist_all_dotplot2<-dist_all_dotplot+theme(legend.position="none")+xlab("")
+dist_host_dotplot2<-dist_host_dotplot+theme(legend.position="none")+xlab("")
+dist_sym_dotplot2<-dist_sym_dotplot+xlab("")
 
-panel<-plot_grid(dist_all_plot3, dist_holo_plot3, dist_sym_plot2, nrow=1, ncol=3, rel_widths = c(1,1,1.3), labels=c("A", "B", "C"), label_size=20, label_y=0.96)
+panel<-plot_grid(dist_all_dotplot2, dist_host_dotplot2, dist_sym_dotplot2, nrow=1, ncol=3, rel_widths = c(1,1,1.3), labels=c("A", "B", "C"), label_size=20, label_y=0.96)
 
-ggsave(panel, file="Figures/Plasticity/Plasticity_Figure.png", width=18, height=5)
+ggsave(panel, file="Figures/Plasticity/Plasticity_Figure.png", width=13, height=5)
 ```
 
 
