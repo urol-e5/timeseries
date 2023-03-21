@@ -1,7 +1,7 @@
 ---
 title: "Modeling analysis of E5 time series biological data"
 author: "Ariana S Huffmyer, E5 RoL Team"
-date: "08/15/2022"
+date: "03/21/2023"
 output: 
   html_document:
     code_folding: hide
@@ -11,6 +11,7 @@ output:
 editor_options: 
   chunk_output_type: console
 --- 
+
 # Set Up    
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
@@ -98,7 +99,7 @@ flattenCorrMatrix <- function(cormat, pmat) {
 cor_all_df<-flattenCorrMatrix(cor_all$r, cor_all$P)
 ```
 
-List correlations with absolute value r>0.9.  
+List correlations with absolute value r>0.85.  
 ```{r}
 cor_all_df%>%
   filter(abs(cor)>0.85)
