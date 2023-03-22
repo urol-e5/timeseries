@@ -2260,6 +2260,45 @@ z=z[order(-abs(z$Freq)),]    #Sort by highest correlation (whether +ve or -ve)
 head(z, 10)
 ```
 
+
+ADD CORRELATION VISUALIZATION HERE 
+
+## Plotting correlation network 
+
+First view correlation network for a low correlation threshold (r=0.3). 
+```{r}
+p<-master%>%
+  select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(prot_mg.mgafdw<1.5)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(calc.umol.mgAFDW.hr>-.06)
+
+p<-na.omit(p)
+
+p %>% correlate() %>%
+  network_plot(min_cor=0.3, colours = c("skyblue1", "white", "indianred2"), repel = TRUE)
+
+```
+
+Variables clustered together are more highly correlated. Wider paths indicate a stronger correlation. The color represents the direction of the correlation. 
+
+View correlation network for a medium correlation threshold (r=0.5). 
+```{r}
+p %>% correlate() %>%
+  network_plot(min_cor=0.5, colours = c("skyblue1", "white", "indianred2"), repel = TRUE)
+```
+
+View correlation network for a medium correlation threshold (r=0.5). 
+```{r}
+p %>% correlate() %>%
+  network_plot(min_cor=0.7, colours = c("skyblue1", "white", "indianred2"), repel = TRUE)
+```
+
+The strongest correlations are between metabolic rates and Host/Symbiont biomass and antioxidant capacity. There is also a strong correlation between chlorophyll content and cell density. 
+
 # Plotting relative change over time in each species  
 
 ## Over time    
