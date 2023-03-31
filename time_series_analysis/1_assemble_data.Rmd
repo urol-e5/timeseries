@@ -378,6 +378,21 @@ Write master file to csv.
 write_csv(master, "Output/master_timeseries.csv")
 ```
 
+Generate list of colonies found at time point 2 for molecular analyses.  
+
+```{r}
+tp2_list<-master%>%
+  filter(timepoint=="timepoint2")%>%
+  select(colony_id, colony_id_corr) #generate list of colonies in tp2 
+
+all_list<-master%>%
+  select(colony_id, colony_id_corr)%>%
+  unique()
+
+#show colonies that are not in tp2 that are present in the other datasets shared values
+others<-setdiff(all_list, tp2_list)
+```
+
 
 # Generating summary by groups   
 
