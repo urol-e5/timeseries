@@ -106,7 +106,7 @@ nls_data <- Data %>%
   group_by(colony_id)%>%
   summarise(Am=mean(Am), AQY=mean(AQY), Rd=mean(Rd))%>%
   mutate(timepoint="timepoint1")%>%
-  write_csv(., "output/1_pi_curve_pars_NLS.csv")
+  write_csv(., "output/1_pi_curve_pars_nls.csv")
 ```
 
 Plot curve over data points.  
