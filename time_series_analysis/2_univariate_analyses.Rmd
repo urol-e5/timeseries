@@ -1560,7 +1560,7 @@ am_plot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Am"))))+
+    ylab(expression(bold(paste("P" [Max], " (µmol O" [2], "cm"^-2, " h"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -1590,7 +1590,7 @@ aqy_plot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("AQY"))))+
+    ylab(expression(bold(paste("Quantum Yield (α)"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -1620,7 +1620,7 @@ rd_plot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Respiration"))))+
+    ylab(expression(bold(paste("Respiration (µmol O" [2], "cm"^-2, " h"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.title=element_text(face="bold", size=14),
