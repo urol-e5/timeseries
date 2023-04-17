@@ -2312,7 +2312,7 @@ Prepare data frame and calculate relative change in each metric compared to Janu
 
 ```{r}
 timeseries<-master%>%
-  select(species, site_code, month, colony_id_corr, timepoint, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2,  cells.mgAFDW, Total_Chl_cell, Total_Chl, prot_mg.mgafdw, cre.umol.mgafdw, Am, AQY, Rd, Ratio_AFDW.mg.cm2)%>%
+  select(species, site_code, month, colony_id_corr, timepoint, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2,  cells.mgAFDW, Total_Chl_cell, Total_Chl, prot_mg.mgafdw, cre.umol.mgafdw, Am, AQY, Rd, Ratio_AFDW.mg.cm2, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(prot_mg.mgafdw<1.5)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
@@ -2332,6 +2332,7 @@ Plot relative change in each metric over time for all species together.
 timeseries$month<-factor(timeseries$month, levels = c("January 2020", "March 2020", "September 2020", "November 2020"))
 
 time_plot1<-timeseries%>%
+  filter(!Metric=="calc.umol.cm2.hr")%>%
   
   ggplot(., aes(x=month, y=rel_change, colour=Metric))+
   scale_colour_brewer(palette="Paired")+
@@ -2347,6 +2348,7 @@ ggsave(plot=time_plot1, "Figures/Univariate/Relative_Change_AllSpecies.png", wid
 Plot by species.   
 ```{r}
 time_plot2<-timeseries%>%
+  filter(!Metric=="calc.umol.cm2.hr")%>%
   
   ggplot(., aes(x=month, y=rel_change,  colour=Metric))+
   facet_wrap(~species) +
@@ -2361,3 +2363,25 @@ ggsave(plot=time_plot2, "Figures/Univariate/Relative_Change_EachSpecies.png", wi
 ```
 
 Calcification is not displayed due to relative change being beyond the scale we can display here. 
+
+
+
+
+Display calcification separately here. 
+
+```{r}
+time_plot3<-timeseries%>%
+  filter(Metric=="calc.umol.cm2.hr")%>%
+  filter(!rel_change=="Inf")%>%
+  filter(!rel_change=="NaN")%>%
+  
+  ggplot(., aes(x=month, y=rel_change, colour=species))+
+  scale_color_manual(values=c("orange", "gray", "purple")) +
+  geom_hline(yintercept=0)+
+  ylab("Relative Change")+
+  xlab("Time Point")+
+  geom_smooth(inherit.aes=T, method="loess", aes(group = species), se=FALSE)+
+  theme_classic(); time_plot3
+
+ggsave(plot=time_plot3, "Figures/Univariate/Relative_Change_Calcification.png", width=9, height=6, unit="in", dpi=300)
+```
