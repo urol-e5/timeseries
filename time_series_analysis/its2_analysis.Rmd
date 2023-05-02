@@ -1,0 +1,324 @@
+---
+title: "ITS2_analysis"
+author: "ross"
+date: "5/1/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r}
+library(permute)
+library(RColorBrewer)
+library(janitor)
+library(phyloseq)
+library(tidyverse)
+library(ggh4x)
+library(cowplot)
+```
+
+
+# Load Data
+
+### Load SymPortal ITS2 profiles
+```{r profiles}
+# Load ITS2 type profiles
+
+# Tax table
+tax0 <- read_tsv(
+  file = "../ITS2_sequencing/symportal_output/its2_type_profiles/260_20230428T204810_DBV_20230429T054819.profiles.absolute.abund_and_meta.txt",
+  n_max = 6) %>%
+  dplyr::select(-2) %>% 
+  gather(UID, value, -1) %>% 
+  spread(1, value) %>%
+  clean_names()
+tax1 <- as.matrix(tax0[, -1], dimnames = list(tax0$uid, colnames(tax0[-1])))
+rownames(tax1) <- tax0$uid
+tax <- tax_table(tax1)
+
+# OTU table
+otu0 <- read_tsv(
+  file = "../ITS2_sequencing/symportal_output/its2_type_profiles/260_20230428T204810_DBV_20230429T054819.profiles.absolute.abund_and_meta.txt") %>% 
+  rename(sample_name = X2) %>%
+  select(-1) %>%
+  slice(7:n()) %>%
+  mutate_at(2:ncol(.), as.numeric)
+otu1 <- as.matrix(otu0[, -1])
+rownames(otu1) <- otu0$sample_name
+otu <- otu_table(otu1, taxa_are_rows = FALSE)
+
+# Sample data
+sam0 <- read_csv("../ITS2_sequencing/20230425_Cunning_Symportal_datasheet.csv") %>%
+  clean_names() %>%
+  mutate(colony_id = str_extract(sample_name, pattern = "..._[^_]*"),
+         timepoint = str_extract(sample_name, pattern = "[^_]*$"))
+md <- read_csv("../metadata/coral_metadata.csv") %>%
+  mutate(colony_id = str_replace(colony_id, "-", "_"))
+sam0 <- sam0 %>%
+  left_join(md, by = "colony_id")
+sam1 <- as.matrix(sam0)
+rownames(sam1) <- sam0$sample_name
+sam <- sample_data(data.frame(sam1))
+
+profiles <- phyloseq(otu, tax, sam)
+```
+
+
+### Load SymPortal post-MED sequences
+```{r variants}
+# Load all post-MED sequence variants
+
+# Tax table
+taxnames <- read_tsv(
+  file = "../ITS2_sequencing/symportal_output/post_med_seqs/260_20230428T204810_DBV_20230429T054819.seqs.absolute.abund_and_meta.txt",
+  n_max = 0) %>%
+  select(-(1:39)) %>%
+  names(.)
+tax0 <- tibble(
+  DIV = taxnames,
+  clade = str_extract(DIV, "[A-Z]")
+)
+tax1 <- as.matrix(tax0)
+rownames(tax1) <- tax0$DIV
+tax <- tax_table(tax1)
+
+# OTU table
+otu0 <- read_tsv(
+  file = "../ITS2_sequencing/symportal_output/post_med_seqs/260_20230428T204810_DBV_20230429T054819.seqs.absolute.abund_and_meta.txt") %>% 
+  select(-1, -(3:39))
+otu1 <- as.matrix(otu0[, -1])
+rownames(otu1) <- otu0$sample_name
+otu <- otu_table(otu1, taxa_are_rows = FALSE)
+
+variants <- phyloseq(otu, tax, sam)
+```
+
+### Subset just E5 timeseries samples
+```{r filter}
+# Subset to just get the E5 samples (separate others that were included in the same sequencing run)
+e5v <- subset_samples(variants, grepl("^POC|^POR|^ACR", sample_name))
+e5v <- prune_taxa(taxa_sums(e5v) != 0, e5v)
+
+e5p <- subset_samples(profiles, grepl("^POC|^POR|^ACR", sample_name))
+e5p <- prune_taxa(taxa_sums(e5p) != 0, e5p)
+```
+
+# Sequencing summary
+
+```{r}
+# Total number of reads
+sum(sample_sums(e5v))
+
+# Number of reads per sample (SymPortal post-MED sequences)
+hist(log10(sample_sums(e5v)))
+
+# Number of samples with >5000 reads
+table(sample_sums(e5v) > 5000)
+
+# Number of samples with >10000 reads
+table(sample_sums(e5v) > 10000)
+
+# Which samples had lowest read counts?
+sample_sums(e5v)[order(sample_sums(e5v))][1:10]
+
+# Number of unique sequence variants
+ntaxa(e5v)
+
+# Number of ITS2 type profiles
+ntaxa(e5p)
+```
+
+# Results: plot sequences and profiles for all colonies over time
+
+```{r}
+## Transform variant and profile counts to relative abundance
+v <- transform_sample_counts(e5v, function(x) x/sum(x))     # Relative abundance
+p <- transform_sample_counts(e5p, function(x) x/sum(x))     # Relative abundance
+
+## Filter out variants less than 0.1% relative abundance for plotting
+vt <- transform_sample_counts(v, function(x) ifelse(x > 0.001, x, 0))
+vt <- prune_taxa(taxa_sums(vt) != 0, vt)
+
+
+## Set colors for plotting variants, with distinct palettes by clade/genus
+tt <- as_tibble(data.frame(tax_table(vt))) %>%
+  arrange(clade, DIV)
+nt <- tt %>% count(clade) %>% pivot_wider(names_from = clade, values_from = n)
+acols <- colorRampPalette(brewer.pal(9, "Greens"))(nt$A)
+bcols <- colorRampPalette(brewer.pal(9, "Reds"))(nt$B)
+ccols <- colorRampPalette(brewer.pal(9, "Blues"))(nt$C)
+dcols <- colorRampPalette(brewer.pal(9, "Oranges"))(nt$D)
+fcols <- colorRampPalette(brewer.pal(9, "Purples"))(nt$`F`)
+gcols <- colorRampPalette(brewer.pal(9, "Greys"))(nt$G)
+set.seed(559)
+vpal <- c(acols[shuffle(acols)], bcols, ccols[shuffle(ccols)], 
+          dcols[shuffle(dcols)], fcols[shuffle(fcols)], gcols[shuffle(gcols)])
+vpal <- setNames(vpal, tt$DIV)
+
+# Order variant data for plotting
+divord <- as_tibble(data.frame(tax_table(vt))) %>%
+  arrange(clade, DIV) %>%
+  mutate(DIV = as_factor(DIV))
+
+  
+vmdf <- psmelt(vt) %>%
+  filter(Abundance > 0) %>%
+  arrange(host_genus, site, colony_id, timepoint, clade, DIV) %>%
+  mutate(colony_id = as_factor(colony_id),
+         sample_id = as_factor(paste(host_genus, colony_id, timepoint, sep = "_")),
+         DIV = factor(DIV, levels = divord$DIV))
+
+
+# Repeat for profiles
+### truncate its2_type_profile names
+pp <- as_tibble(data.frame(tax_table(p))) %>%
+  arrange(clade, its2_type_profile) %>%
+  mutate(its2_type_profile = str_trunc(its2_type_profile, 22, "right"))
+np <- pp %>% count(clade) %>% pivot_wider(names_from = clade, values_from = n)
+acols <- tail(brewer.pal(5, "Greens"), np$A)
+#bcols <- colorRampPalette(brewer.pal(9, "YlGn"))(np$B)
+ccols <- colorRampPalette(brewer.pal(9, "PuBu"))(np$C)
+dcols <- tail(brewer.pal(9, "Oranges"), np$D)
+gcols <- "gray40"
+set.seed(559)
+ppal <- c(acols, ccols, dcols, gcols)
+ppal <- setNames(ppal, pp$its2_type_profile)
+
+proford <- as_tibble(data.frame(tax_table(p))) %>%
+  mutate(its2_type_profile = str_trunc(its2_type_profile, 22, "right")) %>%
+  arrange(clade, its2_type_profile) %>%
+  mutate(its2_type_profile = as_factor(its2_type_profile))
+  
+pmdf <- psmelt(p) %>%
+  arrange(host_genus, site, colony_id, timepoint, clade, its2_type_profile) %>%
+  mutate(host_id = as_factor(colony_id),
+         its2_type_profile = str_trunc(its2_type_profile, 22, "right"),
+         sample_id = as_factor(paste(host_genus, colony_id, timepoint, sep = "_"))) %>% 
+  filter(Abundance > 0.01)
+
+
+
+
+# Plot variants
+varfig <- vmdf %>%
+  ggplot(aes(x = timepoint, y = Abundance, fill = DIV, label = DIV)) + 
+  geom_col(width = 1) + 
+  facet_nested(~ site + colony_id,
+               scales = "free_x", space = "free_x",
+               nest_line = element_line(linetype = 1)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0), labels = scales::percent) +
+  ylab("ITS2 sequences") +
+  scale_fill_manual(values = vpal[vmdf$OTU]) +
+  theme(legend.position = "none", panel.background = element_blank(), 
+        text = element_text(size = 9), plot.margin = margin(5.5, 5.5, 1, 5.5),
+        strip.text.x = element_text(margin = margin(0.5, 0, 0.5, 0, "mm"), face = "italic"),
+        axis.title.x = element_blank(), axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        panel.spacing = unit(0.25, "mm"),
+        strip.background = element_blank())
+
+# Plot profiles
+profig <- pmdf %>% 
+  ggplot(aes(x = timepoint, y = Abundance)) +
+    geom_col(width = 1, aes(fill = its2_type_profile)) +
+    facet_nested(~ site + colony_id, scales = "free_x", space = "free_x") +
+    scale_x_discrete(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0)) +
+    ylab("Profiles") +
+    scale_fill_manual(values = ppal[pmdf$its2_type_profile], limits = force, drop = TRUE) +
+    theme(legend.position = "bottom", legend.key.size = unit(2, "mm"), legend.title = element_blank(),
+          legend.margin = margin(1, 0, 0, 0), legend.box.margin = margin(-10, -10, 0, -10),
+          legend.key = element_rect(fill = NA),
+          plot.margin = margin(0, 5.5, 5.5, 5.5),
+          text = element_text(size = 9), legend.text = element_text(size = 7),
+          panel.background = element_blank(), strip.text.x = element_blank(),
+          axis.title.x = element_blank(), axis.text.y = element_blank(),
+          axis.ticks = element_blank(),
+          strip.background = element_blank(),
+          panel.spacing = unit(0.25, "mm")) +
+    guides(fill = guide_legend(ncol = 8))
+```
+
+### Acropora
+```{r, fig.width = 10, fig.height = 5}
+# Site 1
+acr_site1_var <- varfig %+% filter(vmdf, host_genus == "acropora", site == "site1")
+acr_site1_pro <- profig %+% filter(pmdf, host_genus == "acropora", site == "site1")
+
+plot_grid(acr_site1_var, acr_site1_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+
+# Site 2
+acr_site2_var <- varfig %+% filter(vmdf, host_genus == "acropora", site == "site2")
+acr_site2_pro <- profig %+% filter(pmdf, host_genus == "acropora", site == "site2")
+
+plot_grid(acr_site2_var, acr_site2_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+
+# Site 3
+acr_site3_var <- varfig %+% filter(vmdf, host_genus == "acropora", site == "site3")
+acr_site3_pro <- profig %+% filter(pmdf, host_genus == "acropora", site == "site3")
+
+plot_grid(acr_site3_var, acr_site3_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+
+# Acropora samples with no site info -- whatʻs up with these? typo in sample name?
+as_tibble(sample_data(e5v)) %>%
+  filter(host_genus == "acropora", is.na(site)) %>%
+  pull(sample_name)
+```
+
+### Porites
+```{r, fig.width = 10, fig.height = 5}
+# Site 1
+por_site1_var <- varfig %+% filter(vmdf, host_genus == "porites", site == "site1")
+por_site1_pro <- profig %+% filter(pmdf, host_genus == "porites", site == "site1")
+
+plot_grid(por_site1_var, por_site1_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+
+# Site 2
+por_site2_var <- varfig %+% filter(vmdf, host_genus == "porites", site == "site2")
+por_site2_pro <- profig %+% filter(pmdf, host_genus == "porites", site == "site2")
+
+plot_grid(por_site2_var, por_site2_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+
+# Site 3
+por_site3_var <- varfig %+% filter(vmdf, host_genus == "porites", site == "site3")
+por_site3_pro <- profig %+% filter(pmdf, host_genus == "porites", site == "site3")
+
+plot_grid(por_site3_var, por_site3_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+
+# Porites samples with no site info -- whatʻs up with these? typo in sample name?
+as_tibble(sample_data(e5v)) %>%
+  filter(host_genus == "porites", is.na(site)) %>%
+  pull(sample_name)
+```
+
+
+### Pocillopora
+```{r, fig.width = 10, fig.height = 5}
+# Site 1
+poc_site1_var <- varfig %+% filter(vmdf, host_genus == "pocillopora", site == "site1")
+poc_site1_pro <- profig %+% filter(pmdf, host_genus == "pocillopora", site == "site1")
+
+plot_grid(poc_site1_var, poc_site1_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+
+# Site 2
+poc_site2_var <- varfig %+% filter(vmdf, host_genus == "pocillopora", site == "site2")
+poc_site2_pro <- profig %+% filter(pmdf, host_genus == "pocillopora", site == "site2")
+
+plot_grid(poc_site2_var, poc_site2_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+
+# Site 3
+poc_site3_var <- varfig %+% filter(vmdf, host_genus == "pocillopora", site == "site3")
+poc_site3_pro <- profig %+% filter(pmdf, host_genus == "pocillopora", site == "site3")
+
+plot_grid(poc_site3_var, poc_site3_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+
+# Pocillopora samples with no site info -- whatʻs up with these? typo in sample name?
+as_tibble(sample_data(e5v)) %>%
+  filter(host_genus == "pocillopora", is.na(site)) %>%
+  pull(sample_name)
+```
+
+
