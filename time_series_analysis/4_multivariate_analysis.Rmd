@@ -116,6 +116,15 @@ z_acr<-permanova
 z_acr
 ``` 
 
+adonis2(formula = vegan ~ timepoint * site_code, data = acr_data_afdw, method = "eu")
+                     Df SumOfSqs      R2       F Pr(>F)    
+timepoint             3   343.89 0.28096 14.5845  0.001 ***
+site_code             2    84.40 0.06895  5.3690  0.001 ***
+timepoint:site_code   6    80.47 0.06575  1.7064  0.011 *  
+Residual             91   715.24 0.58435                   
+Total               102  1224.00 1.00000   
+
+This shows that time accounted for 28% variance (343.89/1224.00) and site accounted for 7% variance (84.40/1224.00)and the interaction accounted for 6.5% variance (80.47/1224.00). There was 58% variance unexplained (715.24/1224.00). 
 
 Assemble plot with background points 
 ```{r}
