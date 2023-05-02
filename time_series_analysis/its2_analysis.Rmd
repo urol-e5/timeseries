@@ -41,7 +41,8 @@ tax <- tax_table(tax1)
 # OTU table
 otu0 <- read_tsv(
   file = "../ITS2_sequencing/symportal_output/its2_type_profiles/260_20230428T204810_DBV_20230429T054819.profiles.absolute.abund_and_meta.txt") %>% 
-  rename(sample_name = X2) %>%
+  rename(sample_name = `...2`) %>%
+  #rename(sample_name = X2) %>% #you may need to run this version of rename depending on how the file is loaded and column names are assigned
   select(-1) %>%
   slice(7:n()) %>%
   mutate_at(2:ncol(.), as.numeric)
