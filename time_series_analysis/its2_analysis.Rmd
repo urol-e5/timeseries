@@ -3,6 +3,8 @@ title: "ITS2_analysis"
 author: "ross"
 date: "5/1/2023"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -55,12 +57,41 @@ sam0 <- read_csv("../ITS2_sequencing/20230425_Cunning_Symportal_datasheet.csv") 
   clean_names() %>%
   mutate(colony_id = str_extract(sample_name, pattern = "..._[^_]*"),
          timepoint = str_extract(sample_name, pattern = "[^_]*$"))
+
+# colonies without site/species metadata were typos or incorrect labeling. AH has manually changed them here 
+# AH has reconciled 6 of the 11 missing colony ID's
+
+sam0 <- sam0 %>%
+  mutate(colony_id=if_else(colony_id=="POR_44", "POC_44", 
+                           if_else(colony_id=="POR_369", "POC_369", 
+                           if_else(colony_id=="POC_83", "POR_83", 
+                           if_else(colony_id=="POC_240", "POR_240", 
+                           if_else(colony_id=="ACR_398", "ACR_396", 
+                           if_else(colony_id=="ACR_314", "ACR_374", colony_id)))))))
+
+# LEFT TO IDENTIFY
+# POR-352
+# POC-295
+# POC-25
+# POC-234
+# ACR-268
+
+
+#load metadata 
 md <- read_csv("../metadata/coral_metadata.csv") %>%
   mutate(colony_id = str_replace(colony_id, "-", "_"))
+
 sam0 <- sam0 %>%
   left_join(md, by = "colony_id")
+
+#show colonies without species and site metadata 
+na_colonies<-sam0%>%
+            filter(is.na(species))
+
 sam1 <- as.matrix(sam0)
+
 rownames(sam1) <- sam0$sample_name
+
 sam <- sample_data(data.frame(sam1))
 
 profiles <- phyloseq(otu, tax, sam)
