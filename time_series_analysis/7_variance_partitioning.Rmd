@@ -16,3 +16,15 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 ```
+
+Phys matrix: master_timeseries.csv
+Temp matrix: Clean_Environmental_Temp_Means.csv
+
+Generate a list of symbiont and host responses.  Holobiont = all responses
+```{r}
+symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ratio_AFDW.mg.cm2") 
+host_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd", "calc.umol.cm2.hr")
+```
+
+Can log transform all metrics 
+
