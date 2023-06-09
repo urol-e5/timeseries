@@ -17,8 +17,55 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 ```
 
-Phys matrix: master_timeseries.csv
-Temp matrix: Clean_Environmental_Temp_Means.csv
+```{r}
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+# if (!require("ggplot2")) install.packages("ggplot2")
+# if (!require("RColorBrewer")) install.packages("RColorBrewer")
+# if (!require("lme4")) install.packages("lme4")
+# if (!require("lmerTest")) install.packages("lmerTest")
+# if (!require("car")) install.packages("car")
+# if (!require("effects")) install.packages("effects")
+# if (!require("ggfortify")) install.packages("ggfortify")
+# if (!require("cowplot")) install.packages("cowplot")
+# if (!require("vegan")) install.packages("vegan")
+# if (!require("corrr")) install.packages("corrr")
+# if (!require("ggcorrplot")) install.packages("ggcorrplot")
+# if (!require("GGally")) install.packages("GGally")
+# if (!require("broom")) install.packages("broom")
+# if (!require("cowplot")) install.packages("cowplot")
+
+# load packages
+library(tidyverse)
+# library(ggplot2)
+# library(RColorBrewer)
+# library(lme4)
+# library(lmerTest)
+# library(car)
+# library(effects)
+# library(ggfortify)
+# library(cowplot)
+# library(vegan)
+# library(corrr)
+# library(ggcorrplot)
+# library(GGally)
+# library(broom)
+# library(cowplot)
+```
+
+# Load dataframe
+
+Load in master dataframe generated from 1_assemble_data.Rmd.  
+```{r}
+master<-read.csv("Output/master_timeseries.csv")
+
+#reorder site levels 
+master$site_code<-as.factor(master$site_code)
+master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
+```
+
+#Phys matrix: master_timeseries.csv
+#Temp matrix: Clean_Environmental_Temp_Means.csv
 
 Generate a list of symbiont and host responses.  Holobiont = all responses
 ```{r}
@@ -28,3 +75,4 @@ host_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd",
 
 Can log transform all metrics 
 
+####
