@@ -27,3 +27,171 @@ library(tidyverse)
 library(vegan)
 
 ```
+
+# Load dataframe
+
+Load in master dataframe generated from 1_assemble_data.Rmd.  
+```{r}
+master<-read.csv("Output/master_timeseries.csv")
+
+#reorder site levels 
+master$site_code<-as.factor(master$site_code)
+master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
+```
+
+
+# Holobiont responses   
+```{r}
+data_all<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr, Total_Chl, Total_Chl_cell)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
+```
+
+# Log+1 transform all responses
+```{r}
+data_all_log <-data_all
+data_all_log[,-c(1:4)]<-log(data_all_log[,-c(1:4)]+1)
+
+#change timepoint to a factor 
+data_all_log$timepoint<-as.factor(data_all_log$timepoint)
+
+#change species to a factor 
+data_all_log$species<-as.factor(data_all_log$species)
+```
+
+# Differences in dispersion between species
+```{r}
+data_all_log.comp<-data_all_log[complete.cases(data_all_log), ]
+
+data_all_log.comp<-separate(data_all_log.comp, "site_code", into=c("site", "nutrient"), remove=FALSE)
+data_all_log.comp$siteID<-paste(data_all_log.comp$site, data_all_log.comp$nutrient, sep="")
+
+species.disp<-betadisper(vegdist(data_all_log.comp[,5:15], "euclidean"), data_all_log.comp$species)
+anova(species.disp)
+#            Df  Sum Sq Mean Sq F value   Pr(>F)   
+# Groups      2  1.0697 0.53483  6.4532 0.001757 **
+# Residuals 374 30.9965 0.08288    
+#Significant difference in dispersion between Species (cannot attribute significant effect from PERMANOVA to difference in centroids alone) 
+#Difference in "plasticity" between species 
+
+##Pairwise comparisons of dispersion between Species
+TukeyHSD(species.disp)
+#                             diff         lwr        upr     p adj
+# Pocillopora-Acropora -0.05669480 -0.14517953 0.03178992 0.2884423
+# Porites-Acropora      0.06810476 -0.02010320 0.15631272 0.1654624
+# Porites-Pocillopora   0.12479956  0.04294862 0.20665051 0.0010981
+```
+
+
+# Centroid distances
+```{r}
+##Obtain centroid coordinates of each Sample Set (Same Species, Site, Season) with betadisper type="centroid"
+data_all_log.comp$Set<-paste(data_all_log.comp$species, data_all_log.comp$siteID, data_all_log.comp$timepoint, sep=".")
+
+all.disp.grp<-betadisper(vegdist(data_all_log.comp[,10:15], "euclidean"), data_all_log.comp$Set, type="centroid")
+
+##Calculate the variance of Physiology explained by the first two PCoA axes
+all.disp.grp$eig[1]/sum(all.disp.grp$eig[which(all.disp.grp$eig>0)])*100
+all.disp.grp$eig[2]/sum(all.disp.grp$eig[which(all.disp.grp$eig>0)])*100
+sum(all.disp.grp$eig[1:2])/sum(all.disp.grp$eig[which(all.disp.grp$eig>0)])*100
+#97.21% explained by first two axes 
+
+##Calculate the Euclidean distance between centroids using coordinates of the first 2 PCoA axes
+centdist.all<-as.matrix(dist(all.disp.grp$centroids[,c(1:2)], method = "euclidean"))
+
+##Create a dataframe of distances between centroids of Sample Sets
+cents.all<-data.frame(SetA=colnames(centdist.all)[col(centdist.all)], SetB=rownames(centdist.all)[row(centdist.all)], Cent.Dist=c(centdist.all))
+
+##Remove rows comparing self-pairs of Sample Sets 
+cents.all<-cents.all[-c(which(cents.all$SetA==cents.all$SetB)),]
+
+##Remove repeats (Ex: Set 1 vs Set 2 and Set 2 vs Set 1)
+cents.all<-cents.all[!duplicated(cents.all$Cent.Dist),]
+
+##Split Sets column to add variables of interest
+cents.all<-separate(cents.all, "SetA", into=c("species.A", "site.A", "timepoint.A"), remove=FALSE)
+cents.all<-separate(cents.all, "SetB", into=c("species.B", "site.B", "timepoint.B"), remove=FALSE)
+
+##Filter to only keep rows comparing the same Species
+cents.all<-cents.all[c(which(cents.all$species.A==cents.all$species.B)),]
+
+##Dataframe with distances between Seasons by only keeping rows comparing the same Site
+cents.all.seas<-cents.all[c(which(cents.all$site.A==cents.all$site.B)),]
+
+##Dataframe with distances between Sites by only keeping rows comparing the same Season
+cents.all.site<-cents.all[c(which(cents.all$timepoint.A==cents.all$timepoint.B)),]
+
+```
+
+
+##Generate figure
+```{r}
+
+ggplot(cents.all.seas, aes(x=species.A, y=Cent.Dist, fill=species.A)) + 
+  geom_boxplot(alpha=0.8, outlier.shape = NA)+
+  geom_jitter(shape=16, position=position_jitter(0.2), alpha=0.5, size=3)+
+  scale_fill_manual(name="Species", values = c("darkgray", "orange", "purple"))+
+  theme_classic()+
+  theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), axis.text.x = element_text(size=14), axis.text.y = element_text(size=14), legend.text=element_text(size=12), legend.title=element_text(size=15))+
+  ylim(0,1.5)+
+  ylab("Seasonal Plasticity")+
+  xlab("Species")
+
+
+ggplot(cents.all.site, aes(x=species.A, y=Cent.Dist, fill=species.A)) + 
+  geom_boxplot(alpha=0.8, outlier.shape = NA)+
+  geom_jitter(shape=16, position=position_jitter(0.2), alpha=0.5, size=3)+
+  scale_fill_manual(name="Species", values = c("darkgray", "orange", "purple"))+
+  theme_classic()+
+  theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), axis.text.x = element_text(size=14), axis.text.y = element_text(size=14), legend.text=element_text(size=12), legend.title=element_text(size=15))+
+  ylim(0,1.5)+
+  ylab("Spatial Plasticity")+
+  xlab("Species")
+
+```
+
+
+
+#Acropora  
+```{r}
+acr_data_afdw_log<-data_all_log%>%
+  filter(species=="Acropora")
+
+acr_data_afdw_log<-acr_data_afdw_log[complete.cases(acr_data_afdw_log), ]
+```
+
+
+##Centroid distances
+```{r}
+
+
+```
+
+##Generate figure
+```{r}
+
+```
+
+
+
+#Porites
+```{r}
+por_data_afdw_log<-data_all_log%>%
+  filter(species=="Porites")
+
+por_data_afdw_log<-por_data_afdw_log[complete.cases(por_data_afdw_log), ]
+```
+
+
+#Pocillopora   
+```{r}
+poc_data_afdw_log<-data_all_log%>%
+  filter(species=="Pocillopora")
+
+poc_data_afdw_log<-poc_data_afdw_log[complete.cases(poc_data_afdw_log), ]
+```
