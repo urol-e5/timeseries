@@ -285,7 +285,7 @@ varpartBarplot_all.holo<-ggplot(varpart_afdw_parts_all, aes(x=Species, y=Percent
             position=position_stack(vjust=0.5), size=5.5)+
   theme(plot.title=element_text(hjust=0.5))
 
-ggsave(varpartBarplot_all.holo, file="Figures/Multivariate/VarPart_All_Holobiont.png", width=13, height=5)
+ggsave(varpartBarplot_all.holo, file="Figures/Multivariate/VarPart_All_Holobiont.png", width=6, height=8)
 
 
 
