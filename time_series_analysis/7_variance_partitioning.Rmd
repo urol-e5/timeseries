@@ -21,11 +21,12 @@ knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 ## install packages if you dont already have them
 if (!require("tidyverse")) install.packages("tidyverse")
 if (!require("vegan")) install.packages("vegan")
+if (!require("ggplot2")) install.packages("ggplot2")
 
 # load packages
 library(tidyverse)
 library(vegan)
-
+library(ggplot2)
 ```
 
 # Load dataframe
@@ -111,7 +112,7 @@ anova(rda(acr_data_afdw_log[,5:15], acr_data_afdw_log$site_code,  acr_data_afdw_
 #The effect of site alone (controlling for timepoint) is significant p=0.002 
 ```
 
-##Generate figure
+##Generate figure-Venn
 ```{r}
 par(bty="n")
 
@@ -119,6 +120,7 @@ varpart_acr_afdw_parts<-data.frame(Parts=c("Season", "Seas&Site", "Site","Residu
                             Variance=c(varpart_acr_afdw$part$indfract$Adj.R.square))
 varpart_acr_afdw_parts$PercVar<-paste(as.character(round(varpart_acr_afdw_parts$Variance*100,2)), "%", sep="")
 varpart_acr_afdw_parts$PercVar[which(varpart_acr_afdw_parts$Variance<0)]<-NA
+varpart_acr_afdw_parts$Species<-rep("Acropora", nrow(varpart_acr_afdw_parts))
 
 showvarparts(parts=2, labels=varpart_acr_afdw_parts$PercVar, Xnames=NULL, 
              cex=c(1.4, 1.4, 1.4, 1, 1, 1.2), 
@@ -175,7 +177,7 @@ anova(rda(por_data_afdw_log[,5:15], por_data_afdw_log$site_code,  por_data_afdw_
 
 ```
 
-##Generate figure
+##Generate figure- Venn
 ```{r}
 par(bty="n")
 
@@ -183,6 +185,7 @@ varpart_por_afdw_parts<-data.frame(Parts=c("Season", "Seas&Site", "Site","Residu
                             Variance=c(varpart_por_afdw$part$indfract$Adj.R.square))
 varpart_por_afdw_parts$PercVar<-paste(as.character(round(varpart_por_afdw_parts$Variance*100,2)), "%", sep="")
 varpart_por_afdw_parts$PercVar[which(varpart_por_afdw_parts$Variance<0)]<-NA
+varpart_por_afdw_parts$Species<-rep("Porites", nrow(varpart_por_afdw_parts))
 
 showvarparts(parts=2, labels=varpart_por_afdw_parts$PercVar, Xnames=NULL, 
              cex=c(1.4, 1.4, 1.4, 1, 1, 1.2), 
@@ -238,7 +241,7 @@ anova(rda(poc_data_afdw_log[,5:15], poc_data_afdw_log$site_code,  poc_data_afdw_
 
 ```
 
-##Generate figure
+##Generate figure- Venn
 ```{r}
 par(bty="n")
 
@@ -246,6 +249,7 @@ varpart_poc_afdw_parts<-data.frame(Parts=c("Season", "Seas&Site", "Site","Residu
                             Variance=c(varpart_poc_afdw$part$indfract$Adj.R.square))
 varpart_poc_afdw_parts$PercVar<-paste(as.character(round(varpart_poc_afdw_parts$Variance*100,2)), "%", sep="")
 varpart_poc_afdw_parts$PercVar[which(varpart_poc_afdw_parts$Variance<0)]<-NA
+varpart_poc_afdw_parts$Species<-rep("Pocillopora", nrow(varpart_poc_afdw_parts))
 
 showvarparts(parts=2, labels=varpart_poc_afdw_parts$PercVar, Xnames=NULL, 
              cex=c(1.4, 1.4, 1.4, 1, 1, 1.2), 
@@ -257,6 +261,35 @@ text(1, -.3, substitute(paste(italic('p = 0.008'))), cex=1.1)+
 text(0.5, 1, "Pocillopora", cex=2)
 ```
 
+
+#Generate figure- Barplot all Species Holobiont
+```{r}
+##Combine VarPart results for all Species
+varpart_afdw_parts_all<-rbind(varpart_acr_afdw_parts, varpart_por_afdw_parts, varpart_poc_afdw_parts)
+varpart_afdw_parts_all<-na.omit(varpart_afdw_parts_all)
+varpart_afdw_parts_all$Response<-rep("Holobiont", nrow(varpart_afdw_parts_all))
+varpart_afdw_parts_all$Percent<-round(varpart_afdw_parts_all$Variance*100,2)
+varpart_afdw_parts_all$Parts<-factor(varpart_afdw_parts_all$Parts, levels=c("Site", "Season", "Residuals"), ordered=TRUE)
+
+names(varpart_afdw_parts_all)
+
+varpartBarplot_all.holo<-ggplot(varpart_afdw_parts_all, aes(x=Species, y=Percent, fill=Parts)) + 
+  geom_bar(position="stack", stat="identity")+
+  scale_fill_manual(name="Predictors", values = c("#18DEC1FF", "#4681F7FF", "darkgray"))+
+  theme_classic()+
+  theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), 
+        axis.text.x=element_text(size=14, colour="black"), axis.text.y=element_text(size=14, colour="black"), 
+        legend.text=element_text(size=12), legend.title=element_text(size=15))+
+  ylab("Variance Explained")+
+  geom_text(aes(label=paste0(sprintf("%1.1f",Percent),"%"), fontface = "bold"),
+            position=position_stack(vjust=0.5), size=5.5)+
+  theme(plot.title=element_text(hjust=0.5))
+
+ggsave(varpartBarplot_all.holo, file="Figures/Multivariate/VarPart_All_Holobiont.png", width=13, height=5)
+
+
+
+```
 
 
 
