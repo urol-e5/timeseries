@@ -478,8 +478,8 @@ radar<-radar_data_temp%>%
 png(filename="Figures/Environmental/Environmental_Radar_Temperature.png", width=2280, heigh=1880, units="px", res=300)
 ggRadar(radar, aes(colour=site), scales="fixed")+
   ggplot2::theme_minimal()+
-  ggplot2::scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
-  scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  ggplot2::scale_colour_manual(values=c("#00cccc", "#374d7c", "#ff6633")) +
+  scale_fill_manual(values=c("#00cccc", "#374d7c", "#ff6633")) +
   ggplot2::theme(text=element_text(color="black", size=11))+
   ggplot2::theme(legend.position="top")
 dev.off()
@@ -517,8 +517,8 @@ ggRadar(radar, aes(colour=site), scales="fixed")+
   ggplot2::theme_minimal()+
   ggplot2::theme(text=element_text(color="black", size=11))+
   ggplot2::theme(legend.position="top")+
-  ggplot2::scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
-  ggplot2::scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633"))
+  ggplot2::scale_colour_manual(values=c("#00cccc", "#374d7c", "#ff6633")) +
+  ggplot2::scale_fill_manual(values=c("#00cccc", "#374d7c", "#ff6633"))
 dev.off()
 
 ```
