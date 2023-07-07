@@ -128,32 +128,49 @@ cents.all.site<-cents.all[c(which(cents.all$timepoint.A==cents.all$timepoint.B))
 
 ```
 
+##Run ANOVA on plasticity values 
+
+Run anova on seasonal plasticity between species.
+```{r}
+summary(aov(Cent.Dist~species.A, data=cents.all.seas))
+```
+
+Run anova on spatial plasticity between species.
+```{r}
+summary(aov(Cent.Dist~species.A, data=cents.all.site))
+```
 
 ##Generate figure
 ```{r}
 
-ggplot(cents.all.seas, aes(x=species.A, y=Cent.Dist, fill=species.A)) + 
+season.plasticity.plot<-ggplot(cents.all.seas, aes(x=species.A, y=Cent.Dist, fill=species.A)) + 
   geom_boxplot(alpha=0.8, outlier.shape = NA)+
   geom_jitter(shape=16, position=position_jitter(0.2), alpha=0.5, size=3)+
   scale_fill_manual(name="Species", values = c("darkgray", "orange", "purple"))+
   theme_classic()+
-  theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), axis.text.x = element_text(size=14), axis.text.y = element_text(size=14), legend.text=element_text(size=12), legend.title=element_text(size=15))+
+  theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), axis.text.x = element_text(size=14, face="italic"), axis.text.y = element_text(size=14), legend.text=element_text(size=12), legend.title=element_text(size=15), legend.position="none")+
   ylim(0,1.5)+
+  geom_text(x=2, y=1.5, label="p=0.026", color="black", size=6)+
   ylab("Seasonal Plasticity")+
-  xlab("Species")
+  xlab("Species");season.plasticity.plot
+
+ggsave("Figures/Plasticity/dispersion_plasticity_season.png", season.plasticity.plot, width=4, height=4, dpi=300)
 
 
-ggplot(cents.all.site, aes(x=species.A, y=Cent.Dist, fill=species.A)) + 
+spatial.plasticity.plot<-ggplot(cents.all.site, aes(x=species.A, y=Cent.Dist, fill=species.A)) + 
   geom_boxplot(alpha=0.8, outlier.shape = NA)+
   geom_jitter(shape=16, position=position_jitter(0.2), alpha=0.5, size=3)+
   scale_fill_manual(name="Species", values = c("darkgray", "orange", "purple"))+
   theme_classic()+
-  theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), axis.text.x = element_text(size=14), axis.text.y = element_text(size=14), legend.text=element_text(size=12), legend.title=element_text(size=15))+
+  theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), axis.text.x = element_text(size=14, face="italic"), axis.text.y = element_text(size=14), legend.text=element_text(size=12), legend.title=element_text(size=15), legend.position="none")+
+  geom_text(x=2, y=1.5, label="p=0.040", color="black", size=6)+
   ylim(0,1.5)+
   ylab("Spatial Plasticity")+
-  xlab("Species")
+  xlab("Species");spatial.plasticity.plot
 
+ggsave("Figures/Plasticity/dispersion_plasticity_spatial.png", spatial.plasticity.plot, width=4, height=4, dpi=300)
 ```
+
 
 
 
