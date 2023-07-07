@@ -81,7 +81,7 @@ tacplot_prot<-master %>%
   filter(!is.na(species))%>%
   select(colony_id_corr, species, site_code, timepoint, cre.umol.mgprot)%>%
   
-  ggplot(., aes(x = site_code, y = cre.umol.mgprot, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+cre.umol.mgprot), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -90,7 +90,7 @@ tacplot_prot<-master %>%
     xlab("Site") + 
     scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
                               "Manava High" = "Manava \nHigh"))+
-    ylab(expression(bold(paste("Antioxidant Capacity (", mu, "mol CRE mg protein"^-1,")"))))+
+    ylab(expression(bold(paste("log Antioxidant Capacity (", mu, "mol CRE mg protein"^-1,")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -99,7 +99,7 @@ tacplot_prot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );tacplot_prot
 ```
 
 ### Plot: CRE umol mgafdw 
@@ -111,7 +111,7 @@ tacplot_afdw<-master %>%
   filter(!is.na(species))%>%
   select(colony_id_corr, species, site_code, timepoint, cre.umol.mgafdw)%>%
   
-  ggplot(., aes(x = site_code, y = cre.umol.mgafdw, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+cre.umol.mgafdw), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -120,7 +120,7 @@ tacplot_afdw<-master %>%
     xlab("Site") + 
     scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
                               "Manava High" = "Manava \nHigh"))+
-    ylab(expression(bold(paste("Antioxidant Capacity (", mu, "mol CRE mg afdw"^-1,")"))))+
+    ylab(expression(bold(paste("log Antioxidant Capacity (", mu, "mol CRE mg afdw"^-1,")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -129,9 +129,8 @@ tacplot_afdw<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );tacplot_afdw
 ```
-
 
 ### Plot: CRE umol cm2 
 
@@ -142,7 +141,7 @@ tacplot_cm2<-master %>%
   filter(!is.na(species))%>%
   select(colony_id_corr, species, site_code, timepoint, cre.umol.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = cre.umol.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+cre.umol.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -151,7 +150,7 @@ tacplot_cm2<-master %>%
     xlab("Site") + 
      scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
                               "Manava High" = "Manava \nHigh"))+
-    ylab(expression(bold(paste("Antioxidant Capacity (", mu, "mol CRE mg afdw"^-1,")"))))+
+    ylab(expression(bold(paste("log Antioxidant Capacity (", mu, "mol CRE mg cm"^-2,")"))))+
     theme_classic() + 
     theme(
       legend.position="right",
@@ -160,14 +159,14 @@ tacplot_cm2<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );tacplot_cm2
 
 ```
 
 Join all plots for each normalization together.  
 
 ```{r}
-tac_figure<-plot_grid(tacplot_prot, tacplot_afdw, tacplot_cm2, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1);tac_figure
+tac_figure<-plot_grid(tacplot_prot, tacplot_afdw, tacplot_cm2, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1)
 
 ggsave(filename="Figures/Univariate/TAC_Figure.pdf", plot=tac_figure, dpi=300, width=24, height=5, units="in")
 ```
@@ -255,7 +254,6 @@ summary(antiox_model_por)
 ```
 
 
-
 ## Symbiont Densities  
 
 ### Plot: Surface Area    
@@ -267,7 +265,7 @@ symbplot_cm2<-master %>%
   filter(!is.na(species))%>%
   select(colony_id_corr, species, site_code, timepoint, cells.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = cells.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+cells.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -276,7 +274,7 @@ symbplot_cm2<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Symbiont Cells cm"^-2))))+
+    ylab(expression(bold(paste("log Symbiont Cells cm"^-2))))+
     theme_classic() + 
     theme(
       legend.title=element_text(face="bold", size=14),
@@ -284,7 +282,7 @@ symbplot_cm2<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );symbplot_cm2
 ```
 
 ### Plot: Protein   
@@ -296,7 +294,7 @@ symbplot_prot<-master %>%
    filter(!is.na(species))%>%
   select(colony_id_corr, species, site_code, timepoint, cells.mgprot)%>%
   
-  ggplot(., aes(x = site_code, y = cells.mgprot, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+cells.mgprot), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -305,7 +303,7 @@ symbplot_prot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Symbiont Cells mg protein"^-1))))+
+    ylab(expression(bold(paste("log Symbiont Cells mg protein"^-1))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -314,7 +312,7 @@ symbplot_prot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );symbplot_prot
 
 ```
 
@@ -327,7 +325,7 @@ symbplot_afdw<-master %>%
     filter(!is.na(species))%>%
   select(colony_id_corr, species, site_code, timepoint, cells.mgAFDW)%>%
   
-  ggplot(., aes(x = site_code, y = cells.mgAFDW, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+cells.mgAFDW), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -336,7 +334,7 @@ symbplot_afdw<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Symbiont Cells mg afdw"^-1))))+
+    ylab(expression(bold(paste("log Symbiont Cells mg afdw"^-1))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -345,7 +343,7 @@ symbplot_afdw<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );symbplot_afdw
 ```
 
 Join all plots for each normalization together.  
@@ -444,7 +442,7 @@ hAFDWplot<-master %>%
   filter(Host_AFDW.mg.cm2>0)%>%
   select(colony_id_corr, species, site_code, timepoint, Host_AFDW.mg.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = Host_AFDW.mg.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+Host_AFDW.mg.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -453,7 +451,7 @@ hAFDWplot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Host Biomass (mg AFDW cm"^-2, ")"))))+
+    ylab(expression(bold(paste("log Host Biomass (mg AFDW cm"^-2, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -462,7 +460,7 @@ hAFDWplot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );hAFDWplot
 ```
 
 
@@ -477,7 +475,7 @@ sAFDWplot<-master %>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   select(colony_id_corr, species, site_code, timepoint, Sym_AFDW.mg.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = Sym_AFDW.mg.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+Sym_AFDW.mg.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -486,7 +484,7 @@ sAFDWplot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Symbiont Biomass (mg AFDW cm"^-2, ")"))))+
+    ylab(expression(bold(paste("log Symbiont Biomass (mg AFDW cm"^-2, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -495,7 +493,7 @@ sAFDWplot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );sAFDWplot
 ```
 
 ### Plot S:H Ratio  
@@ -503,9 +501,6 @@ sAFDWplot<-master %>%
 Calculate biomass as a ratio of host to symbiont and plot.  
 
 ```{r} 
-#master <- master %>% 
-  #mutate(Ratio_AFDW.mg.cm2=Sym_AFDW.mg.cm2/(Sym_AFDW.mg.cm2+Host_AFDW.mg.cm2))
-
 ratioAFDWplot<-master %>%
   filter(!is.na(Host_AFDW.mg.cm2)) %>%
   filter(!is.na(species))%>%
@@ -514,7 +509,7 @@ ratioAFDWplot<-master %>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   select(colony_id_corr, species, site_code, timepoint, Ratio_AFDW.mg.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = Ratio_AFDW.mg.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+Ratio_AFDW.mg.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -523,7 +518,7 @@ ratioAFDWplot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Symbiont : Holobiont Biomass"))))+
+    ylab(expression(bold(paste("log Symbiont : Holobiont Biomass"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -532,9 +527,8 @@ ratioAFDWplot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );ratioAFDWplot
 ```
-
 
 Join all plots together.  
 
@@ -790,7 +784,7 @@ chlaplot_cm2<-master %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site_code, timepoint, chla.ug.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = chla.ug.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+chla.ug.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -799,7 +793,7 @@ chlaplot_cm2<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Chlorophyll a (", mu, "g cm"^-2, ")"))))+
+    ylab(expression(bold(paste("log Chlorophyll a (", mu, "g cm"^-2, ")"))))+
     theme_classic() + 
     theme(
       legend.title=element_text(face="bold", size=14),
@@ -807,7 +801,7 @@ chlaplot_cm2<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );chlaplot_cm2
 ```
 
 View by site and timepoint for each species in Chl c2.   
@@ -817,7 +811,7 @@ chlc2plot_cm2<-master %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site_code, timepoint, chlc2.ug.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = chlc2.ug.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+chlc2.ug.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -826,7 +820,7 @@ chlc2plot_cm2<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Chlorophyll c2 (", mu, "g cm"^-2, ")"))))+
+    ylab(expression(bold(paste("log Chlorophyll c2 (", mu, "g cm"^-2, ")"))))+
     theme_classic() + 
     theme(
       legend.title=element_text(face="bold", size=14),
@@ -834,7 +828,7 @@ chlc2plot_cm2<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );chlc2plot_cm2
 ```
 
 ### Plot: Protein    
@@ -846,7 +840,7 @@ chlaplot_prot<-master %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site_code, timepoint, chla.ug.mgprot)%>%
   
-  ggplot(., aes(x = site_code, y = chla.ug.mgprot, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+chla.ug.mgprot), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -855,7 +849,7 @@ chlaplot_prot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Chlorophyll a (", mu, "g mg protein"^-1, ")"))))+
+    ylab(expression(bold(paste("log Chlorophyll a (", mu, "g mg protein"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -864,7 +858,7 @@ chlaplot_prot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );chlaplot_prot
 ```
 
 View by site and timepoint for each species in Chl c2.   
@@ -874,7 +868,7 @@ chlc2plot_prot<-master %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site_code, timepoint, chlc2.ug.mgprot)%>%
   
-  ggplot(., aes(x = site_code, y = chlc2.ug.mgprot, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+chlc2.ug.mgprot), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -883,7 +877,7 @@ chlc2plot_prot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Chlorophyll c2 (", mu, "g mg protein"^-1, ")"))))+
+    ylab(expression(bold(paste("log Chlorophyll c2 (", mu, "g mg protein"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -892,7 +886,7 @@ chlc2plot_prot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );chlc2plot_prot
 ```
 
 ### Plot: Biomass    
@@ -904,7 +898,7 @@ chlaplot_afdw<-master %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site_code, timepoint, chla.ug.mgAFDW)%>%
   
-  ggplot(., aes(x = site_code, y = chla.ug.mgAFDW, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+chla.ug.mgAFDW), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -913,7 +907,7 @@ chlaplot_afdw<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Chlorophyll a (", mu, "g mg afdw"^-1, ")"))))+
+    ylab(expression(bold(paste("log Chlorophyll a (", mu, "g mg afdw"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -922,7 +916,7 @@ chlaplot_afdw<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );chlaplot_afdw
 ```
 
 View by site and timepoint for each species in Chl c2.   
@@ -932,7 +926,7 @@ chlc2plot_afdw<-master %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site_code, timepoint, chlc2.ug.mgAFDW)%>%
   
-  ggplot(., aes(x = site_code, y = chlc2.ug.mgAFDW, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+chlc2.ug.mgAFDW), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -941,7 +935,7 @@ chlc2plot_afdw<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Chlorophyll c2 (", mu, "g mg afdw"^-1, ")"))))+
+    ylab(expression(bold(paste("log Chlorophyll c2 (", mu, "g mg afdw"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -950,7 +944,7 @@ chlc2plot_afdw<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );chlc2plot_afdw
 ```
 
 ### Plot: Per cell    
@@ -962,7 +956,7 @@ chlaplot_cell<-master %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site_code, timepoint, chla.ug.cell)%>%
   
-  ggplot(., aes(x = site_code, y = chla.ug.cell, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+chla.ug.cell), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -971,7 +965,7 @@ chlaplot_cell<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Chlorophyll a (", mu, "g cell"^-1, ")"))))+
+    ylab(expression(bold(paste("log Chlorophyll a (", mu, "g cell"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -980,7 +974,7 @@ chlaplot_cell<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );chlaplot_cell
 ```
 
 View by site and timepoint for each species in Chl c2.   
@@ -990,7 +984,7 @@ chlc2plot_cell<-master %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site_code, timepoint, chlc2.ug.cell)%>%
   
-  ggplot(., aes(x = site_code, y = chlc2.ug.cell, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+chlc2.ug.cell), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -999,7 +993,7 @@ chlc2plot_cell<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Chlorophyll c2 (", mu, "g cell"^-1, ")"))))+
+    ylab(expression(bold(paste("log Chlorophyll c2 (", mu, "g cell"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -1008,15 +1002,7 @@ chlc2plot_cell<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
-```
-
-Join all plots for each normalization together.  
-
-```{r}
-chl_figure<-plot_grid(chlaplot_prot, chlaplot_afdw, chlaplot_cell, chlaplot_cm2,chlc2plot_prot, chlc2plot_afdw, chlc2plot_cell, chlc2plot_cm2,  labels = c("", "", ""), ncol=4, nrow=2, rel_widths = c(.8, .8, .8, 1, .8, .8, .8, 1), label_size = 20, label_x = 0.1)
-
-ggsave(filename="Figures/Univariate/Chlorophyll_Figure.pdf", plot=chl_figure, dpi=300, width=32, height=10, units="in")
+      );chlc2plot_cell
 ```
 
 ### Plot: Total chl  
@@ -1027,8 +1013,9 @@ chlplot_total<-master %>%
   filter(!is.na(Total_Chl)) %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site_code, timepoint, Total_Chl)%>%
+  filter(Total_Chl>0)%>%
   
-  ggplot(., aes(x = site_code, y = Total_Chl, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+Total_Chl), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1037,7 +1024,7 @@ chlplot_total<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Total Chlorophyll (", mu, "g mg afdw"^-1, ")"))))+
+    ylab(expression(bold(paste("log Total Chlorophyll (", mu, "g mg afdw"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -1046,7 +1033,7 @@ chlplot_total<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );chlplot_total
 ```
 
 View by site and timepoint for each species for total chl per cell.     
@@ -1055,8 +1042,9 @@ chlplot_total_cell<-master %>%
   filter(!is.na(Total_Chl_cell)) %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site_code, timepoint, Total_Chl_cell)%>%
+  filter(Total_Chl_cell>0)%>%
   
-  ggplot(., aes(x = site_code, y = Total_Chl_cell, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+Total_Chl_cell), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1074,8 +1062,17 @@ chlplot_total_cell<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );chlplot_total_cell
 ```
+
+Join all plots for each normalization together.  
+
+```{r}
+chl_figure<-plot_grid(chlplot_total, chlaplot_prot, chlaplot_afdw, chlaplot_cell, chlaplot_cm2, chlplot_total_cell, chlc2plot_prot, chlc2plot_afdw, chlc2plot_cell, chlc2plot_cm2,  labels = c("", "", ""), ncol=5, nrow=2, rel_widths = c(.8, .8, .8, .8, 1, .8, .8, .8, .8, 1), label_size = 20, label_x = 0.1)
+
+ggsave(filename="Figures/Univariate/Chlorophyll_Figure.pdf", plot=chl_figure, dpi=300, width=36, height=10, units="in")
+```
+
 
 ### Analysis  
 
@@ -1405,7 +1402,7 @@ protplot_cm2<-master %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site_code, timepoint, prot_mg.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = prot_mg.cm2, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+prot_mg.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1414,7 +1411,7 @@ protplot_cm2<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Protein (mg cm"^-2, ")"))))+
+    ylab(expression(bold(paste("log Protein (mg cm"^-2, ")"))))+
     theme_classic() + 
     theme(
       legend.title=element_text(face="bold", size=14),
@@ -1422,7 +1419,7 @@ protplot_cm2<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );protplot_cm2
 ```
 
 ### Plot: AFDW  
@@ -1433,8 +1430,9 @@ protplot_afdw<-master %>%
   filter(!is.na(prot_mg.mgafdw)) %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site_code, timepoint, prot_mg.mgafdw)%>%
+  filter(prot_mg.mgafdw>0)%>%
   
-  ggplot(., aes(x = site_code, y = prot_mg.mgafdw, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+prot_mg.mgafdw), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1443,7 +1441,7 @@ protplot_afdw<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Protein (mg mg afdw"^-1, ")"))))+
+    ylab(expression(bold(paste("log Protein (mg mg afdw"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -1452,7 +1450,7 @@ protplot_afdw<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );protplot_afdw
 ```
 
 Join all plots for each normalization together.  
@@ -1551,7 +1549,7 @@ am_plot<-master %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site_code, timepoint, AQY, Am, Rd)%>%
   
-  ggplot(., aes(x = site_code, y = Am, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+Am), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1560,7 +1558,7 @@ am_plot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("P" [Max], " (µmol O" [2], "cm"^-2, " h"^-1, ")"))))+
+    ylab(expression(bold(paste("log P" [Max], " (µmol O" [2], " cm"^-2, " h"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -1569,7 +1567,7 @@ am_plot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );am_plot
 ```
 
 ### Plot: AQY  
@@ -1581,7 +1579,7 @@ aqy_plot<-master %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site_code, timepoint, AQY, Am, Rd)%>%
   
-  ggplot(., aes(x = site_code, y = AQY, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+AQY), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1590,7 +1588,7 @@ aqy_plot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Quantum Yield (α)"))))+
+    ylab(expression(bold(paste("log Quantum Yield (alpha)"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -1599,7 +1597,7 @@ aqy_plot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );aqy_plot
 ```
 
 ### Plot: Rd  
@@ -1611,7 +1609,7 @@ rd_plot<-master %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site_code, timepoint, AQY, Am, Rd)%>%
   
-  ggplot(., aes(x = site_code, y = Rd, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+Rd), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1620,7 +1618,7 @@ rd_plot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("Respiration (µmol O" [2], "cm"^-2, " h"^-1, ")"))))+
+    ylab(expression(bold(paste("log Respiration (µmol O" [2], " cm"^-2, " h"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.title=element_text(face="bold", size=14),
@@ -1628,7 +1626,7 @@ rd_plot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );rd_plot
 ```
 
 Join all plots together.  
@@ -1884,7 +1882,7 @@ calcplot_prot<-master %>%
   filter(!is.na(species))%>%
   select(colony_id_corr, species, site_code, timepoint, calc.umol.mgprot.hr)%>%
   
-  ggplot(., aes(x = site_code, y = calc.umol.mgprot.hr, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+calc.umol.mgprot.hr), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1893,7 +1891,7 @@ calcplot_prot<-master %>%
     xlab("Site") + 
     scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
                               "Manava High" = "Manava \nHigh"))+
-    ylab(expression(bold(paste(mu,"mol Ca", CO[3], " mg protein"^-1, " hr"^-1))))+
+    ylab(expression(bold(paste("log ", mu,"mol Ca", CO[3], " mg protein"^-1, " hr"^-1))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -1902,7 +1900,7 @@ calcplot_prot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );calcplot_prot
 ```
 
 ### Plot: Calcification mgafdw 
@@ -1915,7 +1913,7 @@ calcplot_afdw<-master %>%
   filter(!is.na(species))%>%
   select(colony_id_corr, species, site_code, timepoint, calc.umol.mgAFDW.hr)%>%
   
-  ggplot(., aes(x = site_code, y = calc.umol.mgAFDW.hr, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+calc.umol.mgAFDW.hr), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1924,7 +1922,7 @@ calcplot_afdw<-master %>%
     xlab("Site") + 
     scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
                               "Manava High" = "Manava \nHigh"))+
-    ylab(expression(bold(paste(mu,"mol Ca", CO[3], " mg AFDW"^-1, " hr"^-1))))+
+    ylab(expression(bold(paste("log ", mu,"mol Ca", CO[3], " mg AFDW"^-1, " hr"^-1))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -1933,9 +1931,8 @@ calcplot_afdw<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );calcplot_afdw
 ```
-
 
 ### Plot: Calcification umol cm2 
 
@@ -1946,7 +1943,7 @@ calcplot_cm2<-master %>%
   filter(!is.na(species))%>%
   select(colony_id_corr, species, site_code, timepoint, calc.umol.cm2.hr)%>%
   
-  ggplot(., aes(x = site_code, y = calc.umol.cm2.hr, fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site_code, y = log(1+calc.umol.cm2.hr), fill = timepoint, group=interaction(site_code,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1955,7 +1952,7 @@ calcplot_cm2<-master %>%
     xlab("Site") + 
     scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
                               "Manava High" = "Manava \nHigh"))+
-    ylab(expression(bold(paste(mu,"mol Ca", CO[3], " cm"^-2, " hr"^-1))))+
+    ylab(expression(bold(paste("log ", mu,"mol Ca", CO[3], " cm"^-2, " hr"^-1))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -1964,7 +1961,7 @@ calcplot_cm2<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      )
+      );calcplot_cm2
 ```
 
 Join all plots for each normalization together.  
@@ -2112,6 +2109,7 @@ Generating network plot with corrr package.
 ```{r}
 master%>%
   select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  mutate(across(everything(), ~log(. + 1)))%>%# log transform all data 
   corrr::correlate(., method="spearman", diagonal=1)%>% #generate correlation matrix
   rearrange(.)%>%
   #shave(.)%>% #remove upper triangle
@@ -2130,6 +2128,7 @@ p<-master%>%
   filter(prot_mg.mgafdw<1.5)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(calc.umol.mgAFDW.hr>-.06)%>%
+  mutate(across(c(2:15), ~log(. + 1)))%>%# log transform all data 
   ggpairs(., columns=2:15, ggplot2::aes(colour=species)) #try to bold significant stats
 
 #change colors
@@ -2159,6 +2158,7 @@ p<-master%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(calc.umol.mgAFDW.hr>-.06)%>%
+  mutate(across(c(2:15), ~log(. + 1)))%>%# log transform all data 
   ggpairs(., columns=2:15, ggplot2::aes(colour=site_code)) 
 
 #change colors
@@ -2188,6 +2188,7 @@ p<-master%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(calc.umol.mgAFDW.hr>-.06)%>%
+  mutate(across(c(2:15), ~log(. + 1)))%>%# log transform all data 
   ggpairs(., columns=2:15, ggplot2::aes(colour=site_code)) 
 
 #change colors
@@ -2218,6 +2219,7 @@ p<-master%>%
   filter(prot_mg.mgafdw<1.5)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   #filter(calc.umol.mgAFDW.hr>-.06)%>%
+  mutate(across(c(2:15), ~log(. + 1)))%>%# log transform all data 
   ggpairs(., columns=2:15, ggplot2::aes(colour=site_code)) 
 
 #change colors
@@ -2239,7 +2241,7 @@ ggsave(plot=p, "Figures/Univariate/Correlation_Matrix_Porites.pdf", width=20, he
 
 Plot the most highly correlated variables across all species to determine which variables to plot over time.
 
-View top 10.  
+View top 10 correlated variables.  
 ```{r}
 p<-master%>%
   select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, calc.umol.cm2.hr)%>%
@@ -2247,7 +2249,8 @@ p<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(prot_mg.mgafdw<1.5)%>%
-  filter(Sym_AFDW.mg.cm2<20)
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  mutate(across(everything(), ~log(. + 1)))# log transform all data 
 
 p<-na.omit(p)
 
@@ -2261,13 +2264,7 @@ z=z[order(-abs(z$Freq)),]    #Sort by highest correlation (whether +ve or -ve)
 head(z, 10)
 ```
 
-The most highly correlated variables are: 
-- Max photosynthesis and respiration 
-- Host and symbiont biomass
-- Host biomass and max photosynthesis 
-- Chlorophyll a and chlorophyll c2
-- Antioxidant capacity and symbiont biomass 
-- Fruther correlations between host/symbiont biomass and metabolic rates 
+The most highly correlated variables include host and symbiont biomass, max photosynthesis, respiration, cell density, and chlorophyll content. 
 
 ## Plotting correlation network 
 
@@ -2279,7 +2276,8 @@ p<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(prot_mg.mgafdw<1.5)%>%
-  filter(Sym_AFDW.mg.cm2<20)
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  mutate(across(everything(), ~log(. + 1)))# log transform all data 
 
 p<-na.omit(p)
 
@@ -2318,6 +2316,7 @@ timeseries<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  mutate(across(c(6:17), ~log(. + 1)))%>%# log transform all data 
   gather(key="Metric", value="Value", -species, -site_code, -month, -colony_id_corr, -timepoint)%>%
   group_by(Metric, colony_id_corr, timepoint)%>%
   arrange(colony_id_corr, .by_group = TRUE)%>%
@@ -2363,9 +2362,6 @@ ggsave(plot=time_plot2, "Figures/Univariate/Relative_Change_EachSpecies.png", wi
 ```
 
 Calcification is not displayed due to relative change being beyond the scale we can display here. 
-
-
-
 
 Display calcification separately here. 
 
