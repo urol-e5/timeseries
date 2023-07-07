@@ -62,6 +62,9 @@ master<-read.csv("Output/master_timeseries.csv")
 #reorder site levels 
 master$site_code<-as.factor(master$site_code)
 master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
+
+master<-master%>%
+  select(!code)
 ```
 
 # Build trajectory PCA plots  
@@ -86,6 +89,8 @@ acr_data_afdw<-master%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
 
 acr_data_afdw<-acr_data_afdw[complete.cases(acr_data_afdw), ]
+
+acr_data_afdw[,-c(1:4)]<-log(acr_data_afdw[,-c(1:4)]+1)
 
 scaled_acr_afdw<-prcomp(acr_data_afdw[c(5:16)], scale=TRUE, center=TRUE) 
 
@@ -118,13 +123,11 @@ z_acr
 
 adonis2(formula = vegan ~ timepoint * site_code, data = acr_data_afdw, method = "eu")
                      Df SumOfSqs      R2       F Pr(>F)    
-timepoint             3   343.89 0.28096 14.5845  0.001 ***
-site_code             2    84.40 0.06895  5.3690  0.001 ***
-timepoint:site_code   6    80.47 0.06575  1.7064  0.011 *  
-Residual             91   715.24 0.58435                   
+timepoint             3   383.40 0.31324 17.1488  0.001 ***
+site_code             2    86.45 0.07063  5.8002  0.001 ***
+timepoint:site_code   6    75.96 0.06206  1.6989  0.010 ** 
+Residual             91   678.18 0.55407                   
 Total               102  1224.00 1.00000   
-
-This shows that time accounted for 28% variance (343.89/1224.00) and site accounted for 7% variance (84.40/1224.00)and the interaction accounted for 6.5% variance (80.47/1224.00). There was 58% variance unexplained (715.24/1224.00). 
 
 Assemble plot with background points 
 ```{r}
@@ -201,7 +204,6 @@ acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,
          axis.title = element_text(size=20));acrArrows
 ```
 
-
 #### Porites
 
 Generate PCA using scaled (scaled_por_afdw) from dataframe (por_data_afdw).   
@@ -220,6 +222,8 @@ por_data_afdw<-master%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
 
 por_data_afdw<-por_data_afdw[complete.cases(por_data_afdw), ]
+
+por_data_afdw[,-c(1:4)]<-log(por_data_afdw[,-c(1:4)]+1)
 
 scaled_por_afdw<-prcomp(por_data_afdw[c(5:16)], scale=TRUE, center=TRUE) 
 
@@ -247,6 +251,14 @@ permanova<-adonis2(vegan ~ timepoint*site_code, data = por_data_afdw, method='eu
 z_por<-permanova
 z_por
 ```
+
+adonis2(formula = vegan ~ timepoint * site_code, data = por_data_afdw, method = "eu")
+                     Df SumOfSqs      R2       F Pr(>F)    
+timepoint             3   288.68 0.17559 11.3444  0.001 ***
+site_code             2   200.11 0.12172 11.7956  0.001 ***
+timepoint:site_code   6    86.45 0.05259  1.6987  0.006 ** 
+Residual            126  1068.76 0.65010                   
+Total               137  1644.00 1.00000    
 
 Assemble plot with background points
 ```{r}
@@ -350,6 +362,8 @@ poc_data_afdw<-master%>%
 
 poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
  
+poc_data_afdw[,-c(1:4)]<-log(poc_data_afdw[,-c(1:4)]+1)
+
 scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:16)], scale=TRUE, center=TRUE) 
 
 poc_info<-poc_data_afdw[c(2,4)]
@@ -376,6 +390,14 @@ permanova<-adonis2(vegan ~ timepoint*site_code, data = poc_data_afdw, method='eu
 z_poc<-permanova
 z_poc
 ```
+
+adonis2(formula = vegan ~ timepoint * site_code, data = poc_data_afdw, method = "eu")
+                     Df SumOfSqs      R2       F Pr(>F)    
+timepoint             3   403.37 0.24899 16.1312  0.001 ***
+site_code             2    62.64 0.03867  3.7575  0.001 ***
+timepoint:site_code   6   120.43 0.07434  2.4081  0.001 ***
+Residual            124  1033.56 0.63800                   
+Total               135  1620.00 1.00000 
 
 Assemble plot with background points
 ```{r}
@@ -494,6 +516,8 @@ poc_tp1_data<-master%>%
   filter(timepoint=="timepoint1")
 
 poc_tp1_data<-poc_tp1_data[complete.cases(poc_tp1_data), ]
+
+poc_tp1_data[,-c(1:4)]<-log(poc_tp1_data[,-c(1:4)]+1)
  
 poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:16)], scale=TRUE, center=TRUE) 
 
@@ -531,6 +555,8 @@ poc_tp2_data<-master%>%
   filter(timepoint=="timepoint2")
  
 poc_tp2_data<-poc_tp2_data[complete.cases(poc_tp2_data), ]
+
+poc_tp2_data[,-c(1:4)]<-log(poc_tp2_data[,-c(1:4)]+1)
  
 poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:16)], scale=TRUE, center=TRUE) 
 
@@ -568,6 +594,8 @@ poc_tp3_data<-master%>%
   filter(timepoint=="timepoint3")
  
 poc_tp3_data<-poc_tp3_data[complete.cases(poc_tp3_data), ]
+
+poc_tp3_data[,-c(1:4)]<-log(poc_tp3_data[,-c(1:4)]+1)
  
 poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:16)], scale=TRUE, center=TRUE) 
 
@@ -605,6 +633,8 @@ poc_tp4_data<-master%>%
   filter(timepoint=="timepoint4")
  
 poc_tp4_data<-poc_tp4_data[complete.cases(poc_tp4_data), ]
+
+poc_tp4_data[,-c(1:4)]<-log(poc_tp4_data[,-c(1:4)]+1)
  
 poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:16)], scale=TRUE, center=TRUE) 
 
@@ -643,6 +673,8 @@ acr_tp1_data<-master%>%
   filter(timepoint=="timepoint1")
 
 acr_tp1_data<-acr_tp1_data[complete.cases(acr_tp1_data), ]
+
+acr_tp1_data[,-c(1:4)]<-log(acr_tp1_data[,-c(1:4)]+1)
  
 acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:16)], scale=TRUE, center=TRUE) 
 
@@ -680,6 +712,8 @@ acr_tp2_data<-master%>%
   filter(timepoint=="timepoint2")
  
 acr_tp2_data<-acr_tp2_data[complete.cases(acr_tp2_data), ]
+
+acr_tp2_data[,-c(1:4)]<-log(acr_tp2_data[,-c(1:4)]+1)
  
 acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:16)], scale=TRUE, center=TRUE) 
 
@@ -717,6 +751,8 @@ acr_tp3_data<-master%>%
   filter(timepoint=="timepoint3")
  
 acr_tp3_data<-acr_tp3_data[complete.cases(acr_tp3_data), ]
+
+acr_tp3_data[,-c(1:4)]<-log(acr_tp3_data[,-c(1:4)]+1)
  
 acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:16)], scale=TRUE, center=TRUE) 
 
@@ -754,6 +790,8 @@ acr_tp4_data<-master%>%
   filter(timepoint=="timepoint4")
  
 acr_tp4_data<-acr_tp4_data[complete.cases(acr_tp4_data), ]
+
+acr_tp4_data[,-c(1:4)]<-log(acr_tp4_data[,-c(1:4)]+1)
  
 acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:16)], scale=TRUE, center=TRUE) 
 
@@ -793,6 +831,8 @@ por_tp1_data<-master%>%
   filter(timepoint=="timepoint1")
 
 por_tp1_data<-por_tp1_data[complete.cases(por_tp1_data), ]
+
+por_tp1_data[,-c(1:4)]<-log(por_tp1_data[,-c(1:4)]+1)
  
 por_tp1_scaled<-prcomp(por_tp1_data[c(5:16)], scale=TRUE, center=TRUE) 
 
@@ -830,6 +870,8 @@ por_tp2_data<-master%>%
   filter(timepoint=="timepoint2")
  
 por_tp2_data<-por_tp2_data[complete.cases(por_tp2_data), ]
+
+por_tp2_data[,-c(1:4)]<-log(por_tp2_data[,-c(1:4)]+1)
  
 por_tp2_scaled<-prcomp(por_tp2_data[c(5:16)], scale=TRUE, center=TRUE) 
 
@@ -867,6 +909,8 @@ por_tp3_data<-master%>%
   filter(timepoint=="timepoint3")
  
 por_tp3_data<-por_tp3_data[complete.cases(por_tp3_data), ]
+
+por_tp3_data[,-c(1:4)]<-log(por_tp3_data[,-c(1:4)]+1)
  
 por_tp3_scaled<-prcomp(por_tp3_data[c(5:16)], scale=TRUE, center=TRUE) 
 
@@ -904,6 +948,8 @@ por_tp4_data<-master%>%
   filter(timepoint=="timepoint4")
  
 por_tp4_data<-por_tp4_data[complete.cases(por_tp4_data), ]
+
+por_tp4_data[,-c(1:4)]<-log(por_tp4_data[,-c(1:4)]+1)
  
 por_tp4_scaled<-prcomp(por_tp4_data[c(5:16)], scale=TRUE, center=TRUE) 
 
@@ -965,6 +1011,8 @@ acr_data_afdw<-master%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw, Respiration=Rd, Calc=calc.umol.cm2.hr)
 
 acr_data_afdw<-acr_data_afdw[complete.cases(acr_data_afdw), ]
+
+acr_data_afdw[,-c(1:4)]<-log(acr_data_afdw[,-c(1:4)]+1)
 
 scaled_acr_afdw<-prcomp(acr_data_afdw[c(5:9)], scale=TRUE, center=TRUE) 
 
@@ -1096,6 +1144,8 @@ por_data_afdw<-master%>%
 
 por_data_afdw<-por_data_afdw[complete.cases(por_data_afdw), ]
 
+por_data_afdw[,-c(1:4)]<-log(por_data_afdw[,-c(1:4)]+1)
+
 scaled_por_afdw<-prcomp(por_data_afdw[c(5:9)], scale=TRUE, center=TRUE) 
 
 por_info<-por_data_afdw[c(2,4)]
@@ -1223,6 +1273,8 @@ poc_data_afdw<-master%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Respiration=Rd, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
 
 poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
+
+poc_data_afdw[,-c(1:4)]<-log(poc_data_afdw[,-c(1:4)]+1)
  
 scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:9)], scale=TRUE, center=TRUE) 
 
@@ -1369,6 +1421,8 @@ poc_tp1_data<-master%>%
   filter(timepoint=="timepoint1")
 
 poc_tp1_data<-poc_tp1_data[complete.cases(poc_tp1_data), ]
+
+poc_tp1_data[,-c(1:4)]<-log(poc_tp1_data[,-c(1:4)]+1)
  
 poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:9)], scale=TRUE, center=TRUE) 
 
@@ -1406,6 +1460,8 @@ poc_tp2_data<-master%>%
   filter(timepoint=="timepoint2")
  
 poc_tp2_data<-poc_tp2_data[complete.cases(poc_tp2_data), ]
+
+poc_tp2_data[,-c(1:4)]<-log(poc_tp2_data[,-c(1:4)]+1)
  
 poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:9)], scale=TRUE, center=TRUE) 
 
@@ -1443,6 +1499,8 @@ poc_tp3_data<-master%>%
   filter(timepoint=="timepoint3")
  
 poc_tp3_data<-poc_tp3_data[complete.cases(poc_tp3_data), ]
+
+poc_tp3_data[,-c(1:4)]<-log(poc_tp3_data[,-c(1:4)]+1)
  
 poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:9)], scale=TRUE, center=TRUE) 
 
@@ -1480,6 +1538,8 @@ poc_tp4_data<-master%>%
   filter(timepoint=="timepoint4")
  
 poc_tp4_data<-poc_tp4_data[complete.cases(poc_tp4_data), ]
+
+poc_tp4_data[,-c(1:4)]<-log(poc_tp4_data[,-c(1:4)]+1)
  
 poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:9)], scale=TRUE, center=TRUE) 
 
@@ -1520,6 +1580,8 @@ acr_tp1_data<-master%>%
   filter(timepoint=="timepoint1")
 
 acr_tp1_data<-acr_tp1_data[complete.cases(acr_tp1_data), ]
+
+acr_tp1_data[,-c(1:4)]<-log(acr_tp1_data[,-c(1:4)]+1)
  
 acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:9)], scale=TRUE, center=TRUE) 
 
@@ -1557,6 +1619,8 @@ acr_tp2_data<-master%>%
   filter(timepoint=="timepoint2")
  
 acr_tp2_data<-acr_tp2_data[complete.cases(acr_tp2_data), ]
+
+acr_tp2_data[,-c(1:4)]<-log(acr_tp2_data[,-c(1:4)]+1)
  
 acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:9)], scale=TRUE, center=TRUE) 
 
@@ -1594,6 +1658,8 @@ acr_tp3_data<-master%>%
   filter(timepoint=="timepoint3")
  
 acr_tp3_data<-acr_tp3_data[complete.cases(acr_tp3_data), ]
+
+acr_tp3_data[,-c(1:4)]<-log(acr_tp3_data[,-c(1:4)]+1)
  
 acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:9)], scale=TRUE, center=TRUE) 
 
@@ -1631,6 +1697,8 @@ acr_tp4_data<-master%>%
   filter(timepoint=="timepoint4")
  
 acr_tp4_data<-acr_tp4_data[complete.cases(acr_tp4_data), ]
+
+acr_tp4_data[,-c(1:4)]<-log(acr_tp4_data[,-c(1:4)]+1)
  
 acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:9)], scale=TRUE, center=TRUE) 
 
@@ -1672,6 +1740,8 @@ por_tp1_data<-master%>%
   filter(timepoint=="timepoint1")
 
 por_tp1_data<-por_tp1_data[complete.cases(por_tp1_data), ]
+
+por_tp1_data[,-c(1:4)]<-log(por_tp1_data[,-c(1:4)]+1)
  
 por_tp1_scaled<-prcomp(por_tp1_data[c(5:9)], scale=TRUE, center=TRUE) 
 
@@ -1709,6 +1779,8 @@ por_tp2_data<-master%>%
   filter(timepoint=="timepoint2")
  
 por_tp2_data<-por_tp2_data[complete.cases(por_tp2_data), ]
+
+por_tp2_data[,-c(1:4)]<-log(por_tp2_data[,-c(1:4)]+1)
  
 por_tp2_scaled<-prcomp(por_tp2_data[c(5:9)], scale=TRUE, center=TRUE) 
 
@@ -1746,6 +1818,8 @@ por_tp3_data<-master%>%
   filter(timepoint=="timepoint3")
  
 por_tp3_data<-por_tp3_data[complete.cases(por_tp3_data), ]
+
+por_tp3_data[,-c(1:4)]<-log(por_tp3_data[,-c(1:4)]+1)
  
 por_tp3_scaled<-prcomp(por_tp3_data[c(5:9)], scale=TRUE, center=TRUE) 
 
@@ -1783,6 +1857,8 @@ por_tp4_data<-master%>%
   filter(timepoint=="timepoint4")
  
 por_tp4_data<-por_tp4_data[complete.cases(por_tp4_data), ]
+
+por_tp4_data[,-c(1:4)]<-log(por_tp4_data[,-c(1:4)]+1)
  
 por_tp4_scaled<-prcomp(por_tp4_data[c(5:9)], scale=TRUE, center=TRUE) 
 
@@ -1838,6 +1914,8 @@ acr_data_afdw<-master%>%
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell, SH_Ratio=Ratio_AFDW.mg.cm2)
 
 acr_data_afdw<-acr_data_afdw[complete.cases(acr_data_afdw), ]
+
+acr_data_afdw[,-c(1:4)]<-log(acr_data_afdw[,-c(1:4)]+1)
 
 scaled_acr_afdw<-prcomp(acr_data_afdw[c(5:11)], scale=TRUE, center=TRUE) 
 
@@ -1962,6 +2040,8 @@ por_data_afdw<-master%>%
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell, SH_Ratio=Ratio_AFDW.mg.cm2)
 
 por_data_afdw<-por_data_afdw[complete.cases(por_data_afdw), ]
+
+por_data_afdw[,-c(1:4)]<-log(por_data_afdw[,-c(1:4)]+1)
 
 scaled_por_afdw<-prcomp(por_data_afdw[c(5:11)], scale=TRUE, center=TRUE) 
 
@@ -2100,6 +2180,10 @@ poc_data_afdw<-master%>%
   filter(species=="Pocillopora")%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell, SH_Ratio=Ratio_AFDW.mg.cm2)
+
+poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
+
+poc_data_afdw[,-c(1:4)]<-log(poc_data_afdw[,-c(1:4)]+1)
 
 poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
  
@@ -2248,6 +2332,8 @@ poc_tp1_data<-master%>%
   filter(timepoint=="timepoint1")
 
 poc_tp1_data<-poc_tp1_data[complete.cases(poc_tp1_data), ]
+
+poc_tp1_data[,-c(1:4)]<-log(poc_tp1_data[,-c(1:4)]+1)
  
 poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:11)], scale=TRUE, center=TRUE) 
 
@@ -2286,6 +2372,8 @@ poc_tp2_data<-master%>%
   filter(timepoint=="timepoint2")
  
 poc_tp2_data<-poc_tp2_data[complete.cases(poc_tp2_data), ]
+
+poc_tp2_data[,-c(1:4)]<-log(poc_tp2_data[,-c(1:4)]+1)
  
 poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:11)], scale=TRUE, center=TRUE) 
 
@@ -2324,6 +2412,8 @@ poc_tp3_data<-master%>%
   filter(timepoint=="timepoint3")
  
 poc_tp3_data<-poc_tp3_data[complete.cases(poc_tp3_data), ]
+
+poc_tp3_data[,-c(1:4)]<-log(poc_tp3_data[,-c(1:4)]+1)
  
 poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:11)], scale=TRUE, center=TRUE) 
 
@@ -2362,6 +2452,8 @@ poc_tp4_data<-master%>%
   filter(timepoint=="timepoint4")
  
 poc_tp4_data<-poc_tp4_data[complete.cases(poc_tp4_data), ]
+
+poc_tp4_data[,-c(1:4)]<-log(poc_tp4_data[,-c(1:4)]+1)
  
 poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:11)], scale=TRUE, center=TRUE) 
 
@@ -2403,6 +2495,8 @@ acr_tp1_data<-master%>%
   filter(timepoint=="timepoint1")
 
 acr_tp1_data<-acr_tp1_data[complete.cases(acr_tp1_data), ]
+
+acr_tp1_data[,-c(1:4)]<-log(acr_tp1_data[,-c(1:4)]+1)
  
 acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:11)], scale=TRUE, center=TRUE) 
 
@@ -2441,6 +2535,8 @@ acr_tp2_data<-master%>%
   filter(timepoint=="timepoint2")
  
 acr_tp2_data<-acr_tp2_data[complete.cases(acr_tp2_data), ]
+
+acr_tp2_data[,-c(1:4)]<-log(acr_tp2_data[,-c(1:4)]+1)
  
 acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:11)], scale=TRUE, center=TRUE) 
 
@@ -2479,6 +2575,8 @@ acr_tp3_data<-master%>%
   filter(timepoint=="timepoint3")
  
 acr_tp3_data<-acr_tp3_data[complete.cases(acr_tp3_data), ]
+
+acr_tp3_data[,-c(1:4)]<-log(acr_tp3_data[,-c(1:4)]+1)
  
 acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:11)], scale=TRUE, center=TRUE) 
 
@@ -2517,6 +2615,8 @@ acr_tp4_data<-master%>%
   filter(timepoint=="timepoint4")
  
 acr_tp4_data<-acr_tp4_data[complete.cases(acr_tp4_data), ]
+
+acr_tp4_data[,-c(1:4)]<-log(acr_tp4_data[,-c(1:4)]+1)
  
 acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:11)], scale=TRUE, center=TRUE) 
 
@@ -2559,6 +2659,8 @@ por_tp1_data<-master%>%
   filter(timepoint=="timepoint1")
 
 por_tp1_data<-por_tp1_data[complete.cases(por_tp1_data), ]
+
+por_tp1_data[,-c(1:4)]<-log(por_tp1_data[,-c(1:4)]+1)
  
 por_tp1_scaled<-prcomp(por_tp1_data[c(5:11)], scale=TRUE, center=TRUE) 
 
@@ -2598,6 +2700,8 @@ por_tp2_data<-master%>%
  
 por_tp2_data<-por_tp2_data[complete.cases(por_tp2_data), ]
  
+por_tp2_data[,-c(1:4)]<-log(por_tp2_data[,-c(1:4)]+1)
+
 por_tp2_scaled<-prcomp(por_tp2_data[c(5:11)], scale=TRUE, center=TRUE) 
 
 porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
@@ -2635,6 +2739,8 @@ por_tp3_data<-master%>%
   filter(timepoint=="timepoint3")
  
 por_tp3_data<-por_tp3_data[complete.cases(por_tp3_data), ]
+
+por_tp3_data[,-c(1:4)]<-log(por_tp3_data[,-c(1:4)]+1)
  
 por_tp3_scaled<-prcomp(por_tp3_data[c(5:11)], scale=TRUE, center=TRUE) 
 
@@ -2673,6 +2779,8 @@ por_tp4_data<-master%>%
   filter(timepoint=="timepoint4")
  
 por_tp4_data<-por_tp4_data[complete.cases(por_tp4_data), ]
+
+por_tp4_data[,-c(1:4)]<-log(por_tp4_data[,-c(1:4)]+1)
  
 por_tp4_scaled<-prcomp(por_tp4_data[c(5:11)], scale=TRUE, center=TRUE) 
 
