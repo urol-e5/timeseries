@@ -85,6 +85,8 @@ head(data_all)
 
 data_all<-data_all[complete.cases(data_all), ]
 
+data_all[,-c(1:4)]<-log(data_all[,-c(1:4)]+1)
+
 scaled_all<-prcomp(data_all[c(5:16)], scale=TRUE, center=TRUE) 
 
 all_info<-data_all[c(1:4)]
@@ -166,9 +168,9 @@ dist_all_dotplot<-dist_all_calc%>%
     geom_point(data=dist_all_means, aes(y=mean, x=site_code, color=species, fill=species), pch = 21, size=5, position = position_dodge(0.2), alpha=0.8) + 
   
     #add stats
-    geom_text(x=2, y=20, size=4, label="p(Site)=0.074", color="darkgray")+
+    geom_text(x=2, y=20, size=4, label="p(Site)=0.140", color="darkgray")+
     geom_text(x=2, y=19, size=4, label="p(Species)<0.001", color="black")+
-    geom_text(x=2, y=18, size=4, label="p(Site x Species)=0.895", color="darkgray")+
+    geom_text(x=2, y=18, size=4, label="p(Site x Species)=0.535", color="darkgray")+
   
     #aesthetics 
     scale_fill_manual(name="Species", values = c("darkgray", "orange", "purple"))+
@@ -197,11 +199,11 @@ dist_all_model<-aov(colony_dispersion~site_code*species, data=dist_all_calc)
 summary(dist_all_model)
 ```
 
-                  Df Sum Sq Mean Sq F value   Pr(>F)    
-site_code          2   39.9   19.97   2.699    0.074 .  
-species            2  264.7  132.35  17.884 4.78e-07 ***
-site_code:species  4    8.1    2.02   0.272    0.895    
-Residuals         73  540.3    7.40        
+                  Df Sum Sq Mean Sq F value  Pr(>F)    
+site_code          2   23.5   11.77   2.021 0.13992    
+species            2  120.6   60.30  10.357 0.00011 ***
+site_code:species  4   18.4    4.60   0.791 0.53495    
+Residuals         73  425.0    5.82      
 
 # Host responses  
 
@@ -226,6 +228,8 @@ data_host<-master%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
 
 data_host<-data_host[complete.cases(data_host), ]
+
+data_host[,-c(1:4)]<-log(data_host[,-c(1:4)]+1)
 
 scaled_host<-prcomp(data_host[c(5:9)], scale=TRUE, center=TRUE) 
 
@@ -308,9 +312,9 @@ dist_host_dotplot<-dist_host_calc%>%
     geom_point(data=dist_host_means, aes(y=mean, x=site_code, color=species, fill=species), pch = 21, size=5, position = position_dodge(0.2), alpha=0.8) + 
   
     #add stats
-    geom_text(x=2, y=20, size=4, label="p(Site)=0.010", color="black")+
+    geom_text(x=2, y=20, size=4, label="p(Site)=0.007", color="black")+
     geom_text(x=2, y=19, size=4, label="p(Species)<0.001", color="black")+
-    geom_text(x=2, y=18, size=4, label="p(Site x Species)=0.425", color="darkgray")+
+    geom_text(x=2, y=18, size=4, label="p(Site x Species)=0.154", color="darkgray")+
   
     #aesthetics 
     scale_fill_manual(name="Species", values = c("darkgray", "orange", "purple"))+
@@ -340,10 +344,10 @@ summary(dist_host_model)
 ```
 
                   Df Sum Sq Mean Sq F value   Pr(>F)    
-site_code          2   41.0   20.48   4.863   0.0101 *  
-species            2  423.5  211.77  50.300 5.56e-15 ***
-site_code:species  4   16.4    4.11   0.976   0.4251    
-Residuals         82  345.2    4.21     
+site_code          2  32.98   16.49   5.224  0.00732 ** 
+species            2 279.49  139.75  44.278 9.12e-14 ***
+site_code:species  4  21.68    5.42   1.717  0.15409    
+Residuals         82 258.80    3.16         
 
 
 # Symbiont responses  
@@ -369,6 +373,8 @@ data_sym<-master%>%
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW)
 
 data_sym<-data_sym[complete.cases(data_sym), ]
+
+data_sym[,-c(1:4)]<-log(data_sym[,-c(1:4)]+1)
 
 scaled_sym<-prcomp(data_sym[c(5:11)], scale=TRUE, center=TRUE) 
 
@@ -451,9 +457,9 @@ dist_sym_dotplot<-dist_sym_calc%>%
     geom_point(data=dist_sym_means, aes(y=mean, x=site_code, color=species, fill=species), pch = 21, size=5, position = position_dodge(0.2), alpha=0.8) + 
   
     #add stats
-    geom_text(x=2, y=20, size=4, label="p(Site)=0.253", color="darkgray")+
-    geom_text(x=2, y=19, size=4, label="p(Species)=0.201", color="darkgray")+
-    geom_text(x=2, y=18, size=4, label="p(Site x Species)=0.207", color="darkgray")+
+    geom_text(x=2, y=20, size=4, label="p(Site)=0.306", color="darkgray")+
+    geom_text(x=2, y=19, size=4, label="p(Species)=0.434", color="darkgray")+
+    geom_text(x=2, y=18, size=4, label="p(Site x Species)=0.024", color="black")+
   
     #aesthetics 
     scale_fill_manual(name="Species", values = c("darkgray", "orange", "purple"))+
@@ -482,11 +488,11 @@ dist_sym_model<-aov(colony_dispersion~site_code*species, data=dist_sym_calc)
 summary(dist_sym_model)
 ```
 
-                  Df Sum Sq Mean Sq F value Pr(>F)
-site_code          2   19.1   9.529   1.397  0.253
-species            2   22.3  11.140   1.633  0.201
-site_code:species  4   41.1  10.279   1.507  0.207
-Residuals         85  579.8   6.821 
+                  Df Sum Sq Mean Sq F value Pr(>F)  
+site_code          2   14.9   7.449   1.201 0.3059  
+species            2   10.3   5.149   0.830 0.4395  
+site_code:species  4   73.4  18.343   2.958 0.0244 *
+Residuals         85  527.1   6.202  
 
 
 # Generate figure 
