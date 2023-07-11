@@ -704,9 +704,7 @@ varpartBarplot_Species<-ggplot(varpart_afdw_parts, aes(x=Fraction, y=Percent, fi
         strip.text = element_text(size=16))+
   facet_wrap(vars(Species), ncol=3);varpartBarplot_Species
 
-ggsave(varpartBarplot_Species, file="Figures/Multivariate/VarPart_Species.png", width=18, height=8)
-
-
+ggsave(varpartBarplot_Species, file="Figures/Multivariate/VarPart_Species.png", width=12, height=8)
 
 ```
 
@@ -733,7 +731,7 @@ varpartBarplot_Fraction<-ggplot(varpart_afdw_parts, aes(x=Species, y=Percent, fi
         strip.text = element_text(size=16))+
   facet_wrap(vars(Fraction), ncol=3);varpartBarplot_Fraction
 
-ggsave(varpartBarplot_Fraction, file="Figures/Multivariate/VarPart_Fraction.png", width=18, height=8)
+ggsave(varpartBarplot_Fraction, file="Figures/Multivariate/VarPart_Fraction.png", width=12, height=8)
 
 ```
 
