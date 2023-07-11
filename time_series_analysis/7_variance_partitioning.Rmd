@@ -630,22 +630,65 @@ anova(rda(poc_data_afdw_log_sym[,5:11], poc_data_afdw_log_sym$site_code,  poc_da
 
 
 
-#Generate figures Option 1 Barplot by Species- *Need to update here
+#Organize Variance Partitioning Results
 
-Note: Ariana added manual name for "Site", since it was coming up as NA
 ```{r}
-##Combine VarPart results for all Species
-varpart_afdw_parts_all<-rbind(varpart_acr_afdw_parts, varpart_por_afdw_parts, varpart_poc_afdw_parts)
-varpart_afdw_parts_all<-na.omit(varpart_afdw_parts_all)
-varpart_afdw_parts_all$Response<-rep("Holobiont", nrow(varpart_afdw_parts_all))
-varpart_afdw_parts_all$Percent<-round(varpart_afdw_parts_all$Variance*100,2)
-varpart_afdw_parts_all$Parts<-factor(varpart_afdw_parts_all$Parts, levels=c("Seas&Site", "Season", "Residuals"), ordered=TRUE)
+##Acropora
+#Holobiont
+varpart_acr_afdw_parts.hol<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Holobiont"), Species=c("Acropora"), Variance=c(varpart_acr_afdw$part$indfract$Adj.R.square))
 
-names(varpart_afdw_parts_all)
+#Host
+varpart_acr_afdw_parts.host<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Host"), Species=c("Acropora"), Variance=c(varpart_acr_afdw_host$part$indfract$Adj.R.square))
 
-varpartBarplot_all.holo<-ggplot(varpart_afdw_parts_all, aes(x=Species, y=Percent, fill=Parts)) + 
+#Symbiont
+varpart_acr_afdw_parts.sym<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Symbiont"), Species=c("Acropora"), Variance=c(varpart_acr_afdw_sym$part$indfract$Adj.R.square))
+
+
+##Porites
+#Holobiont
+varpart_por_afdw_parts.hol<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Holobiont"), Species=c("Porites"), Variance=c(varpart_por_afdw$part$indfract$Adj.R.square))
+
+#Host
+varpart_por_afdw_parts.host<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Host"), Species=c("Porites"), Variance=c(varpart_por_afdw_host$part$indfract$Adj.R.square))
+
+#Symbiont
+varpart_por_afdw_parts.sym<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Symbiont"), Species=c("Porites"), Variance=c(varpart_por_afdw_sym$part$indfract$Adj.R.square))
+
+
+##Pocillopora
+#Holobiont
+varpart_poc_afdw_parts.hol<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Holobiont"), Species=c("Pocillopora"), Variance=c(varpart_poc_afdw$part$indfract$Adj.R.square))
+
+#Host
+varpart_poc_afdw_parts.host<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Host"), Species=c("Pocillopora"), Variance=c(varpart_poc_afdw_host$part$indfract$Adj.R.square))
+
+#Symbiont
+varpart_poc_afdw_parts.sym<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Symbiont"), Species=c("Pocillopora"), Variance=c(varpart_poc_afdw_sym$part$indfract$Adj.R.square))
+
+
+varpart_afdw_parts<-rbind(varpart_acr_afdw_parts.hol, varpart_acr_afdw_parts.host, varpart_acr_afdw_parts.sym, varpart_por_afdw_parts.hol, varpart_por_afdw_parts.host, 
+                          varpart_por_afdw_parts.sym, varpart_poc_afdw_parts.hol, 
+                          varpart_poc_afdw_parts.host, varpart_poc_afdw_parts.sym)
+
+##Percent Variance Explained
+varpart_afdw_parts$Percent<-round(varpart_afdw_parts$Variance*100,2)
+
+##Remove Season$Site EnvFactor
+varpart_afdw_parts<-varpart_afdw_parts[-c(which(varpart_afdw_parts$Parts=="Season&Site")),]
+
+##Ordered Factors
+varpart_afdw_parts$Parts<-factor(varpart_afdw_parts$Parts, levels=c("Season", "Site", "Residuals"), ordered=TRUE)
+
+```
+
+
+#Generate figures Option 1 Barplot Split by Species
+
+```{r}
+
+varpartBarplot_Species<-ggplot(varpart_afdw_parts, aes(x=Fraction, y=Percent, fill=Parts)) + 
   geom_bar(position="stack", stat="identity", colour="black")+
-  scale_fill_manual(name="Predictors", values = c("white", "lightgray", "darkgray"), labels = c("Site", "Season", "Residuals"))+
+  scale_fill_manual(name="Predictors", values = c("white", "lightgray", "darkgray"), labels = c("Season", "Site", "Residuals"))+
   theme_classic()+
   theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), 
         axis.text.x=element_text(size=14, colour="black"), axis.text.y=element_text(size=14, colour="black"), 
@@ -657,11 +700,40 @@ varpartBarplot_all.holo<-ggplot(varpart_afdw_parts_all, aes(x=Species, y=Percent
         axis.text.x=element_text(face="italic", color="black"), 
         axis.text.y=element_text(color="black"), 
         axis.title = element_text(face="bold"), 
-        legend.title=element_text(face="bold"));varpartBarplot_all.holo
+        legend.title=element_text(face="bold"), 
+        strip.text = element_text(size=16))+
+  facet_wrap(vars(Species), ncol=3);varpartBarplot_Species
 
-ggsave(varpartBarplot_all.holo, file="Figures/Multivariate/VarPart_All_Holobiont.png", width=6, height=8)
+ggsave(varpartBarplot_Species, file="Figures/Multivariate/VarPart_Species.png", width=18, height=8)
 
 
+
+```
+
+
+#Generate figures Option 2 Barplot Split by Fraction
+
+```{r}
+
+varpartBarplot_Fraction<-ggplot(varpart_afdw_parts, aes(x=Species, y=Percent, fill=Parts)) + 
+  geom_bar(position="stack", stat="identity", colour="black")+
+  scale_fill_manual(name="Predictors", values = c("white", "lightgray", "darkgray"), labels = c("Season", "Site", "Residuals"))+
+  theme_classic()+
+  theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), 
+        axis.text.x=element_text(size=14, colour="black"), axis.text.y=element_text(size=14, colour="black"), 
+        legend.text=element_text(size=12), legend.title=element_text(size=15))+
+  ylab("% Variance Explained")+
+  geom_text(aes(label=paste0(sprintf("%1.1f",Percent),"%"), fontface = "bold"),
+            position=position_stack(vjust=0.5), size=5.5)+
+  theme(plot.title=element_text(hjust=0.5), 
+        axis.text.x=element_text(face="italic", color="black"), 
+        axis.text.y=element_text(color="black"), 
+        axis.title = element_text(face="bold"), 
+        legend.title=element_text(face="bold"), 
+        strip.text = element_text(size=16))+
+  facet_wrap(vars(Fraction), ncol=3);varpartBarplot_Fraction
+
+ggsave(varpartBarplot_Fraction, file="Figures/Multivariate/VarPart_Fraction.png", width=18, height=8)
 
 ```
 
