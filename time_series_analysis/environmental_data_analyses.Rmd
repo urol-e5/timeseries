@@ -530,7 +530,7 @@ temp_summary_plot <- master_qc %>%
   ggplot(., aes(x=Date.Time, y=FullTemp)) + theme_classic() + 
   geom_line(size=0.3)
 
-ggsave(file="Figures/Environmental/Environmental_Temperature_summary.png", temp_summary_plot, width = 7, height = 4, units = c("in"))
+ggsave(file="Figures/Environmental/Environmental_Temperature_summary.png", temp_summary_plot, width = 10, height = 2.5, units = c("in"))
 ```
 
 

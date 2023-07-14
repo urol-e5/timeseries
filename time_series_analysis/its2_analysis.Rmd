@@ -19,12 +19,14 @@ library(phyloseq)
 library(tidyverse)
 library(ggh4x)
 library(cowplot)
+library(naniar)
 ```
 
 
 # Load Data
 
 ### Load SymPortal ITS2 profiles
+
 ```{r profiles}
 # Load ITS2 type profiles
 
@@ -99,6 +101,7 @@ profiles <- phyloseq(otu, tax, sam)
 
 
 ### Load SymPortal post-MED sequences
+
 ```{r variants}
 # Load all post-MED sequence variants
 
@@ -356,4 +359,54 @@ as_tibble(sample_data(e5v)) %>%
 
 # PCA and heatmap analyses 
 
-Insert here 
+## Creating heatmap 
+
+```{r}
+pmdf_heatmap <- pmdf %>% 
+  dplyr::select(colony_id, timepoint, site, species, its2_type_profile, Abundance) %>%
+  ## need all samples to have values for each type profile
+  spread(its2_type_profile, Abundance) %>%
+  ## re:gather so that one column for type profile and one for abundance
+  gather(its2_type_profile, Abundance, 5:44) #%>%
+  ## changing NAs to zeros in Abundance column 
+  #mutate(Abundance = coalesce(Abundance, 0))
+  
+pmdf_heatmap_plot <- pmdf_heatmap %>% subset(species == "Acropora") %>% ## CHANGE SPECIES HERE
+  mutate(Abundance_count = coalesce(Abundance, 0)) %>%
+  ## removing profiles that aren't present 
+  group_by(species, its2_type_profile) %>%
+  mutate(sum = sum(Abundance_count)) %>% ungroup() %>%
+  filter(sum > 0) %>%
+  replace_with_na_all(condition = ~.x == 0.000000000) %>%
+  ggplot(., aes(x = timepoint, y = its2_type_profile)) + 
+  geom_tile(aes(fill = Abundance), color = "black") +
+  scale_fill_distiller(palette = "YlGn", na.value = "white", 
+                       direction=100, labels = scales::label_percent(scale=100),
+                       limits = c(min(pmdf_heatmap$Abundance), max(pmdf_heatmap$Abundance))) + 
+  theme_classic() +
+  theme(axis.text.x.bottom = element_text(angle = 60, hjust=1),
+        axis.text.y = element_text(colour = 'black', size = 10, face = 'italic'),) + 
+  #facet_grid(~site + timepoint, scales = "free") +
+  facet_nested(~ site + colony_id, scales = "free_x", space = "free_x") +
+  labs(x="Colony ID", fill="Relative Abundance", y="Clade") 
+
+ggsave(file="Figures/ITS2/RelAb.png", pmdf_heatmap_plot, width = 14, height = 5, units = c("in"))
+```
+
+
+## PCA 
+
+```{r}
+
+```
+
+## PERMANOVA
+
+```{r}
+
+```
+
+
+
+
+
