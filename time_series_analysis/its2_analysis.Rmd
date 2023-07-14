@@ -20,6 +20,7 @@ library(tidyverse)
 library(ggh4x)
 library(cowplot)
 library(naniar)
+library(vegan)
 ```
 
 
@@ -283,24 +284,28 @@ profig <- pmdf %>%
 acr_site1_var <- varfig %+% filter(vmdf, host_genus == "acropora", site == "site1")
 acr_site1_pro <- profig %+% filter(pmdf, host_genus == "acropora", site == "site1")
 
-plot_grid(acr_site1_var, acr_site1_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+acr_site1_plot <- plot_grid(acr_site1_var, acr_site1_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
 
 # Site 2
 acr_site2_var <- varfig %+% filter(vmdf, host_genus == "acropora", site == "site2")
 acr_site2_pro <- profig %+% filter(pmdf, host_genus == "acropora", site == "site2")
 
-plot_grid(acr_site2_var, acr_site2_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+acr_site2_plot <- plot_grid(acr_site2_var, acr_site2_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
 
 # Site 3
 acr_site3_var <- varfig %+% filter(vmdf, host_genus == "acropora", site == "site3")
 acr_site3_pro <- profig %+% filter(pmdf, host_genus == "acropora", site == "site3")
 
-plot_grid(acr_site3_var, acr_site3_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+acr_site3_plot <- plot_grid(acr_site3_var, acr_site3_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
 
 # Acropora samples with no site info -- whatʻs up with these? typo in sample name?
 as_tibble(sample_data(e5v)) %>%
   filter(host_genus == "acropora", is.na(site)) %>%
   pull(sample_name)
+
+ggsave(file="Figures/ITS2/acr_site1.png", acr_site1_plot, width = 9, height = 7, units = c("in"))
+ggsave(file="Figures/ITS2/acr_site2.png", acr_site2_plot, width = 9, height = 7, units = c("in"))
+ggsave(file="Figures/ITS2/acr_site3.png", acr_site3_plot, width = 9, height = 7, units = c("in"))
 ```
 
 ### Porites
@@ -309,24 +314,28 @@ as_tibble(sample_data(e5v)) %>%
 por_site1_var <- varfig %+% filter(vmdf, host_genus == "porites", site == "site1")
 por_site1_pro <- profig %+% filter(pmdf, host_genus == "porites", site == "site1")
 
-plot_grid(por_site1_var, por_site1_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+por_site1_plot <- plot_grid(por_site1_var, por_site1_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
 
 # Site 2
 por_site2_var <- varfig %+% filter(vmdf, host_genus == "porites", site == "site2")
 por_site2_pro <- profig %+% filter(pmdf, host_genus == "porites", site == "site2")
 
-plot_grid(por_site2_var, por_site2_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+por_site2_plot <- plot_grid(por_site2_var, por_site2_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
 
 # Site 3
 por_site3_var <- varfig %+% filter(vmdf, host_genus == "porites", site == "site3")
 por_site3_pro <- profig %+% filter(pmdf, host_genus == "porites", site == "site3")
 
-plot_grid(por_site3_var, por_site3_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+por_site3_plot <- plot_grid(por_site3_var, por_site3_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
 
 # Porites samples with no site info -- whatʻs up with these? typo in sample name?
 as_tibble(sample_data(e5v)) %>%
   filter(host_genus == "porites", is.na(site)) %>%
   pull(sample_name)
+
+ggsave(file="Figures/ITS2/por_site1.png", por_site1_plot, width = 9, height = 7, units = c("in"))
+ggsave(file="Figures/ITS2/por_site2.png", por_site2_plot, width = 9, height = 7, units = c("in"))
+ggsave(file="Figures/ITS2/por_site3.png", por_site3_plot, width = 9, height = 7, units = c("in"))
 ```
 
 
@@ -336,30 +345,36 @@ as_tibble(sample_data(e5v)) %>%
 poc_site1_var <- varfig %+% filter(vmdf, host_genus == "pocillopora", site == "site1")
 poc_site1_pro <- profig %+% filter(pmdf, host_genus == "pocillopora", site == "site1")
 
-plot_grid(poc_site1_var, poc_site1_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+poc_site1_plot <- plot_grid(poc_site1_var, poc_site1_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
 
 # Site 2
 poc_site2_var <- varfig %+% filter(vmdf, host_genus == "pocillopora", site == "site2")
 poc_site2_pro <- profig %+% filter(pmdf, host_genus == "pocillopora", site == "site2")
 
-plot_grid(poc_site2_var, poc_site2_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+poc_site2_plot <- plot_grid(poc_site2_var, poc_site2_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
 
 # Site 3
 poc_site3_var <- varfig %+% filter(vmdf, host_genus == "pocillopora", site == "site3")
 poc_site3_pro <- profig %+% filter(pmdf, host_genus == "pocillopora", site == "site3")
 
-plot_grid(poc_site3_var, poc_site3_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
+poc_site3_plot <- plot_grid(poc_site3_var, poc_site3_pro, nrow = 2, label_fontface = "plain", rel_heights = c(0.6, 0.4))
 
 # Pocillopora samples with no site info -- whatʻs up with these? typo in sample name?
 as_tibble(sample_data(e5v)) %>%
   filter(host_genus == "pocillopora", is.na(site)) %>%
   pull(sample_name)
+
+ggsave(file="Figures/ITS2/poc_site1.png", poc_site1_plot, width = 9, height = 7, units = c("in"))
+ggsave(file="Figures/ITS2/poc_site2.png", poc_site2_plot, width = 9, height = 7, units = c("in"))
+ggsave(file="Figures/ITS2/poc_site3.png", poc_site3_plot, width = 9, height = 7, units = c("in"))
 ```
 
 
 # PCA and heatmap analyses 
 
 ## Creating heatmap 
+
+For the time being we decided to use the color bar plots above. 
 
 ```{r}
 pmdf_heatmap <- pmdf %>% 
@@ -390,11 +405,11 @@ pmdf_heatmap_plot <- pmdf_heatmap %>% subset(species == "Acropora") %>% ## CHANG
   facet_nested(~ site + colony_id, scales = "free_x", space = "free_x") +
   labs(x="Colony ID", fill="Relative Abundance", y="Clade") 
 
-ggsave(file="Figures/ITS2/RelAb.png", pmdf_heatmap_plot, width = 14, height = 5, units = c("in"))
+#ggsave(file="Figures/ITS2/RelAb.png", pmdf_heatmap_plot, width = 14, height = 5, units = c("in"))
 ```
 
 
-## PCA 
+## NMDS 
 
 ```{r}
 
@@ -402,11 +417,136 @@ ggsave(file="Figures/ITS2/RelAb.png", pmdf_heatmap_plot, width = 14, height = 5,
 
 ## PERMANOVA
 
-```{r}
+Below is on relative abundance. Do VST later?
 
+I'm removing the samples that we don't know a timepoint or site. 
+
+```{r}
+permanova_matrix <- pmdf_heatmap %>%
+  mutate(Abundance = coalesce(Abundance, 0)) %>%
+  spread(its2_type_profile, Abundance) %>%
+  unite(ID, colony_id, timepoint, site, remove = FALSE) %>% na.omit()
+
+permanova_meta <- permanova_matrix %>% 
+  select(ID, colony_id, timepoint, site, species)
+
+rownames(permanova_matrix) <- permanova_matrix[,1]
+permanova_matrix <- permanova_matrix %>% select(-ID, -colony_id, -timepoint, -site, -species)
+
+## below function takes awhile to run so output is copied below 
+adonis2(permanova_matrix ~ species*timepoint*site, 
+        data = permanova_meta, method='eu', na.rm = TRUE)
 ```
 
+adonis2(formula = permanova_matrix ~ species * timepoint * site, data = permanova_meta, method = "eu", na.rm = TRUE)
+                        Df SumOfSqs      R2        F Pr(>F)    
+species                  2   114.83 0.30905 101.1877  0.001 ***
+timepoint                5     1.28 0.00346   0.4526  1.000    
+site                     2     7.27 0.01957   6.4063  0.001 ***
+species:timepoint        8     1.83 0.00492   0.4029  1.000    
+species:site             4    12.76 0.03435   5.6230  0.001 ***
+timepoint:site           6     1.60 0.00430   0.4693  1.000    
+species:timepoint:site  12     2.75 0.00741   0.4044  1.000    
+Residual               404   229.24 0.61695                    
+Total                  443   371.56 1.00000                    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
+## NMDS 
 
+Reference: https://jkzorz.github.io/2019/06/06/NMDS.html 
 
+```{r}
+permanova_matrix_com = as.matrix(permanova_matrix)
+nmds = metaMDS(permanova_matrix_com, distance = "bray")
+
+#extract NMDS scores (x and y coordinates) for sites from newer versions of vegan package
+data.scores = as.data.frame(scores(nmds)$sites)
+
+#add columns to data frame 
+data.scores$colony_id = permanova_meta$colony_id
+data.scores$timepoint = permanova_meta$timepoint
+data.scores$site = permanova_meta$site
+data.scores$species = permanova_meta$species
+ 
+head(data.scores)
+
+NMDS_plot <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) + 
+    geom_point(size = 2, aes(colour = site))+ 
+    theme(axis.text.y = element_text(colour = "black", size = 10, face = "bold"), 
+          axis.text.x = element_text(colour = "black", face = "bold", size = 10), 
+          legend.text = element_text(size = 10, face ="bold", colour ="black"), 
+          legend.position = "right", axis.title.y = element_text(face = "bold", size = 12), 
+          axis.title.x = element_text(face = "bold", size = 12, colour = "black"), 
+          legend.title = element_text(size = 12, colour = "black", face = "bold"), 
+          panel.background = element_blank(), 
+          panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
+          legend.key=element_blank()) + 
+          labs(x = "NMDS1", colour = "Site", y = "NMDS2")  + 
+    scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc")) +
+  facet_wrap(~species, scales = "free")
+
+ggsave(file="Figures/ITS2/NMDS.png", NMDS_plot, width = 10, height = 5, units = c("in"))
+```
+
+Stress output from NMDS: 
+
+Run 0 stress 0.01154461 
+Run 1 stress 0.006580659 
+... New best solution
+... Procrustes: rmse 0.04461615  max resid 0.1714107 
+Run 2 stress 0.005974172 
+... New best solution
+... Procrustes: rmse 0.04556396  max resid 0.4160293 
+Run 3 stress 0.006684201 
+Run 4 stress 0.005883244 
+... New best solution
+... Procrustes: rmse 0.0450752  max resid 0.2643378 
+Run 5 stress 0.006431599 
+Run 6 stress 0.007868632 
+Run 7 stress 0.00574545 
+... New best solution
+... Procrustes: rmse 0.04552407  max resid 0.3412685 
+Run 8 stress 0.005285655 
+... New best solution
+... Procrustes: rmse 0.0458617  max resid 0.3027762 
+Run 9 stress 0.007687034 
+Run 10 stress 0.005847585 
+Run 11 stress 0.005768261 
+... Procrustes: rmse 0.04077552  max resid 0.3717517 
+Run 12 stress 0.005215554 
+... New best solution
+... Procrustes: rmse 0.04484562  max resid 0.3062907 
+Run 13 stress 0.00787308 
+Run 14 stress 0.006540272 
+Run 15 stress 0.008656133 
+Run 16 stress 0.01030515 
+Run 17 stress 0.00737306 
+Run 18 stress 0.007684081 
+Run 19 stress 0.005174734 
+... New best solution
+... Procrustes: rmse 0.04394551  max resid 0.3224025 
+Run 20 stress 0.007133301 
+*** Best solution was not repeated -- monoMDS stopping criteria:
+    20: no. of iterations >= maxit
+
+output: 
+
+all:
+metaMDS(comm = permanova_matrix_com, distance = "bray") 
+
+global Multidimensional Scaling using monoMDS
+
+Data:     permanova_matrix_com 
+Distance: bray 
+
+Dimensions: 2 
+Stress:     0.005174734 
+Stress type 1, weak ties
+Best solution was not repeated after 20 tries
+The best solution was from try 19 (random start)
+Scaling: centring, PC rotation, halfchange scaling 
+Species: expanded scores based on ‘permanova_matrix_com’
+
+**For a good representation of your data, the stress value should ideally be less than 0.2** 
 
