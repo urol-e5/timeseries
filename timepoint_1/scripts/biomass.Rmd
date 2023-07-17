@@ -31,9 +31,9 @@ Data[Data$Pan.ID == 221, "partner"] <- "Host"
 Data[Data$Pan.ID == 73, ] <- NA
   
 # calculated mass per ml
-#different volumes for sym (4ml) and host (5ml)
-sym <- 4
-host <- 5
+#different volumes for sym (5ml) and host (4ml)
+sym <- 5
+host <- 4
 
 #Load tissue homogenate volume
 homog_vol <- read.csv("data/1_homogenate_vols/1_homogenate_vols.csv", header=TRUE)

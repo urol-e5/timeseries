@@ -24,9 +24,9 @@ Data <- read.csv("data/2_biomass/2_biomass_data.csv")
 Data <- na.omit(Data)
   
 # calculated mass per ml
-#different volumes for sym (4ml) and host (5ml)
-sym <- 4
-host <- 5
+#different volumes for sym (5ml) and host (4ml)
+sym <- 5
+host <- 4
 
 #Load tissue homogenate volume
 homog_vol <- read.csv("data/2_homogenate_vols/2_homogenate_vols.csv", header=TRUE)
