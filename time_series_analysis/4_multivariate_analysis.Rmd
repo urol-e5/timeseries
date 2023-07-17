@@ -2814,3 +2814,5 @@ all_grid2<-plot_grid(all_grid, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 ggsave(filename="Figures/Multivariate/Matrix_Symbiont_Responses.png", plot=all_grid2, dpi=500, width=20, height=20, units="in")
 
 ```
+
+

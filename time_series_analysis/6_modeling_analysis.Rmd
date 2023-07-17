@@ -74,36 +74,6 @@ model1<-lm(calc.umol.cm2.hr~ ., data=df)
 summary(model1)
 ```
 
-```
-Call:
-lm(formula = calc.umol.cm2.hr ~ ., data = df)
-
-Residuals:
-     Min       1Q   Median       3Q      Max 
--0.81546 -0.13414 -0.06262  0.06843  1.99626 
-
-Coefficients:
-                    Estimate Std. Error t value Pr(>|t|)    
-(Intercept)       -4.760e-02  8.264e-02  -0.576  0.56499    
-Host_AFDW.mg.cm2  -3.629e-02  1.279e-02  -2.838  0.00479 ** 
-Sym_AFDW.mg.cm2    1.935e-03  5.916e-03   0.327  0.74379    
-Am                 2.073e-01  5.243e-02   3.953 9.25e-05 ***
-AQY                7.010e+00  8.421e+00   0.832  0.40568    
-Rd                -5.324e-02  1.285e-01  -0.414  0.67891    
-cells.mgAFDW      -6.602e-08  1.166e-07  -0.566  0.57152    
-prot_mg.mgafdw     3.499e-02  1.582e-01   0.221  0.82507    
-cre.umol.mgafdw    5.965e-01  2.129e-01   2.802  0.00534 ** 
-Ratio_AFDW.mg.cm2  5.747e-02  2.071e-01   0.278  0.78150    
-Total_Chl_cell    -1.216e+03  2.820e+03  -0.431  0.66642    
-Total_Chl         -7.892e-03  1.221e-02  -0.646  0.51851    
-
-Residual standard error: 0.3074 on 369 degrees of freedom
-  (67 observations deleted due to missingness)
-Multiple R-squared:  0.2133,	Adjusted R-squared:  0.1899 
-F-statistic: 9.097 on 11 and 369 DF,  p-value: 1.998e-14
-```
-
-These results show that across all species, antioxidant capacity, max photosynthesis, and host biomass are significant predictors for calcification. 
 
 Show effect plot
 ```{r}
@@ -149,37 +119,6 @@ summary(model1)
 
 The results are the same as the above model. 
 
-```
-Call:
-lm(formula = calc.umol.cm2.hr ~ ., data = df)
-
-Residuals:
-     Min       1Q   Median       3Q      Max 
--0.81198 -0.13689 -0.06186  0.06801  1.99716 
-
-Coefficients:
-                    Estimate Std. Error t value Pr(>|t|)    
-(Intercept)       -4.588e-02  8.244e-02  -0.557  0.57815    
-Host_AFDW.mg.cm2  -3.671e-02  1.273e-02  -2.883  0.00416 ** 
-Sym_AFDW.mg.cm2    1.927e-03  5.909e-03   0.326  0.74458    
-Am                 1.928e-01  3.913e-02   4.929 1.25e-06 ***
-AQY                6.144e+00  8.148e+00   0.754  0.45132    
-cells.mgAFDW      -6.472e-08  1.164e-07  -0.556  0.57854    
-prot_mg.mgafdw     2.009e-02  1.539e-01   0.131  0.89620    
-cre.umol.mgafdw    6.121e-01  2.093e-01   2.925  0.00365 ** 
-Ratio_AFDW.mg.cm2  5.152e-02  2.063e-01   0.250  0.80298    
-Total_Chl_cell    -1.328e+03  2.804e+03  -0.474  0.63611    
-Total_Chl         -7.546e-03  1.217e-02  -0.620  0.53557    
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-Residual standard error: 0.3071 on 370 degrees of freedom
-  (67 observations deleted due to missingness)
-Multiple R-squared:  0.213,	Adjusted R-squared:  0.1917 
-F-statistic: 10.01 on 10 and 370 DF,  p-value: 6.585e-15
-
-```
-
 List correlations with high significance p<0.01.  
 ```{r}
 cor_all_df%>%
@@ -208,39 +147,6 @@ model1_acr<-lm(calc.umol.cm2.hr~ ., data=df_acr)
 
 summary(model1_acr)
 ```
-
-```
-Call:
-lm(formula = calc.umol.cm2.hr ~ ., data = df_acr)
-
-Residuals:
-     Min       1Q   Median       3Q      Max 
--0.26683 -0.09820 -0.04716  0.03714  0.49000 
-
-Coefficients:
-                    Estimate Std. Error t value Pr(>|t|)    
-(Intercept)       -3.311e-01  2.728e-01  -1.214 0.227947    
-Host_AFDW.mg.cm2   6.878e-02  1.274e-01   0.540 0.590644    
-Sym_AFDW.mg.cm2   -4.303e-02  1.732e-01  -0.248 0.804386    
-Am                -7.113e-02  8.692e-02  -0.818 0.415242    
-AQY                1.265e+00  1.895e+01   0.067 0.946906    
-Rd                -1.194e-01  1.712e-01  -0.697 0.487404    
-cells.mgAFDW       3.013e-07  1.264e-07   2.383 0.019219 *  
-prot_mg.mgafdw     4.620e-01  1.666e-01   2.773 0.006725 ** 
-cre.umol.mgafdw   -4.860e-01  4.357e-01  -1.115 0.267587    
-Ratio_AFDW.mg.cm2  4.733e-01  6.503e-01   0.728 0.468559    
-Total_Chl_cell     2.823e+04  7.228e+03   3.906 0.000179 ***
-Total_Chl         -6.818e-02  1.672e-02  -4.078 9.65e-05 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-Residual standard error: 0.1649 on 92 degrees of freedom
-  (12 observations deleted due to missingness)
-Multiple R-squared:  0.2854,	Adjusted R-squared:    0.2 
-F-statistic: 3.341 on 11 and 92 DF,  p-value: 0.0006643
-```
-
-Cell density, host protein, and total chlorophyll (per cell and per mg afdw) are significant predictors of calcification. 
 
 Show effect plot
 ```{r}
@@ -291,37 +197,6 @@ df_poc<-master%>%
 model1_poc<-lm(calc.umol.cm2.hr~ ., data=df_poc)
 
 summary(model1_poc)
-```
-
-```
-Call:
-lm(formula = calc.umol.cm2.hr ~ ., data = df_poc)
-
-Residuals:
-     Min       1Q   Median       3Q      Max 
--0.16051 -0.08314 -0.03760  0.02211  1.83649 
-
-Coefficients:
-                    Estimate Std. Error t value Pr(>|t|)   
-(Intercept)        1.475e-01  1.240e-01   1.189  0.23662   
-Host_AFDW.mg.cm2  -3.852e-02  2.792e-02  -1.380  0.17018   
-Sym_AFDW.mg.cm2    9.368e-02  9.330e-02   1.004  0.31729   
-Am                -4.278e-02  1.058e-01  -0.404  0.68673   
-AQY                1.146e+01  1.848e+01   0.620  0.53626   
-Rd                 2.131e-02  1.751e-01   0.122  0.90332   
-cells.mgAFDW       4.267e-07  6.331e-07   0.674  0.50159   
-prot_mg.mgafdw    -8.948e-02  3.465e-01  -0.258  0.79665   
-cre.umol.mgafdw   -1.721e+00  5.595e-01  -3.075  0.00259 **
-Ratio_AFDW.mg.cm2 -7.248e-02  3.765e-01  -0.193  0.84766   
-Total_Chl_cell     5.047e+02  4.173e+03   0.121  0.90392   
-Total_Chl         -1.777e-02  3.659e-02  -0.486  0.62801   
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-Residual standard error: 0.1983 on 125 degrees of freedom
-  (28 observations deleted due to missingness)
-Multiple R-squared:  0.1065,	Adjusted R-squared:  0.02785 
-F-statistic: 1.354 on 11 and 125 DF,  p-value: 0.203
 ```
 
 Antioxidant capacity is the only significant driver of calcification.  
@@ -378,38 +253,6 @@ model1_por<-lm(calc.umol.cm2.hr~ ., data=df_por)
 summary(model1_por)
 ```
 
-```
-Call:
-lm(formula = calc.umol.cm2.hr ~ ., data = df_por)
-
-Residuals:
-    Min      1Q  Median      3Q     Max 
--0.9378 -0.2886 -0.1035  0.2390  1.3797 
-
-Coefficients:
-                    Estimate Std. Error t value Pr(>|t|)  
-(Intercept)        2.059e-01  2.951e-01   0.698   0.4866  
-Host_AFDW.mg.cm2  -5.704e-02  2.410e-02  -2.367   0.0194 *
-Sym_AFDW.mg.cm2    5.837e-03  1.138e-02   0.513   0.6090  
-Am                 2.127e-01  9.363e-02   2.272   0.0248 *
-AQY                9.697e+00  1.360e+01   0.713   0.4772  
-Rd                 6.537e-02  2.568e-01   0.255   0.7995  
-cells.mgAFDW      -2.306e-08  5.861e-07  -0.039   0.9687  
-prot_mg.mgafdw    -5.423e-01  3.855e-01  -1.407   0.1619  
-cre.umol.mgafdw    1.028e+00  4.697e-01   2.189   0.0304 *
-Ratio_AFDW.mg.cm2 -2.163e-01  7.048e-01  -0.307   0.7594  
-Total_Chl_cell    -1.019e+04  1.207e+04  -0.845   0.3999  
-Total_Chl          2.422e-02  3.249e-02   0.746   0.4573  
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-Residual standard error: 0.4354 on 128 degrees of freedom
-  (27 observations deleted due to missingness)
-Multiple R-squared:  0.1705,	Adjusted R-squared:  0.09921 
-F-statistic: 2.392 on 11 and 128 DF,  p-value: 0.009922
-```
-
-Antioxidant capacity, max photosynthesis, and host biomass are significant predictors of calcification.  
 
 Show effect plot
 ```{r}

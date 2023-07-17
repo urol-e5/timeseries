@@ -168,9 +168,9 @@ dist_all_dotplot<-dist_all_calc%>%
     geom_point(data=dist_all_means, aes(y=mean, x=site_code, color=species, fill=species), pch = 21, size=5, position = position_dodge(0.2), alpha=0.8) + 
   
     #add stats
-    geom_text(x=2, y=20, size=4, label="p(Site)=0.140", color="darkgray")+
-    geom_text(x=2, y=19, size=4, label="p(Species)<0.001", color="black")+
-    geom_text(x=2, y=18, size=4, label="p(Site x Species)=0.535", color="darkgray")+
+    #geom_text(x=2, y=20, size=4, label="p(Site)=0.140", color="darkgray")+
+    #geom_text(x=2, y=19, size=4, label="p(Species)<0.001", color="black")+
+    #geom_text(x=2, y=18, size=4, label="p(Site x Species)=0.535", color="darkgray")+
   
     #aesthetics 
     scale_fill_manual(name="Species", values = c("darkgray", "orange", "purple"))+
@@ -198,12 +198,6 @@ Run anova on these values.
 dist_all_model<-aov(colony_dispersion~site_code*species, data=dist_all_calc)
 summary(dist_all_model)
 ```
-
-                  Df Sum Sq Mean Sq F value  Pr(>F)    
-site_code          2   23.5   11.77   2.021 0.13992    
-species            2  120.6   60.30  10.357 0.00011 ***
-site_code:species  4   18.4    4.60   0.791 0.53495    
-Residuals         73  425.0    5.82      
 
 # Host responses  
 
@@ -312,9 +306,9 @@ dist_host_dotplot<-dist_host_calc%>%
     geom_point(data=dist_host_means, aes(y=mean, x=site_code, color=species, fill=species), pch = 21, size=5, position = position_dodge(0.2), alpha=0.8) + 
   
     #add stats
-    geom_text(x=2, y=20, size=4, label="p(Site)=0.007", color="black")+
-    geom_text(x=2, y=19, size=4, label="p(Species)<0.001", color="black")+
-    geom_text(x=2, y=18, size=4, label="p(Site x Species)=0.154", color="darkgray")+
+    #geom_text(x=2, y=20, size=4, label="p(Site)=0.007", color="black")+
+    #geom_text(x=2, y=19, size=4, label="p(Species)<0.001", color="black")+
+    #geom_text(x=2, y=18, size=4, label="p(Site x Species)=0.154", color="darkgray")+
   
     #aesthetics 
     scale_fill_manual(name="Species", values = c("darkgray", "orange", "purple"))+
@@ -342,12 +336,6 @@ Run anova on these values.
 dist_host_model<-aov(colony_dispersion~site_code*species, data=dist_host_calc)
 summary(dist_host_model)
 ```
-
-                  Df Sum Sq Mean Sq F value   Pr(>F)    
-site_code          2  32.98   16.49   5.224  0.00732 ** 
-species            2 279.49  139.75  44.278 9.12e-14 ***
-site_code:species  4  21.68    5.42   1.717  0.15409    
-Residuals         82 258.80    3.16         
 
 
 # Symbiont responses  
@@ -457,9 +445,9 @@ dist_sym_dotplot<-dist_sym_calc%>%
     geom_point(data=dist_sym_means, aes(y=mean, x=site_code, color=species, fill=species), pch = 21, size=5, position = position_dodge(0.2), alpha=0.8) + 
   
     #add stats
-    geom_text(x=2, y=20, size=4, label="p(Site)=0.306", color="darkgray")+
-    geom_text(x=2, y=19, size=4, label="p(Species)=0.434", color="darkgray")+
-    geom_text(x=2, y=18, size=4, label="p(Site x Species)=0.024", color="black")+
+    #geom_text(x=2, y=20, size=4, label="p(Site)=0.306", color="darkgray")+
+    #geom_text(x=2, y=19, size=4, label="p(Species)=0.434", color="darkgray")+
+    #geom_text(x=2, y=18, size=4, label="p(Site x Species)=0.024", color="black")+
   
     #aesthetics 
     scale_fill_manual(name="Species", values = c("darkgray", "orange", "purple"))+
@@ -487,12 +475,6 @@ Run anova on these values.
 dist_sym_model<-aov(colony_dispersion~site_code*species, data=dist_sym_calc)
 summary(dist_sym_model)
 ```
-
-                  Df Sum Sq Mean Sq F value Pr(>F)  
-site_code          2   14.9   7.449   1.201 0.3059  
-species            2   10.3   5.149   0.830 0.4395  
-site_code:species  4   73.4  18.343   2.958 0.0244 *
-Residuals         85  527.1   6.202  
 
 
 # Generate figure 
