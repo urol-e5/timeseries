@@ -403,7 +403,7 @@ pmdf_heatmap_plot <- pmdf_heatmap %>% subset(species == "Acropora") %>% ## CHANG
         axis.text.y = element_text(colour = 'black', size = 10, face = 'italic'),) + 
   #facet_grid(~site + timepoint, scales = "free") +
   facet_nested(~ site + colony_id, scales = "free_x", space = "free_x") +
-  labs(x="Colony ID", fill="Relative Abundance", y="Clade") 
+  labs(x="Colony ID", fill="Relative Abundance", y="Clade")
 
 #ggsave(file="Figures/ITS2/RelAb.png", pmdf_heatmap_plot, width = 14, height = 5, units = c("in"))
 ```
@@ -484,7 +484,7 @@ NMDS_plot <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) +
           legend.key=element_blank()) + 
           labs(x = "NMDS1", colour = "Site", y = "NMDS2")  + 
     scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc")) +
-  facet_wrap(~species, scales = "free")
+  facet_wrap(~species, scales = "free");NMDS_plot
 
 ggsave(file="Figures/ITS2/NMDS.png", NMDS_plot, width = 10, height = 5, units = c("in"))
 ```
@@ -549,4 +549,16 @@ Scaling: centring, PC rotation, halfchange scaling
 Species: expanded scores based on ‘permanova_matrix_com’
 
 **For a good representation of your data, the stress value should ideally be less than 0.2** 
+
+Output matrix for additional analyses. 
+```{r}
+output_matrix <- pmdf_heatmap %>%
+  mutate(Abundance = coalesce(Abundance, 0)) %>%
+  spread(its2_type_profile, Abundance)%>%
+  unite(ID, colony_id, timepoint, site, remove = FALSE) %>% na.omit()
+
+output_matrix<-as.data.frame(output_matrix)
+
+write_csv(output_matrix, file="Output/ITS2_rel_abund_matrix.csv")
+```
 
