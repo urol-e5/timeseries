@@ -1,0 +1,30 @@
+---
+title: "RDA analysis"
+author: "Ariana S Huffmyer, Serena Hackerott, E5 RoL Team"
+date: "07/18/2023"
+output: 
+  html_document:
+    code_folding: hide
+    toc: yes
+    toc_depth: 6
+    toc_float: yes
+editor_options: 
+  chunk_output_type: console
+--- 
+
+# Set Up    
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+```
+
+```{r}
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("vegan")) install.packages("vegan")
+if (!require("pairwiseAdonis")) install.packages("pairwiseAdonis")
+
+# load packages
+library(tidyverse)
+library(vegan)
+library(pairwiseAdonis)
+```
