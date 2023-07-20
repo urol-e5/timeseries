@@ -21,10 +21,60 @@ knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 ## install packages if you dont already have them
 if (!require("tidyverse")) install.packages("tidyverse")
 if (!require("vegan")) install.packages("vegan")
-if (!require("pairwiseAdonis")) install.packages("pairwiseAdonis")
 
 # load packages
 library(tidyverse)
 library(vegan)
-library(pairwiseAdonis)
+```
+
+
+# Load dataframes
+
+```{r}
+#Load in ITS2 dataframe generated from its2_analysis.Rmd.  
+its2_rel_abund<-read.csv("Output/ITS2_rel_abund_matrix.csv")
+
+#Load in master dataframe generated from 1_assemble_data.Rmd.  
+master<-read.csv("Output/master_timeseries.csv")
+
+#reorder site levels 
+master$site_code<-as.factor(master$site_code)
+master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
+```
+
+# Holobiont responses   
+```{r}
+data_all<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr, Total_Chl, Total_Chl_cell)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
+```
+
+#Log+1 transform all responses
+```{r}
+data_all_log <-data_all
+data_all_log[,-c(1:4)]<-log(data_all_log[,-c(1:4)]+1)
+
+#change timepoint to a factor 
+data_all_log$timepoint<-as.factor(data_all_log$timepoint)
+
+#change species to a factor 
+data_all_log$species<-as.factor(data_all_log$species)
+```
+
+
+#Log+1 transform all responses
+```{r}
+data_all_log <-data_all
+data_all_log[,-c(1:4)]<-log(data_all_log[,-c(1:4)]+1)
+
+#change timepoint to a factor 
+data_all_log$timepoint<-as.factor(data_all_log$timepoint)
+
+#change species to a factor 
+data_all_log$species<-as.factor(data_all_log$species)
 ```
