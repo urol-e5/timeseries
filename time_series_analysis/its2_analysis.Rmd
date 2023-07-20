@@ -555,8 +555,32 @@ Output matrix for additional analyses.
 output_matrix <- pmdf_heatmap %>%
   mutate(Abundance = coalesce(Abundance, 0)) %>%
   spread(its2_type_profile, Abundance)%>%
-  unite(ID, colony_id, timepoint, site, remove = FALSE) %>% na.omit()
-
+  unite(ID, colony_id, timepoint, site, remove = FALSE) %>% na.omit()%>%
+  mutate(colony_id = str_replace_all(colony_id, "_", "-"))%>%
+  mutate(colony_id_corr = colony_id)%>%
+  filter(!timepoint=="TP2b")%>%
+  mutate(timepoint=if_else(timepoint=="TP1", "timepoint1", 
+                           if_else(timepoint=="TP2", "timepoint2", 
+                                   if_else(timepoint=="TP3", "timepoint3", 
+                                           if_else(timepoint=="TP4", "timepoint4", 
+                                                   if_else(timepoint=="TP2a", "timepoint2", 
+                                                           if_else(timepoint=="TP2b", "timepoint2", NA)))))))%>%
+  mutate(site=if_else(site=="site1", "Manava", 
+                      if_else(site=="site2", "Mahana", 
+                              if_else(site=="site3", "Hilton", NA))))%>%
+  mutate(nutrient=if_else(site=="Manava", "High", 
+                      if_else(site=="Mahana", "Low", 
+                              if_else(site=="Hilton", "Medium", NA))))%>%
+  mutate(site_code=if_else(site=="Manava", "Manava High", 
+                      if_else(site=="Mahana", "Mahana Low", 
+                              if_else(site=="Hilton", "Hilton Medium", NA))))%>%
+  mutate(month=if_else(timepoint=="timepoint1", "January 2020", 
+                       if_else(timepoint=="timepoint2", "March 2020", 
+                               if_else(timepoint=="timepoint3", "September 2020", 
+                                       if_else(timepoint=="timepoint4", "November 2020", NA)))))%>%
+  select(!ID)%>%
+  select(colony_id, colony_id_corr, timepoint, site, nutrient, site_code, month, everything())
+  
 output_matrix<-as.data.frame(output_matrix)
 
 write_csv(output_matrix, file="Output/ITS2_rel_abund_matrix.csv")
