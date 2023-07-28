@@ -321,7 +321,7 @@ axis.title.sz=18
 axis.txt.sz=14
 leg.title.sz=15
 leg.txt.sz=12
-levels.sz=7
+levels.sz=6
 sig.sz=5
 panel.lab.sz=25
 
@@ -356,12 +356,109 @@ acr.comm.rda.sym.plot<-ggplot(data = acr.comm.rda.sym.scores, aes(x = dbRDA1, y 
   geom_segment(aes(x = 0, y = 0, xend = dbRDA1, yend = dbRDA2), 
                data = acr.comm.rda.sym.phys, size =1, alpha = 0.5, colour = "grey20", 
                arrow=arrow(length=unit(0.01,"npc")))+
-  geom_text(data = acr.comm.rda.sym.phys[-6,], 
+  geom_text(data = acr.comm.rda.sym.phys, 
+            aes(x=c(dbRDA1[1], dbRDA1[2], dbRDA1[3]+2.5, dbRDA1[4], dbRDA1[5]+.7, dbRDA1[6]-.5, dbRDA1[7]), 
+                y = c(dbRDA2[1], dbRDA2[2], dbRDA2[3]+.5, dbRDA2[4], dbRDA2[5], dbRDA2[6]+.5, dbRDA2[7]), 
+                label = Metric, fontface = "italic",
+                hjust=0.5*(1-sign(dbRDA1)),vjust=0.6*(1-sign(dbRDA2))), 
+            colour = "grey20", size=levels.sz-1)+
+  annotate("text",  x = -11, y = -5, label = "p = 0.783", size=sig.sz, hjust = 0, fontface="italic")
+
+
+acr.comm.rda.sym.plot
+
+
+##Porites 
+
+#Create dataframe with RDA scores
+por.comm.rda.sym.scores<- data.frame(scores(por.comm.rda.sym)$sites)
+por.comm.rda.sym.scores$sample_id<- rownames(por.comm.rda.sym.scores)
+names(por_data_community)
+por.comm.rda.sym.scores<-merge(por_data_community[,c(1:20, 61:62)], por.comm.rda.sym.scores)
+names(por.comm.rda.sym.scores)
+
+#Create dataframe with physiological metric vectors
+por.comm.rda.sym.phys<-data.frame(summary(por.comm.rda.sym)$biplot[,1:2]) * ordiArrowMul(por.comm.rda.sym, display="bp")
+por.comm.rda.sym.phys$Metric<-rownames(por.comm.rda.sym.phys)
+
+#Plot biplot
+por.comm.rda.sym.plot<-ggplot(data = por.comm.rda.sym.scores, aes(x = dbRDA1, y = dbRDA2)) + 
+  geom_point(data = por.comm.rda.sym.scores, size = 3, alpha = 0.8, aes(colour = site_code, fill = site_code)) + 
+  theme_classic()+
+  xlim(-5, 5)+
+  ylim(-4, 6)+
+  scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+  
+  scale_fill_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+
+  theme(axis.title.x = element_text(size = axis.title.sz), axis.title.y = element_text(size = axis.title.sz), 
+        axis.text.x=element_text(size=axis.txt.sz, colour="black"), axis.text.y=element_text(size=axis.txt.sz, colour="black"), 
+        legend.position=c(0.2, 0.9), legend.direction = "vertical", legend.text=element_text(size=leg.title.sz), 
+        legend.title=element_text(size=leg.title.sz), legend.box.background = element_rect(color = "black"))+
+  xlab("RDA 1 (83.85% Fitted, 17.68% Total)")+
+  ylab("RDA 2 (5.90% Fitted, 1.24% Total)")+
+  geom_segment(aes(x = 0, y = 0, xend = dbRDA1, yend = dbRDA2), 
+               data = por.comm.rda.sym.phys, size =1, alpha = 0.5, colour = "grey20", 
+               arrow=arrow(length=unit(0.01,"npc")))+
+  geom_text(data = por.comm.rda.sym.phys[c(1:2, 5:6),], 
+            aes(x=c(dbRDA1[1]-1.2, dbRDA1[2]-1.7, dbRDA1[3]+.5, dbRDA1[4]+0.5), 
+                y = c(dbRDA2[1]+.25, dbRDA2[2]+.7, dbRDA2[3]+.2, dbRDA2[4]), 
+                label = Metric, fontface = "bold",
+                hjust=0.5*(1-sign(dbRDA1)),vjust=0.6*(1-sign(dbRDA2))), 
+            colour = "grey20", size=levels.sz-1)+
+   geom_text(data = por.comm.rda.sym.phys[c(3:4,7),], 
+            aes(x=c(dbRDA1[1], dbRDA1[2], dbRDA1[3]-1.5), 
+                y = c(dbRDA2[1], dbRDA2[2]+.5, dbRDA2[3]-.2), 
+                label = Metric, fontface = "italic",
+                hjust=0.5*(1-sign(dbRDA1)),vjust=0.6*(1-sign(dbRDA2))), 
+            colour = "grey20", size=levels.sz-1)+
+    annotate("text", x = -5, y = -4, label=expression(bolditalic(paste("Adj. ",R^2, " = 0.167, p = 0.001"))), size=sig.sz, hjust = 0)
+
+
+por.comm.rda.sym.plot
+
+
+##Pocillopora 
+
+#Create dataframe with RDA scores
+poc.comm.rda.sym.scores<- data.frame(scores(poc.comm.rda.sym)$sites)
+poc.comm.rda.sym.scores$sample_id<- rownames(poc.comm.rda.sym.scores)
+names(poc_data_community)
+poc.comm.rda.sym.scores<-merge(poc_data_community[,c(1:20, 61:62)], poc.comm.rda.sym.scores)
+names(poc.comm.rda.sym.scores)
+
+#Create dataframe with physiological metric vectors
+poc.comm.rda.sym.phys<-data.frame(summary(poc.comm.rda.sym)$biplot[,1:2]) * ordiArrowMul(poc.comm.rda.sym, display="bp")
+poc.comm.rda.sym.phys$Metric<-rownames(poc.comm.rda.sym.phys)
+
+#Plot biplot
+poc.comm.rda.sym.plot<-ggplot(data = poc.comm.rda.sym.scores, aes(x = dbRDA1, y = dbRDA2)) + 
+  geom_point(data = poc.comm.rda.sym.scores, size = 3, alpha = 0.8, aes(colour = site_code, fill = site_code)) + 
+  theme_classic()+
+  xlim(-4, 4)+
+  ylim(-5, 3)+
+  scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+  
+  scale_fill_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+
+  theme(axis.title.x = element_text(size = axis.title.sz), axis.title.y = element_text(size = axis.title.sz), 
+        axis.text.x=element_text(size=axis.txt.sz, colour="black"), axis.text.y=element_text(size=axis.txt.sz, colour="black"), 
+        legend.position=c(0.2, 0.9), legend.direction = "vertical", legend.text=element_text(size=leg.title.sz), 
+        legend.title=element_text(size=leg.title.sz), legend.box.background = element_rect(color = "black"))+
+  xlab("RDA 1 (66.74% Fitted, 7.67% Total)")+
+  ylab("RDA 2 (24.47% Fitted, 2.81% Total)")+
+  geom_segment(aes(x = 0, y = 0, xend = dbRDA1, yend = dbRDA2), 
+               data = poc.comm.rda.sym.phys, size =1, alpha = 0.5, colour = "grey20", 
+               arrow=arrow(length=unit(0.01,"npc")))+
+  geom_text(data = poc.comm.rda.sym.phys[c(2:4,7),], 
             aes(x=dbRDA1, y = dbRDA2, label = Metric, fontface = "italic",
                 hjust=0.5*(1-sign(dbRDA1)),vjust=0.6*(1-sign(dbRDA2))), 
             colour = "grey20", size=levels.sz-1)
 
-acr.comm.rda.sym.plot
+poc.comm.rda.sym.plot
 
+# Symbiont_Density    1    0.289 0.7875  0.529   
+# Symbiont_Biomass    1    1.272 3.4733  0.007 **
+# Total_Chl           1    1.887 5.1501  0.002 **
+# Total_Chl_cell      1    0.863 2.3560  0.048 * 
+# Am                  1    0.071 0.1950  0.965   
+# AQY                 1    0.156 0.4260  0.812   
+# S_H_Biomass_Ratio   1    1.220 3.3288  0.011 * 
 
 ```
