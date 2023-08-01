@@ -1006,25 +1006,20 @@ All_PCAs_species<-plot_grid(porSite_prot, porTimepoint_prot, porSite_afdw, porTi
 ggsave(filename="Figures/NormalizerPCA/All_Species_PCAs.pdf", plot=All_PCAs_species, dpi=300, width=48, height=15, units="in")
 ``` 
 
-
-
-
-
-
-
-
 ## Final species PCA of selected normalizers  
 
 Plot PCA using prcomp to center and scale using biomass normalized tissue responses and surface area normalized metabolic rates and calcification rates. 
   
 ```{r}
 pca_data_species<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
-  filter(prot_mg.mgafdw<1.5) #remove outliers
+  filter(prot_mg.mgafdw<1.5)%>%
+  filter(Total_Chl<14)%>%
+  filter(Total_Chl_cell<6e-05)#remove outliers
 
 pca_data_species<-pca_data_species[complete.cases(pca_data_species), ]
 
@@ -1043,14 +1038,13 @@ z_species
  
 Groupings by species:  
 ```{r}
-pcaSpecies<-ggplot2::autoplot(scaled_data_species, data=pca_data_species, frame.colour="species", loadings=FALSE,  colour="species", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+pcaSpecies_afdw<-ggplot2::autoplot(scaled_data_species, data=pca_data_species, frame.colour="species", loadings=FALSE,  colour="species", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
   scale_colour_manual(values=c("darkgray", "orange", "purple")) +
   scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
   theme_classic()+
-  geom_text(x=0.15, y=-0.1, label=paste("p(Species)=", z_species$`Pr(>F)`[1]), size=4, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=-0.04, y=0.3, label=paste("p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
   #xlim(-0.3,0.5)+
   #ylim(-0.3, 0.5)+
-  #geom_text(x=0.3, y=-0.15, label=paste("p(Species)=", z_species$`Pr(>F)`[1]), size=6, color="black") + 
   xlab("PC1")+
   ylab("PC2")+
    theme(legend.text = element_text(size=18, face="italic"), 
@@ -1062,6 +1056,32 @@ pcaSpecies<-ggplot2::autoplot(scaled_data_species, data=pca_data_species, frame.
 
 ggsave(filename="Figures/NormalizerPCA/Species_Overall_PCA.png", plot=pcaSpecies_afdw, dpi=300, width=7, height=5, units="in")
 ```
+
+Generate a biplot for this PCA. 
+```{r}
+pcaSpecies_afdw_biplot<-ggplot2::autoplot(scaled_data_species, data=pca_data_species, frame.colour="species", loadings=TRUE,  colour="species", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.0) + 
+  scale_colour_manual(values=c("darkgray", "orange", "purple")) +
+  scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
+  theme_classic()+
+  #geom_text(x=-0.04, y=0.3, label=paste("p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="none",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pcaSpecies_afdw_biplot
+
+ggsave(filename="Figures/NormalizerPCA/Species_Overall_BiPlot.png", plot=pcaSpecies_afdw_biplot, dpi=300, width=5, height=5, units="in")
+```
+
+
+
+
+
 
 Species specific PCAs and PERMANOVAs are in the next script, `4_multivariate_analysis.RmD`.  
 
