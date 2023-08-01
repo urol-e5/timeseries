@@ -1,13 +1,11 @@
 ---
 title: "Integrating E5 time series environmental data"
 author: "Ariana S Huffmyer"
-date: "11/15/2021"
+date: "07/31/2023"
 output: html_document
 editor_options: 
   chunk_output_type: console
 ---
-
-AH needs to recalculate temperature metrics - how do we determine temperatures from a time point? Are these ranges between time points or do we want it to be 2 weeks around each time point? 
 
 # Set Up    
 ```{r setup, include=FALSE}
@@ -433,44 +431,252 @@ summary_stats_temp<-master_qc%>%
   write_csv("Output/Clean_Environmental_Temp_Means.csv"); summary_stats_temp
 ```
 
-
 # Output cleaned and qc dataframe  
 
 ```{r}
 write_csv(master_qc, "Output/environmental_timeseries.csv")
 ```
 
-# Plot radar plot of multivariate data  
+# Temperature timeseries plot 
 
-## Radar plot  
-
-To do this, we need to first summarize data by a unit of time because the loggers differ by seconds/minutes, producing a lot of na's. We can first summarize by day for temperature (using Hobo here), pH, and light. 
-
-Calculate additional metrics of daily min/max, range, and variability.  
-
-Temperature
 ```{r}
-radar_data_temp<-master_qc %>%
+temp_summary_plot <- master_qc %>%
+  ggplot(., aes(x=Date.Time, y=FullTemp)) + 
+  geom_point(colour="gray", size=0.5, alpha=0.05) + 
+  geom_smooth(aes(colour=site), se=FALSE, method="gam") + 
+  scale_colour_manual(name="Site", values=c("#374d7c", "#00cccc", "#ff6633"), labels=c("Manava", "Mahana", "Hilton")) +
+  ylab("Temperature °C") + 
+  xlab("Date") +
+  scale_x_datetime(date_breaks = "1 months", date_labels = "%b %Y")+
+  geom_vline(xintercept = as.POSIXct("2020-01-01"), linetype="dashed")+ 
+  geom_vline(xintercept = as.POSIXct("2020-03-02"), linetype="dashed")+
+  geom_vline(xintercept = as.POSIXct("2020-09-08"), linetype="dashed")+
+  geom_vline(xintercept = as.POSIXct("2020-11-01"), linetype="dashed")+
+  theme_classic() + 
+  theme(
+    text=element_text(size=12, colour="black"), 
+    axis.title=element_text(size=14, colour="black", face="bold"), 
+    axis.text.x=element_text(size=10, colour="black", angle=45, hjust=1, vjust=1),
+    legend.title=element_text(size=14, colour="black", face="bold")
+  );temp_summary_plot
+
+ggsave(filename="Figures/Environmental/Environmental_Temperature_summary.png", temp_summary_plot, width = 9, height = 4, units = c("in"))
+```
+
+
+# View environmental metrics of each site  
+
+## Daily and Overall Metrics  
+
+Calculate the following metrics: 
+- Overall mean
+- Overall max 
+- Overall range 
+- Overall standard deviation 
+- Daily mean
+- Daily max 
+- Daily range 
+- Daily standard deviation 
+
+### Temperature
+
+Generate a data frame with overall metrics and another dataframe with daily metrics. Combine into a single table showing these values for each site. 
+
+```{r}
+master_qc[mapply(is.infinite, master_qc)] <- NA
+master_qc[mapply(is.nan, master_qc)] <- NA
+
+temp_metrics_all<-master_qc %>%
+    mutate(Date=as.factor(as.Date(Date.Time)))%>%
+    select(Date, site, FullTemp)%>%
+    group_by(site)%>%
+    dplyr::summarise(overall_mean = mean(FullTemp, na.rm=TRUE), 
+                     overall_min=min(FullTemp, na.rm=TRUE), 
+                     overall_max=max(FullTemp, na.rm=TRUE),
+                     overall_sd=sd(FullTemp, na.rm=TRUE),
+                     overall_range=overall_max-overall_min)
+
+#generate daily means
+temp_metrics_daily<-master_qc %>%
     mutate(Date=as.factor(as.Date(Date.Time)))%>%
     select(Date, site, FullTemp)%>%
     group_by(Date, site)%>%
-    summarise(across(FullTemp, list(mean=mean, min=min, max=max, sd=sd), na.rm=TRUE))%>%
-    mutate(Over30=if_else(FullTemp_max>30, 1, 0))%>%
-    mutate(FullTemp_range=(FullTemp_max-FullTemp_min), na.rm=TRUE)
+    dplyr::summarise(daily_mean = mean(FullTemp, na.rm=TRUE), 
+                     daily_min=min(FullTemp, na.rm=TRUE), 
+                     daily_max=max(FullTemp, na.rm=TRUE),
+                     daily_sd=sd(FullTemp, na.rm=TRUE),
+                     daily_range=daily_max-daily_min)
+  
+temp_metrics_daily[mapply(is.infinite, temp_metrics_daily)] <- NA
+temp_metrics_daily[mapply(is.nan, temp_metrics_daily)] <- NA
 
-radar_data_temp[mapply(is.infinite, radar_data_temp)] <- NA
-radar_data_temp[mapply(is.nan, radar_data_temp)] <- NA
+#summarize daily means
+temp_metrics_daily_sum<-temp_metrics_daily %>%
+    group_by(site)%>%
+    dplyr::summarise(daily_mean = mean(daily_mean, na.rm=TRUE), 
+                     daily_min=mean(daily_min, na.rm=TRUE), 
+                     daily_max=mean(daily_max, na.rm=TRUE),
+                     daily_sd=mean(daily_sd, na.rm=TRUE),
+                     daily_range=mean(daily_range, na.rm=TRUE))
 
+#merge together overall and daily metrics 
+
+temp_metrics<-left_join(temp_metrics_all, temp_metrics_daily_sum)
+
+temp_metrics
+```
+
+Generate a plot to view metrics. 
+```{r}
+# Convert wide dataset to long dataset and add a new column for "interval"
+temp_metrics_long <- temp_metrics %>%
+  pivot_longer(cols = -site,
+               names_to = "Variable",
+               values_to = "Value") %>%
+  mutate(Interval=if_else(str_detect(Variable, "daily"), "Daily", "Overall"))%>%
+  mutate(Metric=if_else(str_detect(Variable, "mean"), "Mean", 
+                        if_else(str_detect(Variable, "min"), "Min",
+                                if_else(str_detect(Variable, "max"), "Max",
+                                        if_else(str_detect(Variable, "sd"), "SD",
+                                                if_else(str_detect(Variable, "range"), "Range", NA))))))%>%
+    mutate(site = if_else(site == "site3", "Hilton", 
+                            if_else(site == "site2", "Mahana", 
+                                    if_else(site == "site1", "Manava", "NA"))))
+```
+
+Plot metrics by site and time interval. 
+
+```{r}
+temp_metric_plot<-temp_metrics_long%>%
+  
+  ggplot(aes(x=site, y=Value, colour=site, shape=Interval))+ 
+  facet_wrap(~Variable, scales="free", ncol=5)+
+  geom_point(size=4)+
+  scale_colour_manual(name="Site", values=c("#374d7c", "#00cccc", "#ff6633"), labels=c("Manava", "Mahana", "Hilton")) +
+  ylab("Temperature °C") + 
+  theme_classic()+
+  theme(
+    text=element_text(size=12, colour="black"), 
+    axis.title=element_text(size=14, colour="black", face="bold"), 
+    axis.text.x=element_text(size=10, colour="black", angle=45, hjust=1, vjust=1),
+    legend.title=element_text(size=14, colour="black", face="bold"), 
+    legend.position="none"
+  ); temp_metric_plot
+  
+
+```
+
+Try with a heatmap approach. 
+
+First generate dataframe that is scaled for visualization. 
+
+NEED TO ADJUST CALCULATION - CURRENTLY MAKES DIFFERENCES THAT ARE SMALL LOOK WAY TOO BIG 
+```{r}
+
+temp_metrics_long_scale <- temp_metrics %>%
+  mutate_at(vars(overall_mean, overall_min, overall_max, overall_sd, overall_range, daily_mean, daily_min, daily_max, daily_sd, daily_range),
+            scale)%>%
+  pivot_longer(cols = -site,
+               names_to = "Variable",
+               values_to = "Value") %>%
+  mutate(Interval=if_else(str_detect(Variable, "daily"), "Daily", "Overall"))%>%
+  mutate(Metric=if_else(str_detect(Variable, "mean"), "Mean", 
+                        if_else(str_detect(Variable, "min"), "Min",
+                                if_else(str_detect(Variable, "max"), "Max",
+                                        if_else(str_detect(Variable, "sd"), "SD",
+                                                if_else(str_detect(Variable, "range"), "Range", NA))))))%>%
+    mutate(site = if_else(site == "site3", "Hilton", 
+                            if_else(site == "site2", "Mahana", 
+                                    if_else(site == "site1", "Manava", "NA"))))
+
+temp_metrics_long_scale$Metric<-factor(temp_metrics_long_scale$Metric, levels=c("Range", "SD", "Max", "Mean"))
+temp_metrics_long_scale$site<-factor(temp_metrics_long_scale$site, levels=c("Mahana", "Hilton", "Manava"))
+```
+
+Daily
+```{r}
+temp_metrics_long_scale_plot <- temp_metrics_long_scale%>%
+  filter(Interval=="Daily")%>%
+  filter(!Metric=="Min")
+
+temp_metrics_long_plot <- temp_metrics_long%>%
+  filter(Interval=="Daily")%>%
+  filter(!Metric=="Min")
+  
+heatmap_plot_daily<-ggplot(data=temp_metrics_long_scale_plot, aes(x = site, y = Metric)) +
+  geom_tile(data=temp_metrics_long_scale_plot, aes(fill = Value), color = "white") +
+  scale_fill_gradient2(name="Relative \nDifference", low = "lightblue", mid = "white", high = "orange", midpoint = 0) +
+  geom_text(data=temp_metrics_long_plot, aes(label = round(Value, 2)), color = "black", size = 4)+
+  labs(title = "Daily Metrics",
+       x = "Site",
+       y = "Metric (°C)") +
+  theme_minimal()+
+  theme(
+    text=element_text(size=12, color="black"), 
+    axis.text=element_text(size=12, color="black"), 
+    legend.position="right",
+    legend.title=element_blank(),
+    axis.title=element_text(size=14, color="black", face="bold")
+  );heatmap_plot_daily
+```
+
+Overall
+```{r}
+temp_metrics_long_scale_plot <- temp_metrics_long_scale%>%
+  filter(Interval=="Overall")%>%
+  filter(!Metric=="Min")
+
+temp_metrics_long_plot <- temp_metrics_long%>%
+  filter(Interval=="Overall")%>%
+  filter(!Metric=="Min")
+  
+heatmap_plot_overall<-ggplot(data=temp_metrics_long_scale_plot, aes(x = site, y = Metric)) +
+  geom_tile(data=temp_metrics_long_scale_plot, aes(fill = Value), color = "white") +
+  scale_fill_gradient2(low = "lightblue", mid = "white", high = "orange", midpoint = 0) +
+  geom_text(data=temp_metrics_long_plot, aes(label = round(Value, 2)), color = "black", size = 4)+
+  labs(title = "Time Series Metrics",
+       x = "Site",
+       y = "Metric (°C)", 
+       legend = "Relative Difference") +
+  theme_minimal()+
+  theme(
+    text=element_text(size=12, color="black"), 
+    axis.text=element_text(size=12, color="black"), 
+    legend.title=element_blank(), 
+    axis.title=element_text(size=14, color="black", face="bold"), 
+    legend.position="none"
+  );heatmap_plot_overall
+```
+
+Save plots. 
+```{r}
+temp_heatmaps<-plot_grid(heatmap_plot_overall, heatmap_plot_daily, ncol=2, nrow=1, rel_widths=c(0.8,1))
+
+ggsave(filename="Figures/Environmental/temp_metric_heatmaps.jpg", plot=temp_heatmaps, width=8, height=4)
+```
+
+Make a table with the temperature metric output. 
+
+```{r}
+# Apply the function to each metric column
+table_temp<-temp_metrics_long %>%
+  pivot_wider(values_from=Value, names_from=site)%>%
+  filter(!Metric=="Min")%>%
+  select(Metric, Interval, Mahana, Hilton, Manava)%>%
+  arrange(Interval, Metric);table_temp
+
+write.csv(table_temp, file="Output/temp_metric_table.csv")
+```
+
+Generate a radar plot for temperature metrics. 
+
+```{r}
 #radar plot for temperature
-
-radar<-radar_data_temp%>%
-  select(site, FullTemp_mean, FullTemp_sd, FullTemp_max, FullTemp_min, FullTemp_range, Over30)%>%
+radar<-temp_metrics%>%
   mutate_each(funs(rescale), -site) %>%
   drop_na()%>%
   ungroup()%>%
   droplevels()%>%
-  select(!Date)%>%
-  rename(Mean=FullTemp_mean, Variability=FullTemp_sd, Max=FullTemp_max, Min=FullTemp_min, Range=FullTemp_range, DaysOver30=Over30)%>%
     mutate(site = if_else(site == "site3", "Hilton", 
                             if_else(site == "site2", "Mahana", 
                                     if_else(site == "site1", "Manava", "NA"))))
@@ -521,16 +727,6 @@ ggRadar(radar, aes(colour=site), scales="fixed")+
   ggplot2::scale_fill_manual(values=c("#00cccc", "#374d7c", "#ff6633"))
 dev.off()
 
-```
-
-## Temperature summary plot 
-
-```{r}
-temp_summary_plot <- master_qc %>%
-  ggplot(., aes(x=Date.Time, y=FullTemp)) + theme_classic() + 
-  geom_line(size=0.3)
-
-ggsave(file="Figures/Environmental/Environmental_Temperature_summary.png", temp_summary_plot, width = 10, height = 2.5, units = c("in"))
 ```
 
 
