@@ -1,7 +1,7 @@
 ---
 title: "Multivariate analysis of E5 time series biological data"
 author: "Ariana S Huffmyer, E5 RoL Team"
-date: "03/21/2023"
+date: "08/1/2023"
 output: 
   html_document:
     code_folding: hide
@@ -63,6 +63,8 @@ master<-read.csv("Output/master_timeseries.csv")
 master$site_code<-as.factor(master$site_code)
 master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
 
+master$site<-fct_relevel(master$site, "Mahana", "Hilton", "Manava")
+
 master<-master%>%
   select(!code)
 ```
@@ -79,7 +81,7 @@ Generate PCA using scaled (scaled_acr_afdw) from dataframe (acr_data_afdw).
  
 ```{r}
 acr_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -98,13 +100,13 @@ acr_info<-acr_data_afdw[c(2,4)]
 
 acr_data<-scaled_acr_afdw%>%
   augment(acr_info)%>%
-  group_by(timepoint, site_code)%>%
+  group_by(timepoint, site)%>%
   mutate(PC1.mean = mean(.fittedPC1),
          PC2.mean = mean(.fittedPC2))
 
 acr.centroids<-acr_data %>% 
-  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
-  group_by(timepoint, site_code)%>%
+  select(timepoint, site, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site)%>%
   summarise(PC1.mean = mean(PC1.mean),
          PC2.mean = mean(PC2.mean))
 ```
@@ -116,35 +118,35 @@ Examine PERMANOVA results.
 vegan <- scale(acr_data_afdw[ ,5:16])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis2(vegan ~ timepoint*site_code, data = acr_data_afdw, method='eu')
+permanova<-adonis2(vegan ~ timepoint*site, data = acr_data_afdw, method='eu')
 z_acr<-permanova
 z_acr
 ``` 
 
-adonis2(formula = vegan ~ timepoint * site_code, data = acr_data_afdw, method = "eu")
+adonis2(formula = vegan ~ timepoint * site, data = acr_data_afdw, method = "eu")
                      Df SumOfSqs      R2       F Pr(>F)    
 timepoint             3   383.40 0.31324 17.1488  0.001 ***
-site_code             2    86.45 0.07063  5.8002  0.001 ***
-timepoint:site_code   6    75.96 0.06206  1.6989  0.010 ** 
+site             2    86.45 0.07063  5.8002  0.001 ***
+timepoint:site   6    75.96 0.06206  1.6989  0.010 ** 
 Residual             91   678.18 0.55407                   
 Total               102  1224.00 1.00000   
 
 Assemble plot with background points 
 ```{r}
 #1. make plot with dots
-acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site)) + 
   geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
-  ylim(-6,10)+
-  xlim(-5,11)+
+  ylim(-6,6)+
+  xlim(-6,6)+
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Acropora")))+
-  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_acr$`Pr(>F)`[1]), size=4, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_acr$`Pr(>F)`[2]), size=4, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_acr$`Pr(>F)`[3]), size=4, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label=paste("T=",z_acr$`Pr(>F)`[1]), size=6, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4.75, label=paste("S=",z_acr$`Pr(>F)`[2]), size=6, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4, label=paste("TxS=",z_acr$`Pr(>F)`[3]), size=6, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -160,7 +162,7 @@ Add centroids
 
 ```{r}
 #2. add centroids 
-acrPCAcen<-acrPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=acr.centroids, size=3, show.legend=FALSE) + 
+acrPCAcen<-acrPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=acr.centroids, size=3, show.legend=FALSE) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
   theme(legend.position="none"); acrPCAcen
 
@@ -171,21 +173,21 @@ Add segments
 ```{r}
 #3. add segments
 segpoints<-acr.centroids%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
+  gather(variable, value, -(timepoint:site)) %>%
   unite(temp, timepoint, variable) %>%
   spread(temp, value)
   
 acrPCAfull<-acrPCAcen + 
-  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); acrPCAfull
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); acrPCAfull
 ```
 
 Make bi plot with loadings  
 ```{r}
 #1. make plot with dots
-acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0.5, loadings.label.hjust=-0.1, loadings.label.repel=FALSE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
+acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0.5, loadings.label.hjust=-0.1, loadings.label.repel=FALSE, size=4, alpha=0.0) + 
+  #geom_point(aes(fill=site, colour=site), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -209,10 +211,9 @@ acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,
 Generate PCA using scaled (scaled_por_afdw) from dataframe (por_data_afdw).   
  
 Calculate centroid locations for each site and timepoint and pull PC1 and PC2 locations.     
- 
 ```{r}
 por_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -231,13 +232,13 @@ por_info<-por_data_afdw[c(2,4)]
 
 por_data<-scaled_por_afdw%>%
   augment(por_info)%>%
-  group_by(timepoint, site_code)%>%
+  group_by(timepoint, site)%>%
   mutate(PC1.mean = mean(.fittedPC1),
          PC2.mean = mean(.fittedPC2))
 
 por.centroids<-por_data %>% 
-  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
-  group_by(timepoint, site_code)%>%
+  select(timepoint, site, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site)%>%
   summarise(PC1.mean = mean(PC1.mean),
          PC2.mean = mean(PC2.mean))
 ```
@@ -247,35 +248,35 @@ por.centroids<-por_data %>%
 vegan <- scale(por_data_afdw[ ,5:16])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis2(vegan ~ timepoint*site_code, data = por_data_afdw, method='eu')
+permanova<-adonis2(vegan ~ timepoint*site, data = por_data_afdw, method='eu')
 z_por<-permanova
 z_por
 ```
 
-adonis2(formula = vegan ~ timepoint * site_code, data = por_data_afdw, method = "eu")
+adonis2(formula = vegan ~ timepoint * site, data = por_data_afdw, method = "eu")
                      Df SumOfSqs      R2       F Pr(>F)    
 timepoint             3   288.68 0.17559 11.3444  0.001 ***
-site_code             2   200.11 0.12172 11.7956  0.001 ***
-timepoint:site_code   6    86.45 0.05259  1.6987  0.006 ** 
+site             2   200.11 0.12172 11.7956  0.001 ***
+timepoint:site   6    86.45 0.05259  1.6987  0.006 ** 
 Residual            126  1068.76 0.65010                   
 Total               137  1644.00 1.00000    
 
 Assemble plot with background points
 ```{r}
 #1. make plot with dots
-porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site)) + 
   geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
   ylab("PC2")+
   xlab("PC1")+
-  ylim(-6,10)+
-  xlim(-5,11)+
+  ylim(-6,6)+
+  xlim(-6,6)+
   ggtitle(expression(italic("Porites")))+
-  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_por$`Pr(>F)`[1]), size=4, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_por$`Pr(>F)`[2]), size=4, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_por$`Pr(>F)`[3]), size=4, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label=paste("T=",z_por$`Pr(>F)`[1]), size=6, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4.75, label=paste("S=",z_por$`Pr(>F)`[2]), size=6, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4, label=paste("TxS=",z_por$`Pr(>F)`[3]), size=6, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -290,12 +291,12 @@ Add centroids
 
 ```{r}
 #2. add centroids 
-porPCAcen<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=por.centroids, size=3, show.legend=FALSE) + 
+porPCAcen<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=por.centroids, size=3, show.legend=FALSE) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
   theme(legend.position=c(1,0.3)); porPCAcen
 
 #build a plot for the legend
-legend_plot<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=por.centroids, size=3, show.legend=TRUE) + 
+legend_plot<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=por.centroids, size=3, show.legend=TRUE) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
   theme(legend.position="bottom")
 
@@ -312,21 +313,21 @@ Add segments
 ```{r}
 #3. add segments
 segpoints<-por.centroids%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
+  gather(variable, value, -(timepoint:site)) %>%
   unite(temp, timepoint, variable) %>%
   spread(temp, value)
   
 porPCAfull<-porPCAcen + 
-  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); porPCAfull
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); porPCAfull
 ```
 
 Add bi plot with loadings  
 ```{r}
 #1. make plot with dots
-porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=FALSE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
+porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=FALSE, size=4, alpha=0.0) + 
+  #geom_point(aes(fill=site, colour=site), alpha=0.0)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -352,7 +353,7 @@ Generate PCA using scaled (scaled_poc_afdw) from dataframe (poc_data_afdw).
  
 ```{r}
 poc_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -370,13 +371,13 @@ poc_info<-poc_data_afdw[c(2,4)]
 
 poc_data<-scaled_poc_afdw%>%
   augment(poc_info)%>%
-  group_by(timepoint, site_code)%>%
+  group_by(timepoint, site)%>%
   mutate(PC1.mean = mean(.fittedPC1),
          PC2.mean = mean(.fittedPC2))
 
 poc.centroids<-poc_data %>% 
-  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
-  group_by(timepoint, site_code)%>%
+  select(timepoint, site, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site)%>%
   summarise(PC1.mean = mean(PC1.mean),
          PC2.mean = mean(PC2.mean))
 ``` 
@@ -386,35 +387,35 @@ poc.centroids<-poc_data %>%
 vegan <- scale(poc_data_afdw[ ,5:16])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis2(vegan ~ timepoint*site_code, data = poc_data_afdw, method='eu')
+permanova<-adonis2(vegan ~ timepoint*site, data = poc_data_afdw, method='eu')
 z_poc<-permanova
 z_poc
 ```
 
-adonis2(formula = vegan ~ timepoint * site_code, data = poc_data_afdw, method = "eu")
+adonis2(formula = vegan ~ timepoint * site, data = poc_data_afdw, method = "eu")
                      Df SumOfSqs      R2       F Pr(>F)    
 timepoint             3   403.37 0.24899 16.1312  0.001 ***
-site_code             2    62.64 0.03867  3.7575  0.001 ***
-timepoint:site_code   6   120.43 0.07434  2.4081  0.001 ***
+site             2    62.64 0.03867  3.7575  0.001 ***
+timepoint:site   6   120.43 0.07434  2.4081  0.001 ***
 Residual            124  1033.56 0.63800                   
 Total               135  1620.00 1.00000 
 
 Assemble plot with background points
 ```{r}
 #1. make plot with dots
-pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site)) + 
   geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
-  ylim(-6,10)+
-  xlim(-5,11)+
+  ylim(-6,6)+
+  xlim(-6,6)+
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Pocillopora")))+
-  geom_text(x=7, y=-2.5, label=paste("p(Timepoint)=", z_poc$`Pr(>F)`[1]), size=4, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-3.25, label=paste("p(Site)=", z_poc$`Pr(>F)`[2]), size=4, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=7, y=-4, label=paste("p(Timepoint x Site)=", z_poc$`Pr(>F)`[3]), size=4, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label=paste("T=", z_poc$`Pr(>F)`[1]), size=6, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4.75, label=paste("S=", z_poc$`Pr(>F)`[2]), size=6, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4, label=paste("TxS=", z_poc$`Pr(>F)`[3]), size=6, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -430,7 +431,7 @@ Add centroids
 
 ```{r}
 #2. add centroids 
-pocPCAcen<-pocPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=poc.centroids, size=3, show.legend=FALSE) + 
+pocPCAcen<-pocPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=poc.centroids, size=3, show.legend=FALSE) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
   theme(legend.position="none"); pocPCAcen
 
@@ -441,21 +442,21 @@ Add segments
 ```{r}
 #3. add segments
 segpoints<-poc.centroids%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
+  gather(variable, value, -(timepoint:site)) %>%
   unite(temp, timepoint, variable) %>%
   spread(temp, value)
   
 pocPCAfull<-pocPCAcen + 
-  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); pocPCAfull
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); pocPCAfull
 ```
 
 Add bi plot with loadings  
 ```{r}
 
-pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
+pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
+  #geom_point(aes(fill=site, colour=site), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -506,7 +507,7 @@ Generate biplot showing groupings by site for each species and time point.
 
 ```{r}
 poc_tp1_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
@@ -521,8 +522,8 @@ poc_tp1_data[,-c(1:4)]<-log(poc_tp1_data[,-c(1:4)]+1)
  
 poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:16)], scale=TRUE, center=TRUE) 
 
-pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -544,7 +545,7 @@ pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  col
 
 ```{r}
 poc_tp2_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -560,8 +561,8 @@ poc_tp2_data[,-c(1:4)]<-log(poc_tp2_data[,-c(1:4)]+1)
  
 poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:16)], scale=TRUE, center=TRUE) 
 
-pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -583,7 +584,7 @@ pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  col
 
 ```{r}
 poc_tp3_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -599,8 +600,8 @@ poc_tp3_data[,-c(1:4)]<-log(poc_tp3_data[,-c(1:4)]+1)
  
 poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:16)], scale=TRUE, center=TRUE) 
 
-pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -622,7 +623,7 @@ pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  col
 
 ```{r}
 poc_tp4_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -638,8 +639,8 @@ poc_tp4_data[,-c(1:4)]<-log(poc_tp4_data[,-c(1:4)]+1)
  
 poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:16)], scale=TRUE, center=TRUE) 
 
-pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -663,7 +664,7 @@ pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp1_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -678,8 +679,8 @@ acr_tp1_data[,-c(1:4)]<-log(acr_tp1_data[,-c(1:4)]+1)
  
 acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:16)], scale=TRUE, center=TRUE) 
 
-acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -701,7 +702,7 @@ acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp2_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -717,8 +718,8 @@ acr_tp2_data[,-c(1:4)]<-log(acr_tp2_data[,-c(1:4)]+1)
  
 acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:16)], scale=TRUE, center=TRUE) 
 
-acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -740,7 +741,7 @@ acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp3_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -756,8 +757,8 @@ acr_tp3_data[,-c(1:4)]<-log(acr_tp3_data[,-c(1:4)]+1)
  
 acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:16)], scale=TRUE, center=TRUE) 
 
-acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -779,7 +780,7 @@ acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp4_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -795,8 +796,8 @@ acr_tp4_data[,-c(1:4)]<-log(acr_tp4_data[,-c(1:4)]+1)
  
 acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:16)], scale=TRUE, center=TRUE) 
 
-acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -821,7 +822,7 @@ acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  col
 
 ```{r}
 por_tp1_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -836,8 +837,8 @@ por_tp1_data[,-c(1:4)]<-log(por_tp1_data[,-c(1:4)]+1)
  
 por_tp1_scaled<-prcomp(por_tp1_data[c(5:16)], scale=TRUE, center=TRUE) 
 
-porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -859,7 +860,7 @@ porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  col
 
 ```{r}
 por_tp2_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -875,8 +876,8 @@ por_tp2_data[,-c(1:4)]<-log(por_tp2_data[,-c(1:4)]+1)
  
 por_tp2_scaled<-prcomp(por_tp2_data[c(5:16)], scale=TRUE, center=TRUE) 
 
-porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -898,7 +899,7 @@ porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  col
 
 ```{r}
 por_tp3_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
@@ -914,8 +915,8 @@ por_tp3_data[,-c(1:4)]<-log(por_tp3_data[,-c(1:4)]+1)
  
 por_tp3_scaled<-prcomp(por_tp3_data[c(5:16)], scale=TRUE, center=TRUE) 
 
-porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -937,7 +938,7 @@ porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  col
 
 ```{r}
 por_tp4_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -953,8 +954,8 @@ por_tp4_data[,-c(1:4)]<-log(por_tp4_data[,-c(1:4)]+1)
  
 por_tp4_scaled<-prcomp(por_tp4_data[c(5:16)], scale=TRUE, center=TRUE) 
 
-porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1001,7 +1002,7 @@ Generate PCA using scaled (scaled_acr_afdw) from dataframe (acr_data_afdw).
  
 ```{r}
 acr_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -1020,13 +1021,13 @@ acr_info<-acr_data_afdw[c(2,4)]
 
 acr_data<-scaled_acr_afdw%>%
   augment(acr_info)%>%
-  group_by(timepoint, site_code)%>%
+  group_by(timepoint, site)%>%
   mutate(PC1.mean = mean(.fittedPC1),
          PC2.mean = mean(.fittedPC2))
 
 acr.centroids<-acr_data %>% 
-  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
-  group_by(timepoint, site_code)%>%
+  select(timepoint, site, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site)%>%
   summarise(PC1.mean = mean(PC1.mean),
          PC2.mean = mean(PC2.mean))
 ```
@@ -1038,7 +1039,7 @@ Examine PERMANOVA results.
 vegan <- scale(acr_data_afdw[ ,5:9])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis2(vegan ~ timepoint*site_code, data = acr_data_afdw, method='eu')
+permanova<-adonis2(vegan ~ timepoint*site, data = acr_data_afdw, method='eu')
 z_acr<-permanova
 z_acr
 ``` 
@@ -1046,19 +1047,19 @@ z_acr
 Assemble plot with background points
 ```{r}
 #1. make plot with dots
-acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site)) + 
   geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
-  ylim(-5,5)+
-  xlim(-5,5)+
+  ylim(-6,6)+
+  xlim(-6,6)+
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Acropora")))+
-  geom_text(x=2.5, y=-2.7, label=paste("p(Timepoint)=", z_acr$`Pr(>F)`[1]), size=4, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=2.5, y=-3.45, label=paste("p(Site)=", z_acr$`Pr(>F)`[2]), size=4, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=2.5, y=-4.2, label=paste("p(Timepoint x Site)=", z_acr$`Pr(>F)`[3]), size=4, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label=paste("T=",z_acr$`Pr(>F)`[1]), size=6, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4.75, label=paste("S=",z_acr$`Pr(>F)`[2]), size=6, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4, label=paste("TxS=",z_acr$`Pr(>F)`[3]), size=6, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -1074,7 +1075,7 @@ Add centroids
 
 ```{r}
 #2. add centroids 
-acrPCAcen<-acrPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=acr.centroids, size=3, show.legend=FALSE) + 
+acrPCAcen<-acrPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=acr.centroids, size=3, show.legend=FALSE) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
   theme(legend.position="none"); acrPCAcen
 
@@ -1085,21 +1086,21 @@ Add segments
 ```{r}
 #3. add segments
 segpoints<-acr.centroids%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
+  gather(variable, value, -(timepoint:site)) %>%
   unite(temp, timepoint, variable) %>%
   spread(temp, value)
   
 acrPCAfull<-acrPCAcen + 
-  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); acrPCAfull
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); acrPCAfull
 ```
 
 Add bi plot with loadings  
 ```{r}
 #1. make plot with dots
-acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0.5, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
+acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0.5, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
+  #geom_point(aes(fill=site, colour=site), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1133,7 +1134,7 @@ Generate PCA using scaled (scaled_por_afdw) from dataframe (por_data_afdw).
 Calculate centroid locations for each site and timepoint and pull PC1 and PC2 locations.      
 ```{r}
 por_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -1152,13 +1153,13 @@ por_info<-por_data_afdw[c(2,4)]
 
 por_data<-scaled_por_afdw%>%
   augment(por_info)%>%
-  group_by(timepoint, site_code)%>%
+  group_by(timepoint, site)%>%
   mutate(PC1.mean = mean(.fittedPC1),
          PC2.mean = mean(.fittedPC2))
 
 por.centroids<-por_data %>% 
-  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
-  group_by(timepoint, site_code)%>%
+  select(timepoint, site, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site)%>%
   summarise(PC1.mean = mean(PC1.mean),
          PC2.mean = mean(PC2.mean))
 ```
@@ -1168,7 +1169,7 @@ por.centroids<-por_data %>%
 vegan <- scale(por_data_afdw[ ,5:8])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis2(vegan ~ timepoint*site_code, data = por_data_afdw, method='eu')
+permanova<-adonis2(vegan ~ timepoint*site, data = por_data_afdw, method='eu')
 z_por<-permanova
 z_por
 ```
@@ -1176,19 +1177,19 @@ z_por
 Assemble plot with background points
 ```{r}
 #1. make plot with dots
-porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site)) + 
   geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
   ylab("PC2")+
   xlab("PC1")+
-  ylim(-5,5)+
-  xlim(-5,5)+
+  ylim(-6,6)+
+  xlim(-6,6)+
   ggtitle(expression(italic("Porites")))+
-  geom_text(x=2, y=-3, label=paste("p(Timepoint)=", z_por$`Pr(>F)`[1]), size=4, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=2, y=-3.75, label=paste("p(Site)=", z_por$`Pr(>F)`[2]), size=4, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=2, y=-4.5, label=paste("p(Timepoint x Site)=", z_por$`Pr(>F)`[3]), size=4, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label=paste("T=",z_por$`Pr(>F)`[1]), size=6, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4.75, label=paste("S=",z_por$`Pr(>F)`[2]), size=6, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4, label=paste("TxS=",z_por$`Pr(>F)`[3]), size=6, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -1203,12 +1204,12 @@ Add centroids
 
 ```{r}
 #2. add centroids 
-porPCAcen<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=por.centroids, size=3, show.legend=FALSE) + 
+porPCAcen<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=por.centroids, size=3, show.legend=FALSE) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
   theme(legend.position=c(1,0.3)); porPCAcen
 
 #build a plot for the legend
-legend_plot<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=por.centroids, size=3, show.legend=TRUE) + 
+legend_plot<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=por.centroids, size=3, show.legend=TRUE) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
   theme(legend.position="bottom")
 
@@ -1225,21 +1226,21 @@ Add segments
 ```{r}
 #3. add segments
 segpoints<-por.centroids%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
+  gather(variable, value, -(timepoint:site)) %>%
   unite(temp, timepoint, variable) %>%
   spread(temp, value)
   
 porPCAfull<-porPCAcen + 
-  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); porPCAfull
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); porPCAfull
 ```
 
 Add bi plot with loadings  
 ```{r}
 #1. make plot with dots
-porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
+porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
+  #geom_point(aes(fill=site, colour=site), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1264,7 +1265,7 @@ Generate PCA using scaled (scaled_poc_afdw) from dataframe (poc_data_afdw).
  
 ```{r}
 poc_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2<20)%>%
@@ -1282,13 +1283,13 @@ poc_info<-poc_data_afdw[c(2,4)]
 
 poc_data<-scaled_poc_afdw%>%
   augment(poc_info)%>%
-  group_by(timepoint, site_code)%>%
+  group_by(timepoint, site)%>%
   mutate(PC1.mean = mean(.fittedPC1),
          PC2.mean = mean(.fittedPC2))
 
 poc.centroids<-poc_data %>% 
-  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
-  group_by(timepoint, site_code)%>%
+  select(timepoint, site, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site)%>%
   summarise(PC1.mean = mean(PC1.mean),
          PC2.mean = mean(PC2.mean))
 ``` 
@@ -1298,7 +1299,7 @@ poc.centroids<-poc_data %>%
 vegan <- scale(poc_data_afdw[ ,5:9])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis2(vegan ~ timepoint*site_code, data = poc_data_afdw, method='eu')
+permanova<-adonis2(vegan ~ timepoint*site, data = poc_data_afdw, method='eu')
 z_poc<-permanova
 z_poc
 ```
@@ -1306,19 +1307,19 @@ z_poc
 Assemble plot with background points
 ```{r}
 #1. make plot with dots
-pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site)) + 
   geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
-  ylim(-5,5)+
-  xlim(-5,5)+
+  ylim(-6,6)+
+  xlim(-6,6)+
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Pocillopora")))+
-  geom_text(x=2, y=-3, label=paste("p(Timepoint)=", z_poc$`Pr(>F)`[1]), size=4, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=2, y=-3.75, label=paste("p(Site)=", z_poc$`Pr(>F)`[2]), size=4, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=2, y=-4.5, label=paste("p(Timepoint x Site)=", z_poc$`Pr(>F)`[3]), size=4, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label=paste("T=",z_poc$`Pr(>F)`[1]), size=6, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4.75, label=paste("S=",z_poc$`Pr(>F)`[2]), size=6, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4, label=paste("TxS=",z_poc$`Pr(>F)`[3]), size=6, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -1334,7 +1335,7 @@ Add centroids
 
 ```{r}
 #2. add centroids 
-pocPCAcen<-pocPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=poc.centroids, size=3, show.legend=FALSE) + 
+pocPCAcen<-pocPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=poc.centroids, size=3, show.legend=FALSE) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
   theme(legend.position="none"); pocPCAcen
 
@@ -1345,21 +1346,20 @@ Add segments
 ```{r}
 #3. add segments
 segpoints<-poc.centroids%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
+  gather(variable, value, -(timepoint:site)) %>%
   unite(temp, timepoint, variable) %>%
   spread(temp, value)
   
 pocPCAfull<-pocPCAcen + 
-  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); pocPCAfull
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); pocPCAfull
 ```
 
 Add bi plot with loadings  
 ```{r}
-
-pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
+pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
+  #geom_point(aes(fill=site, colour=site), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1410,7 +1410,7 @@ Generate biplot showing groupings by site for each species and time point.
 
 ```{r}
 poc_tp1_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -1426,8 +1426,8 @@ poc_tp1_data[,-c(1:4)]<-log(poc_tp1_data[,-c(1:4)]+1)
  
 poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1449,7 +1449,7 @@ pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  col
 
 ```{r}
 poc_tp2_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -1465,8 +1465,8 @@ poc_tp2_data[,-c(1:4)]<-log(poc_tp2_data[,-c(1:4)]+1)
  
 poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1488,7 +1488,7 @@ pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  col
 
 ```{r}
 poc_tp3_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -1504,8 +1504,8 @@ poc_tp3_data[,-c(1:4)]<-log(poc_tp3_data[,-c(1:4)]+1)
  
 poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1527,7 +1527,7 @@ pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  col
 
 ```{r}
 poc_tp4_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -1543,8 +1543,8 @@ poc_tp4_data[,-c(1:4)]<-log(poc_tp4_data[,-c(1:4)]+1)
  
 poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1569,7 +1569,7 @@ pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp1_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -1585,8 +1585,8 @@ acr_tp1_data[,-c(1:4)]<-log(acr_tp1_data[,-c(1:4)]+1)
  
 acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1608,7 +1608,7 @@ acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp2_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -1624,8 +1624,8 @@ acr_tp2_data[,-c(1:4)]<-log(acr_tp2_data[,-c(1:4)]+1)
  
 acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1647,7 +1647,7 @@ acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp3_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -1663,8 +1663,8 @@ acr_tp3_data[,-c(1:4)]<-log(acr_tp3_data[,-c(1:4)]+1)
  
 acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1686,7 +1686,7 @@ acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp4_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -1702,8 +1702,8 @@ acr_tp4_data[,-c(1:4)]<-log(acr_tp4_data[,-c(1:4)]+1)
  
 acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1729,7 +1729,7 @@ acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  col
 
 ```{r}
 por_tp1_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -1745,8 +1745,8 @@ por_tp1_data[,-c(1:4)]<-log(por_tp1_data[,-c(1:4)]+1)
  
 por_tp1_scaled<-prcomp(por_tp1_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1768,7 +1768,7 @@ porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  col
 
 ```{r}
 por_tp2_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -1784,8 +1784,8 @@ por_tp2_data[,-c(1:4)]<-log(por_tp2_data[,-c(1:4)]+1)
  
 por_tp2_scaled<-prcomp(por_tp2_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1807,7 +1807,7 @@ porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  col
 
 ```{r}
 por_tp3_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -1823,8 +1823,8 @@ por_tp3_data[,-c(1:4)]<-log(por_tp3_data[,-c(1:4)]+1)
  
 por_tp3_scaled<-prcomp(por_tp3_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1846,7 +1846,7 @@ porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  col
 
 ```{r}
 por_tp4_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2<20)%>%
@@ -1862,8 +1862,8 @@ por_tp4_data[,-c(1:4)]<-log(por_tp4_data[,-c(1:4)]+1)
  
 por_tp4_scaled<-prcomp(por_tp4_data[c(5:9)], scale=TRUE, center=TRUE) 
 
-porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -1903,7 +1903,7 @@ Generate PCA using scaled (scaled_acr_afdw) from dataframe (acr_data_afdw).
   
 ```{r}
 acr_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -1923,13 +1923,13 @@ acr_info<-acr_data_afdw[c(2,4)]
 
 acr_data<-scaled_acr_afdw%>%
   augment(acr_info)%>%
-  group_by(timepoint, site_code)%>%
+  group_by(timepoint, site)%>%
   mutate(PC1.mean = mean(.fittedPC1),
          PC2.mean = mean(.fittedPC2))
 
 acr.centroids<-acr_data %>% 
-  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
-  group_by(timepoint, site_code)%>%
+  select(timepoint, site, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site)%>%
   summarise(PC1.mean = mean(PC1.mean),
          PC2.mean = mean(PC2.mean))
 ```
@@ -1941,7 +1941,7 @@ Examine PERMANOVA results.
 vegan <- scale(acr_data_afdw[ ,5:11])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis2(vegan ~ timepoint*site_code, data = acr_data_afdw, method='eu')
+permanova<-adonis2(vegan ~ timepoint*site, data = acr_data_afdw, method='eu')
 z_acr<-permanova
 z_acr
 ``` 
@@ -1949,19 +1949,19 @@ z_acr
 Assemble plot with background points
 ```{r}
 #1. make plot with dots
-acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site)) + 
   geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
-  ylim(-5,6)+
-  xlim(-5,6)+
+  ylim(-6,6)+
+  xlim(-6,6)+
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Acropora")))+
-  geom_text(x=3, y=-3, label=paste("p(Timepoint)=", z_acr$`Pr(>F)`[1]), size=4, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=-3.75, label=paste("p(Site)=", z_acr$`Pr(>F)`[2]), size=4, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=-4.5, label=paste("p(Timepoint x Site)=", z_acr$`Pr(>F)`[3]), size=4, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label=paste("T=",z_acr$`Pr(>F)`[1]), size=6, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4.75, label=paste("S=",z_acr$`Pr(>F)`[2]), size=6, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4, label=paste("TxS=",z_acr$`Pr(>F)`[3]), size=6, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -1977,7 +1977,7 @@ Add centroids
 
 ```{r}
 #2. add centroids 
-acrPCAcen<-acrPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=acr.centroids, size=3, show.legend=FALSE) + 
+acrPCAcen<-acrPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=acr.centroids, size=3, show.legend=FALSE) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
   theme(legend.position="none"); acrPCAcen
 
@@ -1988,21 +1988,21 @@ Add segments
 ```{r}
 #3. add segments
 segpoints<-acr.centroids%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
+  gather(variable, value, -(timepoint:site)) %>%
   unite(temp, timepoint, variable) %>%
   spread(temp, value)
   
 acrPCAfull<-acrPCAcen + 
-  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); acrPCAfull
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); acrPCAfull
 ```
 
 Add bi plot with loadings  
 ```{r}
 #1. make plot with dots
-acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0.5, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
+acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0.5, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
+  #geom_point(aes(fill=site, colour=site), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2025,11 +2025,11 @@ acrArrows<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, loadings=TRUE,
 
 Generate PCA using scaled (scaled_por_afdw) from dataframe (por_data_afdw).   
  
-Calculate centroid locations for each site and timepoint and pull PC1 and PC2 locations.      
+Calculate centroid locations for each site and timepoint and pull PC1 and PC2 locations.
  
 ```{r}
 por_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -2049,13 +2049,13 @@ por_info<-por_data_afdw[c(2,4)]
 
 por_data<-scaled_por_afdw%>%
   augment(por_info)%>%
-  group_by(timepoint, site_code)%>%
+  group_by(timepoint, site)%>%
   mutate(PC1.mean = mean(.fittedPC1),
          PC2.mean = mean(.fittedPC2))
 
 por.centroids<-por_data %>% 
-  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
-  group_by(timepoint, site_code)%>%
+  select(timepoint, site, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site)%>%
   summarise(PC1.mean = mean(PC1.mean),
          PC2.mean = mean(PC2.mean))
 ```
@@ -2065,7 +2065,7 @@ por.centroids<-por_data %>%
 vegan <- scale(por_data_afdw[ ,5:11])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis2(vegan ~ timepoint*site_code, data = por_data_afdw, method='eu')
+permanova<-adonis2(vegan ~ timepoint*site, data = por_data_afdw, method='eu')
 z_por<-permanova
 z_por
 ```
@@ -2073,19 +2073,19 @@ z_por
 Assemble plot with background points
 ```{r}
 #1. make plot with dots
-porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site)) + 
   geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
   ylab("PC2")+
   xlab("PC1")+
-  ylim(-5,6)+
-  xlim(-5,6)+
+  ylim(-6,6)+
+  xlim(-6,6)+
   ggtitle(expression(italic("Porites")))+
-  geom_text(x=3, y=-3, label=paste("p(Timepoint)=", z_por$`Pr(>F)`[1]), size=4, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=-3.75, label=paste("p(Site)=", z_por$`Pr(>F)`[2]), size=4, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=-4.5, label=paste("p(Timepoint x Site)=", z_por$`Pr(>F)`[3]), size=4, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label=paste("T=",z_por$`Pr(>F)`[1]), size=6, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4.75, label=paste("S=",z_por$`Pr(>F)`[2]), size=6, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4, label=paste("TxS=",z_por$`Pr(>F)`[3]), size=6, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -2100,12 +2100,12 @@ Add centroids
 
 ```{r}
 #2. add centroids 
-porPCAcen<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=por.centroids, size=3, show.legend=FALSE) + 
+porPCAcen<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=por.centroids, size=3, show.legend=FALSE) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
   theme(legend.position=c(1,0.3)); porPCAcen
 
 #build a plot for the legend
-legend_plot<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=por.centroids, size=3, show.legend=TRUE) + 
+legend_plot<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=por.centroids, size=3, show.legend=TRUE) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
   theme(legend.position="bottom")
 
@@ -2122,21 +2122,21 @@ Add segments
 ```{r}
 #3. add segments
 segpoints<-por.centroids%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
+  gather(variable, value, -(timepoint:site)) %>%
   unite(temp, timepoint, variable) %>%
   spread(temp, value)
   
 porPCAfull<-porPCAcen + 
-  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); porPCAfull
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); porPCAfull
 ```
 
 Add bi plot with loadings  
 ```{r}
 #1. make plot with dots
-porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
+porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=-0.1, loadings.label.hjust=0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
+  #geom_point(aes(fill=site, colour=site), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2155,8 +2155,6 @@ porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,
          axis.title = element_text(size=20));porArrows
 ```
 
-
-
 Assemble final figure with inset biplot.  
 ```{r}
 #porFullPCA<-ggdraw(porPCAfull)+ #+ theme_half_open(12)) +
@@ -2171,7 +2169,7 @@ Generate PCA using scaled (scaled_poc_afdw) from dataframe (poc_data_afdw).
  
 ```{r}
 poc_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
@@ -2193,13 +2191,13 @@ poc_info<-poc_data_afdw[c(2,4)]
 
 poc_data<-scaled_poc_afdw%>%
   augment(poc_info)%>%
-  group_by(timepoint, site_code)%>%
+  group_by(timepoint, site)%>%
   mutate(PC1.mean = mean(.fittedPC1),
          PC2.mean = mean(.fittedPC2))
 
 poc.centroids<-poc_data %>% 
-  select(timepoint, site_code, PC1.mean, PC2.mean)%>%
-  group_by(timepoint, site_code)%>%
+  select(timepoint, site, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, site)%>%
   summarise(PC1.mean = mean(PC1.mean),
          PC2.mean = mean(PC2.mean))
 ``` 
@@ -2209,7 +2207,7 @@ poc.centroids<-poc_data %>%
 vegan <- scale(poc_data_afdw[ ,5:11])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis2(vegan ~ timepoint*site_code, data = poc_data_afdw, method='eu')
+permanova<-adonis2(vegan ~ timepoint*site, data = poc_data_afdw, method='eu')
 z_poc<-permanova
 z_poc
 ```
@@ -2217,19 +2215,19 @@ z_poc
 Assemble plot with background points
 ```{r}
 #1. make plot with dots
-pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site_code)) + 
+pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site)) + 
   geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
-  ylim(-5,6)+
-  xlim(-5,6)+
+  ylim(-6,6)+
+  xlim(-6,6)+
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Pocillopora")))+
-  geom_text(x=3, y=-3, label=paste("p(Timepoint)=", z_poc$`Pr(>F)`[1]), size=4, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=-3.75, label=paste("p(Site)=", z_poc$`Pr(>F)`[2]), size=4, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=-4.5, label=paste("p(Timepoint x Site)=", z_poc$`Pr(>F)`[3]), size=4, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label=paste("T=",z_poc$`Pr(>F)`[1]), size=6, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4.75, label=paste("S=",z_poc$`Pr(>F)`[2]), size=6, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=4, label=paste("TxS=",z_poc$`Pr(>F)`[3]), size=6, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -2245,7 +2243,7 @@ Add centroids
 
 ```{r}
 #2. add centroids 
-pocPCAcen<-pocPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site_code), data=poc.centroids, size=3, show.legend=FALSE) + 
+pocPCAcen<-pocPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=poc.centroids, size=3, show.legend=FALSE) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
   theme(legend.position="none"); pocPCAcen
 
@@ -2256,21 +2254,21 @@ Add segments
 ```{r}
 #3. add segments
 segpoints<-poc.centroids%>%
-  gather(variable, value, -(timepoint:site_code)) %>%
+  gather(variable, value, -(timepoint:site)) %>%
   unite(temp, timepoint, variable) %>%
   spread(temp, value)
   
 pocPCAfull<-pocPCAcen + 
-  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site_code), data = segpoints, size=2, show.legend=FALSE) +
-  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site_code), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); pocPCAfull
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = site), data = segpoints, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = site), data = segpoints, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); pocPCAfull
 ```
 
 Add bi plot with loadings  
 ```{r}
 
-pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
-  geom_point(aes(fill=site_code, colour=site_code), alpha=0.2)+
+pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=3.5, loadings.label.vjust=0, loadings.label.hjust=-0.1, loadings.label.repel=TRUE, size=4, alpha=0.0) + 
+  #geom_point(aes(fill=site, colour=site), alpha=0.2)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2320,7 +2318,7 @@ Generate biplot showing groupings by site for each species and time point.
 
 ```{r}
 poc_tp1_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
@@ -2337,8 +2335,8 @@ poc_tp1_data[,-c(1:4)]<-log(poc_tp1_data[,-c(1:4)]+1)
  
 poc_tp1_scaled<-prcomp(poc_tp1_data[c(5:11)], scale=TRUE, center=TRUE) 
 
-pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2360,7 +2358,7 @@ pocTP1<-ggplot2::autoplot(poc_tp1_scaled, data=poc_tp1_data, loadings=TRUE,  col
 
 ```{r}
 poc_tp2_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -2377,8 +2375,8 @@ poc_tp2_data[,-c(1:4)]<-log(poc_tp2_data[,-c(1:4)]+1)
  
 poc_tp2_scaled<-prcomp(poc_tp2_data[c(5:11)], scale=TRUE, center=TRUE) 
 
-pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2400,7 +2398,7 @@ pocTP2<-ggplot2::autoplot(poc_tp2_scaled, data=poc_tp2_data, loadings=TRUE,  col
 
 ```{r}
 poc_tp3_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -2417,8 +2415,8 @@ poc_tp3_data[,-c(1:4)]<-log(poc_tp3_data[,-c(1:4)]+1)
  
 poc_tp3_scaled<-prcomp(poc_tp3_data[c(5:11)], scale=TRUE, center=TRUE) 
 
-pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2440,7 +2438,7 @@ pocTP3<-ggplot2::autoplot(poc_tp3_scaled, data=poc_tp3_data, loadings=TRUE,  col
 
 ```{r}
 poc_tp4_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -2457,8 +2455,8 @@ poc_tp4_data[,-c(1:4)]<-log(poc_tp4_data[,-c(1:4)]+1)
  
 poc_tp4_scaled<-prcomp(poc_tp4_data[c(5:11)], scale=TRUE, center=TRUE) 
 
-pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2483,7 +2481,7 @@ pocTP4<-ggplot2::autoplot(poc_tp4_scaled, data=poc_tp4_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp1_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -2500,8 +2498,8 @@ acr_tp1_data[,-c(1:4)]<-log(acr_tp1_data[,-c(1:4)]+1)
  
 acr_tp1_scaled<-prcomp(acr_tp1_data[c(5:11)], scale=TRUE, center=TRUE) 
 
-acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2523,7 +2521,7 @@ acrTP1<-ggplot2::autoplot(acr_tp1_scaled, data=acr_tp1_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp2_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -2540,8 +2538,8 @@ acr_tp2_data[,-c(1:4)]<-log(acr_tp2_data[,-c(1:4)]+1)
  
 acr_tp2_scaled<-prcomp(acr_tp2_data[c(5:11)], scale=TRUE, center=TRUE) 
 
-acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2563,7 +2561,7 @@ acrTP2<-ggplot2::autoplot(acr_tp2_scaled, data=acr_tp2_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp3_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -2580,8 +2578,8 @@ acr_tp3_data[,-c(1:4)]<-log(acr_tp3_data[,-c(1:4)]+1)
  
 acr_tp3_scaled<-prcomp(acr_tp3_data[c(5:11)], scale=TRUE, center=TRUE) 
 
-acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2603,7 +2601,7 @@ acrTP3<-ggplot2::autoplot(acr_tp3_scaled, data=acr_tp3_data, loadings=TRUE,  col
 
 ```{r}
 acr_tp4_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
@@ -2620,8 +2618,8 @@ acr_tp4_data[,-c(1:4)]<-log(acr_tp4_data[,-c(1:4)]+1)
  
 acr_tp4_scaled<-prcomp(acr_tp4_data[c(5:11)], scale=TRUE, center=TRUE) 
 
-acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2647,7 +2645,7 @@ acrTP4<-ggplot2::autoplot(acr_tp4_scaled, data=acr_tp4_data, loadings=TRUE,  col
 
 ```{r}
 por_tp1_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
@@ -2664,8 +2662,8 @@ por_tp1_data[,-c(1:4)]<-log(por_tp1_data[,-c(1:4)]+1)
  
 por_tp1_scaled<-prcomp(por_tp1_data[c(5:11)], scale=TRUE, center=TRUE) 
 
-porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0, loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2687,7 +2685,7 @@ porTP1<-ggplot2::autoplot(por_tp1_scaled, data=por_tp1_data, loadings=TRUE,  col
 
 ```{r}
 por_tp2_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -2704,8 +2702,8 @@ por_tp2_data[,-c(1:4)]<-log(por_tp2_data[,-c(1:4)]+1)
 
 por_tp2_scaled<-prcomp(por_tp2_data[c(5:11)], scale=TRUE, center=TRUE) 
 
-porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2727,7 +2725,7 @@ porTP2<-ggplot2::autoplot(por_tp2_scaled, data=por_tp2_data, loadings=TRUE,  col
 
 ```{r}
 por_tp3_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -2744,8 +2742,8 @@ por_tp3_data[,-c(1:4)]<-log(por_tp3_data[,-c(1:4)]+1)
  
 por_tp3_scaled<-prcomp(por_tp3_data[c(5:11)], scale=TRUE, center=TRUE) 
 
-porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
@@ -2767,7 +2765,7 @@ porTP3<-ggplot2::autoplot(por_tp3_scaled, data=por_tp3_data, loadings=TRUE,  col
 
 ```{r}
 por_tp4_data<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
@@ -2784,8 +2782,8 @@ por_tp4_data[,-c(1:4)]<-log(por_tp4_data[,-c(1:4)]+1)
  
 por_tp4_scaled<-prcomp(por_tp4_data[c(5:11)], scale=TRUE, center=TRUE) 
 
-porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site_code", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
-  #geom_point(aes(colour=site_code), size=3)+
+porTP4<-ggplot2::autoplot(por_tp4_scaled, data=por_tp4_data, loadings=TRUE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, frame.type="convex", frame.level=0.95, loadings.label.size=5, loadings.label.repel=TRUE, size=4, alpha=1.0,   loadings.arrow = grid::arrow(length = grid::unit(10, "points")), scale=0) + 
+  #geom_point(aes(colour=site), size=3)+
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   theme_classic()+
