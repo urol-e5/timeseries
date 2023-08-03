@@ -1055,6 +1055,8 @@ pcaSpecies_afdw<-ggplot2::autoplot(scaled_data_species, data=pca_data_species, f
         axis.title = element_text(size=18, color="black"));pcaSpecies_afdw
 
 ggsave(filename="Figures/NormalizerPCA/Species_Overall_PCA.png", plot=pcaSpecies_afdw, dpi=300, width=7, height=5, units="in")
+ggsave(filename="Figures/NormalizerPCA/Species_Overall_PCA.jpeg", plot=pcaSpecies_afdw, dpi=300, width=7, height=5, units="in")
+ggsave(filename="Figures/NormalizerPCA/Species_Overall_PCA.pdf", plot=pcaSpecies_afdw, dpi=300, width=7, height=5, units="in")
 ```
 
 Generate a biplot for this PCA. 
@@ -1076,12 +1078,9 @@ pcaSpecies_afdw_biplot<-ggplot2::autoplot(scaled_data_species, data=pca_data_spe
         axis.title = element_text(size=18, color="black"));pcaSpecies_afdw_biplot
 
 ggsave(filename="Figures/NormalizerPCA/Species_Overall_BiPlot.png", plot=pcaSpecies_afdw_biplot, dpi=300, width=5, height=5, units="in")
+ggsave(filename="Figures/NormalizerPCA/Species_Overall_BiPlot.jpeg", plot=pcaSpecies_afdw_biplot, dpi=300, width=5, height=5, units="in")
+ggsave(filename="Figures/NormalizerPCA/Species_Overall_BiPlot.pdf", plot=pcaSpecies_afdw_biplot, dpi=300, width=5, height=5, units="in")
 ```
-
-
-
-
-
 
 Species specific PCAs and PERMANOVAs are in the next script, `4_multivariate_analysis.RmD`.  
 

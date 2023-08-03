@@ -727,6 +727,8 @@ ggsave(varpartBarplot_Fraction, file="Figures/Multivariate/VarPart_Fraction.png"
 
 ```
 
+#Individual plots 
+
 Plot individual fractions for panels in final multivariate plot. 
 ```{r}
 varpartBarplot_holobiont<-varpart_afdw_parts%>%
@@ -747,9 +749,11 @@ varpartBarplot_holobiont<-varpart_afdw_parts%>%
         axis.text.y=element_text(color="black"), 
         axis.title = element_text(face="bold"), 
         legend.title=element_text(face="bold"), 
+        legend.position="none",
         strip.text = element_text(size=16));varpartBarplot_holobiont
 
 ggsave(varpartBarplot_holobiont, file="Figures/Multivariate/VarPart_Holobiont.png", width=6, height=6)
+ggsave(varpartBarplot_holobiont, file="Figures/Multivariate/VarPart_Holobiont.jpg", width=6, height=6)
 
 ```
 
@@ -772,9 +776,12 @@ varpartBarplot_host<-varpart_afdw_parts%>%
         axis.text.y=element_text(color="black"), 
         axis.title = element_text(face="bold"), 
         legend.title=element_text(face="bold"), 
+        legend.position="none",
         strip.text = element_text(size=16));varpartBarplot_host
 
 ggsave(varpartBarplot_host, file="Figures/Multivariate/VarPart_Host.png", width=6, height=6)
+
+ggsave(varpartBarplot_host, file="Figures/Multivariate/VarPart_Host.jpg", width=6, height=6)
 
 ```
 
@@ -784,7 +791,7 @@ varpartBarplot_sym<-varpart_afdw_parts%>%
   
   ggplot(aes(x=Species, y=Percent, fill=Parts)) + 
   geom_bar(position="stack", stat="identity", colour="black")+
-  scale_fill_manual(name="Predictors", values = c("white", "lightgray", "darkgray"), labels = c("Site", "Season", "Residuals"))+
+  scale_fill_manual(name="", values = c("white", "lightgray", "darkgray"), labels = c("Site", "Season", "Residuals"))+
   theme_classic()+
   theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), 
         axis.text.x=element_text(size=14, colour="black"), axis.text.y=element_text(size=14, colour="black"), 
@@ -797,8 +804,10 @@ varpartBarplot_sym<-varpart_afdw_parts%>%
         axis.text.y=element_text(color="black"), 
         axis.title = element_text(face="bold"), 
         legend.title=element_text(face="bold"), 
+        legend.position="bottom",
         strip.text = element_text(size=16));varpartBarplot_sym
 
-ggsave(varpartBarplot_sym, file="Figures/Multivariate/VarPart_Sym.png", width=6, height=6)
+ggsave(varpartBarplot_sym, file="Figures/Multivariate/VarPart_Sym.png", width=6, height=6.5)
+ggsave(varpartBarplot_sym, file="Figures/Multivariate/VarPart_Sym.jpg", width=6, height=6.5)
 
 ```

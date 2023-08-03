@@ -298,7 +298,7 @@ porPCAcen<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=po
 #build a plot for the legend
 legend_plot<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=por.centroids, size=3, show.legend=TRUE) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
-  theme(legend.position="bottom")
+  theme(legend.position="bottom")+theme(legend.text=element_text(size=18))
 
 # extract the legend from one of the plots
 legend <- get_legend(
@@ -486,6 +486,8 @@ PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("A", "B
 PCA_full_panel_legend<-plot_grid(PCA_full_panel, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 
 ggsave(filename="Figures/Multivariate/Full_Panel_PCAs_Holobiont.png", plot=PCA_full_panel_legend, dpi=500, width=20, height=6, units="in")
+ggsave(filename="Figures/Multivariate/Full_Panel_PCAs_Holobiont.jpg", plot=PCA_full_panel_legend, dpi=500, width=20, height=6, units="in")
+ggsave(filename="Figures/Multivariate/Full_Panel_PCAs_Holobiont.pdf", plot=PCA_full_panel_legend, dpi=500, width=20, height=6, units="in")
 ```  
 
 Assemble biplots  
@@ -497,6 +499,8 @@ biplot_full_panel<-plot_grid(acrArrows, pocArrows, porArrows, labels = c("A", "B
 biplot_full_panel_legend<-plot_grid(biplot_full_panel, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 
 ggsave(filename="Figures/Multivariate/Full_Biplots_Holobiont.png", plot=biplot_full_panel_legend, dpi=500, width=20, height=6, units="in")
+ggsave(filename="Figures/Multivariate/Full_Biplots_Holobiont.jpg", plot=biplot_full_panel_legend, dpi=500, width=20, height=6, units="in")
+ggsave(filename="Figures/Multivariate/Full_Biplots_Holobiont.pdf", plot=biplot_full_panel_legend, dpi=500, width=20, height=6, units="in")
 ```  
 
 ### Matrix of PCA's by species and time  
@@ -1211,7 +1215,7 @@ porPCAcen<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=po
 #build a plot for the legend
 legend_plot<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=por.centroids, size=3, show.legend=TRUE) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
-  theme(legend.position="bottom")
+  theme(legend.position="bottom")+theme(legend.text=element_text(size=18))
 
 # extract the legend from one of the plots
 legend <- get_legend(
@@ -1381,13 +1385,15 @@ pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,
 #### Assemble all plots    
 
 ```{r}
-PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("D", "E", "F"), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=0.85, align="vh")
+PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("E", "F", "G"), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=0.85, align="vh")
 
 # add the legend to the row we made earlier. Give it one-third of 
 # the width of one plot (via rel_widths).
 PCA_full_panel_legend<-plot_grid(PCA_full_panel, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 
 ggsave(filename="Figures/Multivariate/Full_Panel_PCAs_Host.png", plot=PCA_full_panel_legend, dpi=500, width=20, height=6, units="in")
+ggsave(filename="Figures/Multivariate/Full_Panel_PCAs_Host.jpg", plot=PCA_full_panel_legend, dpi=500, width=20, height=6, units="in")
+ggsave(filename="Figures/Multivariate/Full_Panel_PCAs_Host.pdf", plot=PCA_full_panel_legend, dpi=500, width=20, height=6, units="in")
 ```  
 
 Assemble biplots  
@@ -1399,6 +1405,8 @@ biplot_full_panel<-plot_grid(acrArrows, pocArrows, porArrows, labels = c("D", "E
 biplot_full_panel_legend<-plot_grid(biplot_full_panel, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 
 ggsave(filename="Figures/Multivariate/Full_Biplots_Host.png", plot=biplot_full_panel_legend, dpi=500, width=20, height=6, units="in")
+ggsave(filename="Figures/Multivariate/Full_Biplots_Host.pdf", plot=biplot_full_panel_legend, dpi=500, width=20, height=6, units="in")
+ggsave(filename="Figures/Multivariate/Full_Biplots_Host.jpg", plot=biplot_full_panel_legend, dpi=500, width=20, height=6, units="in")
 ``` 
 
 
@@ -2107,7 +2115,7 @@ porPCAcen<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=po
 #build a plot for the legend
 legend_plot<-porPCA + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=site), data=por.centroids, size=3, show.legend=TRUE) + 
   scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
-  theme(legend.position="bottom")
+  theme(legend.position="bottom")+theme(legend.text=element_text(size=18))
 
 # extract the legend from one of the plots
 legend <- get_legend(
@@ -2290,13 +2298,15 @@ pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,
 #### Assemble all plots    
 
 ```{r}
-PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("G", "H", "I"), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=0.85, align="vh")
+PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("I", "J", "K"), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=0.85, align="vh")
 
 # add the legend to the row we made earlier. Give it one-third of 
 # the width of one plot (via rel_widths).
 PCA_full_panel_legend<-plot_grid(PCA_full_panel, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 
 ggsave(filename="Figures/Multivariate/Full_Panel_PCAs_Symbiont.png", plot=PCA_full_panel_legend, dpi=500, width=20, height=6, units="in")
+ggsave(filename="Figures/Multivariate/Full_Panel_PCAs_Symbiont.pdf", plot=PCA_full_panel_legend, dpi=500, width=20, height=6, units="in")
+ggsave(filename="Figures/Multivariate/Full_Panel_PCAs_Symbiont.jpg", plot=PCA_full_panel_legend, dpi=500, width=20, height=6, units="in")
 ```  
 
 Assemble biplots  
@@ -2308,6 +2318,8 @@ biplot_full_panel<-plot_grid(acrArrows, pocArrows, porArrows, labels = c("G", "H
 biplot_full_panel_legend<-plot_grid(biplot_full_panel, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 
 ggsave(filename="Figures/Multivariate/Full_Biplots_Symbiont.png", plot=biplot_full_panel_legend, dpi=500, width=20, height=6, units="in")
+ggsave(filename="Figures/Multivariate/Full_Biplots_Symbiont.pdf", plot=biplot_full_panel_legend, dpi=500, width=20, height=6, units="in")
+ggsave(filename="Figures/Multivariate/Full_Biplots_Symbiont.jpg", plot=biplot_full_panel_legend, dpi=500, width=20, height=6, units="in")
 ``` 
 
 ### Matrix of PCA's by species and time  

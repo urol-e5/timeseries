@@ -461,6 +461,7 @@ temp_summary_plot <- master_qc %>%
   );temp_summary_plot
 
 ggsave(filename="Figures/Environmental/Environmental_Temperature_summary.png", temp_summary_plot, width = 9, height = 4, units = c("in"))
+ggsave(filename="Figures/Environmental/Environmental_Temperature_summary.pdf", temp_summary_plot, width = 9, height = 4, units = c("in"))
 ```
 
 
