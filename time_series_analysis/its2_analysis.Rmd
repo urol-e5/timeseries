@@ -226,19 +226,17 @@ ppal <- c(acols, ccols, dcols, gcols)
 ppal <- setNames(ppal, pp$its2_type_profile)
 
 proford <- as_tibble(data.frame(tax_table(p))) %>%
-  mutate(its2_type_profile = str_trunc(its2_type_profile, 22, "right")) %>%
+  mutate(test = str_trunc(its2_type_profile, 46, "right"))%>%
   arrange(clade, its2_type_profile) %>%
   mutate(its2_type_profile = as_factor(its2_type_profile))
   
-pmdf <- psmelt(p) %>%
+pmdf <- psmelt(p) %>% 
+  
   arrange(host_genus, site, colony_id, timepoint, clade, its2_type_profile) %>%
   mutate(host_id = as_factor(colony_id),
-         its2_type_profile = str_trunc(its2_type_profile, 22, "right"),
+         its2_type_profile = str_trunc(its2_type_profile, 46, "right"),
          sample_id = as_factor(paste(host_genus, colony_id, timepoint, sep = "_"))) %>% 
   filter(Abundance > 0.01)
-
-
-
 
 # Plot variants
 varfig <- vmdf %>%
@@ -537,8 +535,6 @@ permanova_meta_acr <- permanova_matrix_acr %>%
 
 rownames(permanova_matrix_acr) <- permanova_matrix_acr[,1]
 permanova_matrix_acr <- permanova_matrix_acr %>% select(-ID, -colony_id, -timepoint, -site, -species)
-
-#porites
   
 adonis2(permanova_matrix_acr ~ site*timepoint, 
         data = permanova_meta_acr, method='eu', na.rm = TRUE)
@@ -687,3 +683,594 @@ output_matrix<-as.data.frame(output_matrix)
 write_csv(output_matrix, file="Output/ITS2_rel_abund_matrix.csv")
 ```
 
+# Plot ITS2 averaged for each species 
+```{r}
+#create custom color palette 
+get_custom_color <- function(Profile) {
+  if (startsWith(Profile, "A1")) {
+    return("brown4")
+  } else if (startsWith(Profile, "C1/")) {
+    return("lightblue")
+  } else if (startsWith(Profile, "C116")) {
+    return("lightblue3")
+  #} else if (startsWith(Profile, "C15")) {
+  #  return("cyan4")
+  } else if (startsWith(Profile, "C15-C15")) {
+    return("cyan4")
+  } else if (startsWith(Profile, "C15/C15")) {
+    return("cyan4")
+  } else if (startsWith(Profile, "C15/C116")) {
+    return("cyan3")
+  } else if (startsWith(Profile, "C15/C93")) {
+    return("cyan2")
+  } else if (startsWith(Profile, "C15h/C3")) {
+    return("cyan1")
+  } else if (startsWith(Profile, "C1d")) {
+    return("lightgray")
+  } else if (startsWith(Profile, "C3")) {
+    return("darkgray")
+  } else if (startsWith(Profile, "C42")) {
+    return("lightblue4")
+  } else if (startsWith(Profile, "C91")) {
+    return("blue4")
+  } else if (Profile=="D1") {
+    return("orange")
+  } else if (startsWith(Profile, "D1-D17")) {
+    return("orange")
+  } else if (startsWith(Profile, "D1-D1")) {
+    return("orange")
+  } else if (startsWith(Profile, "D1/D4")) {
+    return("orange3")
+  } else if (startsWith(Profile, "G3")) {
+    return("white")
+  } else {
+    return("black")  # Return a default color for other cases, if desired
+  }
+}
+
+output_matrix$site<-factor(output_matrix$site, levels=c("Mahana", "Hilton", "Manava"))
+
+plot_species_df<-output_matrix%>%
+  group_by(species)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  pivot_longer(-species, values_to="Abundance", names_to="Profile")
+  
+plot_species<-ggplot(plot_species_df, aes(x = species, y = Abundance)) + 
+  geom_bar(position="stack", stat="identity", aes(fill = Profile), color = "black") +
+  scale_fill_manual(values = sapply(plot_species_df$Profile, get_custom_color))+
+  theme_classic() +
+  theme(axis.text.y = element_text(colour = 'black', size = 10), 
+        axis.title = element_text(colour = 'black', size = 12, face="bold"), 
+        axis.text.x = element_text(colour = 'black', size = 10, angle = 60, hjust=1, face="italic")
+        ) + 
+  labs(x="Species", fill="ITS2 Profile", y="Relative Abundance");plot_species
+  
+#ggsave(plot_species, filename="Figures/ITS2/species_profiles.png", height=6, width=14)
+#ggsave(plot_species, filename="Figures/ITS2/species_profiles.jpeg", height=6, width=14)
+#ggsave(plot_species, filename="Figures/ITS2/species_profiles.pdf", height=6, width=14)
+```
+
+# Plot ITS2 averaged for each species x site 
+```{r}
+plot_species_site_df<-output_matrix%>%
+  group_by(species, site)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  pivot_longer(-c(species,site), values_to="Abundance", names_to="Profile")
+  
+plot_species_site<-ggplot(plot_species_site_df, aes(x = site, y = Abundance)) + 
+  facet_wrap(~species)+
+  geom_bar(position="stack", stat="identity", aes(fill = Profile), color = "black") +
+  scale_fill_manual(values = sapply(plot_species_df$Profile, get_custom_color))+
+  theme_classic() +
+  theme(axis.text.y = element_text(colour = 'black', size = 10), 
+        axis.title = element_text(colour = 'black', size = 12, face="bold"), 
+        axis.text.x = element_text(colour = 'black', size = 10, angle = 60, hjust=1),
+        strip.text =element_text(colour="black", face="italic", size=8), 
+        ) + 
+  
+  #facet_grid(~site + timepoint, scales = "free") +
+  #facet_nested(~ species, scales = "free_x", space = "free_x") +
+  labs(x="Site", fill="ITS2 Profile", y="Relative Abundance");plot_species_site
+
+#ggsave(plot_species_site, filename="Figures/ITS2/species_site_profiles.png", height=6, width=14)
+#ggsave(plot_species_site, filename="Figures/ITS2/species_site_profiles.jpeg", height=6, width=14)
+#ggsave(plot_species_site, filename="Figures/ITS2/species_site_profiles.pdf", height=6, width=14)
+```
+
+# Plot individual species separately with all ITS2 profiles in unique colors 
+Acropora 
+```{r}
+#create custom color palette 
+get_custom_color_acr <- function(Profile) {
+  if (Profile=="A1/A1ee") {
+    return("darkgray")
+  } else if (startsWith(Profile, "A1/A1ee-A1ep")) {
+    return("lightgray")
+  } else if (startsWith(Profile, "A1/A1gb-A1ee")) {
+    return("black")
+  } else if (startsWith(Profile, "D1")) {
+    return("slategray")
+  } else {
+    return("black")  # Return a default color for other cases, if desired
+  }
+}
+
+plot_species_site_df_acr<-output_matrix%>%
+  filter(species=="Acropora")%>%
+  group_by(species, site)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(species,site), values_to="Abundance", names_to="Profile")
+  
+plot_species_site_acr<-ggplot(plot_species_site_df_acr, aes(x = site, y = Abundance)) + 
+  geom_bar(position="stack", stat="identity", aes(fill = Profile), color = "black") +
+  scale_fill_manual(values = sapply(plot_species_df$Profile, get_custom_color_acr))+
+  theme_classic() +
+  theme(axis.text.y = element_text(colour = 'black', size = 10), 
+        axis.title = element_text(colour = 'black', size = 12, face="bold"), 
+        axis.text.x = element_text(colour = 'black', size = 10, angle = 60, hjust=1),
+        strip.text =element_text(colour="black", face="italic", size=8), 
+        ) + 
+  ggtitle(expression(italic("Acropora")))+
+  
+  #facet_grid(~site + timepoint, scales = "free") +
+  #facet_nested(~ species, scales = "free_x", space = "free_x") +
+  labs(x="Site", fill="ITS2 Profile", y="Relative Abundance");plot_species_site_acr
+
+#ggsave(plot_species_site_acr, filename="Figures/ITS2/ACR_site_profiles.png", height=6, width=8)
+#ggsave(plot_species_site_acr, filename="Figures/ITS2/ACR_site_profiles.jpeg", height=6, width=8)
+#ggsave(plot_species_site_acr, filename="Figures/ITS2/ACR_site_profiles.pdf", height=6, width=8)
+```
+
+Pocillopora 
+```{r}
+#create custom color palette 
+get_custom_color_poc <- function(Profile) {
+  if (startsWith(Profile, "C1/C42.2")) {
+    return("orange4")
+  } else if (startsWith(Profile, "C1d-C42.2")) {
+    return("darkorange")
+  } else if (startsWith(Profile, "C1d/C1")) {
+    return("orange")
+  } else if (startsWith(Profile, "C1d/C42.2")) {
+    return("darkgoldenrod3")
+  } else if (startsWith(Profile, "C1d/C42g")) {
+    return("chocolate1")
+  } else if (startsWith(Profile, "C42a")) {
+    return("darkgoldenrod1")
+  } else if (startsWith(Profile, "C42g")) {
+    return("yellow2")
+  } else {
+    return("black")  # Return a default color for other cases, if desired
+  }
+}
+
+plot_species_site_df_poc<-output_matrix%>%
+  filter(species=="Pocillopora")%>%
+  group_by(species, site)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(species,site), values_to="Abundance", names_to="Profile")
+  
+plot_species_site_poc<-ggplot(plot_species_site_df_poc, aes(x = site, y = Abundance)) + 
+  geom_bar(position="stack", stat="identity", aes(fill = Profile), color = "black") +
+  scale_fill_manual(values = sapply(plot_species_df$Profile, get_custom_color_poc))+
+  theme_classic() +
+  theme(axis.text.y = element_text(colour = 'black', size = 10), 
+        axis.title = element_text(colour = 'black', size = 12, face="bold"), 
+        axis.text.x = element_text(colour = 'black', size = 10, angle = 60, hjust=1),
+        strip.text =element_text(colour="black", face="italic", size=8))+ 
+  ggtitle(expression(italic("Pocillopora")))+
+  
+  #facet_grid(~site + timepoint, scales = "free") +
+  #facet_nested(~ species, scales = "free_x", space = "free_x") +
+  labs(x="Site", fill="ITS2 Profile", y="Relative Abundance");plot_species_site_poc
+
+#ggsave(plot_species_site_poc, filename="Figures/ITS2/POC_site_profiles.png", height=6, width=8)
+#ggsave(plot_species_site_poc, filename="Figures/ITS2/POC_site_profiles.jpeg", height=6, width=8)
+#ggsave(plot_species_site_poc, filename="Figures/ITS2/POC_site_profiles.pdf", height=6, width=8)
+```
+
+Porites 
+```{r}
+#create custom color palette 
+get_custom_color_por <- function(Profile) {
+  if (startsWith(Profile, "C116")) {
+    return("lightblue")
+  } else if (Profile=="C15-C15bn-C15by") {
+    return("purple4")
+  } else if (Profile=="C15-C15bn-C15by-C15ai") {
+    return("deeppink")
+  } else if (Profile=="C15-C15bn-C15dq") {
+    return("darkslateblue")
+  } else if (startsWith(Profile, "C15-C15by")) {
+    return("pink")
+  } else if (startsWith(Profile, "C15-C15he")) {
+    return("pink3")
+  } else if (Profile=="C15-C15kl") {
+    return("lightgray")
+  } else if (Profile=="C15-C15kl-C15he") {
+    return("darkgray")
+  } else if (Profile=="C15-C15kl-C15he-C15vz") {
+    return("darkblue")
+  } else if (Profile=="C15-C15kl-C15pm") {
+    return("white")
+  } else if (Profile=="C15-C15l-C15bm-C15n") {
+    return("darkviolet")
+  } else if (Profile=="C15-C15l-C15n") {
+    return("gray1")
+  } else if (Profile=="C15-C15l-C15n-C15bb-C15.8") {
+    return("violet")   
+  } else if (Profile=="C15-C15wa-C15kl-C15he-C15vz") {
+    return("darkmagenta")   
+  } else if (Profile=="C15/C116") {
+    return("darkorchid1")    
+  } else if (Profile=="C15/C116-C15h") {
+    return("aliceblue")    
+  } else if (Profile=="C15/C15ev") {
+    return("deeppink3")   
+  } else if (startsWith(Profile, "C1d/C1")) {
+    return("darkred")
+  } else {
+    return("red")  # Return a default color for other cases, if desired
+  }
+}
+
+plot_species_site_df_por<-output_matrix%>%
+  filter(species=="Porites")%>%
+  group_by(species, site)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(species,site), values_to="Abundance", names_to="Profile")
+  
+plot_species_site_por<-ggplot(plot_species_site_df_por, aes(x = site, y = Abundance)) + 
+  geom_bar(position="stack", stat="identity", aes(fill = Profile), color = "black") +
+  scale_fill_manual(values = sapply(plot_species_df$Profile, get_custom_color_por))+
+  theme_classic() +
+  theme(axis.text.y = element_text(colour = 'black', size = 10), 
+        axis.title = element_text(colour = 'black', size = 12, face="bold"), 
+        axis.text.x = element_text(colour = 'black', size = 10, angle = 60, hjust=1),
+        strip.text =element_text(colour="black", face="italic", size=8))+ 
+  ggtitle(expression(italic("Porites")))+
+  
+  #facet_grid(~site + timepoint, scales = "free") +
+  #facet_nested(~ species, scales = "free_x", space = "free_x") +
+  labs(x="Site", fill="ITS2 Profile", y="Relative Abundance");plot_species_site_por
+
+#ggsave(plot_species_site_por, filename="Figures/ITS2/POR_site_profiles.png", height=6, width=8)
+#ggsave(plot_species_site_por, filename="Figures/ITS2/POR_site_profiles.jpeg", height=6, width=8)
+#ggsave(plot_species_site_por, filename="Figures/ITS2/POR_site_profiles.pdf", height=6, width=8)
+```
+
+Assemble plots. 
+```{r}
+its2_plots<-plot_grid(plot_species_site_acr, plot_species_site_poc, plot_species_site_por, ncol=1, nrow=3, align="vh")
+
+ggsave(its2_plots, filename="Figures/ITS2/species_site_panel.jpeg", width=8, height=20)
+ggsave(its2_plots, filename="Figures/ITS2/species_site_panel.pdf", width=8, height=20)
+```
+
+# Assemble NMDS plot for each species by site. 
+
+Acropora
+```{r}
+nmds_df_acr<-output_matrix%>%
+  filter(species=="Acropora")%>%
+  group_by(colony_id, species, site)%>%
+    summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) #remove taxa that are below 1% relative abundance
+
+nmds_meta_acr <- nmds_df_acr %>% 
+  select(colony_id, species, site)
+
+nmds_df_acr<-nmds_df_acr%>%
+  ungroup()%>%
+  select(!colony_id)%>%
+  select(!site)%>%
+  select(!species)
+
+nmds_df_acr = as.matrix(nmds_df_acr)
+nmds_acr = metaMDS(nmds_df_acr, distance = "bray")
+
+#extract NMDS scores (x and y coordinates) for sites from newer versions of vegan package
+data.scores = as.data.frame(scores(nmds_acr)$sites)
+
+#add columns to data frame 
+data.scores$site = nmds_meta_acr$site
+data.scores$species = nmds_meta_acr$species
+ 
+head(data.scores)
+set.seed(15647)
+NMDS_plot_acr <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) + 
+    geom_point(size = 2, aes(colour = site))+ 
+    #stat_ellipse(aes(colour=site), level=0.95, type="norm")+
+    ggtitle(expression(italic("Acropora")))+
+    theme_classic()+
+    theme(axis.text.y = element_text(colour = "black", size = 10, face = "bold"), 
+          axis.text.x = element_text(colour = "black", face = "bold", size = 10), 
+          legend.text = element_text(size = 10, face ="bold", colour ="black"), 
+          legend.position = "right", axis.title.y = element_text(face = "bold", size = 12), 
+          axis.title.x = element_text(face = "bold", size = 12, colour = "black"), 
+          legend.title = element_text(size = 12, colour = "black", face = "bold"), 
+          panel.background = element_blank(), 
+          panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
+          legend.key=element_blank()) + 
+          labs(x = "NMDS1", colour = "Site", y = "NMDS2")  + 
+    scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc"));NMDS_plot_acr
+
+ggsave(file="Figures/ITS2/NMDS_Acr.png", NMDS_plot_acr, width = 5, height = 5, units = c("in"))
+```
+
+Pocillopora
+```{r}
+nmds_df_poc<-output_matrix%>%
+  filter(species=="Pocillopora")%>%
+  group_by(colony_id, species, site)%>%
+    summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) #remove taxa that are below 1% relative abundance
+
+nmds_meta_poc <- nmds_df_poc %>% 
+  select(colony_id, species, site)
+
+nmds_df_poc<-nmds_df_poc%>%
+  ungroup()%>%
+  select(!colony_id)%>%
+  select(!site)%>%
+  select(!species)
+
+nmds_df_poc = as.matrix(nmds_df_poc)
+nmds_poc = metaMDS(nmds_df_poc, distance = "bray")
+
+#extract NMDS scores (x and y coordinates) for sites from newer versions of vegan package
+data.scores = as.data.frame(scores(nmds_poc)$sites)
+
+#add columns to data frame 
+data.scores$site = nmds_meta_poc$site
+data.scores$species = nmds_meta_poc$species
+ 
+head(data.scores)
+set.seed(15647)
+NMDS_plot_poc <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) + 
+    geom_point(size = 2, aes(colour = site))+ 
+    #stat_ellipse(aes(colour=site), level=0.95, type="norm")+
+    ggtitle(expression(italic("Pocillopora")))+
+    theme_classic()+
+    theme(axis.text.y = element_text(colour = "black", size = 10, face = "bold"), 
+          axis.text.x = element_text(colour = "black", face = "bold", size = 10), 
+          legend.text = element_text(size = 10, face ="bold", colour ="black"), 
+          legend.position = "right", axis.title.y = element_text(face = "bold", size = 12), 
+          axis.title.x = element_text(face = "bold", size = 12, colour = "black"), 
+          legend.title = element_text(size = 12, colour = "black", face = "bold"), 
+          panel.background = element_blank(), 
+          panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
+          legend.key=element_blank()) + 
+          labs(x = "NMDS1", colour = "Site", y = "NMDS2")  + 
+    scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc"));NMDS_plot_poc
+
+ggsave(file="Figures/ITS2/NMDS_Poc.png", NMDS_plot_poc, width = 5, height = 5, units = c("in"))
+```
+
+Pocillopora
+```{r}
+nmds_df_por<-output_matrix%>%
+  filter(species=="Porites")%>%
+  group_by(colony_id, species, site)%>%
+    summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) #remove taxa that are below 1% relative abundance
+
+nmds_meta_por <- nmds_df_por %>% 
+  select(colony_id, species, site)
+
+nmds_df_por<-nmds_df_por%>%
+  ungroup()%>%
+  select(!colony_id)%>%
+  select(!site)%>%
+  select(!species)
+
+nmds_df_por = as.matrix(nmds_df_por)
+nmds_por = metaMDS(nmds_df_por, distance = "bray")
+
+#extract NMDS scores (x and y coordinates) for sites from newer versions of vegan package
+data.scores = as.data.frame(scores(nmds_por)$sites)
+
+#add columns to data frame 
+data.scores$site = nmds_meta_por$site
+data.scores$species = nmds_meta_por$species
+ 
+head(data.scores)
+set.seed(15647)
+NMDS_plot_por <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) + 
+    geom_point(size = 2, aes(colour = site))+ 
+    #stat_ellipse(aes(colour=site), level=0.95, type="norm")+
+    ggtitle(expression(italic("Porites")))+
+    theme_classic()+
+    theme(axis.text.y = element_text(colour = "black", size = 10, face = "bold"), 
+          axis.text.x = element_text(colour = "black", face = "bold", size = 10), 
+          legend.text = element_text(size = 10, face ="bold", colour ="black"), 
+          legend.position = "right", axis.title.y = element_text(face = "bold", size = 12), 
+          axis.title.x = element_text(face = "bold", size = 12, colour = "black"), 
+          legend.title = element_text(size = 12, colour = "black", face = "bold"), 
+          panel.background = element_blank(), 
+          panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
+          legend.key=element_blank()) + 
+          labs(x = "NMDS1", colour = "Site", y = "NMDS2")  + 
+    scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc"));NMDS_plot_por
+
+ggsave(file="Figures/ITS2/NMDS_Por.png", NMDS_plot_por, width = 5, height = 5, units = c("in"))
+```
+
+# Run PCA with Biplots for each species 
+
+## Acropora
+```{r}
+pca_df_acr<-output_matrix%>%
+  filter(species=="Acropora")%>%
+  group_by(colony_id, species, site)%>%
+    summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) #remove taxa that are below 1% relative abundance
+
+scaled_acr<-prcomp(pca_df_acr[c(4:8)], scale=TRUE, center=TRUE) 
+```
+
+```{r}
+# scale data
+vegan_acr <- scale(pca_df_acr[ ,4:8])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis2(vegan_acr ~ site, data = pca_df_acr, method='eu')
+z_acr<-permanova
+z_acr
+``` 
+ 
+```{r}
+pca_acr<-ggplot2::autoplot(scaled_acr, data=pca_df_acr, frame.colour="site", loadings=FALSE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc")) +
+  scale_fill_manual(values=c("#ff6633", "#374d7c", "#00cccc")) + 
+  theme_classic()+
+  geom_text(x=0.25, y=-0.6, label=paste("p =", z_acr$`Pr(>F)`[1]), size=6, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pca_acr
+
+ggsave(filename="Figures/ITS2/ACR_ITS2_PCA.pdf", plot=pca_acr, dpi=300, width=7, height=5, units="in")
+```
+
+## Pocillopora 
+
+```{r}
+pca_df_poc<-output_matrix%>%
+  filter(species=="Pocillopora")%>%
+  group_by(colony_id, species, site)%>%
+    summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) #remove taxa that are below 1% relative abundance
+
+scaled_poc<-prcomp(pca_df_poc[c(4:17)], scale=TRUE, center=TRUE) 
+```
+
+```{r}
+# scale data
+vegan_poc <- scale(pca_df_poc[ ,4:17])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis2(vegan_poc ~ site, data = pca_df_poc, method='eu')
+z_poc<-permanova
+z_poc
+``` 
+ 
+```{r}
+pca_poc<-ggplot2::autoplot(scaled_poc, data=pca_df_poc, frame.colour="site", loadings=FALSE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc")) +
+  scale_fill_manual(values=c("#ff6633", "#374d7c", "#00cccc")) + 
+  theme_classic()+
+  geom_text(x=0.2, y=-0.4, label=paste("p =", z_poc$`Pr(>F)`[1]), size=6, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pca_poc
+
+ggsave(filename="Figures/ITS2/POC_ITS2_PCA.pdf", plot=pca_poc, dpi=300, width=7, height=5, units="in")
+```
+
+## Porites 
+
+```{r}
+pca_df_por<-output_matrix%>%
+  filter(species=="Porites")%>%
+  group_by(colony_id, species, site)%>%
+    summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) #remove taxa that are below 1% relative abundance
+
+scaled_por<-prcomp(pca_df_por[c(4:25)], scale=TRUE, center=TRUE) 
+```
+
+```{r}
+# scale data
+vegan_por <- scale(pca_df_por[ ,4:25])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis2(vegan_por ~ site, data = pca_df_por, method='eu')
+z_por<-permanova
+z_por
+``` 
+ 
+```{r}
+pca_por<-ggplot2::autoplot(scaled_por, data=pca_df_por, frame.colour="site", loadings=FALSE,  colour="site", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=FALSE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc")) +
+  scale_fill_manual(values=c("#ff6633", "#374d7c", "#00cccc")) + 
+  theme_classic()+
+  geom_text(x=0.2, y=-0.4, label=paste("p =", z_por$`Pr(>F)`[1]), size=6, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pca_por
+
+ggsave(filename="Figures/ITS2/POR_ITS2_PCA.pdf", plot=pca_por, dpi=300, width=7, height=5, units="in")
+```
+
+## All species together 
+
+```{r}
+pca_df_all<-output_matrix%>%
+  group_by(colony_id, species, site)%>%
+    summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) #remove taxa that are below 1% relative abundance
+
+scaled_all<-prcomp(pca_df_all[c(4:40)], scale=TRUE, center=TRUE) 
+```
+
+```{r}
+# scale data
+vegan_all <- scale(pca_df_all[ ,4:40])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis2(vegan_all ~ site * species, data = pca_df_all, method='eu')
+z_all<-permanova
+z_all
+``` 
+ 
+```{r}
+pca_all<-ggplot2::autoplot(scaled_all, data=pca_df_all, frame.colour="species", loadings=FALSE,  colour="species", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=FALSE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  #facet_wrap(~species)+
+  #scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc")) +
+  #scale_fill_manual(values=c("#ff6633", "#374d7c", "#00cccc")) + 
+  theme_classic()+
+  geom_text(x=0.25, y=-0.6, label=paste("site =", z_all$`Pr(>F)`[1]), size=6, color=ifelse(z_all$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+    geom_text(x=0.25, y=-0.6, label=paste("species =", z_all$`Pr(>F)`[2]), size=6, color=ifelse(z_all$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+    geom_text(x=0.25, y=-0.6, label=paste("interaction =", z_all$`Pr(>F)`[3]), size=6, color=ifelse(z_all$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pca_all
+
+ggsave(filename="Figures/ITS2/ACR_ITS2_PCA.pdf", plot=pca_acr, dpi=300, width=7, height=5, units="in")
+```
+
+This plot isn't very helpful 
