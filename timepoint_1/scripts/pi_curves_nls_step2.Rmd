@@ -5,6 +5,8 @@ date: "3/18/2021"
 output:
   html_document: default
   pdf_document: default
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -38,7 +40,7 @@ library("lubridate")
 library("chron")
 library('plyr')
 library('dplyr')
-library('phytotools')
+#library('phytotools')
 library("tidyverse")
 library("broom")
 ```
@@ -105,9 +107,12 @@ nls_data <- Data %>%
   unnest(data) %>%
   group_by(colony_id)%>%
   summarise(Am=mean(Am), AQY=mean(AQY), Rd=mean(Rd))%>%
+  mutate(Ik=(Am+Rd)/AQY)%>%
+  mutate(Ic=(Am*Rd)/(AQY*(sqrt(Am^2-Rd^2))))%>%
   mutate(timepoint="timepoint1")%>%
   write_csv(., "output/1_pi_curve_pars_nls.csv")
 ```
+Equation for Ic derived from quadratic equation by Ferdi P. Ic = Par when Pc = 0 (x intercept). AH confirmed it matches expected values from each colony plot. 
 
 Plot curve over data points.  
 ```{r}
@@ -119,7 +124,6 @@ augmented <- Data %>%
   ) %>% 
   unnest(augmented)
 
-
 #all colonies together
 augmented %>%
   group_by(colony_id)%>%
@@ -127,6 +131,13 @@ augmented %>%
   geom_line(aes(y=.fitted))+
   theme(legend.position="none")
 
+#view by certain colonies to ground truth values 
+augmented %>%
+  group_by(colony_id)%>%
+  filter(colony_id=="ACR-139")%>%
+  qplot(PAR, Pc, data = ., geom = 'point', colour = colony_id) +
+  geom_line(aes(y=.fitted))+
+  theme(legend.position="none")
 
 #view individual plots
 by(augmented,augmented$colony_id, function(i) {
