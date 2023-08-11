@@ -1,1 +1,1 @@
-colony_id,colony_id_corr,species,timepoint,month,site,nutrient,site_code,cre.umol.mgprot,Host_AFDW.mg.cm2,Sym_AFDW.mg.cm2,Host_DW.mg.cm2,Sym_DW.mg.cm2,chla.ug.cm2,chlc2.ug.cm2,prot_ug.cm2,surface.area.cm2,cells.cm2,Am,AQY,Rd,umol.cm2.hr,code
+colony_id,colony_id_corr,species,timepoint,month,site,nutrient,site_code,cre.umol.mgprot,Host_AFDW.mg.cm2,Sym_AFDW.mg.cm2,Host_DW.mg.cm2,Sym_DW.mg.cm2,chla.ug.cm2,chlc2.ug.cm2,prot_ug.cm2,surface.area.cm2,cells.cm2,Am,AQY,Rd,Ik,Ic,umol.cm2.hr,code
