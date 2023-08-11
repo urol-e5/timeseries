@@ -52,10 +52,10 @@ df %>%
   stat_summary(fun.y = mean, geom = "point", color = "black")   
 dev.off()
 
-pdf("output/PI_metrics_Rd_nls.pdf")
+pdf("output/PI_metrics_Ik_nls.pdf")
 df %>%
   #filter(!.variable %in% c("sigma", "b_theta_Intercept", NA)) %>%
-  ggplot(aes(x = site, y = Rd, color = species)) +
+  ggplot(aes(x = site, y = Ik, color = species)) +
   facet_grid(~species, scales = "free_y") +
   geom_jitter(width = 0.1) +
   stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
@@ -63,10 +63,10 @@ df %>%
   stat_summary(fun.y = mean, geom = "point", color = "black")   
 dev.off()
 
-pdf("output/PI_metrics_Ik_nls.pdf")
+pdf("output/PI_metrics_Rd_nls.pdf")
 df %>%
   #filter(!.variable %in% c("sigma", "b_theta_Intercept", NA)) %>%
-  ggplot(aes(x = site, y = Ik, color = species)) +
+  ggplot(aes(x = site, y = Rd, color = species)) +
   facet_grid(~species, scales = "free_y") +
   geom_jitter(width = 0.1) +
   stat_summary(fun.data = mean_cl_normal, fun.args = list(mult = 1),    # Plot standard error
@@ -90,7 +90,7 @@ dev.off()
 ```{r, fig.width = 10}
 #arrange data in long format
 df <- df%>%
-  gather("parameter", "value", 2:6)
+  gather("parameter", "value", 2:5)
 df$parameter<-as.factor(df$parameter)
 df$site<-as.factor(df$site)
 df$species<-as.factor(df$species)
