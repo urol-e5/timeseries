@@ -90,7 +90,7 @@ dev.off()
 ```{r, fig.width = 10}
 #arrange data in long format
 df <- df%>%
-  gather("parameter", "value", 2:5)
+  gather("parameter", "value", 2:6)
 df$parameter<-as.factor(df$parameter)
 df$site<-as.factor(df$site)
 df$species<-as.factor(df$species)
