@@ -64,6 +64,9 @@ master<-read.csv("Output/master_timeseries.csv")
 #reorder site levels 
 master$site_code<-as.factor(master$site_code)
 master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
+
+master$site<-as.factor(master$site)
+master$site<-fct_relevel(master$site, "Mahana", "Hilton", "Manava")
 ```
 
 # Univariate Responses  
@@ -79,9 +82,9 @@ View by site and timepoint for each species.
 tacplot_prot<-master %>%
   filter(!is.na(cre.umol.mgprot)) %>% 
   filter(!is.na(species))%>%
-  select(colony_id_corr, species, site_code, timepoint, cre.umol.mgprot)%>%
+  select(colony_id_corr, species, site, timepoint, cre.umol.mgprot)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+cre.umol.mgprot), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+cre.umol.mgprot), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -109,9 +112,9 @@ View by site and timepoint for each species.
 tacplot_afdw<-master %>%
   filter(!is.na(cre.umol.mgafdw)) %>%
   filter(!is.na(species))%>%
-  select(colony_id_corr, species, site_code, timepoint, cre.umol.mgafdw)%>%
+  select(colony_id_corr, species, site, timepoint, cre.umol.mgafdw)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+cre.umol.mgafdw), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+cre.umol.mgafdw), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -139,9 +142,9 @@ View by site and timepoint for each species.
 tacplot_cm2<-master %>%
   filter(!is.na(cre.umol.cm2)) %>%
   filter(!is.na(species))%>%
-  select(colony_id_corr, species, site_code, timepoint, cre.umol.cm2)%>%
+  select(colony_id_corr, species, site, timepoint, cre.umol.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+cre.umol.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+cre.umol.cm2), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -263,9 +266,9 @@ View by site and timepoint for each species.
 symbplot_cm2<-master %>%
   filter(!is.na(cells.cm2)) %>%
   filter(!is.na(species))%>%
-  select(colony_id_corr, species, site_code, timepoint, cells.cm2)%>%
+  select(colony_id_corr, species, site, timepoint, cells.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+cells.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+cells.cm2), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -292,9 +295,9 @@ View by site and timepoint for each species.
 symbplot_prot<-master %>%
   filter(!is.na(cells.mgprot)) %>%
    filter(!is.na(species))%>%
-  select(colony_id_corr, species, site_code, timepoint, cells.mgprot)%>%
+  select(colony_id_corr, species, site, timepoint, cells.mgprot)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+cells.mgprot), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+cells.mgprot), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -323,9 +326,9 @@ View by site and timepoint for each species.
 symbplot_afdw<-master %>%
   filter(!is.na(cells.mgAFDW)) %>%
     filter(!is.na(species))%>%
-  select(colony_id_corr, species, site_code, timepoint, cells.mgAFDW)%>%
+  select(colony_id_corr, species, site, timepoint, cells.mgAFDW)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+cells.mgAFDW), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+cells.mgAFDW), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -440,9 +443,9 @@ hAFDWplot<-master %>%
   filter(!is.na(Host_AFDW.mg.cm2)) %>%
   filter(!is.na(species))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
-  select(colony_id_corr, species, site_code, timepoint, Host_AFDW.mg.cm2)%>%
+  select(colony_id_corr, species, site, timepoint, Host_AFDW.mg.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+Host_AFDW.mg.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+Host_AFDW.mg.cm2), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -473,9 +476,9 @@ sAFDWplot<-master %>%
   filter(!is.na(species))%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
-  select(colony_id_corr, species, site_code, timepoint, Sym_AFDW.mg.cm2)%>%
+  select(colony_id_corr, species, site, timepoint, Sym_AFDW.mg.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+Sym_AFDW.mg.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+Sym_AFDW.mg.cm2), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -484,7 +487,7 @@ sAFDWplot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("log Symbiont Biomass (mg AFDW cm"^-2, ")"))))+
+    ylab(expression(bold(paste("log Sym. Biomass (mg AFDW cm"^-2, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -507,9 +510,9 @@ ratioAFDWplot<-master %>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
-  select(colony_id_corr, species, site_code, timepoint, Ratio_AFDW.mg.cm2)%>%
+  select(colony_id_corr, species, site, timepoint, Ratio_AFDW.mg.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+Ratio_AFDW.mg.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+Ratio_AFDW.mg.cm2), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -782,9 +785,9 @@ View by site and timepoint for each species in Chl a.
 chlaplot_cm2<-master %>%
   filter(!is.na(chla.ug.cm2)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site_code, timepoint, chla.ug.cm2)%>%
+  select(colony_id_corr, species, site, timepoint, chla.ug.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+chla.ug.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+chla.ug.cm2), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -809,9 +812,9 @@ View by site and timepoint for each species in Chl c2.
 chlc2plot_cm2<-master %>%
   filter(!is.na(chlc2.ug.cm2)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site_code, timepoint, chlc2.ug.cm2)%>%
+  select(colony_id_corr, species, site, timepoint, chlc2.ug.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+chlc2.ug.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+chlc2.ug.cm2), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -838,9 +841,9 @@ View by site and timepoint for each species in Chl a.
 chlaplot_prot<-master %>%
   filter(!is.na(chla.ug.mgprot)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site_code, timepoint, chla.ug.mgprot)%>%
+  select(colony_id_corr, species, site, timepoint, chla.ug.mgprot)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+chla.ug.mgprot), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+chla.ug.mgprot), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -866,9 +869,9 @@ View by site and timepoint for each species in Chl c2.
 chlc2plot_prot<-master %>%
   filter(!is.na(chlc2.ug.mgprot)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site_code, timepoint, chlc2.ug.mgprot)%>%
+  select(colony_id_corr, species, site, timepoint, chlc2.ug.mgprot)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+chlc2.ug.mgprot), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+chlc2.ug.mgprot), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -896,9 +899,9 @@ View by site and timepoint for each species in Chl a.
 chlaplot_afdw<-master %>%
   filter(!is.na(chla.ug.mgAFDW)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site_code, timepoint, chla.ug.mgAFDW)%>%
+  select(colony_id_corr, species, site, timepoint, chla.ug.mgAFDW)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+chla.ug.mgAFDW), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+chla.ug.mgAFDW), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -924,9 +927,9 @@ View by site and timepoint for each species in Chl c2.
 chlc2plot_afdw<-master %>%
   filter(!is.na(chlc2.ug.mgAFDW)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site_code, timepoint, chlc2.ug.mgAFDW)%>%
+  select(colony_id_corr, species, site, timepoint, chlc2.ug.mgAFDW)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+chlc2.ug.mgAFDW), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+chlc2.ug.mgAFDW), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -954,9 +957,9 @@ View by site and timepoint for each species in Chl a.
 chlaplot_cell<-master %>%
   filter(!is.na(chla.ug.cell)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site_code, timepoint, chla.ug.cell)%>%
+  select(colony_id_corr, species, site, timepoint, chla.ug.cell)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+chla.ug.cell), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+chla.ug.cell), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -982,9 +985,9 @@ View by site and timepoint for each species in Chl c2.
 chlc2plot_cell<-master %>%
   filter(!is.na(chlc2.ug.cell)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site_code, timepoint, chlc2.ug.cell)%>%
+  select(colony_id_corr, species, site, timepoint, chlc2.ug.cell)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+chlc2.ug.cell), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+chlc2.ug.cell), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1012,10 +1015,10 @@ View by site and timepoint for each species for total chl per unit AFDW.
 chlplot_total<-master %>%
   filter(!is.na(Total_Chl)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site_code, timepoint, Total_Chl)%>%
+  select(colony_id_corr, species, site, timepoint, Total_Chl)%>%
   filter(Total_Chl>0)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+Total_Chl), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+Total_Chl), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1041,10 +1044,10 @@ View by site and timepoint for each species for total chl per cell.
 chlplot_total_cell<-master %>%
   filter(!is.na(Total_Chl_cell)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site_code, timepoint, Total_Chl_cell)%>%
+  select(colony_id_corr, species, site, timepoint, Total_Chl_cell)%>%
   filter(Total_Chl_cell>0)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+Total_Chl_cell), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+Total_Chl_cell), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1400,9 +1403,9 @@ View by site and timepoint for each species.
 protplot_cm2<-master %>%
   filter(!is.na(prot_mg.cm2)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site_code, timepoint, prot_mg.cm2)%>%
+  select(colony_id_corr, species, site, timepoint, prot_mg.cm2)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+prot_mg.cm2), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+prot_mg.cm2), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1429,10 +1432,10 @@ View by site and timepoint for each species.
 protplot_afdw<-master %>%
   filter(!is.na(prot_mg.mgafdw)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site_code, timepoint, prot_mg.mgafdw)%>%
+  select(colony_id_corr, species, site, timepoint, prot_mg.mgafdw)%>%
   filter(prot_mg.mgafdw>0)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+prot_mg.mgafdw), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+prot_mg.mgafdw), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1547,9 +1550,9 @@ View by site and timepoint for each species.
 am_plot<-master %>%
   filter(!is.na(AQY)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site_code, timepoint, AQY, Am, Rd)%>%
+  select(colony_id_corr, species, site, timepoint, AQY, Am, Rd)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+Am), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+Am), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1577,9 +1580,9 @@ View by site and timepoint for each species.
 aqy_plot<-master %>%
   filter(!is.na(AQY)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site_code, timepoint, AQY, Am, Rd)%>%
+  select(colony_id_corr, species, site, timepoint, AQY, Am, Rd)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+AQY), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+AQY), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1607,9 +1610,9 @@ View by site and timepoint for each species.
 rd_plot<-master %>%
   filter(!is.na(AQY)) %>%
   filter(!is.na(species)) %>%
-  select(colony_id_corr, species, site_code, timepoint, AQY, Am, Rd)%>%
+  select(colony_id_corr, species, site, timepoint, AQY, Am, Rd)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+Rd), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+Rd), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1622,6 +1625,7 @@ rd_plot<-master %>%
     theme_classic() + 
     theme(
       legend.title=element_text(face="bold", size=14),
+      legend.position="none",
       legend.text=element_text(size=14),
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
@@ -1629,12 +1633,72 @@ rd_plot<-master %>%
       );rd_plot
 ```
 
+### Plot: Ik  
+
+View by site and timepoint for each species.    
+```{r}
+Ik_plot<-master %>%
+  filter(!is.na(AQY)) %>%
+  filter(!is.na(species)) %>%
+  select(colony_id_corr, species, site, timepoint, AQY, Am, Rd, Ik, Ic)%>%
+  
+  ggplot(., aes(x = site, y = Ik, fill = timepoint, group=interaction(site,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Ik (PAR)"))))+
+    theme_classic() + 
+    theme(
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      legend.position="none",
+      strip.text.x=element_text(face="italic", size=14)
+      );Ik_plot
+```
+
+### Plot: Ic  
+
+View by site and timepoint for each species.    
+```{r}
+Ic_plot<-master %>%
+  filter(!is.na(AQY)) %>%
+  filter(!is.na(species)) %>%
+  select(colony_id_corr, species, site, timepoint, AQY, Am, Rd, Ik, Ic)%>%
+  filter(Ic<1000)%>% #remove outliers
+  
+  ggplot(., aes(x = site, y = Ic, fill = timepoint, group=interaction(site,timepoint))) +
+    geom_boxplot(outlier.size = 0) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
+    scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
+                              "Manava High" = "Manava \nHigh"))+
+    labs(fill = "Month") +
+    facet_wrap(~species) +
+    xlab("Site") + 
+    ylab(expression(bold(paste("Ic (PAR)"))))+
+    theme_classic() + 
+    theme(
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      );Ic_plot
+```
+
 Join all plots together.  
 
 ```{r}
-pi_figure<-plot_grid(am_plot, aqy_plot, rd_plot, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1)
+pi_figure<-plot_grid(am_plot, aqy_plot, rd_plot, Ik_plot, Ic_plot, labels = c("", "", "", "", ""), ncol=5, nrow=1, rel_widths = c(.8, .8, .8, .8, 1), label_size = 20, label_x = 0.1)
 
-ggsave(filename="Figures/Univariate/PI_Figure.pdf", plot=pi_figure, dpi=300, width=22, height=5, units="in")
+ggsave(filename="Figures/Univariate/PI_Figure.pdf", plot=pi_figure, dpi=300, width=30, height=5, units="in")
 ```
 
 ### Analysis of Am   
@@ -1651,7 +1715,6 @@ qqPlot(residuals(am_model))
 Residuals are not normally distributed. Attempt with log transformation.      
 
 `am_model<-lmer(log(Am)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
-
 ```{r}
 am_model<-lmer(log(Am)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(am_model))
@@ -1870,6 +1933,84 @@ summary(rd_model_por)
 ```
 
 
+### Analysis of Ik   
+
+Build a mixed model for univariate analysis and examine data distribution. 
+
+`Ik_model<-lmer(Ik~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+Ik_model<-lmer(Ik~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(Ik_model))
+```
+
+Residuals are not normally distributed. Attempt with log transformation.      
+
+`Ik_model<-lmer(log(Ik)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+```{r}
+Ik_model<-lmer(log(Ik)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(Ik_model))
+```
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(Ik_model, type="III")
+summary(Ik_model)
+```
+
+Since species is significant, test for effects of site and time within species.  
+
+*Acropora*  
+
+`Ik_model_acr<-lmer(log(Ik)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
+
+```{r}
+Ik_model_acr<-lmer(log(Ik)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
+qqPlot(residuals(Ik_model_acr))
+```
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(Ik_model_acr, type="III")
+summary(Ik_model_acr)
+```
+
+*Pocillopora*  
+
+`Ik_model_poc<-lmer(log(Ik)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
+
+```{r}
+Ik_model_poc<-lmer(log(Ik)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+qqPlot(residuals(Ik_model_poc))
+```
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(Ik_model_poc, type="III")
+summary(Ik_model_poc)
+```
+
+*Porites*  
+
+`Ik_model_por<-lmer(log(Ik)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
+
+```{r}
+Ik_model_por<-lmer(log(Ik)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+qqPlot(residuals(Ik_model_por))
+```
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(Ik_model_por, type="III")
+summary(Ik_model_por)
+```
+
+Ik is different by site and time for POR, but only by time in other species. 
+
 ## Calcification    
 
 ### Plot: Calcification mgprot 
@@ -1880,9 +2021,9 @@ calcplot_prot<-master %>%
   filter(!is.na(calc.umol.mgprot.hr)) %>% 
   filter(calc.umol.mgprot.hr<3)%>%
   filter(!is.na(species))%>%
-  select(colony_id_corr, species, site_code, timepoint, calc.umol.mgprot.hr)%>%
+  select(colony_id_corr, species, site, timepoint, calc.umol.mgprot.hr)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+calc.umol.mgprot.hr), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+calc.umol.mgprot.hr), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1891,7 +2032,7 @@ calcplot_prot<-master %>%
     xlab("Site") + 
     scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
                               "Manava High" = "Manava \nHigh"))+
-    ylab(expression(bold(paste("log ", mu,"mol Ca", CO[3], " mg protein"^-1, " hr"^-1))))+
+    ylab(expression(bold(paste("log Calcification (", mu,"mol Ca", CO[3], " mg protein"^-1, " hr"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -1911,9 +2052,9 @@ calcplot_afdw<-master %>%
   filter(!is.na(calc.umol.mgAFDW.hr)) %>% 
   filter(calc.umol.mgAFDW.hr>-.06)%>%
   filter(!is.na(species))%>%
-  select(colony_id_corr, species, site_code, timepoint, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, species, site, timepoint, calc.umol.mgAFDW.hr)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+calc.umol.mgAFDW.hr), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+calc.umol.mgAFDW.hr), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1922,7 +2063,7 @@ calcplot_afdw<-master %>%
     xlab("Site") + 
     scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
                               "Manava High" = "Manava \nHigh"))+
-    ylab(expression(bold(paste("log ", mu,"mol Ca", CO[3], " mg AFDW"^-1, " hr"^-1))))+
+    ylab(expression(bold(paste("log Calcification (", mu,"mol Ca", CO[3], " mg protein"^-1, " hr"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -1941,9 +2082,9 @@ View by site and timepoint for each species.
 calcplot_cm2<-master %>%
   filter(!is.na(calc.umol.cm2.hr)) %>% 
   filter(!is.na(species))%>%
-  select(colony_id_corr, species, site_code, timepoint, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, species, site, timepoint, calc.umol.cm2.hr)%>%
   
-  ggplot(., aes(x = site_code, y = log(1+calc.umol.cm2.hr), fill = timepoint, group=interaction(site_code,timepoint))) +
+  ggplot(., aes(x = site, y = log(1+calc.umol.cm2.hr), fill = timepoint, group=interaction(site,timepoint))) +
     geom_boxplot(outlier.size = 0) +
     geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
     scale_fill_manual(values = brewer.pal(4,"YlGnBu"), limits=c("timepoint1", "timepoint2", "timepoint3", "timepoint4"), labels=c("January 2020", "March 2020", "September 2020", "November 2020"))+
@@ -1952,7 +2093,7 @@ calcplot_cm2<-master %>%
     xlab("Site") + 
     scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
                               "Manava High" = "Manava \nHigh"))+
-    ylab(expression(bold(paste("log ", mu,"mol Ca", CO[3], " cm"^-2, " hr"^-1))))+
+    ylab(expression(bold(paste("log Calcification (", mu,"mol Ca", CO[3], " mg protein"^-1, " hr"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -2063,7 +2204,7 @@ Time, site, and time x site are significant.
 
 First, specify symbiont and holobiont responses for plotting in separate panels.  
 ```{r}
-symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ratio_AFDW.mg.cm2") 
+symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ratio_AFDW.mg.cm2", "Ik", "Ic") 
 host_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd", "calc.umol.cm2.hr")
 ```
 
@@ -2079,11 +2220,13 @@ legend <- get_legend(
   legend_plot + theme(legend.box.margin = margin(1,1,1,1))
 )
 
-symbiont_univ<-plot_grid(symbplot_afdw, sAFDWplot, am_plot, aqy_plot, chlplot_total, chlplot_total_cell, ratioAFDWplot, ncol=4, nrow=2, rel_widths = c(1,1), align="h", label_y=1, labels=c("A", "B", "C", "D", "E", "F", "G"), label_size=20)
+Ic_plot<-Ic_plot + theme(legend.position="none")
+
+symbiont_univ<-plot_grid(symbplot_afdw, sAFDWplot, am_plot, aqy_plot, Ik_plot, Ic_plot, chlplot_total, chlplot_total_cell, ratioAFDWplot, ncol=3, nrow=3, rel_widths = c(1,1), align="h", label_y=1, labels=c("A", "B", "C", "D", "E", "F", "G", "H", "I"), label_size=20)
 
 symbiont_univ2<-plot_grid(symbiont_univ, legend, ncol=1, nrow=2, rel_heights = c(4, .2))
 
-ggsave(filename="Figures/Univariate/Symbiont_Univariate_Panel.png", plot=symbiont_univ2, dpi=150, width=30, height=11, units="in")
+ggsave(filename="Figures/Univariate/Symbiont_Univariate_Panel.png", plot=symbiont_univ2, dpi=150, width=20, height=15, units="in")
 ```
  
 Generate a panel of responses for host/holobiont metrics.  
@@ -2098,7 +2241,7 @@ host_univ<-plot_grid(tacplot_afdw, hAFDWplot, protplot_afdw, rd_plot, calcplot_c
 
 host_univ2<-plot_grid(host_univ, legend, ncol=1, nrow=2, rel_heights = c(4, .2))
 
-ggsave(filename="Figures/Univariate/Host_Univariate_Panel.png", plot=host_univ2, dpi=150, width=30, height=11, units="in")
+ggsave(filename="Figures/Univariate/Host_Univariate_Panel.png", plot=host_univ2, dpi=150, width=20, height=11, units="in")
 ```
 
 # Correlations  
@@ -2108,7 +2251,7 @@ Generate a correlation matrix to examine relationships between responses of inte
 Generating network plot with corrr package.  
 ```{r}
 master%>%
-  select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
   mutate(across(everything(), ~log(. + 1)))%>%# log transform all data 
   corrr::correlate(., method="spearman", diagonal=1)%>% #generate correlation matrix
   rearrange(.)%>%
@@ -2120,16 +2263,17 @@ Generating matrix with ggcorrplot for all colonies of all species.
 
 ```{r}
 p<-master%>%
-  select(species, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(species, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(!is.na(species))%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(prot_mg.mgafdw<1.5)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   #filter(calc.umol.mgAFDW.hr>-.06)%>%
-  mutate(across(c(2:15), ~log(. + 1)))%>%# log transform all data 
-  ggpairs(., columns=2:15, ggplot2::aes(colour=species)) #try to bold significant stats
+  mutate(across(c(2:17), ~log(. + 1)))%>%# log transform all data 
+  ggpairs(., columns=2:17, ggplot2::aes(colour=species)) #try to bold significant stats
 
 #change colors
 for(i in 1:p$nrow) {
@@ -2152,14 +2296,15 @@ Acropora:
 ```{r}
 p<-master%>%
   filter(species=="Acropora")%>%
-  select(site_code, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(site, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   #filter(calc.umol.mgAFDW.hr>-.06)%>%
-  mutate(across(c(2:15), ~log(. + 1)))%>%# log transform all data 
-  ggpairs(., columns=2:15, ggplot2::aes(colour=site_code)) 
+  mutate(across(c(2:17), ~log(. + 1)))%>%# log transform all data 
+  ggpairs(., columns=2:17, ggplot2::aes(colour=site)) 
 
 #change colors
 for(i in 1:p$nrow) {
@@ -2182,14 +2327,15 @@ Pocillopora
 ```{r}
 p<-master%>%
   filter(species=="Pocillopora")%>%
-  select(site_code, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(site, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   #filter(calc.umol.mgAFDW.hr>-.06)%>%
-  mutate(across(c(2:15), ~log(. + 1)))%>%# log transform all data 
-  ggpairs(., columns=2:15, ggplot2::aes(colour=site_code)) 
+  mutate(across(c(2:17), ~log(. + 1)))%>%# log transform all data 
+  ggpairs(., columns=2:17, ggplot2::aes(colour=site)) 
 
 #change colors
 for(i in 1:p$nrow) {
@@ -2212,15 +2358,16 @@ Porites
 ```{r}
 p<-master%>%
   filter(species=="Porites")%>%
-  select(site_code, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(site, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(prot_mg.mgafdw<1.5)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   #filter(calc.umol.mgAFDW.hr>-.06)%>%
-  mutate(across(c(2:15), ~log(. + 1)))%>%# log transform all data 
-  ggpairs(., columns=2:15, ggplot2::aes(colour=site_code)) 
+  mutate(across(c(2:17), ~log(. + 1)))%>%# log transform all data 
+  ggpairs(., columns=2:17, ggplot2::aes(colour=site)) 
 
 #change colors
 for(i in 1:p$nrow) {
@@ -2244,12 +2391,13 @@ Plot the most highly correlated variables across all species to determine which 
 View top 10 correlated variables.  
 ```{r}
 p<-master%>%
-  select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(prot_mg.mgafdw<1.5)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   mutate(across(everything(), ~log(. + 1)))# log transform all data 
 
 p<-na.omit(p)
@@ -2271,12 +2419,13 @@ The most highly correlated variables include host and symbiont biomass, max phot
 First view correlation network for a low correlation threshold (r=0.3). 
 ```{r}
 p<-master%>%
-  select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(prot_mg.mgafdw<1.5)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   mutate(across(everything(), ~log(. + 1)))# log transform all data 
 
 p<-na.omit(p)
@@ -2310,14 +2459,15 @@ Prepare data frame and calculate relative change in each metric compared to Janu
 
 ```{r}
 timeseries<-master%>%
-  select(species, site_code, month, colony_id_corr, timepoint, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2,  cells.mgAFDW, Total_Chl_cell, Total_Chl, prot_mg.mgafdw, cre.umol.mgafdw, Am, AQY, Rd, Ratio_AFDW.mg.cm2, calc.umol.cm2.hr)%>%
+  select(species, site, month, colony_id_corr, timepoint, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2,  cells.mgAFDW, Total_Chl_cell, Total_Chl, prot_mg.mgafdw, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, Ratio_AFDW.mg.cm2, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(prot_mg.mgafdw<1.5)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
-  mutate(across(c(6:17), ~log(. + 1)))%>%# log transform all data 
-  gather(key="Metric", value="Value", -species, -site_code, -month, -colony_id_corr, -timepoint)%>%
+  filter(Ic<1000)%>%
+  mutate(across(c(6:19), ~log(. + 1)))%>%# log transform all data 
+  gather(key="Metric", value="Value", -species, -site, -month, -colony_id_corr, -timepoint)%>%
   group_by(Metric, colony_id_corr, timepoint)%>%
   arrange(colony_id_corr, .by_group = TRUE)%>%
   group_by(colony_id_corr, Metric)%>%
