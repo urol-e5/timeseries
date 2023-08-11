@@ -71,10 +71,8 @@ protein_files<-list.files("../", pattern = "protein.csv", recursive=T, full.name
 symb_densities_files<-list.files("../", pattern = "symb_densities.csv", recursive=T, full.names=T)
 chlorophyll_files<-list.files("../", pattern = "chlorophyll.csv", recursive=T, full.names=T)
 calcification_files<-list.files("../", pattern = "calcification_output.csv", recursive=T, full.names=T)
-#need to add calcification once complete
 ```
  
-
 ## Read data files 
  
 Load all data frames.  
@@ -224,7 +222,7 @@ Identify rows that have no data for any metric (typos, blanks, missing colonies)
 ```{r}
 master<-master%>%
   relocate(timepoint, .after = colony_id)%>%
-  mutate(master, "RowSum" = rowSums(is.na(master[ , 3:16])))%>%
+  mutate(master, "RowSum" = rowSums(is.na(master[ , 3:18])))%>%
   filter(!RowSum>=12) %>% #remove rows with all na's (rowSums=11)
   select(!RowSum)
 ```
@@ -328,7 +326,6 @@ In order to examine the effect of normalizer on all response variables, normaliz
 (3) Host surface area (cm2)  
 
 To do this, back-normalize variables that are already normalized and divide by each new normalizer.     
-
 ```{r}
 master<-master%>%
   mutate(mgprot = (prot_ug.cm2*surface.area.cm2)/1000)%>% #get absolute values of normaliers for each coral sample, change from ug to mg
