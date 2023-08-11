@@ -5,6 +5,8 @@ date: "3/18/2021"
 output:
   pdf_document: default
   html_document: default
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -38,7 +40,7 @@ library("lubridate")
 library("chron")
 library('plyr')
 library('dplyr')
-library('phytotools')
+#library('phytotools')
 library("tidyverse")
 library("broom")
 ```
@@ -48,7 +50,6 @@ library("broom")
 Data <- read.csv(file = 'output/2_pi_curve_rates.csv')
 #Data <- Data[1:40,]
 ```
-
 
 # Define data  
 
@@ -106,9 +107,15 @@ nls_data <- Data %>%
   unnest(data) %>%
   group_by(colony_id)%>%
   summarise(Am=mean(Am), AQY=mean(AQY), Rd=mean(Rd))%>%
+  mutate(Ik=Am/AQY)%>%
+  mutate(Ic=(Am*Rd)/(AQY*(sqrt(Am^2-Rd^2))))%>%
   mutate(timepoint="timepoint2")%>%
   write_csv(., "output/2_pi_curve_pars_nls.csv")
 ```
+
+Equation for Ic derived from quadratic equation by Ferdi P. Ic = Par when Pc = 0 (x intercept). AH confirmed it matches expected values from each colony plot. Ic = light compensation point; point at which photosynthesis is released from carbon limitation. 
+
+Ik (saturating irradiance) is the point at which photosynthesis reaches the max of initial slope = Am/AQY
 
 Plot curve over data points.  
 ```{r}
