@@ -21,10 +21,12 @@ knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 ## install packages if you dont already have them
 if (!require("tidyverse")) install.packages("tidyverse")
 if (!require("vegan")) install.packages("vegan")
+if (!require("cowplot")) install.packages("cowplot")
 
 # load packages
 library(tidyverse)
 library(vegan)
+library(cowplot)
 ```
 
 
@@ -343,11 +345,12 @@ acr.comm.rda.sym.phys$Metric<-rownames(acr.comm.rda.sym.phys)
 acr.comm.rda.sym.plot<-ggplot(data = acr.comm.rda.sym.scores, aes(x = dbRDA1, y = dbRDA2)) + 
   geom_point(data = acr.comm.rda.sym.scores, size = 3, alpha = 0.8, aes(colour = site_code, fill = site_code)) + 
   theme_classic()+
+  ggtitle("Acropora")+
   xlim(-11, 9)+
   ylim(-5, 15)+
   scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+  
   scale_fill_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+
-  theme(axis.title.x = element_text(size = axis.title.sz), axis.title.y = element_text(size = axis.title.sz), 
+  theme(plot.title = element_text(size=panel.lab.sz, hjust = 0.5), axis.title.x = element_text(size = axis.title.sz), axis.title.y = element_text(size = axis.title.sz), 
         axis.text.x=element_text(size=axis.txt.sz, colour="black"), axis.text.y=element_text(size=axis.txt.sz, colour="black"), 
         legend.position=c(0.2, 0.9), legend.direction = "vertical", legend.text=element_text(size=leg.title.sz), 
         legend.title=element_text(size=leg.title.sz), legend.box.background = element_rect(color = "black"))+
@@ -385,11 +388,12 @@ por.comm.rda.sym.phys$Metric<-rownames(por.comm.rda.sym.phys)
 por.comm.rda.sym.plot<-ggplot(data = por.comm.rda.sym.scores, aes(x = dbRDA1, y = dbRDA2)) + 
   geom_point(data = por.comm.rda.sym.scores, size = 3, alpha = 0.8, aes(colour = site_code, fill = site_code)) + 
   theme_classic()+
+  ggtitle("Porites")+
   xlim(-5, 5)+
   ylim(-4, 6)+
   scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+  
   scale_fill_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+
-  theme(axis.title.x = element_text(size = axis.title.sz), axis.title.y = element_text(size = axis.title.sz), 
+  theme(plot.title = element_text(size=panel.lab.sz, hjust = 0.5), axis.title.x = element_text(size = axis.title.sz), axis.title.y = element_text(size = axis.title.sz), 
         axis.text.x=element_text(size=axis.txt.sz, colour="black"), axis.text.y=element_text(size=axis.txt.sz, colour="black"), 
         legend.position=c(0.2, 0.9), legend.direction = "vertical", legend.text=element_text(size=leg.title.sz), 
         legend.title=element_text(size=leg.title.sz), legend.box.background = element_rect(color = "black"))+
@@ -433,11 +437,12 @@ poc.comm.rda.sym.phys$Metric<-rownames(poc.comm.rda.sym.phys)
 poc.comm.rda.sym.plot<-ggplot(data = poc.comm.rda.sym.scores, aes(x = dbRDA1, y = dbRDA2)) + 
   geom_point(data = poc.comm.rda.sym.scores, size = 3, alpha = 0.8, aes(colour = site_code, fill = site_code)) + 
   theme_classic()+
-  xlim(-4, 4)+
+  ggtitle("Pocillopora")+
+  xlim(-4.25, 3.75)+
   ylim(-5, 3)+
   scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+  
   scale_fill_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+
-  theme(axis.title.x = element_text(size = axis.title.sz), axis.title.y = element_text(size = axis.title.sz), 
+  theme(plot.title = element_text(size=panel.lab.sz, hjust = 0.5), axis.title.x = element_text(size = axis.title.sz), axis.title.y = element_text(size = axis.title.sz), 
         axis.text.x=element_text(size=axis.txt.sz, colour="black"), axis.text.y=element_text(size=axis.txt.sz, colour="black"), 
         legend.position=c(0.2, 0.9), legend.direction = "vertical", legend.text=element_text(size=leg.title.sz), 
         legend.title=element_text(size=leg.title.sz), legend.box.background = element_rect(color = "black"))+
@@ -447,18 +452,29 @@ poc.comm.rda.sym.plot<-ggplot(data = poc.comm.rda.sym.scores, aes(x = dbRDA1, y 
                data = poc.comm.rda.sym.phys, size =1, alpha = 0.5, colour = "grey20", 
                arrow=arrow(length=unit(0.01,"npc")))+
   geom_text(data = poc.comm.rda.sym.phys[c(2:4,7),], 
-            aes(x=dbRDA1, y = dbRDA2, label = Metric, fontface = "italic",
+            aes(x=c(dbRDA1[1]+.3, dbRDA1[2], dbRDA1[3], dbRDA1[4]+.5), 
+                y = c(dbRDA2[1]+.5, dbRDA2[2], dbRDA2[3], dbRDA2[4]), 
+                label = Metric, fontface = "bold",
                 hjust=0.5*(1-sign(dbRDA1)),vjust=0.6*(1-sign(dbRDA2))), 
-            colour = "grey20", size=levels.sz-1)
+            colour = "grey20", size=levels.sz-1)+
+    geom_text(data = poc.comm.rda.sym.phys[c(1, 5:6),], 
+            aes(x=c(dbRDA1[1]-.1, dbRDA1[2]-.1, dbRDA1[3]-.2), 
+                y = c(dbRDA2[1], dbRDA2[2], dbRDA2[3]+.2), 
+                label = Metric, fontface = "italic",
+                hjust=0.5*(1-sign(dbRDA1)),vjust=0.6*(1-sign(dbRDA2))), 
+            colour = "grey20", size=levels.sz-1)+
+    annotate("text", x = -4.25, y = -5, label=expression(bolditalic(paste("Adj. ",R^2, " = 0.064, p = 0.001"))), size=sig.sz, hjust = 0)
 
 poc.comm.rda.sym.plot
 
-# Symbiont_Density    1    0.289 0.7875  0.529   
-# Symbiont_Biomass    1    1.272 3.4733  0.007 **
-# Total_Chl           1    1.887 5.1501  0.002 **
-# Total_Chl_cell      1    0.863 2.3560  0.048 * 
-# Am                  1    0.071 0.1950  0.965   
-# AQY                 1    0.156 0.4260  0.812   
-# S_H_Biomass_Ratio   1    1.220 3.3288  0.011 * 
+
+##Plot Figure Grid
+ITS2rda_Sym<-plot_grid(acr.comm.rda.sym.plot, por.comm.rda.sym.plot,
+                          poc.comm.rda.sym.plot, 
+                           rel_widths=c(1, 1, 1), rel_heights=c(1, 1, 1), 
+                           ncol=3, nrow=1, byrow=T, labels = c('A', 'B', 'C'), 
+                           label_size=panel.lab.sz, align="v")
+ggsave(filename="Figures/ITS2/ITS2_Phys_RDA_Panel_Symbiont.png", plot=ITS2rda_Sym, dpi=300, width=18, height=6, units="in")
+
 
 ```
