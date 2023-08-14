@@ -62,6 +62,9 @@ master<-read.csv("Output/master_timeseries.csv")
 #reorder site levels 
 master$site_code<-as.factor(master$site_code)
 master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
+
+master$site<-as.factor(master$site)
+master$site<-fct_relevel(master$site, "Mahana", "Hilton", "Manava")
 ```
 
 # Examine multivariate profiles for each normalizer    
@@ -76,15 +79,16 @@ Plot PCA using prcomp to center and scale.
  
 ```{r}
 pca_data_cm2<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.cm2, chlc2.ug.cm2, prot_mg.cm2, cells.cm2, cre.umol.cm2, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.cm2, chlc2.ug.cm2, prot_mg.cm2, cells.cm2, cre.umol.cm2, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
-  filter(Ratio_AFDW.mg.cm2>0)
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ic<1000)
 
 pca_data_cm2<-pca_data_cm2[complete.cases(pca_data_cm2), ]
 
-scaled_data_cm2<-prcomp(pca_data_cm2[c(5:16)], scale=TRUE, center=TRUE) 
+scaled_data_cm2<-prcomp(pca_data_cm2[c(5:18)], scale=TRUE, center=TRUE) 
 ```
 
 Groupings by species:  
@@ -107,7 +111,7 @@ pcaSpecies_cm2<-ggplot2::autoplot(scaled_data_cm2, data=pca_data_cm2, frame.colo
 PERMANOVA of the effect of species  
 ```{r}
 # scale data
-vegan_cm2 <- scale(pca_data_cm2[ ,5:16])
+vegan_cm2 <- scale(pca_data_cm2[ ,5:18])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 adonis2(vegan_cm2 ~ species, data = pca_data_cm2, method='eu')
@@ -174,42 +178,45 @@ Separate by species.
 ```{r}
 #porites
 por_data_cm2<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.cm2, chlc2.ug.cm2, prot_mg.cm2, cells.cm2, cre.umol.cm2, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.cm2, chlc2.ug.cm2, prot_mg.cm2, cells.cm2, cre.umol.cm2, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   filter(species=="Porites")
 
 por_data_cm2<-por_data_cm2[complete.cases(por_data_cm2), ]
 
-scaled_por_cm2<-prcomp(por_data_cm2[c(5:16)], scale=TRUE, center=TRUE) 
+scaled_por_cm2<-prcomp(por_data_cm2[c(5:18)], scale=TRUE, center=TRUE) 
 
 #acropora
 acr_data_cm2<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.cm2, chlc2.ug.cm2, prot_mg.cm2, cells.cm2, cre.umol.cm2, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.cm2, chlc2.ug.cm2, prot_mg.cm2, cells.cm2, cre.umol.cm2, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   filter(species=="Acropora")
 
 acr_data_cm2<-acr_data_cm2[complete.cases(acr_data_cm2), ]
 
-scaled_acr_cm2<-prcomp(acr_data_cm2[c(5:16)], scale=TRUE, center=TRUE) 
+scaled_acr_cm2<-prcomp(acr_data_cm2[c(5:18)], scale=TRUE, center=TRUE) 
 
 #pocillopora
 poc_data_cm2<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.cm2, chlc2.ug.cm2, prot_mg.cm2, cells.cm2, cre.umol.cm2, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.cm2, chlc2.ug.cm2, prot_mg.cm2, cells.cm2, cre.umol.cm2, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   filter(species=="Pocillopora")
 
 poc_data_cm2<-poc_data_cm2[complete.cases(poc_data_cm2), ]
 
-scaled_poc_cm2<-prcomp(poc_data_cm2[c(5:16)], scale=TRUE, center=TRUE) 
+scaled_poc_cm2<-prcomp(poc_data_cm2[c(5:18)], scale=TRUE, center=TRUE) 
 ```
 
 ###### Porites PCA's   
@@ -233,7 +240,7 @@ porTimepoint_cm2<-ggplot2::autoplot(scaled_por_cm2, data=por_data_cm2, frame.col
 PERMANOVA of the effect of timepoint  
 ```{r}
 # scale data
-vegan_cm2 <- scale(por_data_cm2[ ,5:16])
+vegan_cm2 <- scale(por_data_cm2[ ,5:18])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 adonis2(vegan_cm2 ~ timepoint, data = por_data_cm2, method='eu')
@@ -282,7 +289,7 @@ acrTimepoint_cm2<-ggplot2::autoplot(scaled_acr_cm2, data=acr_data_cm2, frame.col
 PERMANOVA of the effect of timepoint  
 ```{r}
 # scale data
-vegan_cm2 <- scale(acr_data_cm2[ ,5:16])
+vegan_cm2 <- scale(acr_data_cm2[ ,5:18])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 adonis2(vegan_cm2 ~ timepoint, data = acr_data_cm2, method='eu')
@@ -331,7 +338,7 @@ pocTimepoint_cm2<-ggplot2::autoplot(scaled_poc_cm2, data=poc_data_cm2, frame.col
 PERMANOVA of the effect of timepoint  
 ```{r}
 # scale data
-vegan_cm2 <- scale(poc_data_cm2[ ,5:16])
+vegan_cm2 <- scale(poc_data_cm2[ ,5:18])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 adonis2(vegan_cm2 ~ timepoint, data = poc_data_cm2, method='eu')
@@ -375,15 +382,16 @@ Plot PCA using prcomp to center and scale.
  
 ```{r}
 pca_data_prot<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgprot, chlc2.ug.mgprot, prot_mg.cm2, cells.mgprot, cre.umol.mgprot, Am, AQY, Rd, calc.umol.mgprot.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgprot, chlc2.ug.mgprot, prot_mg.cm2, cells.mgprot, cre.umol.mgprot, Am, AQY, Rd, Ik, Ic, calc.umol.mgprot.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
-  filter(Ratio_AFDW.mg.cm2>0)
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ic<1000)
 
 pca_data_prot<-pca_data_prot[complete.cases(pca_data_prot), ]
 
-scaled_data_prot<-prcomp(pca_data_prot[c(5:16)], scale=TRUE, center=TRUE) 
+scaled_data_prot<-prcomp(pca_data_prot[c(5:18)], scale=TRUE, center=TRUE) 
 ```
 
 Groupings by species:  
@@ -406,7 +414,7 @@ pcaSpecies_prot<-ggplot2::autoplot(scaled_data_prot, data=pca_data_prot, frame.c
 PERMANOVA of the effect of species  
 ```{r}
 # scale data
-vegan_prot <- scale(pca_data_prot[ ,5:16])
+vegan_prot <- scale(pca_data_prot[ ,5:18])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 adonis2(vegan_prot ~ species, data = pca_data_prot, method='eu')
@@ -473,42 +481,45 @@ Separate by species.
 ```{r}
 #porites
 por_data_prot<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgprot, chlc2.ug.mgprot, prot_mg.cm2, cells.mgprot, cre.umol.mgprot, Am, AQY, Rd, calc.umol.mgprot.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgprot, chlc2.ug.mgprot, prot_mg.cm2, cells.mgprot, cre.umol.mgprot, Am, AQY, Rd, Ik, Ic, calc.umol.mgprot.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ic<1000)%>%
   filter(species=="Porites")
 
 por_data_prot<-por_data_prot[complete.cases(por_data_prot), ]
 
-scaled_por_prot<-prcomp(por_data_prot[c(5:16)], scale=TRUE, center=TRUE) 
+scaled_por_prot<-prcomp(por_data_prot[c(5:18)], scale=TRUE, center=TRUE) 
 
 #acropora
 acr_data_prot<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgprot, chlc2.ug.mgprot, prot_mg.cm2, cells.mgprot, cre.umol.mgprot, Am, AQY, Rd, calc.umol.mgprot.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgprot, chlc2.ug.mgprot, prot_mg.cm2, cells.mgprot, cre.umol.mgprot, Am, AQY, Rd, Ik, Ic, calc.umol.mgprot.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   filter(species=="Acropora")
 
 acr_data_prot<-acr_data_prot[complete.cases(acr_data_prot), ]
 
-scaled_acr_prot<-prcomp(acr_data_prot[c(5:16)], scale=TRUE, center=TRUE) 
+scaled_acr_prot<-prcomp(acr_data_prot[c(5:18)], scale=TRUE, center=TRUE) 
 
 #pocillopora
 poc_data_prot<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgprot, chlc2.ug.mgprot, prot_mg.cm2, cells.mgprot, cre.umol.mgprot, Am, AQY, Rd, calc.umol.mgprot.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgprot, chlc2.ug.mgprot, prot_mg.cm2, cells.mgprot, cre.umol.mgprot, Am, AQY, Rd, Ik, Ic, calc.umol.mgprot.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   filter(species=="Pocillopora")
 
 poc_data_prot<-poc_data_prot[complete.cases(poc_data_prot), ]
 
-scaled_poc_prot<-prcomp(poc_data_prot[c(5:16)], scale=TRUE, center=TRUE) 
+scaled_poc_prot<-prcomp(poc_data_prot[c(5:18)], scale=TRUE, center=TRUE) 
 ```
 
 ###### Porites PCA's   
@@ -532,7 +543,7 @@ porTimepoint_prot<-ggplot2::autoplot(scaled_por_prot, data=por_data_prot, frame.
 PERMANOVA of the effect of timepoint  
 ```{r}
 # scale data
-vegan_prot <- scale(por_data_prot[ ,5:16])
+vegan_prot <- scale(por_data_prot[ ,5:18])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 adonis2(vegan_prot ~ timepoint, data = por_data_prot, method='eu')
@@ -581,7 +592,7 @@ acrTimepoint_prot<-ggplot2::autoplot(scaled_acr_prot, data=acr_data_prot, frame.
 PERMANOVA of the effect of timepoint  
 ```{r}
 # scale data
-vegan_prot <- scale(acr_data_prot[ ,5:16])
+vegan_prot <- scale(acr_data_prot[ ,5:18])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 adonis2(vegan_prot ~ timepoint, data = acr_data_prot, method='eu')
@@ -630,7 +641,7 @@ pocTimepoint_prot<-ggplot2::autoplot(scaled_poc_prot, data=poc_data_prot, frame.
 PERMANOVA of the effect of timepoint  
 ```{r}
 # scale data
-vegan_prot <- scale(poc_data_prot[ ,5:16])
+vegan_prot <- scale(poc_data_prot[ ,5:18])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 adonis2(vegan_prot ~ timepoint, data = poc_data_prot, method='eu')
@@ -666,10 +677,6 @@ species_plots_prot<-plot_grid(porSite_prot, porTimepoint_prot, acrSite_prot, acr
 
 ``` 
 
-
-
-
-
 #### PCAs: Biomass normalizers  
 
 ##### Combined PCA's  
@@ -678,22 +685,22 @@ Plot PCA using prcomp to center and scale.
   
 ```{r}
 pca_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   filter(prot_mg.mgafdw<1.5) #remove outliers
-
 
 pca_data_afdw<-pca_data_afdw[complete.cases(pca_data_afdw), ]
 
-scaled_data_afdw<-prcomp(pca_data_afdw[c(5:16)], scale=TRUE, center=TRUE) 
+scaled_data_afdw<-prcomp(pca_data_afdw[c(5:18)], scale=TRUE, center=TRUE) 
 ```
 
 ```{r}
 # scale data
-vegan <- scale(pca_data_afdw[ ,5:16])
+vegan <- scale(pca_data_afdw[ ,5:18])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 permanova<-adonis2(vegan ~ species, data = pca_data_afdw, method='eu')
@@ -724,7 +731,7 @@ pcaSpecies_afdw<-ggplot2::autoplot(scaled_data_afdw, data=pca_data_afdw, frame.c
 PERMANOVA of the effect of species  
 ```{r}
 # scale data
-vegan_afdw <- scale(pca_data_afdw[ ,5:16])
+vegan_afdw <- scale(pca_data_afdw[ ,5:18])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 adonis2(vegan_afdw ~ species, data = pca_data_afdw, method='eu')
@@ -789,42 +796,45 @@ Separate by species.
 ```{r}
 #porites
 por_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   filter(species=="Porites")
 
 por_data_afdw<-por_data_afdw[complete.cases(por_data_afdw), ]
 
-scaled_por_afdw<-prcomp(por_data_afdw[c(5:16)], scale=TRUE, center=TRUE) 
+scaled_por_afdw<-prcomp(por_data_afdw[c(5:18)], scale=TRUE, center=TRUE) 
 
 #acropora
 acr_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ic<1000)%>%
   filter(species=="Acropora")
 
 acr_data_afdw<-acr_data_afdw[complete.cases(acr_data_afdw), ]
 
-scaled_acr_afdw<-prcomp(acr_data_afdw[c(5:16)], scale=TRUE, center=TRUE) 
+scaled_acr_afdw<-prcomp(acr_data_afdw[c(5:18)], scale=TRUE, center=TRUE) 
 
 #pocillopora
 poc_data_afdw<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.mgAFDW.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chla.ug.mgAFDW, chlc2.ug.mgAFDW, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.mgAFDW.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   filter(species=="Pocillopora")
 
 poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
 
-scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:16)], scale=TRUE, center=TRUE) 
+scaled_poc_afdw<-prcomp(poc_data_afdw[c(5:18)], scale=TRUE, center=TRUE) 
 ```
 
 ###### Porites PCA's   
@@ -848,7 +858,7 @@ porTimepoint_afdw<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, frame.
 PERMANOVA of the effect of timepoint  
 ```{r}
 # scale data
-vegan_afdw <- scale(por_data_afdw[ ,5:16])
+vegan_afdw <- scale(por_data_afdw[ ,5:18])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 adonis2(vegan_afdw ~ timepoint, data = por_data_afdw, method='eu')
@@ -897,7 +907,7 @@ acrTimepoint_afdw<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, frame.
 PERMANOVA of the effect of timepoint  
 ```{r}
 # scale data
-vegan_afdw <- scale(acr_data_afdw[ ,5:16])
+vegan_afdw <- scale(acr_data_afdw[ ,5:18])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 adonis2(vegan_afdw ~ timepoint, data = acr_data_afdw, method='eu')
@@ -946,7 +956,7 @@ pocTimepoint_afdw<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, frame.
 PERMANOVA of the effect of timepoint  
 ```{r}
 # scale data
-vegan_afdw <- scale(poc_data_afdw[ ,5:16])
+vegan_afdw <- scale(poc_data_afdw[ ,5:18])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 adonis2(vegan_afdw ~ timepoint, data = poc_data_afdw, method='eu')
@@ -982,7 +992,6 @@ species_plots_afdw<-plot_grid(porSite_afdw, porTimepoint_afdw, acrSite_afdw, acr
 
 ``` 
 
-
 #### Assemble all PCA plots  
 
 Generate plot of all combined PCA's
@@ -1012,23 +1021,24 @@ Plot PCA using prcomp to center and scale using biomass normalized tissue respon
   
 ```{r}
 pca_data_species<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>%
   filter(Total_Chl<14)%>%
-  filter(Total_Chl_cell<6e-05)#remove outliers
+  filter(Total_Chl_cell<6e-05)%>%
+  filter(Ic<1000)#remove outliers
 
 pca_data_species<-pca_data_species[complete.cases(pca_data_species), ]
 
-scaled_data_species<-prcomp(pca_data_species[c(5:16)], scale=TRUE, center=TRUE) 
+scaled_data_species<-prcomp(pca_data_species[c(5:18)], scale=TRUE, center=TRUE) 
 ```
 
 ```{r}
 # scale data
-vegan <- scale(pca_data_species[ ,5:16])
+vegan <- scale(pca_data_species[ ,5:18])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 permanova<-adonis2(vegan ~ species, data = pca_data_species, method='eu')
