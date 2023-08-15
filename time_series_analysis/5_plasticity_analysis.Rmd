@@ -12,13 +12,6 @@ editor_options:
   chunk_output_type: console
 --- 
 
-
-
-
-Left off here - need to change site code to site and add in Ic and Ik 
-
-
-
 # Set Up     
 
 ```{r setup, include=FALSE}
