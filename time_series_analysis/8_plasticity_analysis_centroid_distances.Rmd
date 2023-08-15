@@ -37,7 +37,7 @@ library(ggpubr)
 
 ```{r}
 site.cols<-c("#374d7c", "#00cccc", "#ff6633")
-#"Mahana Low", "Hilton Medium", "Manava High")
+#"Mahana", "Hilton", "Manava")
 ```
 
 # Load dataframe
@@ -49,18 +49,21 @@ master<-read.csv("Output/master_timeseries.csv")
 #reorder site levels 
 master$site_code<-as.factor(master$site_code)
 master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
-```
 
+master$site<-as.factor(master$site)
+master$site<-fct_relevel(master$site, "Mahana", "Hilton", "Manava")
+```
 
 # Holobiont responses   
 ```{r}
 data_all<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr, Total_Chl, Total_Chl_cell)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr, Total_Chl, Total_Chl_cell)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  filter(Ic<1000)%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
 ```
 
@@ -80,41 +83,47 @@ data_all_log$species<-as.factor(data_all_log$species)
 ```{r}
 data_all_log.comp<-data_all_log[complete.cases(data_all_log), ]
 
-data_all_log.comp<-separate(data_all_log.comp, "site_code", into=c("site", "nutrient"), remove=FALSE)
-data_all_log.comp$siteID<-paste(data_all_log.comp$site, data_all_log.comp$nutrient, sep="")
+#data_all_log.comp<-separate(data_all_log.comp, "site_code", into=c("site", "nutrient"), remove=FALSE)
+#data_all_log.comp$siteID<-paste(data_all_log.comp$site, data_all_log.comp$nutrient, sep="")
 ```
 
 ##Differences in dispersion between species
 ```{r}
-species.disp<-betadisper(vegdist(data_all_log.comp[,7:18], "euclidean"), data_all_log.comp$species)
+species.disp<-betadisper(vegdist(data_all_log.comp[,5:18], "euclidean"), data_all_log.comp$species)
 anova(species.disp)
-#            Df  Sum Sq Mean Sq F value   Pr(>F)   
-# Groups      2  1.0697 0.53483  6.4532 0.001757 **
-# Residuals 374 30.9965 0.08288    
-#Significant difference in dispersion between Species (cannot attribute significant effect from PERMANOVA to difference in centroids alone) 
+#Analysis of Variance Table
+
+#Response: Distances
+#           Df Sum Sq Mean Sq F value  Pr(>F)  
+#Groups      2  0.796 0.39788  3.1331 0.04474 *
+#Residuals 371 47.114 0.12699     
+#Slightly significant difference in dispersion between Species (may not be able to attribute significant effect from PERMANOVA to difference in centroids alone) 
+
 #Difference in "plasticity" between species 
 
 ##Pairwise comparisons of dispersion between Species
 TukeyHSD(species.disp)
-#                             diff         lwr        upr     p adj
-# Pocillopora-Acropora -0.05669480 -0.14517953 0.03178992 0.2884423
-# Porites-Acropora      0.06810476 -0.02010320 0.15631272 0.1654624
-# Porites-Pocillopora   0.12479956  0.04294862 0.20665051 0.0010981
+#                            diff          lwr        upr     p adj
+#Pocillopora-Acropora -0.04187698 -0.152245940 0.06849198 0.6451594
+#Porites-Acropora      0.06547386 -0.043856295 0.17480401 0.3371537
+#Porites-Pocillopora   0.10735084  0.005634634 0.20906704 0.0357894
+
+#porites and pocillopora are significantly different in dispersion
 ```
 
 
 ##Centroid distances
 ```{r}
 ##Obtain centroid coordinates of each Sample Set (Same Species, Site, Season) with betadisper type="centroid"
-data_all_log.comp$Set<-paste(data_all_log.comp$species, data_all_log.comp$siteID, data_all_log.comp$timepoint, sep=".")
+data_all_log.comp$Set<-paste(data_all_log.comp$species, data_all_log.comp$site, data_all_log.comp$timepoint, sep=".")
 
-all.disp.grp<-betadisper(vegdist(data_all_log.comp[,7:18], "euclidean"), data_all_log.comp$Set, type="centroid")
+all.disp.grp<-betadisper(vegdist(data_all_log.comp[,5:18], "euclidean"), data_all_log.comp$Set, type="centroid")
 
 ##Calculate the variance of Physiology explained by the first two PCoA axes
 all.disp.grp$eig[1]/sum(all.disp.grp$eig[which(all.disp.grp$eig>0)])*100
 all.disp.grp$eig[2]/sum(all.disp.grp$eig[which(all.disp.grp$eig>0)])*100
 sum(all.disp.grp$eig[1:2])/sum(all.disp.grp$eig[which(all.disp.grp$eig>0)])*100
-#86.76% explained by first two axes 
+#70.73% explained by first two axes 
 
 ##Calculate the Euclidean distance between centroids using coordinates of the first 2 PCoA axes
 centdist.all<-as.matrix(dist(all.disp.grp$centroids[,c(1:2)], method = "euclidean"))
@@ -154,35 +163,35 @@ spp_comparisons <- list( c("Acropora", "Pocillopora"),  c( "Pocillopora", "Porit
 Run anova on seasonal plasticity between species.
 ```{r}
 summary(aov(Cent.Dist~species*site.A, data=cents.all.seas))
-#                  Df Sum Sq Mean Sq F value Pr(>F)
-# species.A         2  0.640  0.3199   2.348  0.107
-# site.A            2  0.373  0.1867   1.370  0.265
-# species.A:site.A  4  0.556  0.1390   1.020  0.407
-# Residuals        45  6.133  0.1363  
+#               Df Sum Sq Mean Sq F value Pr(>F)  
+#species         2  0.714  0.3572   2.587 0.0864 .
+#site.A          2  0.307  0.1537   1.113 0.3374  
+#species:site.A  4  0.389  0.0972   0.704 0.5935  
+#Residuals      45  6.212  0.1380    
 #No significant difference in seasonal plasticity between species
 #The effect of season does not differ between sites
 
 compare_means(Cent.Dist~species, data=cents.all.seas, method = "anova")
 #   .y.           p p.adj p.format p.signif method
 #   <chr>     <dbl> <dbl> <chr>    <chr>    <chr> 
-# 1 Cent.Dist 0.110  0.11 0.11     ns       Anova 
+# Cent.Dist 0.0813 0.081 0.081    ns       Anova 
 ```
 
 Run anova on spatial plasticity between species.
 ```{r}
 summary(aov(Cent.Dist~species*timepoint.A, data=cents.all.site))
-#                       Df Sum Sq Mean Sq F value   Pr(>F)    
-# species.A              2 0.7165  0.3582  10.841 0.000442 ***
-# timepoint.A            3 0.2339  0.0780   2.359 0.096731 .  
-# species.A:timepoint.A  6 0.2003  0.0334   1.010 0.441827    
-# Residuals             24 0.7931  0.0330    
+#                    Df Sum Sq Mean Sq F value   Pr(>F)    
+#species              2 0.6495  0.3248   9.475 0.000927 ***
+#timepoint.A          3 0.4352  0.1451   4.232 0.015511 *  
+#species:timepoint.A  6 0.1685  0.0281   0.819 0.565779    
+R#esiduals           24 0.8226  0.0343                
 #Significant difference in spatial plasticity between species
-#The effect of site does not differ between seasons 
+#The effect of site does differ between seasons 
 
 compare_means(Cent.Dist~species, data=cents.all.site, method = "anova")
 #   .y.              p   p.adj p.format p.signif method
 #   <chr>        <dbl>   <dbl> <chr>    <chr>    <chr> 
-# 1 Cent.Dist 0.000507 0.00051 0.00051  ***      Anova 
+# 1 Cent.Dist 0.00205 0.002 0.002    **       Anova 
 
 ```
 
@@ -221,14 +230,14 @@ ggsave("Figures/Plasticity/dispersion_plasticity_spatial.png", spatial.plasticit
 
 # Generate a list of symbiont and host responses.  Holobiont = all responses
 ```{r}
-symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ratio_AFDW.mg.cm2") 
+symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ik", "Ic", "Ratio_AFDW.mg.cm2") 
 host_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd", "calc.umol.cm2.hr")
 ```
 
 # Host responses
 ```{r}
 data_host<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -256,42 +265,44 @@ data_host_log$species<-as.factor(data_host_log$species)
 ```{r}
 data_all_host.comp<-data_host_log
 
-data_all_host.comp<-separate(data_all_host.comp, "site_code", into=c("site", "nutrient"), remove=FALSE)
-data_all_host.comp$siteID<-paste(data_all_host.comp$site, data_all_host.comp$nutrient, sep="")
+#data_all_host.comp<-separate(data_all_host.comp, "site_code", into=c("site", "nutrient"), remove=FALSE)
+#data_all_host.comp$siteID<-paste(data_all_host.comp$site, data_all_host.comp$nutrient, sep="")
 ```
 
 
 ##Differences in dispersion between species
 ```{r}
-species.disp_host<-betadisper(vegdist(data_all_host.comp[,7:11], "euclidean"), data_all_host.comp$species)
+species.disp_host<-betadisper(vegdist(data_all_host.comp[,5:9], "euclidean"), data_all_host.comp$species)
 anova(species.disp_host)
-#            Df  Sum Sq Mean Sq F value   Pr(>F)   
-# Groups      2 3.4459 1.72296   72.59 < 2.2e-16 ***
-# Residuals 387 9.1857 0.02374    
+#           Df Sum Sq Mean Sq F value    Pr(>F)    
+#Groups      2 3.2558 1.62788  63.361 < 2.2e-16 ***
+#Residuals 388 9.9685 0.02569       
 #Significant difference in dispersion of host physiology between Species (cannot attribute significant effect from PERMANOVA to difference in centroids alone) 
 #Difference in "plasticity" of host between species 
 
 ##Pairwise comparisons of dispersion of host physiology between Species
 TukeyHSD(species.disp_host)
-#                             diff         lwr         upr     p adj
-# Pocillopora-Acropora -0.04478369 -0.09129476 0.001727373 0.0619821
-# Porites-Acropora      0.16630457  0.11938073 0.213228422 0.0000000
-# Porites-Pocillopora   0.21108827  0.16821151 0.253965028 0.0000000
+#                            diff         lwr         upr     p adj
+#Pocillopora-Acropora -0.04189572 -0.09028505 0.006493617 0.1048045
+#Porites-Acropora      0.16243124  0.11368629 0.211176178 0.0000000
+#Porites-Pocillopora   0.20432695  0.15979952 0.248854392 0.0000000
+
+#Porites is different from other species
 ```
 
 
 ##Centroid distances
 ```{r}
 ##Obtain centroid coordinates of each Sample Set (Same Species, Site, Season) with betadisper type="centroid"
-data_all_host.comp$Set<-paste(data_all_host.comp$species, data_all_host.comp$siteID, data_all_host.comp$timepoint, sep=".")
+data_all_host.comp$Set<-paste(data_all_host.comp$species, data_all_host.comp$site, data_all_host.comp$timepoint, sep=".")
 
-host.disp.grp<-betadisper(vegdist(data_all_host.comp[,7:11], "euclidean"), data_all_host.comp$Set, type="centroid")
+host.disp.grp<-betadisper(vegdist(data_all_host.comp[,5:9], "euclidean"), data_all_host.comp$Set, type="centroid")
 
 ##Calculate the variance of Physiology explained by the first two PCoA axes
 host.disp.grp$eig[1]/sum(host.disp.grp$eig[which(host.disp.grp$eig>0)])*100
 host.disp.grp$eig[2]/sum(host.disp.grp$eig[which(host.disp.grp$eig>0)])*100
 sum(host.disp.grp$eig[1:2])/sum(host.disp.grp$eig[which(host.disp.grp$eig>0)])*100
-#92.95% explained by first two axes 
+#94.16% explained by first two axes 
 
 ##Calculate the Euclidean distance between centroids using coordinates of the first 2 PCoA axes
 centdist.host<-as.matrix(dist(host.disp.grp$centroids[,c(1:2)], method = "euclidean"))
@@ -331,38 +342,36 @@ cents.host.site<-cents.host[c(which(cents.host$timepoint.A==cents.host$timepoint
 Run anova on seasonal plasticity between species.
 ```{r}
 summary(aov(Cent.Dist.Host~species*site.A, data=cents.host.seas))
-#                  Df Sum Sq Mean Sq F value   Pr(>F)    
-# species.A         2 0.4400 0.22000  10.243 0.000216 ***
-# site.A            2 0.0212 0.01058   0.493 0.614306    
-# species.A:site.A  4 0.1151 0.02877   1.339 0.270127    
-# Residuals        45 0.9665 0.02148   
+#               Df Sum Sq Mean Sq F value   Pr(>F)    
+#species         2 0.4221 0.21104   9.702 0.000314 ***
+#site.A          2 0.0251 0.01254   0.576 0.565970    
+#species:site.A  4 0.1314 0.03286   1.511 0.215163    
+#Residuals      45 0.9788 0.02175  
 #Significant difference in seasonal plasticity of host between species
 #The effect of season does not differ between sites
 
 compare_means(Cent.Dist.Host~species, data=cents.host.seas, method = "anova")
 #   .y.                   p   p.adj p.format p.signif method
 #   <chr>             <dbl>   <dbl> <chr>    <chr>    <chr> 
-# 1 Cent.Dist.Host 0.000191 0.00019 0.00019  ***      Anova 
+# 1 Cent.Dist.Host 0.000316 0.00032 0.00032  ***      Anova 
   
 ```
 
 Run anova on spatial plasticity between species.
 ```{r}
 summary(aov(Cent.Dist.Host~species*timepoint.A, data=cents.host.site))
-#                      Df  Sum Sq  Mean Sq F value Pr(>F)  
-# species.A              2 0.06120 0.030598   3.830  0.036 *
-# timepoint.A            3 0.00051 0.000170   0.021  0.996  
-# species.A:timepoint.A  6 0.06930 0.011550   1.446  0.239  
-# Residuals             24 0.19171 0.007988     
-#Significant difference in spatial plasticity of host between species
-#The effect of site does not differ between seasons 
+#                    Df  Sum Sq  Mean Sq F value Pr(>F)  
+#species              2 0.05497 0.027483   2.949 0.0716 .
+#timepoint.A          3 0.00093 0.000312   0.033 0.9916  
+#species:timepoint.A  6 0.07374 0.012290   1.319 0.2871  
+#Residuals           24 0.22366 0.009319     
+#No difference in spatial plasticity of host between species
 
 compare_means(Cent.Dist.Host~species, data=cents.host.site, method = "anova")
 #   .y.                 p p.adj p.format p.signif method
 #   <chr>           <dbl> <dbl> <chr>    <chr>    <chr> 
-# 1 Cent.Dist.Host 0.0311 0.031 0.031    *        Anova 
+# 1 Cent.Dist.Host 0.0614 0.061 0.061    ns       Anova 
 ```
-
 
 ##Generate figures- Seasonal and Spatial Plasticity
 ```{r}
@@ -397,17 +406,15 @@ host.spatial.plasticity.plot<-ggplot(cents.host.site, aes(x=species.A, y=Cent.Di
 ggsave("Figures/Plasticity/dispersion_plasticity_spatial_host.png", host.spatial.plasticity.plot, width=4, height=4, dpi=300)
 ```
 
-
-
-
 # Symbiont responses
 ```{r}
 data_sym<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, timepoint, species, site, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW)
 
@@ -431,18 +438,18 @@ data_sym_log$species<-as.factor(data_sym_log$species)
 ```{r}
 data_all_sym.comp<-data_sym_log
 
-data_all_sym.comp<-separate(data_all_sym.comp, "site_code", into=c("site", "nutrient"), remove=FALSE)
-data_all_sym.comp$siteID<-paste(data_all_sym.comp$site, data_all_sym.comp$nutrient, sep="")
+#data_all_sym.comp<-separate(data_all_sym.comp, "site_code", into=c("site", "nutrient"), remove=FALSE)
+#data_all_sym.comp$siteID<-paste(data_all_sym.comp$site, data_all_sym.comp$nutrient, sep="")
 ```
 
 
 ##Differences in dispersion between species
 ```{r}
-species.disp_sym<-betadisper(vegdist(data_all_sym.comp[,7:13], "euclidean"), data_all_sym.comp$species)
+species.disp_sym<-betadisper(vegdist(data_all_sym.comp[,5:13], "euclidean"), data_all_sym.comp$species)
 anova(species.disp_sym)
-#            Df  Sum Sq Mean Sq F value   Pr(>F)   
-# Groups      2  0.303 0.15127  1.4295 0.2406
-# Residuals 416 44.022 0.10582   
+#           Df Sum Sq  Mean Sq F value Pr(>F)
+#Groups      2  0.149 0.074543  0.5552 0.5744
+#Residuals 412 55.317 0.134265    
 #No significant difference in dispersion of symbiont physiology between Species 
 ```
 
@@ -450,15 +457,15 @@ anova(species.disp_sym)
 ##Centroid distances
 ```{r}
 ##Obtain centroid coordinates of each Sample Set (Same Species, Site, Season) with betadisper type="centroid"
-data_all_sym.comp$Set<-paste(data_all_sym.comp$species, data_all_sym.comp$siteID, data_all_sym.comp$timepoint, sep=".")
+data_all_sym.comp$Set<-paste(data_all_sym.comp$species, data_all_sym.comp$site, data_all_sym.comp$timepoint, sep=".")
 
-sym.disp.grp<-betadisper(vegdist(data_all_sym.comp[,7:13], "euclidean"), data_all_sym.comp$Set, type="centroid")
+sym.disp.grp<-betadisper(vegdist(data_all_sym.comp[,5:13], "euclidean"), data_all_sym.comp$Set, type="centroid")
 
 ##Calculate the variance of Physiology explained by the first two PCoA axes
 sym.disp.grp$eig[1]/sum(sym.disp.grp$eig[which(sym.disp.grp$eig>0)])*100
 sym.disp.grp$eig[2]/sum(sym.disp.grp$eig[which(sym.disp.grp$eig>0)])*100
 sum(sym.disp.grp$eig[1:2])/sum(sym.disp.grp$eig[which(sym.disp.grp$eig>0)])*100
-#88.75% explained by first two axes 
+#71.47% explained by first two axes 
 
 ##Calculate the Euclidean distance between centroids using coordinates of the first 2 PCoA axes
 centdist.sym<-as.matrix(dist(sym.disp.grp$centroids[,c(1:2)], method = "euclidean"))
@@ -498,37 +505,36 @@ cents.sym.site<-cents.sym[c(which(cents.sym$timepoint.A==cents.sym$timepoint.B))
 Run anova on seasonal plasticity between species.
 ```{r}
 summary(aov(Cent.Dist.Sym~species*site.A, data=cents.sym.seas))
-#                  Df Sum Sq Mean Sq F value Pr(>F)  
-# species.A         2  0.892  0.4461   2.876 0.0668 .
-# site.A            2  0.271  0.1355   0.873 0.4245  
-# species.A:site.A  4  0.520  0.1301   0.839 0.5079  
-# Residuals        45  6.980  0.1551    
+#               Df Sum Sq Mean Sq F value Pr(>F)  
+#species         2  0.814  0.4068   2.691 0.0787 .
+#site.A          2  0.670  0.3352   2.218 0.1206  
+#species:site.A  4  0.183  0.0456   0.302 0.8751  
+#Residuals      45  6.801  0.1511      
 #No significant difference in seasonal plasticity of symbiont between species
 #The effect of season does not differ between sites
 
 compare_means(Cent.Dist.Sym~species, data=cents.sym.seas, method = "anova")
 #   .y.                p p.adj p.format p.signif method
 #   <chr>          <dbl> <dbl> <chr>    <chr>    <chr> 
-# 1 Cent.Dist.Sym 0.0626 0.063 0.063    ns       Anova 
+# 1 Cent.Dist.Sym 0.0761 0.076 0.076    ns       Anova  
 ```
 
 Run anova on spatial plasticity between species.
 ```{r}
 summary(aov(Cent.Dist.Sym~species*timepoint.A, data=cents.sym.site))
-#                       Df Sum Sq Mean Sq F value  Pr(>F)   
-# species.A              2 0.5477 0.27383   7.353 0.00323 **
-# timepoint.A            3 0.3553 0.11845   3.181 0.04217 * 
-# species.A:timepoint.A  6 0.2324 0.03874   1.040 0.42440   
-# Residuals             24 0.8938 0.03724  
+#                    Df Sum Sq Mean Sq F value   Pr(>F)    
+#species              2 0.2791 0.13957   3.830 0.036015 *  
+#timepoint.A          3 0.8297 0.27656   7.589 0.000975 ***
+#species:timepoint.A  6 0.1446 0.02410   0.661 0.681178    
+#Residuals           24 0.8746 0.03644  
 #Significant difference in spatial plasticity of symbiont between species
 #Significant difference in spatial plasticity of symbiont between seasons
 
 compare_means(Cent.Dist.Sym~species, data=cents.sym.site, method = "anova")
 #   .y.                 p  p.adj p.format p.signif method
 #   <chr>           <dbl>  <dbl> <chr>    <chr>    <chr> 
-# 1 Cent.Dist.Sym 0.00557 0.0056 0.0056   **       Anova 
+# 1 Cent.Dist.Sym 0.0983 0.098 0.098    ns       Anova 
 ```
-
 
 ##Generate figures- Seasonal and Spatial Plasticity
 ```{r}
@@ -571,11 +577,12 @@ cent.dists.all.seas<-merge(cents.host.seas, cents.sym.seas)
 
 ##Correlation between Plasticity of Host and Symbiont across Seasons
 cor.test(cent.dists.all.seas$Cent.Dist.Host, cent.dists.all.seas$Cent.Dist.Sym, method="spearman")
-# S = 30718, p-value = 0.216
-# alternative hypothesis: true rho is not equal to 0
-# sample estimates:
-#        rho 
-# -0.1708786 
+#data:  cent.dists.all.seas$Cent.Dist.Host and cent.dists.all.seas$Cent.Dist.Sym
+#S = 33652, p-value = 0.03868
+#alternative hypothesis: true rho is not equal to 0
+#sample estimates:
+#       rho 
+#-0.2827139 
 
 
 ####Acropora
@@ -584,11 +591,11 @@ cent.dists.acr.seas<-cent.dists.all.seas%>%
 
 ##Correlation between Plasticity of Host and Symbiont across Seasons
 cor.test(cent.dists.acr.seas$Cent.Dist.Host, cent.dists.acr.seas$Cent.Dist.Sym, method="spearman")
-# S = 1114, p-value = 0.5522
-# alternative hypothesis: true rho is not equal to 0
-# sample estimates:
-#        rho 
-# -0.1496388 
+#S = 1116, p-value = 0.5467
+#alternative hypothesis: true rho is not equal to 0
+#sample estimates:
+#       rho 
+#-0.1517028 
 
 
 ####Porites
@@ -597,11 +604,11 @@ cent.dists.por.seas<-cent.dists.all.seas%>%
 
 ##Correlation between Plasticity of Host and Symbiont across Seasons
 cor.test(cent.dists.por.seas$Cent.Dist.Host, cent.dists.por.seas$Cent.Dist.Sym, method="spearman")
-# S = 1002, p-value = 0.8953
-# alternative hypothesis: true rho is not equal to 0
-# sample estimates:
-#         rho 
-# -0.03405573 
+#S = 1256, p-value = 0.232
+#alternative hypothesis: true rho is not equal to 0
+#sample estimates:
+#       rho 
+#-0.2961816 
 
 ####Pocillopora
 cent.dists.poc.seas<-cent.dists.all.seas%>%
@@ -609,11 +616,11 @@ cent.dists.poc.seas<-cent.dists.all.seas%>%
 
 ##Correlation between Plasticity of Host and Symbiont across Seasons
 cor.test(cent.dists.poc.seas$Cent.Dist.Host, cent.dists.poc.seas$Cent.Dist.Sym, method="spearman")
-# S = 822, p-value = 0.5467
-# alternative hypothesis: true rho is not equal to 0
-# sample estimates:
-#       rho 
-# 0.1517028 
+#S = 966, p-value = 0.9934
+#alternative hypothesis: true rho is not equal to 0
+#sample estimates:
+#        rho 
+#0.003095975
 ```
 
 
@@ -625,11 +632,11 @@ cent.dists.all.site<-merge(cents.host.site, cents.sym.site)
 
 ##Correlation between Plasticity of Host and Symbiont across Seasons
 cor.test(cent.dists.all.site$Cent.Dist.Host, cent.dists.all.site$Cent.Dist.Sym, method="spearman")
-# S = 8074, p-value = 0.8204
-# alternative hypothesis: true rho is not equal to 0
-# sample estimates:
-#         rho 
-# -0.03912484 
+#S = 8970, p-value = 0.367
+#alternative hypothesis: true rho is not equal to 0
+#sample estimates:
+#       rho 
+#-0.1544402 
 
 
 ####Acropora
@@ -638,11 +645,11 @@ cent.dists.acr.site<-cent.dists.all.site%>%
 
 ##Correlation between Plasticity of Host and Symbiont across Seasons
 cor.test(cent.dists.acr.site$Cent.Dist.Host, cent.dists.acr.site$Cent.Dist.Sym, method="spearman")
-# S = 292, p-value = 0.9562
-# alternative hypothesis: true rho is not equal to 0
-# sample estimates:
-#         rho 
-# -0.02097902 
+#S = 370, p-value = 0.3543
+#alternative hypothesis: true rho is not equal to 0
+#sample estimates:
+#       rho 
+#-0.2937063 
 
 
 ####Porites
@@ -651,11 +658,11 @@ cent.dists.por.site<-cent.dists.all.site%>%
 
 ##Correlation between Plasticity of Host and Symbiont across Seasons
 cor.test(cent.dists.por.site$Cent.Dist.Host, cent.dists.por.site$Cent.Dist.Sym, method="spearman")
-# S = 400, p-value = 0.201
-# alternative hypothesis: true rho is not equal to 0
-# sample estimates:
-#        rho 
-# -0.3986014 
+#S = 386, p-value = 0.266
+#alternative hypothesis: true rho is not equal to 0
+#sample estimates:
+#       rho 
+#-0.3496503 
 
 ####Pocillopora
 cent.dists.poc.site<-cent.dists.all.site%>%
@@ -663,9 +670,9 @@ cent.dists.poc.site<-cent.dists.all.site%>%
 
 ##Correlation between Plasticity of Host and Symbiont across Seasons
 cor.test(cent.dists.poc.site$Cent.Dist.Host, cent.dists.poc.site$Cent.Dist.Sym, method="spearman")
-# S = 438, p-value = 0.0793
-# alternative hypothesis: true rho is not equal to 0
-# sample estimates:
-#        rho 
-# -0.5314685 
+#S = 406, p-value = 0.1766
+#alternative hypothesis: true rho is not equal to 0
+#sample estimates:
+#       rho 
+#-0.4195804 
 ```
