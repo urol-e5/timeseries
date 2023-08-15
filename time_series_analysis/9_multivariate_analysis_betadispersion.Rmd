@@ -1,7 +1,7 @@
 ---
 title: "Log multivariate analysis "
 author: "Ariana S Huffmyer, Serena Hackerott, E5 RoL Team"
-date: "06/12/2023"
+date: "08/15/2023"
 output: 
   html_document:
     code_folding: hide
@@ -18,17 +18,16 @@ knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
 ```
 
 ```{r}
+library(devtools)
 ## install packages if you dont already have them
 if (!require("tidyverse")) install.packages("tidyverse")
 if (!require("vegan")) install.packages("vegan")
-if (!require("pairwiseAdonis")) install.packages("pairwiseAdonis")
+if (!require("pairwiseAdonis")) install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
 
 # load packages
 library(tidyverse)
 library(vegan)
 library(pairwiseAdonis)
-
-
 ```
 
 # Load dataframe
@@ -40,25 +39,28 @@ master<-read.csv("Output/master_timeseries.csv")
 #reorder site levels 
 master$site_code<-as.factor(master$site_code)
 master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
+
+master$site<-as.factor(master$site)
+master$site<-fct_relevel(master$site, "Mahana", "Hilton", "Manava")
 ```
 
-#Phys matrix: master_timeseries.csv
-#Temp matrix: Clean_Environmental_Temp_Means.csv
+Phys matrix: master_timeseries.csv
+Temp matrix: Clean_Environmental_Temp_Means.csv
 
-
-# Holobiont responses   
+# Holobiont responses 
 ```{r}
 data_all<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr, Total_Chl, Total_Chl_cell)%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr, Total_Chl, Total_Chl_cell)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  filter(Ic<1000)%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
 ```
 
-#Log+1 transform all responses
+## Log+1 transform all responses
 ```{r}
 data_all_log <-data_all
 data_all_log[,-c(1:4)]<-log(data_all_log[,-c(1:4)]+1)
@@ -70,8 +72,7 @@ data_all_log$timepoint<-as.factor(data_all_log$timepoint)
 data_all_log$species<-as.factor(data_all_log$species)
 ```
 
-
-#Acropora  
+## Acropora  
 ```{r}
 acr_data_afdw_log<-data_all_log%>%
   filter(species=="Acropora")
@@ -79,73 +80,78 @@ acr_data_afdw_log<-data_all_log%>%
 acr_data_afdw_log<-acr_data_afdw_log[complete.cases(acr_data_afdw_log), ]
 ```
 
-
-##Multivariate analysis
+Run a permanova (as done in script #4, repeating here to have in one place with betadispersion analysis)
 ```{r}
 ##Run PERMANOVA
-adonis(vegdist(acr_data_afdw_log[,5:15], "euclidean")~acr_data_afdw_log$site_code*acr_data_afdw_log$timepoint, data=acr_data_afdw_log, method="euclidean")
+adonis2(vegdist(acr_data_afdw_log[,5:18], "euclidean")~acr_data_afdw_log$site*acr_data_afdw_log$timepoint, data=acr_data_afdw_log, method="euclidean")
+#                                                    Df SumOfSqs      R2       F Pr(>F)    
+#acr_data_afdw_log$site                               2    4.003 0.03937  3.4838  0.008 ** 
+#acr_data_afdw_log$timepoint                          3   40.038 0.39378 23.2304  0.001 ***
+#acr_data_afdw_log$site:acr_data_afdw_log$timepoint   6    5.930 0.05832  1.7202  0.031 *  
+#Residual                                            90   51.705 0.50853                   
+#Total                                              101  101.675 1.00000 
 #Significant effect of Site, Timepoint, and Site*Timepoint interaction  
+```
 
+Evaluate the effect of site on dispersion. 
+```{r}
 ##Site Effect
 
 ##Check dispersion between Sites (PERMDISP)
-acr_afdw_log_site<-betadisper(vegdist(acr_data_afdw_log[,5:15], "euclidean"), acr_data_afdw_log$site_code)
+acr_afdw_log_site<-betadisper(vegdist(acr_data_afdw_log[,5:18], "euclidean"), acr_data_afdw_log$site)
 anova(acr_afdw_log_site)
-#            Df  Sum Sq Mean Sq F value  Pr(>F)  
-# Groups      2  0.9108 0.45540  4.1468 0.01862 *
-# Residuals 100 10.9821 0.10982 
+#          Df  Sum Sq Mean Sq F value   Pr(>F)   
+#Groups     2  1.6776 0.83882  5.9902 0.003501 **
+#Residuals 99 13.8631 0.14003     
 #Significant difference in dispersion between Sites (cannot attribute significant effect from PERMANOVA to difference in centroids alone) 
 
 ##Pairwise comparisons of dispersion between Sites
 TukeyHSD(acr_afdw_log_site)
-#                                  diff        lwr          upr     p adj
-# Hilton Medium-Mahana Low  -0.22124589 -0.4211468 -0.021344985 0.0262941
-# Manava High-Mahana Low    -0.17646702 -0.3589507  0.006016702 0.0602973
-# Manava High-Hilton Medium  0.04477887 -0.1494899  0.239047627 0.8475394
+#                    diff        lwr         upr     p adj
+#Hilton-Mahana -0.3017194 -0.5289523 -0.07448665 0.0058937
+#Manava-Mahana -0.2435373 -0.4512391 -0.03583565 0.0172412
+#Manava-Hilton  0.0581821 -0.1612191  0.27758335 0.8034435
+
+#Mahana is different than the other sites - it is also the warmest and most thermally variable
 
 ##Pairwise comparisons between Sites (PERMANOVA)
-pairwise.adonis(x=acr_data_afdw_log[,5:15],factors=acr_data_afdw_log$site_code,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
-#                          pairs Df SumsOfSqs  F.Model         R2 p.value p.adjusted sig
-# 1    Manava High vs Mahana Low  1 0.6809854 0.963422 0.01302565   0.357      1.000    
-# 2 Manava High vs Hilton Medium  1 1.5602652 2.735238 0.03979382   0.057      0.171    
-# 3  Mahana Low vs Hilton Medium  1 2.9679917 4.290666 0.06571637   0.023      0.069    
+pairwise.adonis(x=acr_data_afdw_log[,5:18],factors=acr_data_afdw_log$site,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#             pairs Df SumsOfSqs  F.Model         R2 p.value p.adjusted sig
+#1 Manava vs Mahana  1  1.131308 1.045691 0.01431558   0.349      1.000    
+#2 Manava vs Hilton  1  1.572316 1.925103 0.02834156   0.109      0.327    
+#3 Mahana vs Hilton  1  3.510615 3.314844 0.05235493   0.021      0.063     
 
-#Differences between Sites may be primarily driven by differences in dispersion
+#Differences between Sites are primarily driven by differences in dispersion 
+```
+Site effects are driven by differences in dispersion. 
 
-
+Evaluate the effect of timepoint on dispersion. 
+```{r}
 ##Season Effect
 
 ##Check dispersion between Timepoints (PERMDISP)
-acr_afdw_log_seas<-betadisper(vegdist(acr_data_afdw_log[,5:15], "euclidean"), acr_data_afdw_log$timepoint)
+acr_afdw_log_seas<-betadisper(vegdist(acr_data_afdw_log[,5:18], "euclidean"), acr_data_afdw_log$timepoint)
 anova(acr_afdw_log_seas)
-#           Df Sum Sq  Mean Sq F value Pr(>F)
-# Groups     3 0.3742 0.124730  1.9408 0.1279
-# Residuals 99 6.3624 0.064267 
-#No difference in dispersion between Timepoints (can attribute significant effect from PERMANOVA to difference in centroids) 
+#          Df  Sum Sq Mean Sq F value  Pr(>F)  
+#Groups     3  0.8296 0.27654  2.6859 0.05073 .
+#Residuals 98 10.0903 0.10296 
+#No difference in dispersion between Timepoints (can attribute significant effect from PERMANOVA to difference in centroids/mean and not dispersion) 
 
 ##Pairwise comparisons between Timepoints (PERMANOVA)
-pairwise.adonis(x=acr_data_afdw_log[,5:15],factors=acr_data_afdw_log$timepoint,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
-#                      pairs Df SumsOfSqs   F.Model         R2 p.value p.adjusted sig
-# 1 timepoint1 vs timepoint2  1  1.443437  3.979441 0.06747166   0.010      0.060    
-# 2 timepoint1 vs timepoint3  1  6.744841 15.419975 0.22212590   0.001      0.006   *
-# 3 timepoint1 vs timepoint4  1 22.435025 61.047719 0.48819538   0.001      0.006   *
-# 4 timepoint2 vs timepoint3  1  7.470469 21.227274 0.37752629   0.001      0.006   *
-# 5 timepoint2 vs timepoint4  1 19.025445 70.076127 0.60895452   0.001      0.006   *
-# 6 timepoint3 vs timepoint4  1  6.759427 18.719856 0.29846778   0.001      0.006   *  
+pairwise.adonis(x=acr_data_afdw_log[,5:18],factors=acr_data_afdw_log$timepoint,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#                     pairs Df SumsOfSqs   F.Model         R2 p.value p.adjusted sig
+#1 timepoint1 vs timepoint2  1  2.367425  4.219018 0.07246803   0.002      0.012   .
+#2 timepoint1 vs timepoint3  1  7.150955  9.248297 0.14622207   0.001      0.006   *
+#3 timepoint1 vs timepoint4  1 27.005953 47.520525 0.42611461   0.001      0.006   *
+#4 timepoint2 vs timepoint3  1  8.993501 11.964861 0.26030452   0.001      0.006   *
+#5 timepoint2 vs timepoint4  1 22.001203 47.985494 0.52166371   0.001      0.006   *
+#6 timepoint3 vs timepoint4  1  8.759872 12.187048 0.21690137   0.001      0.006   *
 
 #Differences between Timepoints are primarily driven by differences in centroid location 
-
-
 ```
+Time effects driven by differences in centroid. 
 
-##Generate figure
-```{r}
-
-```
-
-
-
-#Porites
+## Porites
 ```{r}
 por_data_afdw_log<-data_all_log%>%
   filter(species=="Porites")
@@ -153,71 +159,79 @@ por_data_afdw_log<-data_all_log%>%
 por_data_afdw_log<-por_data_afdw_log[complete.cases(por_data_afdw_log), ]
 ```
 
-##Multivariate analysis
+Run permanova. 
 ```{r}
 ##Run PERMANOVA
-adonis(vegdist(por_data_afdw_log[,5:15], "euclidean")~por_data_afdw_log$site_code*por_data_afdw_log$timepoint, data=por_data_afdw_log, method="euclidean")
+adonis2(vegdist(por_data_afdw_log[,5:18], "euclidean")~por_data_afdw_log$site*por_data_afdw_log$timepoint, data=por_data_afdw_log, method="euclidean")
+#                                                    Df SumOfSqs      R2       F Pr(>F)    
+#por_data_afdw_log$site                               2   19.717 0.12536 13.4023  0.001 ***
+#por_data_afdw_log$timepoint                          3   32.439 0.20624 14.6998  0.001 ***
+#por_data_afdw_log$site:por_data_afdw_log$timepoint   6   11.714 0.07447  2.6541  0.001 ***
+#Residual                                           127   93.420 0.59393                   
+#Total                                              138  157.291 1.00000   
 #Significant effect of Site, Timepoint, and Site*Timepoint interaction  
+```
 
+Site effects 
+```{r}
 ##Site Effect
 
 ##Check dispersion between Sites (PERMDISP)
-por_afdw_log_site<-betadisper(vegdist(por_data_afdw_log[,5:15], "euclidean"), por_data_afdw_log$site_code)
+por_afdw_log_site<-betadisper(vegdist(por_data_afdw_log[,5:18], "euclidean"), por_data_afdw_log$site)
 anova(por_afdw_log_site)
-#            Df Sum Sq Mean Sq F value   Pr(>F)   
-# Groups      2 0.6959 0.34797  5.6932 0.004229 **
-# Residuals 135 8.2514 0.06112 
+#           Df  Sum Sq Mean Sq F value    Pr(>F)    
+#Groups      2  2.3489 1.17447  8.8746 0.0002384 ***
+#Residuals 136 17.9983 0.13234   
 #Significant difference in dispersion between sites (cannot attribute significant effect from PERMANOVA to difference in centroids alone) 
 
 ##Pairwise comparisons of dispersion between Sites
 TukeyHSD(por_afdw_log_site)
-#                                  diff        lwr         upr     p adj
-# Hilton Medium-Mahana Low  -0.06219703 -0.1850407  0.06064667 0.4553130
-# Manava High-Mahana Low    -0.17149723 -0.2936930 -0.04930148 0.0032362
-# Manava High-Hilton Medium -0.10930020 -0.2308155  0.01221512 0.0873036
+#                     diff        lwr         upr     p adj
+#Hilton-Mahana -0.23270498 -0.4134499 -0.05196005 0.0076831
+#Manava-Mahana -0.30617757 -0.4850507 -0.12730440 0.0002455
+#Manava-Hilton -0.07347259 -0.2513394  0.10439426 0.5914641
+
+#Mahana is different than other sites 
 
 ##Pairwise comparisons between Sites (PERMANOVA)
-pairwise.adonis(x=por_data_afdw_log[,5:15],factors=por_data_afdw_log$site_code,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
-#                          pairs Df SumsOfSqs   F.Model         R2 p.value p.adjusted sig
-# 1  Mahana Low vs Hilton Medium  1  4.501123  6.165934 0.06479140   0.002      0.006   *
-# 2    Mahana Low vs Manava High  1 14.633783 23.189728 0.20487485   0.001      0.003   *
-# 3 Hilton Medium vs Manava High  1  4.671668  8.058437 0.08135034   0.001      0.003   *  
+pairwise.adonis(x=por_data_afdw_log[,5:18],factors=por_data_afdw_log$site,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#             pairs Df SumsOfSqs   F.Model         R2 p.value p.adjusted sig
+#1 Mahana vs Hilton  1  5.789924  5.089388 0.05409099   0.003      0.009   *
+#2 Mahana vs Manava  1 15.301248 14.021828 0.13351346   0.001      0.003   *
+#3 Hilton vs Manava  1  8.412760 10.375927 0.10135124   0.001      0.003   * 
 
 #Differences between Sites are driven by both differences in dispersion and centroid location
+```
+Differences in site are driven by both differences in dispersion and centroid location. 
 
-
+Analyze effect of time point. 
+```{r}
 ##Season Effect
 
 ##Check dispersion between Timepoints (PERMDISP)
-por_afdw_log_seas<-betadisper(vegdist(por_data_afdw_log[,5:15], "euclidean"), por_data_afdw_log$timepoint)
+por_afdw_log_seas<-betadisper(vegdist(por_data_afdw_log[,5:18], "euclidean"), por_data_afdw_log$timepoint)
 anova(por_afdw_log_seas)
-#            Df  Sum Sq  Mean Sq F value Pr(>F)
-# Groups      3  0.3485 0.116155   1.271  0.287
-# Residuals 134 12.2460 0.091388   
+#           Df  Sum Sq Mean Sq F value  Pr(>F)  
+#Groups      3  1.0066 0.33553  2.3401 0.07619 .
+#Residuals 135 19.3565 0.14338      
 #No difference in dispersion between Timepoints (can attribute significant effect from PERMANOVA to difference in centroids) 
 
 ##Pairwise comparisons between Timepoints (PERMANOVA)
-pairwise.adonis(x=por_data_afdw_log[,5:15],factors=por_data_afdw_log$timepoint,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
-#                      pairs Df SumsOfSqs   F.Model         R2 p.value p.adjusted sig
-# 1 timepoint1 vs timepoint2  1  5.058132  7.639384 0.10814624   0.001      0.006   *
-# 2 timepoint1 vs timepoint3  1  4.230441  6.616333 0.09369409   0.001      0.006   *
-# 3 timepoint1 vs timepoint4  1 10.239443 18.326378 0.22534359   0.001      0.006   *
-# 4 timepoint2 vs timepoint3  1  2.583399  4.186163 0.05567731   0.005      0.030   .
-# 5 timepoint2 vs timepoint4  1 13.220886 24.293715 0.25763875   0.001      0.006   *
-# 6 timepoint3 vs timepoint4  1 12.519723 23.829312 0.25128635   0.001      0.006   *
+pairwise.adonis(x=por_data_afdw_log[,5:18],factors=por_data_afdw_log$timepoint,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#                     pairs Df SumsOfSqs   F.Model         R2 p.value p.adjusted sig
+#1 timepoint1 vs timepoint2  1  7.351614  7.352974 0.10305070   0.001      0.006   *
+#2 timepoint1 vs timepoint3  1  7.277795  6.997875 0.09719558   0.001      0.006   *
+#3 timepoint1 vs timepoint4  1 13.066033 16.488807 0.20485839   0.001      0.006   *
+#4 timepoint2 vs timepoint3  1  9.975189  9.749528 0.12073790   0.001      0.006   *
+#5 timepoint2 vs timepoint4  1 14.439567 18.127771 0.20569874   0.001      0.006   *
+#6 timepoint3 vs timepoint4  1 15.255122 18.243460 0.20442349   0.001      0.006   *
 
 #Differences between Timepoints are primarily driven by differences in centroid location 
 
 ```
+Differences in time are primarily driven by differences in centroid location. 
 
-
-##Generate figure
-```{r}
-
-```
-
-
-#Pocillopora   
+## Pocillopora   
 ```{r}
 poc_data_afdw_log<-data_all_log%>%
   filter(species=="Pocillopora")
@@ -225,67 +239,619 @@ poc_data_afdw_log<-data_all_log%>%
 poc_data_afdw_log<-poc_data_afdw_log[complete.cases(poc_data_afdw_log), ]
 ```
 
-##Multivariate analysis
+Run PERMANOVA. 
 ```{r}
 ##Run PERMANOVA
-adonis(vegdist(poc_data_afdw_log[,5:15], "euclidean")~poc_data_afdw_log$site_code*poc_data_afdw_log$timepoint, data=poc_data_afdw_log, method="euclidean")
-#Significant effect of Sites, Timepoint, and Sites*Timepoint interaction  
+adonis2(vegdist(poc_data_afdw_log[,5:18], "euclidean")~poc_data_afdw_log$site*poc_data_afdw_log$timepoint, data=poc_data_afdw_log, method="euclidean")
 
+#                                                    Df SumOfSqs      R2       F Pr(>F)    
+#poc_data_afdw_log$site                               2    2.762 0.02300  2.3721  0.029 *  
+#poc_data_afdw_log$timepoint                          3   35.540 0.29587 20.3454  0.001 ***
+#poc_data_afdw_log$site:poc_data_afdw_log$timepoint   6   11.363 0.09459  3.2524  0.001 ***
+#Residual                                           121   70.456 0.58654                   
+#Total                                              132  120.121 1.00000   
+#Significant effect of Sites, Timepoint, and Sites*Timepoint interaction  
+```
+
+Analyze the effect of site. 
+```{r}
 ##Site Effect
 
 ##Check dispersion between Sites (PERMDISP)
-poc_afdw_log_site<-betadisper(vegdist(poc_data_afdw_log[,5:15], "euclidean"), poc_data_afdw_log$site_code)
+poc_afdw_log_site<-betadisper(vegdist(poc_data_afdw_log[,5:18], "euclidean"), poc_data_afdw_log$site)
 anova(poc_afdw_log_site)
-#            Df Sum Sq Mean Sq F value   Pr(>F)   
-# Groups      2 0.6959 0.34797  5.6932 0.004229 **
-# Residuals 135 8.2514 0.06112 
+Response: Distances
+#           Df  Sum Sq Mean Sq F value  Pr(>F)  
+#Groups      2  0.5297 0.26487  2.4622 0.08921 .
+#Residuals 130 13.9845 0.10757     
 #No difference in dispersion between Timepoints (can attribute significant effect from PERMANOVA to difference in centroids) 
 
 ##Pairwise comparisons between Sites (PERMANOVA)
-pairwise.adonis(x=poc_data_afdw_log[,5:15],factors=poc_data_afdw_log$site_code,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
-#                          pairs Df SumsOfSqs  F.Model         R2 p.value p.adjusted sig
-# 1  Mahana Low vs Hilton Medium  1 0.6349673 1.212067 0.01358635   0.245      0.735    
-# 2    Mahana Low vs Manava High  1 1.3888814 2.456823 0.02777426   0.077      0.231    
-# 3 Hilton Medium vs Manava High  1 2.1541973 3.795744 0.03962331   0.026      0.078   
+pairwise.adonis(x=poc_data_afdw_log[,5:18],factors=poc_data_afdw_log$site,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#             pairs Df SumsOfSqs   F.Model          R2 p.value p.adjusted sig
+#1 Mahana vs Hilton  1 0.7169227 0.7760114 0.008840814   0.463      1.000    
+#2 Mahana vs Manava  1 1.5002852 1.5299151 0.018099097   0.178      0.534    
+#3 Hilton vs Manava  1 1.9137937 2.3610991 0.025563783   0.069      0.207  
 
 #Differences between Sites are driven by differences in centroid location, but limited difference
+```
+There aren't differences in Pocillopora between site by centroid location or dispersion - there is limited difference by site. 
 
-
+Analyze effect of season. 
+```{r}
 ##Season Effect
 
 ##Check dispersion between Timepoints (PERMDISP)
-poc_afdw_log_seas<-betadisper(vegdist(poc_data_afdw_log[,5:15], "euclidean"), poc_data_afdw_log$timepoint)
+poc_afdw_log_seas<-betadisper(vegdist(poc_data_afdw_log[,5:18], "euclidean"), poc_data_afdw_log$timepoint)
 anova(poc_afdw_log_seas)
-#            Df  Sum Sq  Mean Sq F value Pr(>F)
-# Groups      3  0.3485 0.116155   1.271  0.287
-# Residuals 134 12.2460 0.091388   
+#Response: Distances
+#           Df  Sum Sq Mean Sq F value    Pr(>F)    
+#Groups      3  2.0928 0.69760  7.4659 0.0001197 ***
+#Residuals 129 12.0535 0.09344    
 #Significant difference in dispersion between sites (cannot attribute significant effect from PERMANOVA to difference in centroids alone) 
 
 ##Pairwise comparisons of dispersion between Sites
 TukeyHSD(poc_afdw_log_seas)
-#                              diff         lwr        upr     p adj
-# timepoint2-timepoint1  0.11068980 -0.04325489  0.2646345 0.2455759
-# timepoint3-timepoint1  0.12985169 -0.03335463  0.2930580 0.1682842
-# timepoint4-timepoint1 -0.05172022 -0.20870146  0.1052610 0.8267312
-# timepoint3-timepoint2  0.01916189 -0.13884874  0.1771725 0.9890741
-# timepoint4-timepoint2 -0.16241002 -0.31398234 -0.0108377 0.0306037
-# timepoint4-timepoint3 -0.18157191 -0.34254242 -0.0206014 0.0202979
+#                             diff         lwr         upr     p adj
+#timepoint2-timepoint1  0.14277548 -0.04772665  0.33327761 0.2123220
+#timepoint3-timepoint1  0.24203218  0.03760549  0.44645887 0.0132708
+#timepoint4-timepoint1 -0.09105999 -0.28411102  0.10199104 0.6104393
+#timepoint3-timepoint2  0.09925670 -0.10003328  0.29854668 0.5669250
+#timepoint4-timepoint2 -0.23383547 -0.42143857 -0.04623236 0.0080743
+#timepoint4-timepoint3 -0.33309217 -0.53482004 -0.13136430 0.0001958
 
 ##Pairwise comparisons between Timepoints (PERMANOVA)
-pairwise.adonis(x=poc_data_afdw_log[,5:15],factors=poc_data_afdw_log$timepoint,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
-#                      pairs Df SumsOfSqs   F.Model         R2 p.value p.adjusted sig
-# 1 timepoint1 vs timepoint2  1  4.270882 10.883771 0.13624508   0.001      0.006   *
-# 2 timepoint1 vs timepoint3  1  2.206194  5.812261 0.08699393   0.002      0.012   .
-# 3 timepoint1 vs timepoint4  1 21.271702 80.384373 0.54913220   0.001      0.006   *
-# 4 timepoint2 vs timepoint3  1  2.992006  6.276791 0.08684379   0.005      0.030   .
-# 5 timepoint2 vs timepoint4  1  9.228534 25.424103 0.26366958   0.001      0.006   *
-# 6 timepoint3 vs timepoint4  1 14.667327 42.290638 0.40165621   0.001      0.006   *
+pairwise.adonis(x=poc_data_afdw_log[,5:18],factors=poc_data_afdw_log$timepoint,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#                     pairs Df SumsOfSqs   F.Model        R2 p.value p.adjusted sig
+#1 timepoint1 vs timepoint2  1  7.466533 11.232719 0.1417687   0.001      0.006   *
+#2 timepoint1 vs timepoint3  1  3.719602  5.162404 0.0804584   0.002      0.012   .
+#3 timepoint1 vs timepoint4  1 21.101210 48.870996 0.4254424   0.001      0.006   *
+#4 timepoint2 vs timepoint3  1 10.827847 12.190404 0.1621271   0.001      0.006   *
+#5 timepoint2 vs timepoint4  1 13.815087 23.055423 0.2477601   0.001      0.006   *
+#6 timepoint3 vs timepoint4  1 13.660797 21.228147 0.2581616   0.001      0.006   *
 
 #Differences between Timepoints are driven by both differences in dispersion and centroid location
-
 ```
+Differences between Timepoints are driven by both differences in dispersion and centroid location
 
-##Generate figure
+# Host responses 
 ```{r}
+data_host<-master%>%
+  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, prot_mg.mgafdw, cre.umol.mgafdw, Rd, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
+```
+
+## Log+1 transform all responses
+```{r}
+data_host_log <-data_host
+data_host_log[,-c(1:4)]<-log(data_host_log[,-c(1:4)]+1)
+
+#change timepoint to a factor 
+data_host_log$timepoint<-as.factor(data_host_log$timepoint)
+
+#change species to a factor 
+data_host_log$species<-as.factor(data_host_log$species)
+```
+
+## Acropora  
+```{r}
+acr_data_afdw_log<-data_host_log%>%
+  filter(species=="Acropora")
+
+acr_data_afdw_log<-acr_data_afdw_log[complete.cases(acr_data_afdw_log), ]
+```
+
+Run a permanova
+```{r}
+##Run PERMANOVA
+adonis2(vegdist(acr_data_afdw_log[,5:9], "euclidean")~acr_data_afdw_log$site*acr_data_afdw_log$timepoint, data=acr_data_afdw_log, method="euclidean")
+#                                                    Df SumOfSqs      R2       F Pr(>F)    
+#acr_data_afdw_log$site                               2   0.7645 0.08412  6.5968  0.001 ***
+#acr_data_afdw_log$timepoint                          3   2.5584 0.28151 14.7178  0.001 ***
+#acr_data_afdw_log$site:acr_data_afdw_log$timepoint   6   0.4343 0.04779  1.2493  0.220    
+#Residual                                            92   5.3309 0.58657                   
+#Total                                              103   9.0881 1.00000  
+#Significant effect of Site, Timepoint  
+```
+
+Evaluate the effect of site on dispersion. 
+```{r}
+##Site Effect
+
+##Check dispersion between Sites (PERMDISP)
+acr_afdw_log_site<-betadisper(vegdist(acr_data_afdw_log[,5:9], "euclidean"), acr_data_afdw_log$site)
+anova(acr_afdw_log_site)
+#           Df  Sum Sq  Mean Sq F value  Pr(>F)  
+#Groups      2 0.15545 0.077727  4.4133 0.01454 *
+#Residuals 101 1.77881 0.017612      
+#Significant difference in dispersion between Sites (cannot attribute significant effect from PERMANOVA to difference in centroids alone) 
+
+##Pairwise comparisons of dispersion between Sites
+TukeyHSD(acr_afdw_log_site)
+#                      diff          lwr          upr     p adj
+#Hilton-Mahana -0.088962451 -0.168232939 -0.009691963 0.0238404
+#Manava-Mahana -0.005436242 -0.078503226  0.067630741 0.9828833
+#Manava-Hilton  0.083526209  0.006533408  0.160519009 0.0301307
+
+##Pairwise comparisons between Sites (PERMANOVA)
+pairwise.adonis(x=acr_data_afdw_log[,5:9],factors=acr_data_afdw_log$site,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#             pairs Df SumsOfSqs  F.Model         R2 p.value p.adjusted sig
+#1 Manava vs Mahana  1 0.2472643 2.547513 0.03372067   0.077      0.231    
+#2 Manava vs Hilton  1 0.5058149 6.512137 0.08858587   0.002      0.006   *
+#3 Mahana vs Hilton  1 0.4072065 5.793515 0.08545825   0.003      0.009   *   
+```
+Site effects are driven by differences in dispersion and centroid location.  
+
+Evaluate the effect of timepoint on dispersion. 
+```{r}
+##Season Effect
+
+##Check dispersion between Timepoints (PERMDISP)
+acr_afdw_log_seas<-betadisper(vegdist(acr_data_afdw_log[,5:9], "euclidean"), acr_data_afdw_log$timepoint)
+anova(acr_afdw_log_seas)
+#           Df  Sum Sq   Mean Sq F value Pr(>F)
+#Groups      3 0.01588 0.0052941  0.3433  0.794
+#Residuals 100 1.54190 0.0154190 
+#No difference in dispersion between Timepoints (can attribute significant effect from PERMANOVA to difference in centroids/mean and not dispersion) 
+
+##Pairwise comparisons between Timepoints (PERMANOVA)
+pairwise.adonis(x=acr_data_afdw_log[,5:9],factors=acr_data_afdw_log$timepoint,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#                     pairs Df SumsOfSqs   F.Model        R2 p.value p.adjusted sig
+#1 timepoint1 vs timepoint2  1 0.5075124  9.016074 0.1386745   0.001      0.006   *
+#2 timepoint1 vs timepoint3  1 1.3268557 20.800676 0.2744128   0.001      0.006   *
+#3 timepoint1 vs timepoint4  1 0.5337413  8.394459 0.1143746   0.002      0.012   .
+#4 timepoint2 vs timepoint3  1 0.3583850  5.104087 0.1272710   0.004      0.024   .
+#5 timepoint2 vs timepoint4  1 0.6906117 10.083545 0.1830591   0.001      0.006   *
+#6 timepoint3 vs timepoint4  1 1.5917070 20.369832 0.3164500   0.001      0.006   *
+```
+Time effects driven primarily by differences in centroid location.  
+
+## Porites
+```{r}
+por_data_afdw_log<-data_host_log%>%
+  filter(species=="Porites")
+
+por_data_afdw_log<-por_data_afdw_log[complete.cases(por_data_afdw_log), ]
+```
+
+Run permanova. 
+```{r}
+##Run PERMANOVA
+adonis2(vegdist(por_data_afdw_log[,5:9], "euclidean")~por_data_afdw_log$site*por_data_afdw_log$timepoint, data=por_data_afdw_log, method="euclidean")
+#                                                    Df SumOfSqs      R2       F Pr(>F)    
+#por_data_afdw_log$site                               2   1.5632 0.05233  5.6621  0.001 ***
+#por_data_afdw_log$timepoint                          3   8.6045 0.28808 20.7781  0.001 ***
+#por_data_afdw_log$site:por_data_afdw_log$timepoint   6   1.8942 0.06342  2.2871  0.006 ** 
+#Residual                                           129  17.8068 0.59617                   
+#Total                                              140  29.8687 1.00000  
+#Significant effect of Site, Timepoint, and Site*Timepoint interaction  
+```
+
+Site effects 
+```{r}
+##Site Effect
+
+##Check dispersion between Sites (PERMDISP)
+por_afdw_log_site<-betadisper(vegdist(por_data_afdw_log[,5:9], "euclidean"), por_data_afdw_log$site)
+anova(por_afdw_log_site)
+#           Df Sum Sq  Mean Sq F value Pr(>F)
+#Groups      2 0.1413 0.070629  2.1966 0.1151
+#Residuals 138 4.4372 0.032154    
+#No significant difference in dispersion between sites (can attribute significant effect from PERMANOVA to difference in centroids) 
+
+##Pairwise comparisons of dispersion between Sites
+TukeyHSD(por_afdw_log_site)
+#                     diff         lwr        upr     p adj
+#Hilton-Mahana -0.07763814 -0.16624525 0.01096897 0.0986043
+#Manava-Mahana -0.04883094 -0.13654909 0.03888721 0.3871022
+#Manava-Hilton  0.02880720 -0.05793261 0.11554702 0.7117219
+
+##Pairwise comparisons between Sites (PERMANOVA)
+pairwise.adonis(x=por_data_afdw_log[,5:9],factors=por_data_afdw_log$site,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#             pairs Df SumsOfSqs  F.Model         R2 p.value p.adjusted sig
+#1 Mahana vs Hilton  1 0.7635906 3.579675 0.03825269   0.022      0.066    
+#2 Mahana vs Manava  1 1.2452034 5.684758 0.05819494   0.003      0.009   *
+#3 Hilton vs Manava  1 0.3448732 1.878117 0.01958859   0.129      0.387    
+
+#Differences between Sites are driven by centroid location
+```
+Differences in site are driven by centroid location. 
+
+Analyze effect of time point. 
+```{r}
+##Season Effect
+
+##Check dispersion between Timepoints (PERMDISP)
+por_afdw_log_seas<-betadisper(vegdist(por_data_afdw_log[,5:9], "euclidean"), por_data_afdw_log$timepoint)
+anova(por_afdw_log_seas)
+#           Df Sum Sq  Mean Sq F value  Pr(>F)  
+#Groups      3 0.2712 0.090396  2.6778 0.04955 *
+#Residuals 137 4.6248 0.033758           
+#Minimal difference in dispersion between Timepoints (can attribute significant effect from PERMANOVA mainly to difference in centroids) 
+
+##Pairwise comparisons between Timepoints (PERMANOVA)
+pairwise.adonis(x=por_data_afdw_log[,5:9],factors=por_data_afdw_log$timepoint,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#                     pairs Df SumsOfSqs   F.Model         R2 p.value p.adjusted sig
+#1 timepoint1 vs timepoint2  1 3.5426022 18.542649 0.22195428   0.001      0.006   *
+#2 timepoint1 vs timepoint3  1 3.8894553 24.546563 0.27412066   0.001      0.006   *
+#3 timepoint1 vs timepoint4  1 0.6980694  4.985837 0.07124066   0.011      0.066    
+#4 timepoint2 vs timepoint3  1 0.2387405  1.398678 0.01905590   0.215      1.000    
+#5 timepoint2 vs timepoint4  1 4.2043639 27.293714 0.27487857   0.001      0.006   *
+#6 timepoint3 vs timepoint4  1 4.3504430 34.912072 0.32654939   0.001      0.006   *
+
+#Differences between Timepoints are primarily driven by differences in centroid location 
 
 ```
+Differences in time are primarily driven by differences in centroid location (minimal difference in dispersion). 
+
+## Pocillopora   
+```{r}
+poc_data_afdw_log<-data_host_log%>%
+  filter(species=="Pocillopora")
+
+poc_data_afdw_log<-poc_data_afdw_log[complete.cases(poc_data_afdw_log), ]
+```
+
+Run PERMANOVA. 
+```{r}
+##Run PERMANOVA
+adonis2(vegdist(poc_data_afdw_log[,5:9], "euclidean")~poc_data_afdw_log$site*poc_data_afdw_log$timepoint, data=poc_data_afdw_log, method="euclidean")
+
+#                                                    Df SumOfSqs      R2       F Pr(>F)    
+#poc_data_afdw_log$site                               2   0.6226 0.05952  6.3346  0.001 ***
+#poc_data_afdw_log$timepoint                          3   2.0484 0.19586 13.8955  0.001 ***
+#poc_data_afdw_log$site:poc_data_afdw_log$timepoint   6   1.2031 0.11504  4.0807  0.001 ***
+#Residual                                           134   6.5846 0.62958                   
+#Total                                              145  10.4588 1.00000     
+#Significant effect of Sites, Timepoint, and Sites*Timepoint interaction  
+```
+
+Analyze the effect of site. 
+```{r}
+##Site Effect
+
+##Check dispersion between Sites (PERMDISP)
+poc_afdw_log_site<-betadisper(vegdist(poc_data_afdw_log[,5:9], "euclidean"), poc_data_afdw_log$site)
+anova(poc_afdw_log_site)
+Response: Distances
+#           Df Sum Sq  Mean Sq F value Pr(>F)
+#Groups      2 0.0817 0.040861  1.7021  0.186
+#Residuals 143 3.4329 0.024006        
+#No difference in dispersion between sites (can attribute significant effect from PERMANOVA to difference in centroids) 
+
+##Pairwise comparisons between Sites (PERMANOVA)
+pairwise.adonis(x=poc_data_afdw_log[,5:9],factors=poc_data_afdw_log$site,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#             pairs Df SumsOfSqs  F.Model         R2 p.value p.adjusted sig
+#1 Mahana vs Hilton  1 0.3137732 5.588013 0.05447043   0.008      0.024   .
+#2 Mahana vs Manava  1 0.5060848 6.967825 0.07040495   0.001      0.003   *
+#3 Hilton vs Manava  1 0.1238138 1.592051 0.01614786   0.148      0.444    
+
+#Differences between Sites are driven by differences in centroid location
+```
+Differences by site are due to differences in centroid locations. 
+
+Analyze effect of season. 
+```{r}
+##Season Effect
+
+##Check dispersion between Timepoints (PERMDISP)
+poc_afdw_log_seas<-betadisper(vegdist(poc_data_afdw_log[,5:9], "euclidean"), poc_data_afdw_log$timepoint)
+anova(poc_afdw_log_seas)
+#Response: Distances
+#           Df  Sum Sq  Mean Sq F value  Pr(>F)  
+#Groups      3 0.15358 0.051193  2.8138 0.04152 *
+#Residuals 142 2.58351 0.018194       
+#Significant difference in dispersion between sites (cannot attribute significant effect from PERMANOVA to difference in centroids alone) 
+
+##Pairwise comparisons of dispersion between Sites
+TukeyHSD(poc_afdw_log_seas)
+#                            diff           lwr        upr     p adj
+#timepoint2-timepoint1 0.06058521 -0.0199734335 0.14114385 0.2100907
+#timepoint3-timepoint1 0.07888283 -0.0063123095 0.16407796 0.0803270
+#timepoint4-timepoint1 0.08074199 -0.0008146664 0.16229864 0.0534149
+#timepoint3-timepoint2 0.01829762 -0.0648687700 0.10146401 0.9402845
+#timepoint4-timepoint2 0.02015678 -0.0592782555 0.09959181 0.9119738
+#timepoint4-timepoint3 0.00185916 -0.0822743118 0.08599263 0.9999316
+
+##Pairwise comparisons between Timepoints (PERMANOVA)
+pairwise.adonis(x=poc_data_afdw_log[,5:9],factors=poc_data_afdw_log$timepoint,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#                     pairs Df SumsOfSqs   F.Model         R2 p.value p.adjusted sig
+#1 timepoint1 vs timepoint2  1 0.3052576  5.739710 0.07198057   0.002      0.012   .
+#2 timepoint1 vs timepoint3  1 0.3421515  7.255251 0.09904069   0.005      0.030   .
+#3 timepoint1 vs timepoint4  1 0.5675395 10.780983 0.13023502   0.001      0.006   *
+#4 timepoint2 vs timepoint3  1 0.1566007  2.408876 0.03326769   0.060      0.360    
+#5 timepoint2 vs timepoint4  1 1.2693347 18.450844 0.19534864   0.001      0.006   *
+#6 timepoint3 vs timepoint4  1 1.5779361 24.356474 0.26372243   0.001      0.006   *
+
+#Differences between Timepoints are driven by both differences in dispersion and centroid location
+```
+Differences between Timepoints are driven by both differences in dispersion and centroid location
+
+# Symbiont responses 
+```{r}
+data_sym<-master%>%
+  select(colony_id_corr, timepoint, species, site, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, cells.mgAFDW, Am, AQY, Ik, Ic, Total_Chl, Total_Chl_cell)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW)
+```
+
+## Log+1 transform all responses
+```{r}
+data_sym_log <-data_sym
+data_sym_log[,-c(1:4)]<-log(data_sym_log[,-c(1:4)]+1)
+
+#change timepoint to a factor 
+data_sym_log$timepoint<-as.factor(data_sym_log$timepoint)
+
+#change species to a factor 
+data_sym_log$species<-as.factor(data_sym_log$species)
+```
+
+## Acropora  
+```{r}
+acr_data_afdw_log<-data_sym_log%>%
+  filter(species=="Acropora")
+
+acr_data_afdw_log<-acr_data_afdw_log[complete.cases(acr_data_afdw_log), ]
+```
+
+Run a permanova 
+```{r}
+##Run PERMANOVA
+adonis2(vegdist(acr_data_afdw_log[,5:13], "euclidean")~acr_data_afdw_log$site*acr_data_afdw_log$timepoint, data=acr_data_afdw_log, method="euclidean")
+#                                                    Df SumOfSqs      R2       F Pr(>F)    
+#acr_data_afdw_log$site                               2    3.356 0.03151  3.1685  0.010 ** 
+#acr_data_afdw_log$timepoint                          3   42.744 0.40138 26.9042  0.001 ***
+#acr_data_afdw_log$site:acr_data_afdw_log$timepoint   6    7.435 0.06981  2.3398  0.003 ** 
+#Residual                                           100   52.958 0.49729                   
+#Total                                              111  106.492 1.00000    
+#Significant effect of Site, Timepoint, and Site*Timepoint interaction  
+```
+
+Evaluate the effect of site on dispersion. 
+```{r}
+##Site Effect
+
+##Check dispersion between Sites (PERMDISP)
+acr_afdw_log_site<-betadisper(vegdist(acr_data_afdw_log[,5:13], "euclidean"), acr_data_afdw_log$site)
+anova(acr_afdw_log_site)
+#           Df Sum Sq Mean Sq F value   Pr(>F)   
+#Groups      2  2.071 1.03549  6.5649 0.002032 **
+#Residuals 109 17.193 0.15773       
+#Significant difference in dispersion between Sites (cannot attribute significant effect from PERMANOVA to difference in centroids alone) 
+
+##Pairwise comparisons of dispersion between Sites
+TukeyHSD(acr_afdw_log_site)
+#                     diff        lwr         upr     p adj
+#Hilton-Mahana -0.31098366 -0.5411437 -0.08082365 0.0049170
+#Manava-Mahana -0.26032850 -0.4676332 -0.05302381 0.0097587
+#Manava-Hilton  0.05065516 -0.1761053  0.27741562 0.8563964
+
+#Mahana is different than the other sites - it is also the warmest and most thermally variable
+
+##Pairwise comparisons between Sites (PERMANOVA)
+pairwise.adonis(x=acr_data_afdw_log[,5:13],factors=acr_data_afdw_log$site,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#             pairs Df SumsOfSqs   F.Model         R2 p.value p.adjusted sig
+#1 Manava vs Mahana  1 0.9884785 0.9493418 0.01158450   0.422      1.000    
+#2 Manava vs Hilton  1 1.1061996 1.4591087 0.02041879   0.200      0.600    
+#3 Mahana vs Hilton  1 3.1039065 3.0199098 0.04312930   0.037      0.111     
+
+#Differences between Sites are primarily driven by differences in dispersion 
+```
+Site effects are driven by differences in dispersion. 
+
+Evaluate the effect of timepoint on dispersion. 
+```{r}
+##Season Effect
+
+##Check dispersion between Timepoints (PERMDISP)
+acr_afdw_log_seas<-betadisper(vegdist(acr_data_afdw_log[,5:13], "euclidean"), acr_data_afdw_log$timepoint)
+anova(acr_afdw_log_seas)
+#           Df  Sum Sq Mean Sq F value  Pr(>F)  
+#Groups      3  1.3593 0.45310  3.7618 0.01296 *
+#Residuals 108 13.0084 0.12045     
+#Difference in dispersion between Timepoints (cannot attribute significant effect from PERMANOVA to difference in centroids alone) 
+
+##Pairwise comparisons between Timepoints (PERMANOVA)
+pairwise.adonis(x=acr_data_afdw_log[,5:13],factors=acr_data_afdw_log$timepoint,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#                      pairs Df SumsOfSqs   F.Model         R2 p.value p.adjusted sig
+#1 timepoint1 vs timepoint2  1  2.044607  3.814924 0.05978106   0.011      0.066    
+#2 timepoint1 vs timepoint3  1  7.083394  9.155269 0.13432958   0.001      0.006   *
+#3 timepoint1 vs timepoint4  1 29.367503 54.243893 0.44739485   0.001      0.006   *
+#4 timepoint2 vs timepoint3  1 10.641432 15.688127 0.27674449   0.001      0.006   *
+#5 timepoint2 vs timepoint4  1 24.969249 66.363165 0.57525437   0.001      0.006   *
+#6 timepoint3 vs timepoint4  1  8.668516 13.032337 0.21353167   0.001      0.006   *
+
+#Differences between Timepoints are primarily driven by differences in centroid location and by differences in dispersion
+```
+Time effects driven by differences in centroid and dispersion between time points. 
+
+## Porites
+```{r}
+por_data_afdw_log<-data_sym_log%>%
+  filter(species=="Porites")
+
+por_data_afdw_log<-por_data_afdw_log[complete.cases(por_data_afdw_log), ]
+```
+
+Run permanova. 
+```{r}
+##Run PERMANOVA
+adonis2(vegdist(por_data_afdw_log[,5:13], "euclidean")~por_data_afdw_log$site*por_data_afdw_log$timepoint, data=por_data_afdw_log, method="euclidean")
+#                                                    Df SumOfSqs      R2       F Pr(>F)    
+#por_data_afdw_log$site                               2   19.820 0.14413 17.6730  0.001 ***
+#por_data_afdw_log$timepoint                          3   27.106 0.19712 16.1131  0.001 ***
+#por_data_afdw_log$site:por_data_afdw_log$timepoint   6    9.277 0.06747  2.7575  0.001 ***
+#Residual                                           145   81.307 0.59128                   
+#Total                                              156  137.510 1.00000   
+#Significant effect of Site, Timepoint, and Site*Timepoint interaction  
+```
+
+Site effects 
+```{r}
+##Site Effect
+
+##Check dispersion between Sites (PERMDISP)
+por_afdw_log_site<-betadisper(vegdist(por_data_afdw_log[,5:13], "euclidean"), por_data_afdw_log$site)
+anova(por_afdw_log_site)
+#           Df  Sum Sq Mean Sq F value    Pr(>F)    
+#Groups      2  2.4272  1.2136  8.7248 0.0002574 ***
+#Residuals 154 21.4211  0.1391 
+#Significant difference in dispersion between sites (cannot attribute significant effect from PERMANOVA to difference in centroids alone) 
+
+##Pairwise comparisons of dispersion between Sites
+TukeyHSD(por_afdw_log_site)
+#                     diff        lwr         upr     p adj
+#Hilton-Mahana -0.1976592 -0.3707913 -0.02452712 0.0208289
+#Manava-Mahana -0.3012591 -0.4743912 -0.12812700 0.0001829
+#Manava-Hilton -0.1035999 -0.2750592  0.06785940 0.3280801
+
+#Mahana is different than other sites 
+
+##Pairwise comparisons between Sites (PERMANOVA)
+pairwise.adonis(x=por_data_afdw_log[,5:13],factors=por_data_afdw_log$site,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#             pairs Df SumsOfSqs   F.Model         R2 p.value p.adjusted sig
+#1 Mahana vs Hilton  1  5.931056  6.799628 0.06249679   0.001      0.003   *
+#2 Mahana vs Manava  1 15.702692 19.076352 0.15755639   0.001      0.003   *
+#3 Hilton vs Manava  1  8.130345 13.540023 0.11519500   0.001      0.003   *
+
+#Differences between Sites are driven by both differences in dispersion and centroid location
+```
+Differences in site are driven by both differences in dispersion and centroid location. 
+
+Analyze effect of time point. 
+```{r}
+##Season Effect
+
+##Check dispersion between Timepoints (PERMDISP)
+por_afdw_log_seas<-betadisper(vegdist(por_data_afdw_log[,5:13], "euclidean"), por_data_afdw_log$timepoint)
+anova(por_afdw_log_seas)
+#           Df  Sum Sq Mean Sq F value  Pr(>F)  
+#Groups      3  0.8396 0.27987  2.1465 0.09669 .
+#Residuals 153 19.9489 0.13039           
+#No difference in dispersion between Timepoints (can attribute significant effect from PERMANOVA to difference in centroids) 
+
+##Pairwise comparisons between Timepoints (PERMANOVA)
+pairwise.adonis(x=por_data_afdw_log[,5:13],factors=por_data_afdw_log$timepoint,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#                     pairs Df SumsOfSqs   F.Model         R2 p.value p.adjusted sig
+#1 timepoint1 vs timepoint2  1  4.866856  6.763674 0.07795513   0.001      0.006   *
+#2 timepoint1 vs timepoint3  1  4.518467  5.685523 0.06713689   0.001      0.006   *
+#3 timepoint1 vs timepoint4  1 15.597228 25.594772 0.25193001   0.001      0.006   *
+#4 timepoint2 vs timepoint3  1 11.124858 13.696594 0.15101553   0.001      0.006   *
+#5 timepoint2 vs timepoint4  1 10.929566 17.554860 0.19174144   0.001      0.006   *
+#6 timepoint3 vs timepoint4  1 10.767498 15.324798 0.17350505   0.001      0.006   *
+
+#Differences between Timepoints are primarily driven by differences in centroid location 
+
+```
+Differences in time are primarily driven by differences in centroid location. 
+
+## Pocillopora   
+```{r}
+poc_data_afdw_log<-data_sym_log%>%
+  filter(species=="Pocillopora")
+
+poc_data_afdw_log<-poc_data_afdw_log[complete.cases(poc_data_afdw_log), ]
+```
+
+Run PERMANOVA. 
+```{r}
+##Run PERMANOVA
+adonis2(vegdist(poc_data_afdw_log[,5:13], "euclidean")~poc_data_afdw_log$site*poc_data_afdw_log$timepoint, data=poc_data_afdw_log, method="euclidean")
+
+#                                                    Df SumOfSqs      R2       F Pr(>F)    
+#poc_data_afdw_log$site                               2    1.877 0.01543  1.7062  0.131    
+#poc_data_afdw_log$timepoint                          3   35.116 0.28857 21.2792  0.001 ***
+#poc_data_afdw_log$site:poc_data_afdw_log$timepoint   6   10.984 0.09026  3.3280  0.001 ***
+#Residual                                           134   73.711 0.60574                   
+#Total                                              145  121.688 1.00000  
+#Significant effect of Timepoint, and Sites*Timepoint interaction  
+```
+
+Analyze the effect of site. 
+```{r}
+##Site Effect
+
+##Check dispersion between Sites (PERMDISP)
+poc_afdw_log_site<-betadisper(vegdist(poc_data_afdw_log[,5:13], "euclidean"), poc_data_afdw_log$site)
+anova(poc_afdw_log_site)
+Response: Distances
+#           Df  Sum Sq Mean Sq F value  Pr(>F)  
+#Groups      2  0.7691 0.38456  3.4901 0.03312 *
+#Residuals 143 15.7565 0.11019 
+#Difference in dispersion between Timepoints (cannot attribute significant effect from PERMANOVA to difference in centroids alone) 
+
+##Pairwise comparisons between Sites (PERMANOVA)
+pairwise.adonis(x=poc_data_afdw_log[,5:13],factors=poc_data_afdw_log$site,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#             pairs Df SumsOfSqs   F.Model          R2 p.value p.adjusted sig
+#1 Mahana vs Hilton  1 0.4954217 0.5695977 0.005960031   0.672      1.000    
+#2 Mahana vs Manava  1 0.5877389 0.6378559 0.006885478   0.604      1.000    
+#3 Hilton vs Manava  1 1.6906877 2.3175364 0.022873991   0.088      0.264   
+
+#Differences between Sites are driven by differences in dispersion, but limited difference
+```
+Differences between Sites are driven by differences in dispersion, but limited difference
+
+Analyze effect of season. 
+```{r}
+##Season Effect
+
+##Check dispersion between Timepoints (PERMDISP)
+poc_afdw_log_seas<-betadisper(vegdist(poc_data_afdw_log[,5:13], "euclidean"), poc_data_afdw_log$timepoint)
+anova(poc_afdw_log_seas)
+#Response: Distances
+#           Df  Sum Sq Mean Sq F value    Pr(>F)    
+#Groups      3  1.9022 0.63406  6.4129 0.0004185 ***
+#Residuals 142 14.0400 0.09887   
+#Significant difference in dispersion between sites (cannot attribute significant effect from PERMANOVA to difference in centroids alone) 
+
+##Pairwise comparisons of dispersion between Sites
+TukeyHSD(poc_afdw_log_seas)
+#                             diff         lwr         upr     p adj
+#timepoint2-timepoint1  0.08352545 -0.10159232  0.26864323 0.6448480
+#timepoint3-timepoint1  0.14497434 -0.05000442  0.33995310 0.2189855
+#timepoint4-timepoint1 -0.16528491 -0.35421994  0.02365013 0.1089666
+#timepoint3-timepoint2  0.06144889 -0.13352987  0.25642765 0.8452570
+#timepoint4-timepoint2 -0.24881036 -0.43774540 -0.05987532 0.0044438
+#timepoint4-timepoint3 -0.31025925 -0.50886583 -0.11165266 0.0004628
+
+##Pairwise comparisons between Timepoints (PERMANOVA)
+pairwise.adonis(x=poc_data_afdw_log[,5:13],factors=poc_data_afdw_log$timepoint,sim.function="vegdist", sim.method='euclidean',p.adjust.m='bonferroni')
+#                     pairs Df SumsOfSqs   F.Model         R2 p.value p.adjusted sig
+#1 timepoint1 vs timepoint2  1  8.661958 13.338880 0.14930655   0.001      0.006   *
+#2 timepoint1 vs timepoint3  1  3.984216  5.816184 0.07773965   0.002      0.012   .
+#3 timepoint1 vs timepoint4  1 23.315215 53.783905 0.42421713   0.001      0.006   *
+#4 timepoint2 vs timepoint3  1 10.306251 12.949552 0.15801858   0.001      0.006   *
+#5 timepoint2 vs timepoint4  1 11.872676 22.056750 0.23203771   0.001      0.006   *
+#6 timepoint3 vs timepoint4  1 11.753958 20.849179 0.24006190   0.001      0.006   *
+
+#Differences between Timepoints are driven by both differences in dispersion and centroid location
+```
+Differences between Timepoints are driven by both differences in dispersion and centroid location
+
+
+# Summary  
+
+Summary of above results as of 15 Aug 2023 
+
+HOLOBIONT: 
+Acr = Site (disp), Time (centroid)
+Poc = Site (none), Time (disp + centroid)
+Por = Site (disp + centroid), Time (centroid)
+
+HOST: 
+Acr = Site (disp + centroid), Time (centroid)
+Poc = Site (centroid), Time (centroid + disp) 
+Por = Site (centroid), Time (centroid)
+
+SYMBIONT: 
+Acr = Site (disp), Time (disp + centroid)
+Poc = Site (disp), Time (disp + centroid)
+Por = Site (disp + centroid), Time (centroid)
+
+Overall, Site variation is driven by changes in group centroid in POR, but minimal effects or dispersion effects in ACR and POC. Time is largely driven by centroid and sometimes also by dispersion. 
