@@ -12,6 +12,13 @@ editor_options:
   chunk_output_type: console
 --- 
 
+
+
+
+Left off here - need to change site code to site and add in Ic and Ik 
+
+
+
 # Set Up     
 
 ```{r setup, include=FALSE}
@@ -65,6 +72,9 @@ master<-read.csv("Output/master_timeseries.csv")
 #reorder site levels 
 master$site_code<-as.factor(master$site_code)
 master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
+
+master$site<-as.factor(master$site)
+master$site<-fct_relevel(master$site, "Mahana", "Hilton", "Manava")
 ```
 
 # Holobiont responses   
@@ -73,12 +83,13 @@ Calculate plasticity as total euclidean distance between multivariate physiology
 
 ```{r}
 data_all<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr, Total_Chl, Total_Chl_cell)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr, Total_Chl, Total_Chl_cell)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  filter(Ic<1000)%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
 
 head(data_all) 
@@ -87,7 +98,7 @@ data_all<-data_all[complete.cases(data_all), ]
 
 data_all[,-c(1:4)]<-log(data_all[,-c(1:4)]+1)
 
-scaled_all<-prcomp(data_all[c(5:16)], scale=TRUE, center=TRUE) 
+scaled_all<-prcomp(data_all[c(5:18)], scale=TRUE, center=TRUE) 
 
 all_info<-data_all[c(1:4)]
 
@@ -101,7 +112,7 @@ all_data<-as.data.frame(all_data)
 
 row.names(all_data)<-all_data$code
 
-all_data<-all_data[6:17]
+all_data<-all_data[6:19]
 head(all_data)
 
 dist_all<-dist(all_data, diag = FALSE, upper = FALSE, method="euclidean") #calculate euclidian distance
@@ -205,7 +216,7 @@ Calculate distances for only host responses.
 
 Generate a list of symbiont and host responses.  
 ```{r}
-symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ratio_AFDW.mg.cm2") 
+symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ik", "Ic", "Ratio_AFDW.mg.cm2") 
 host_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd", "calc.umol.cm2.hr")
 ```
 
@@ -344,7 +355,7 @@ Calculate distances for only host responses.
 
 Generate a list of symbiont and host responses.  
 ```{r}
-symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ratio_AFDW.mg.cm2") 
+symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ik", "Ic", "Ratio_AFDW.mg.cm2") 
 host_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd", "calc.umol.cm2.hr")
 ```
 
@@ -357,6 +368,7 @@ data_sym<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW)
 
@@ -364,7 +376,7 @@ data_sym<-data_sym[complete.cases(data_sym), ]
 
 data_sym[,-c(1:4)]<-log(data_sym[,-c(1:4)]+1)
 
-scaled_sym<-prcomp(data_sym[c(5:11)], scale=TRUE, center=TRUE) 
+scaled_sym<-prcomp(data_sym[c(5:13)], scale=TRUE, center=TRUE) 
 
 sym_info<-data_sym[c(1:4)]
 
@@ -378,7 +390,7 @@ sym_data<-as.data.frame(sym_data)
 
 row.names(sym_data)<-sym_data$code
 
-sym_data<-sym_data[6:12]
+sym_data<-sym_data[6:14]
 head(sym_data)
 
 dist_sym<-dist(sym_data, diag = FALSE, upper = FALSE, method="euclidean")
