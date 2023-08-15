@@ -683,6 +683,20 @@ output_matrix<-as.data.frame(output_matrix)
 write_csv(output_matrix, file="Output/ITS2_rel_abund_matrix.csv")
 ```
 
+Output matrix for E5 Deep Dive samples. 
+```{r}
+head(output_matrix) 
+
+deep_dive_colonies<-c("ACR-140", "ACR-145", "ACR-150", "ACR-173", "ACR-178", "POC-47", "POC-48", "POC-50", "POC-53", "POC-57", "POR-71", "POR-73", "POR-76", "POR-79", "POR-82")
+
+deep_dive<-output_matrix%>%
+  filter(colony_id_corr %in% deep_dive_colonies)%>%
+  arrange(colony_id_corr)%>%
+  filter(timepoint=="timepoint2")%>%
+  write.csv(., "Output/deep_dive_ITS2_matrix.csv")
+```
+
+
 # Plot ITS2 averaged for each species 
 ```{r}
 #create custom color palette 
