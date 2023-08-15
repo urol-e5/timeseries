@@ -67,7 +67,7 @@ master<-read.csv("Output/master_timeseries.csv")
 Model the influence of physiological metrics on calcification. 
 ```{r}
 df<-master%>%
-  select(Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Am, AQY, Rd, calc.umol.cm2.hr, cells.mgAFDW, prot_mg.mgafdw, cre.umol.mgafdw, Ratio_AFDW.mg.cm2, Total_Chl_cell, Total_Chl)
+  select(Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Am, AQY, Rd, calc.umol.cm2.hr, cells.mgAFDW, prot_mg.mgafdw, cre.umol.mgafdw, Ratio_AFDW.mg.cm2, Total_Chl_cell, Total_Chl, Ik, Ic)
 
 model1<-lm(calc.umol.cm2.hr~ ., data=df)
 
@@ -100,17 +100,17 @@ flattenCorrMatrix <- function(cormat, pmat) {
 cor_all_df<-flattenCorrMatrix(cor_all$r, cor_all$P)
 ```
 
-List correlations with absolute value r>0.85.  
+List correlations with absolute value r>0.8.  
 ```{r}
 cor_all_df%>%
-  filter(abs(cor)>0.85)
+  filter(abs(cor)>0.80)
 ```
-Respiration and Am are > 0.85.  
+Respiration and Am are > 0.8.  
 
 Re run the model without respiration (not significant in original model). 
 ```{r}
 df<-master%>%
-  select(Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Am, AQY, calc.umol.cm2.hr, cells.mgAFDW, prot_mg.mgafdw, cre.umol.mgafdw, Ratio_AFDW.mg.cm2, Total_Chl_cell, Total_Chl)
+  select(Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Am, AQY, Ik, Ic, calc.umol.cm2.hr, cells.mgAFDW, prot_mg.mgafdw, cre.umol.mgafdw, Ratio_AFDW.mg.cm2, Total_Chl_cell, Total_Chl)
 
 model1<-lm(calc.umol.cm2.hr~ ., data=df)
 
@@ -132,8 +132,7 @@ cor_all_df%>%
   filter(p<0.01)%>%
   filter(row=="calc.umol.cm2.hr")
 ```
-There are significant, but weak positive correlations exist between calcificaiton and host protein, antioxidant capacity, and total cholorophyll (negative). 
-
+There are significant, but weak positive correlations exist between calcification and host protein, antioxidant capacity, and total chlorophyll (negative). 
 
 ## Acropora 
 
@@ -141,7 +140,7 @@ Model the influence of physiological metrics on calcification.
 ```{r}
 df_acr<-master%>%
   filter(species=="Acropora")%>%
-  select(Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Am, AQY, Rd, calc.umol.cm2.hr, cells.mgAFDW, prot_mg.mgafdw, cre.umol.mgafdw, Ratio_AFDW.mg.cm2, Total_Chl_cell, Total_Chl)
+  select(Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr, cells.mgAFDW, prot_mg.mgafdw, cre.umol.mgafdw, Ratio_AFDW.mg.cm2, Total_Chl_cell, Total_Chl)
 
 model1_acr<-lm(calc.umol.cm2.hr~ ., data=df_acr)
 
@@ -153,7 +152,7 @@ Show effect plot
 plot(allEffects(model1_acr)) 
 ```
 
-There is a positive relationship with calcification and cell density, host protein, and chlorophyll per cell. Interestingly, there is a negative relationship between total chlorophyll per mg afdw and calcification.  
+There is a positive relationship with calcification and cell density, host protein, Ik, Ic, AQY, and chlorophyll per cell. Interestingly, there is a negative relationship between total chlorophyll per mg afdw, Am, and calcification.  
 
 Next, look for covariates and simplify the model by removing highly correlated variables.  
 
@@ -167,9 +166,9 @@ cor_acr_df<-flattenCorrMatrix(cor_acr$r, cor_acr$P)
 List correlations with absolute value r>0.9.  
 ```{r}
 cor_acr_df%>%
-  filter(abs(cor)>0.85)
+  filter(abs(cor)>0.8)
 ```
-No correlations > 0.85. The model will not be revised.  
+No correlations > 0.8. The model will not be revised.  
 
 List correlations with high significance p<0.01.  
 ```{r}
@@ -192,14 +191,14 @@ Model the influence of physiological metrics on calcification.
 ```{r}
 df_poc<-master%>%
   filter(species=="Pocillopora")%>%
-  select(Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Am, AQY, Rd, calc.umol.cm2.hr, cells.mgAFDW, prot_mg.mgafdw, cre.umol.mgafdw, Ratio_AFDW.mg.cm2, Total_Chl_cell, Total_Chl)
+  select(Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr, cells.mgAFDW, prot_mg.mgafdw, cre.umol.mgafdw, Ratio_AFDW.mg.cm2, Total_Chl_cell, Total_Chl)
 
 model1_poc<-lm(calc.umol.cm2.hr~ ., data=df_poc)
 
 summary(model1_poc)
 ```
 
-Antioxidant capacity is the only significant driver of calcification.  
+Antioxidant capacity is the only significant predictor of calcification.  
 
 Show effect plot
 ```{r}
@@ -217,12 +216,12 @@ cor_poc<-rcorr(as.matrix(df_poc))
 cor_poc_df<-flattenCorrMatrix(cor_poc$r, cor_poc$P)
 ```
 
-List correlations with absolute value r>0.85.  
+List correlations with absolute value r>0.8.  
 ```{r}
 cor_poc_df%>%
-  filter(abs(cor)>0.85)
+  filter(abs(cor)>0.8)
 ```
-No correlations > 0.85. The model will not be adjusted.   
+No correlations > 0.8. The model will not be adjusted.   
 
 List correlations with high significance p<0.01.  
 ```{r}
@@ -245,7 +244,7 @@ Model the influence of physiological metrics on calcification.
 ```{r}
 df_por<-master%>%
   filter(species=="Porites")%>%
-  select(Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Am, AQY, Rd, calc.umol.cm2.hr, cells.mgAFDW, prot_mg.mgafdw, cre.umol.mgafdw, Ratio_AFDW.mg.cm2, Total_Chl_cell, Total_Chl)%>%
+  select(Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr, cells.mgAFDW, prot_mg.mgafdw, cre.umol.mgafdw, Ratio_AFDW.mg.cm2, Total_Chl_cell, Total_Chl)%>%
   filter()
 
 model1_por<-lm(calc.umol.cm2.hr~ ., data=df_por)
@@ -259,7 +258,6 @@ Show effect plot
 plot(allEffects(model1_poc)) 
 ```
 
-There is a negative relationship with antioxidant capacity, and a weak negative relationship with max photosynthesis. There is also a weak negative relationship with host biomass.  
 
 Next, look for covariates and simplify the model by removing highly correlated variables.  
 
@@ -270,12 +268,12 @@ cor_por<-rcorr(as.matrix(df_por))
 cor_por_df<-flattenCorrMatrix(cor_por$r, cor_por$P)
 ```
 
-List correlations with absolute value r>0.85.  
+List correlations with absolute value r>0.8.  
 ```{r}
 cor_por_df%>%
-  filter(abs(cor)>0.85)
+  filter(abs(cor)>0.8)
 ```
-No correlations > 0.85. The model will not be revised.   
+No correlations > 0.8. The model will not be revised.   
 
 List correlations with high significance p<0.01.  
 ```{r}
@@ -290,5 +288,5 @@ cor_por_df%>%
   filter(p<0.01)%>%
   filter(row=="calc.umol.cm2.hr")
 ```
-There isnothing that correlates with calcification in Porites.  
+There is nothing that correlates with calcification in Porites.  
 
