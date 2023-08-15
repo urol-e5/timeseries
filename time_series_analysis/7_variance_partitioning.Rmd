@@ -49,12 +49,13 @@ master$site<-fct_relevel(master$site, "Mahana", "Hilton", "Manava")
 # Holobiont responses   
 ```{r}
 data_all<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, calc.umol.cm2.hr, Total_Chl, Total_Chl_cell)%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr, Total_Chl, Total_Chl_cell)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  filter(Ic<1000)%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
 ```
 
@@ -83,35 +84,35 @@ acr_data_afdw_log<-acr_data_afdw_log[complete.cases(acr_data_afdw_log), ]
 ##Variance Partitioning
 ```{r}
 ##Run varpart function with responses and explanatory variables of interest
-varpart_acr_afdw<-varpart(acr_data_afdw_log[,5:16], acr_data_afdw_log$timepoint, acr_data_afdw_log$site)
+varpart_acr_afdw<-varpart(acr_data_afdw_log[,5:18], acr_data_afdw_log$timepoint, acr_data_afdw_log$site)
 
 ##Check variance explained by individual fractions
 varpart_acr_afdw$part
 #Individual fractions                                    
-#[a] = X1|X2           3                 0.47384     TRUE
-#[b] = X2|X1           2                 0.03215     TRUE
-#[c]                   0                -0.00390    FALSE
-#[d] = Residuals                         0.49791    FALSE
+#[a] = X1|X2           3                 0.38366     TRUE
+#[b] = X2|X1           2                 0.03135     TRUE
+#[c]                   0                -0.01139    FALSE
+#[d] = Residuals                         0.59637    FALSE
 
 ##Check model significance
-anova(rda(acr_data_afdw_log[,5:16]~ acr_data_afdw_log$timepoint + acr_data_afdw_log$site))
+anova(rda(acr_data_afdw_log[,5:18]~ acr_data_afdw_log$timepoint + acr_data_afdw_log$site))
 #The model is significant p=0.001
 
 ##Check variance explained by model
-RsquareAdj(rda(acr_data_afdw_log[,5:16]~ acr_data_afdw_log$timepoint + acr_data_afdw_log$site))$adj.r.squared*100
-#The model explains 50.21% of the variation in coral physiology in Acropora
+RsquareAdj(rda(acr_data_afdw_log[,5:18]~ acr_data_afdw_log$timepoint + acr_data_afdw_log$site))$adj.r.squared*100
+#The model explains 40.36% of the variation in coral physiology in Acropora
 
 ##Check effect of timepoint 
-anova(rda(acr_data_afdw_log[,5:16], acr_data_afdw_log$timepoint))
+anova(rda(acr_data_afdw_log[,5:18], acr_data_afdw_log$timepoint))
 #The effect of timepoint with overlap with site is significant p=0.001 
-anova(rda(acr_data_afdw_log[,5:16], acr_data_afdw_log$timepoint,  acr_data_afdw_log$site))
+anova(rda(acr_data_afdw_log[,5:18], acr_data_afdw_log$timepoint,  acr_data_afdw_log$site))
 #The effect of timepoint alone (controlling for site) is significant p=0.001 
 
 ##Check effect of site 
-anova(rda(acr_data_afdw_log[,5:16], acr_data_afdw_log$site))
-#The effect of site with overlap with timepoint is significant p=0.035 
-anova(rda(acr_data_afdw_log[,5:16], acr_data_afdw_log$site,  acr_data_afdw_log$timepoint))
-#The effect of site alone (controlling for timepoint) is significant p=0.003 
+anova(rda(acr_data_afdw_log[,5:18], acr_data_afdw_log$site))
+#The effect of site with overlap with timepoint is not significant p=0.057
+anova(rda(acr_data_afdw_log[,5:18], acr_data_afdw_log$site,  acr_data_afdw_log$timepoint))
+#The effect of site alone (controlling for timepoint) is significant p=0.001 
 ```
 
 ##Generate figure-Venn
@@ -134,8 +135,6 @@ text(1, -.3, substitute(paste(italic('p = 0.003'))), cex=1.1)+
 text(0.5, 1, "Acropora", cex=2)
 ```
 
-
-
 #Porites
 ```{r}
 por_data_afdw_log<-data_all_log%>%
@@ -147,34 +146,34 @@ por_data_afdw_log<-por_data_afdw_log[complete.cases(por_data_afdw_log), ]
 ##Variance Partitioning
 ```{r}
 ##Run varpart function with responses and explanatory variables of interest
-varpart_por_afdw<-varpart(por_data_afdw_log[,5:16], por_data_afdw_log$timepoint, por_data_afdw_log$site)
+varpart_por_afdw<-varpart(por_data_afdw_log[,5:18], por_data_afdw_log$timepoint, por_data_afdw_log$site)
 
 ##Check variance explained by individual fractions
 varpart_por_afdw$part
 #Individual fractions                                    
-#[a] = X1|X2           3                 0.21416     TRUE
-#[b] = X2|X1           2                 0.13836     TRUE
-#[c]                   0                 0.00191    FALSE
-#[d] = Residuals                         0.64557    FALSE
+#[a] = X1|X2           3                 0.19397     TRUE
+#[b] = X2|X1           2                 0.10816     TRUE
+#[c]                   0                 0.00433    FALSE
+#[d] = Residuals                         0.69354    FALSE
 
 ##Check model significance
-anova(rda(por_data_afdw_log[,5:16]~ por_data_afdw_log$timepoint + por_data_afdw_log$site))
+anova(rda(por_data_afdw_log[,5:18]~ por_data_afdw_log$timepoint + por_data_afdw_log$site))
 #The model is significant p=0.001
 
 ##Check variance explained by model
-RsquareAdj(rda(por_data_afdw_log[,5:16]~ por_data_afdw_log$timepoint + por_data_afdw_log$site))$adj.r.squared*100
-#The model explains 35.44% of the variation in coral physiology in Acropora
+RsquareAdj(rda(por_data_afdw_log[,5:18]~ por_data_afdw_log$timepoint + por_data_afdw_log$site))$adj.r.squared*100
+#The model explains 30.65% of the variation in coral physiology in Acropora
 
 ##Check effect of timepoint 
-anova(rda(por_data_afdw_log[,5:16], por_data_afdw_log$timepoint))
+anova(rda(por_data_afdw_log[,5:18], por_data_afdw_log$timepoint))
 #The effect of timepoint with overlap with site_code is significant p=0.001 
-anova(rda(por_data_afdw_log[,5:16], por_data_afdw_log$timepoint,  por_data_afdw_log$site))
+anova(rda(por_data_afdw_log[,5:18], por_data_afdw_log$timepoint,  por_data_afdw_log$site))
 #The effect of timepoint alone (controlling for site_code) is significant p=0.001 
 
 ##Check effect of site 
-anova(rda(por_data_afdw_log[,5:16], por_data_afdw_log$site))
+anova(rda(por_data_afdw_log[,5:18], por_data_afdw_log$site))
 #The effect of site with overlap with timepoint is significant p=0.001
-anova(rda(por_data_afdw_log[,5:16], por_data_afdw_log$site,  por_data_afdw_log$timepoint))
+anova(rda(por_data_afdw_log[,5:18], por_data_afdw_log$site,  por_data_afdw_log$timepoint))
 #The effect of site alone (controlling for timepoint) is significant p=0.001 
 
 ```
@@ -211,34 +210,35 @@ poc_data_afdw_log<-poc_data_afdw_log[complete.cases(poc_data_afdw_log), ]
 ##Variance Partitioning
 ```{r}
 ##Run varpart function with responses and explanatory variables of interest
-varpart_poc_afdw<-varpart(poc_data_afdw_log[,5:16], poc_data_afdw_log$timepoint, poc_data_afdw_log$site)
+varpart_poc_afdw<-varpart(poc_data_afdw_log[,5:18], poc_data_afdw_log$timepoint, poc_data_afdw_log$site)
 
 ##Check variance explained by individual fractions
 varpart_poc_afdw$part
-#[a] = X1|X2           3                 0.34959     TRUE
-#[b] = X2|X1           2                 0.02326     TRUE
-#[c]                   0                -0.00162    FALSE
-#[d] = Residuals                         0.62877    FALSE
+#Individual fractions                                    
+#[a] = X1|X2           3                 0.28408     TRUE
+#[b] = X2|X1           2                 0.01148     TRUE
+#[c]                   0                -0.00352    FALSE
+#[d] = Residuals                         0.70795    FALSE
 
 ##Check model significance
-anova(rda(poc_data_afdw_log[,5:16]~ poc_data_afdw_log$timepoint + poc_data_afdw_log$site))
+anova(rda(poc_data_afdw_log[,5:18]~ poc_data_afdw_log$timepoint + poc_data_afdw_log$site))
 #The model is significant p=0.001
 
 ##Check variance explained by model
-RsquareAdj(rda(poc_data_afdw_log[,5:16]~ poc_data_afdw_log$timepoint + poc_data_afdw_log$site))$adj.r.squared*100
-#The model explains 37.12% of the variation in coral physiology in Acropora
+RsquareAdj(rda(poc_data_afdw_log[,5:18]~ poc_data_afdw_log$timepoint + poc_data_afdw_log$site))$adj.r.squared*100
+#The model explains 29.20% of the variation in coral physiology in Acropora
 
 ##Check effect of timepoint 
-anova(rda(poc_data_afdw_log[,5:16], poc_data_afdw_log$timepoint))
+anova(rda(poc_data_afdw_log[,5:18], poc_data_afdw_log$timepoint))
 #The effect of timepoint with overlap with site_code is significant p=0.001 
-anova(rda(poc_data_afdw_log[,5:16], poc_data_afdw_log$timepoint,  poc_data_afdw_log$site))
+anova(rda(poc_data_afdw_log[,5:18], poc_data_afdw_log$timepoint,  poc_data_afdw_log$site))
 #The effect of timepoint alone (controlling for site_code) is significant p=0.001 
 
 ##Check effect of site 
-anova(rda(poc_data_afdw_log[,5:16], poc_data_afdw_log$site))
-#The effect of site with overlap with timepoint is not significant p=0.051 .
-anova(rda(poc_data_afdw_log[,5:16], poc_data_afdw_log$site,  poc_data_afdw_log$timepoint))
-#The effect of site alone (controlling for timepoint) is significant p=0.011 
+anova(rda(poc_data_afdw_log[,5:18], poc_data_afdw_log$site))
+#The effect of site with overlap with timepoint is not significant p=0.138.
+anova(rda(poc_data_afdw_log[,5:18], poc_data_afdw_log$site,  poc_data_afdw_log$timepoint))
+#The effect of site alone (controlling for timepoint) is significant p=0.049 
 
 ```
 
@@ -265,7 +265,6 @@ text(0.5, 1, "Pocillopora", cex=2)
 
 #Generate figure- Barplot all Species Holobiont
 
-Note: Ariana added manual name for "Site", since it was coming up as NA
 ```{r}
 ##Combine VarPart results for all Species
 varpart_afdw_parts_all<-rbind(varpart_acr_afdw_parts, varpart_por_afdw_parts, varpart_poc_afdw_parts)
@@ -297,10 +296,11 @@ varpartBarplot_all.holo<-ggplot(varpart_afdw_parts_all, aes(x=Species, y=Percent
 
 ```
 
+Note that the bars do not add up to 100% because we are not displaying the term for variance explained by site and time simultaneously (not testable) and <1%. 
 
 # Generate a list of symbiont and host responses.  Holobiont = all responses
 ```{r}
-symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ratio_AFDW.mg.cm2") 
+symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ik", "Ic", "Ratio_AFDW.mg.cm2") 
 host_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd", "calc.umol.cm2.hr")
 ```
 
@@ -471,6 +471,7 @@ data_sym<-master%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
   #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
   rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW)
 
@@ -502,35 +503,35 @@ acr_data_afdw_log_sym<-acr_data_afdw_log_sym[complete.cases(acr_data_afdw_log_sy
 ##Variance Partitioning
 ```{r}
 ##Run varpart function with responses and explanatory variables of interest
-varpart_acr_afdw_sym<-varpart(acr_data_afdw_log_sym[,5:11], acr_data_afdw_log_sym$timepoint, acr_data_afdw_log_sym$site)
+varpart_acr_afdw_sym<-varpart(acr_data_afdw_log_sym[,5:13], acr_data_afdw_log_sym$timepoint, acr_data_afdw_log_sym$site)
 
 ##Check variance explained by individual fractions
 varpart_acr_afdw_sym$part
-# Individual fractions                                    
-#[a] = X1|X2           3                 0.48852     TRUE
-#[b] = X2|X1           2                 0.02296     TRUE
-#[c]                   0                -0.00565    FALSE
-#[d] = Residuals                         0.49417    FALSE
+#Individual fractions                                    
+#[a] = X1|X2           3                 0.39240     TRUE
+#[b] = X2|X1           2                 0.02463     TRUE
+#[c]                   0                -0.01089    FALSE
+#[d] = Residuals                         0.59386    FALSE
 
 ##Check model significance
-anova(rda(acr_data_afdw_log_sym[,5:11]~ acr_data_afdw_log_sym$timepoint + acr_data_afdw_log_sym$site))
+anova(rda(acr_data_afdw_log_sym[,5:13]~ acr_data_afdw_log_sym$timepoint + acr_data_afdw_log_sym$site))
 #The model is significant p=0.001
 
 ##Check variance explained by model
-RsquareAdj(rda(acr_data_afdw_log_sym[,5:11]~ acr_data_afdw_log_sym$timepoint + acr_data_afdw_log_sym$site))$adj.r.squared*100
-#The model explains 50.58% of the variation in coral physiology in Acropora Symbiont
+RsquareAdj(rda(acr_data_afdw_log_sym[,5:13]~ acr_data_afdw_log_sym$timepoint + acr_data_afdw_log_sym$site))$adj.r.squared*100
+#The model explains 40.61% of the variation in coral physiology in Acropora Symbiont
 
 ##Check effect of timepoint 
-anova(rda(acr_data_afdw_log_sym[,5:11], acr_data_afdw_log_sym$timepoint))
+anova(rda(acr_data_afdw_log_sym[,5:13], acr_data_afdw_log_sym$timepoint))
 #The effect of timepoint with overlap with site is significant p=0.001 
-anova(rda(acr_data_afdw_log_sym[,5:11], acr_data_afdw_log_sym$timepoint,  acr_data_afdw_log_sym$site))
+anova(rda(acr_data_afdw_log_sym[,5:13], acr_data_afdw_log_sym$timepoint,  acr_data_afdw_log_sym$site))
 #The effect of timepoint alone (controlling for site) is significant p=0.001 
 
 ##Check effect of site 
-anova(rda(acr_data_afdw_log_sym[,5:11], acr_data_afdw_log_sym$site))
-#The effect of site with overlap with timepoint is not significant p=0.116
-anova(rda(acr_data_afdw_log_sym[,5:11], acr_data_afdw_log_sym$site,  acr_data_afdw_log_sym$timepoint))
-#The effect of site alone (controlling for timepoint) is significant p=0.011 
+anova(rda(acr_data_afdw_log_sym[,5:13], acr_data_afdw_log_sym$site))
+#The effect of site with overlap with timepoint is not significant p=0.082
+anova(rda(acr_data_afdw_log_sym[,5:13], acr_data_afdw_log_sym$site,  acr_data_afdw_log_sym$timepoint))
+#The effect of site alone (controlling for timepoint) is significant p=0.004 
 ```
 
 
@@ -546,34 +547,34 @@ por_data_afdw_log_sym<-por_data_afdw_log_sym[complete.cases(por_data_afdw_log_sy
 ##Variance Partitioning
 ```{r}
 ##Run varpart function with responses and explanatory variables of interest
-varpart_por_afdw_sym<-varpart(por_data_afdw_log_sym[,5:11], por_data_afdw_log_sym$timepoint, por_data_afdw_log_sym$site)
+varpart_por_afdw_sym<-varpart(por_data_afdw_log_sym[,5:13], por_data_afdw_log_sym$timepoint, por_data_afdw_log_sym$site)
 
 ##Check variance explained by individual fractions
 varpart_por_afdw_sym$part
-# Individual fractions                                    
-#[a] = X1|X2           3                 0.19581     TRUE
-#[b] = X2|X1           2                 0.18111     TRUE
-#[c]                   0                 0.00505    FALSE
-#[d] = Residuals                         0.61804    FALSE
+#Individual fractions                                    
+#[a] = X1|X2           3                 0.18642     TRUE
+#[b] = X2|X1           2                 0.12658     TRUE
+#[c]                   0                 0.00644    FALSE
+#[d] = Residuals                         0.68056    FALSE
 
 ##Check model significance
-anova(rda(por_data_afdw_log_sym[,5:11]~ por_data_afdw_log_sym$timepoint + por_data_afdw_log_sym$site))
+anova(rda(por_data_afdw_log_sym[,5:13]~ por_data_afdw_log_sym$timepoint + por_data_afdw_log_sym$site))
 #The model is significant p=0.001
 
 ##Check variance explained by model
-RsquareAdj(rda(por_data_afdw_log_sym[,5:11]~ por_data_afdw_log_sym$timepoint + por_data_afdw_log_sym$site))$adj.r.squared*100
-#The model explains 38.19% of the variation in coral physiology in Porites Symbiont
+RsquareAdj(rda(por_data_afdw_log_sym[,5:13]~ por_data_afdw_log_sym$timepoint + por_data_afdw_log_sym$site))$adj.r.squared*100
+#The model explains 31.94% of the variation in coral physiology in Porites Symbiont
 
 ##Check effect of timepoint 
-anova(rda(por_data_afdw_log_sym[,5:11], por_data_afdw_log_sym$timepoint))
+anova(rda(por_data_afdw_log_sym[,5:13], por_data_afdw_log_sym$timepoint))
 #The effect of timepoint with overlap with site is significant p=0.001 
-anova(rda(por_data_afdw_log_sym[,5:11], por_data_afdw_log_sym$timepoint,  por_data_afdw_log_sym$site))
+anova(rda(por_data_afdw_log_sym[,5:13], por_data_afdw_log_sym$timepoint,  por_data_afdw_log_sym$site))
 #The effect of timepoint alone (controlling for site) is significant p=0.001 
 
 ##Check effect of site 
-anova(rda(por_data_afdw_log_sym[,5:11], por_data_afdw_log_sym$site))
+anova(rda(por_data_afdw_log_sym[,5:13], por_data_afdw_log_sym$site))
 #The effect of site with overlap with timepoint is significant p=0.001 
-anova(rda(por_data_afdw_log_sym[,5:11], por_data_afdw_log_sym$site,  por_data_afdw_log_sym$timepoint))
+anova(rda(por_data_afdw_log_sym[,5:13], por_data_afdw_log_sym$site,  por_data_afdw_log_sym$timepoint))
 #The effect of site alone (controlling for timepoint) is significant p=0.001 
 ```
 
@@ -590,37 +591,36 @@ poc_data_afdw_log_sym<-poc_data_afdw_log_sym[complete.cases(poc_data_afdw_log_sy
 ##Variance Partitioning
 ```{r}
 ##Run varpart function with responses and explanatory variables of interest
-varpart_poc_afdw_sym<-varpart(poc_data_afdw_log_sym[,5:11], poc_data_afdw_log_sym$timepoint, poc_data_afdw_log_sym$site)
+varpart_poc_afdw_sym<-varpart(poc_data_afdw_log_sym[,5:13], poc_data_afdw_log_sym$timepoint, poc_data_afdw_log_sym$site)
 
 ##Check variance explained by individual fractions
 varpart_poc_afdw_sym$part
 #Individual fractions                                    
-#[a] = X1|X2           3                 0.35986     TRUE
-#[b] = X2|X1           2                 0.01613     TRUE
-#[c]                   0                -0.00278    FALSE
-#[d] = Residuals                         0.62679    FALSE
+#[a] = X1|X2           3                 0.27749     TRUE
+#[b] = X2|X1           2                 0.00550     TRUE
+#[c]                   0                -0.00385    FALSE
+#[d] = Residuals                         0.72086    FALSE
 
 ##Check model significance
-anova(rda(poc_data_afdw_log_sym[,5:11]~ poc_data_afdw_log_sym$timepoint + poc_data_afdw_log_sym$site))
+anova(rda(poc_data_afdw_log_sym[,5:13]~ poc_data_afdw_log_sym$timepoint + poc_data_afdw_log_sym$site))
 #The model is significant p=0.001
 
 ##Check variance explained by model
-RsquareAdj(rda(poc_data_afdw_log_sym[,5:11]~ poc_data_afdw_log_sym$timepoint + poc_data_afdw_log_sym$site))$adj.r.squared*100
-#The model explains 37.32% of the variation in coral physiology in Pocillopora Symbiont
+RsquareAdj(rda(poc_data_afdw_log_sym[,5:13]~ poc_data_afdw_log_sym$timepoint + poc_data_afdw_log_sym$site))$adj.r.squared*100
+#The model explains 27.91% of the variation in coral physiology in Pocillopora Symbiont
 
 ##Check effect of timepoint 
-anova(rda(poc_data_afdw_log_sym[,5:11], poc_data_afdw_log_sym$timepoint))
+anova(rda(poc_data_afdw_log_sym[,5:13], poc_data_afdw_log_sym$timepoint))
 #The effect of timepoint with overlap with site is significant p=0.001 
-anova(rda(poc_data_afdw_log_sym[,5:11], poc_data_afdw_log_sym$timepoint,  poc_data_afdw_log_sym$site))
+anova(rda(poc_data_afdw_log_sym[,5:13], poc_data_afdw_log_sym$timepoint,  poc_data_afdw_log_sym$site))
 #The effect of timepoint alone (controlling for site) is significant p=0.001 
 
 ##Check effect of site 
-anova(rda(poc_data_afdw_log_sym[,5:11], poc_data_afdw_log_sym$site))
-#The effect of site with overlap with timepoint is not significant p=0.111 
-anova(rda(poc_data_afdw_log_sym[,5:11], poc_data_afdw_log_sym$site,  poc_data_afdw_log_sym$timepoint))
-#The effect of site alone (controlling for timepoint) is significant p=0.031 
+anova(rda(poc_data_afdw_log_sym[,5:13], poc_data_afdw_log_sym$site))
+#The effect of site with overlap with timepoint is not significant p=0.346
+anova(rda(poc_data_afdw_log_sym[,5:13], poc_data_afdw_log_sym$site,  poc_data_afdw_log_sym$timepoint))
+#The effect of site alone (controlling for timepoint) is not significant p=0.156 
 ```
-
 
 #Organize Variance Partitioning Results
 
