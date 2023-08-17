@@ -69,6 +69,11 @@ master<-master%>%
   select(!code)
 ```
 
+Set seed for permutation tests (randomly picked). 
+```{r}
+set.seed(2534)
+```
+
 # Build trajectory PCA plots  
 
 ## Holobiont Responses 
@@ -1185,7 +1190,7 @@ por.centroids<-por_data %>%
 
 ```{r}
 # scale data
-vegan <- scale(por_data_afdw[ ,5:8])
+vegan <- scale(por_data_afdw[ ,5:9])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 permanova<-adonis2(vegan ~ timepoint*site, data = por_data_afdw, method='eu')
