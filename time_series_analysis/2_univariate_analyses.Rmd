@@ -2208,7 +2208,7 @@ am_plot<-master %>%
     ylim(0, 3)+
   
     xlab("Month") + 
-    ylab(expression(bold(paste("log P" [Max], " (µmol O" [2], " cm"^-2, " h"^-1, ")"))))+
+    ylab(expression(bold(paste("P" [Max], " (µmol O" [2], " cm"^-2, " h"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
