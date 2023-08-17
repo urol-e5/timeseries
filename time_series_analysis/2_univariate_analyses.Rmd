@@ -35,6 +35,7 @@ if (!require("GGally")) install.packages("GGally")
 if (!require("broom")) install.packages("broom")
 if (!require("cowplot")) install.packages("cowplot")
 if (!require("directlabels")) install.packages("directlabels")
+if (!require("broom")) install.packages("broom")
 
 # load packages
 library(tidyverse)
@@ -53,6 +54,8 @@ library(GGally)
 library(broom)
 library(cowplot)
 library(directlabels)
+library(broom)
+library(emmeans)
 ```
 
 # Load dataframe
@@ -67,6 +70,9 @@ master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "
 
 master$site<-as.factor(master$site)
 master$site<-fct_relevel(master$site, "Mahana", "Hilton", "Manava")
+
+master$month<-as.factor(master$month)
+master$month<-fct_relevel(master$month, "January 2020", "March 2020", "September 2020", "November 2020")
 ```
 
 # Univariate Responses  
@@ -109,7 +115,7 @@ tacplot_prot<-master %>%
 
 View by site and timepoint for each species.   
 ```{r}
-tacplot_afdw<-master %>%
+tacplot_afdw_box<-master %>%
   filter(!is.na(cre.umol.mgafdw)) %>%
   filter(!is.na(species))%>%
   select(colony_id_corr, species, site, timepoint, cre.umol.mgafdw)%>%
@@ -132,6 +138,41 @@ tacplot_afdw<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
+      );tacplot_afdw_box
+```
+
+View by means
+```{r}
+tacplot_afdw<-master %>%
+  filter(!is.na(cre.umol.mgafdw)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, site, month, cre.umol.mgafdw)%>%
+  
+  group_by(species, site, month)%>%
+  summarise(mean=mean(cre.umol.mgafdw, na.rm=TRUE), se=sd(cre.umol.mgafdw, na.rm=TRUE)/sqrt(length(cre.umol.mgafdw)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+    geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
+  
+    labs(fill = "Site") +
+    facet_wrap(~species) +
+  
+    scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+    scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Antioxidant Capacity (", mu, "mol CRE mg afdw"^-1,")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
       );tacplot_afdw
 ```
 
@@ -169,7 +210,7 @@ tacplot_cm2<-master %>%
 Join all plots for each normalization together.  
 
 ```{r}
-tac_figure<-plot_grid(tacplot_prot, tacplot_afdw, tacplot_cm2, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1)
+tac_figure<-plot_grid(tacplot_prot, tacplot_afdw_box, tacplot_cm2, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1)
 
 ggsave(filename="Figures/Univariate/TAC_Figure.pdf", plot=tac_figure, dpi=300, width=24, height=5, units="in")
 ```
@@ -201,6 +242,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(antiox_model, type="III")
 summary(antiox_model)
+
+emm<-emmeans(antiox_model, ~ species)
+pairs(emm)
 ```
 
 Since species is significant, run a model for site and time effects within each species.  
@@ -219,6 +263,15 @@ Generate a Type III Anova of model.
 ```{r}
 anova(antiox_model_acr, type="III")
 summary(antiox_model_acr)
+
+emm<-emmeans(antiox_model_acr, ~ site | timepoint)
+pairs(emm)
+
+emm<-emmeans(antiox_model_acr, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(antiox_model_acr, ~ timepoint)
+pairs(emm)
 ```
 
 *Pocillopora*: 
@@ -236,6 +289,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(antiox_model_poc, type="III")
 summary(antiox_model_poc)
+
+emm<-emmeans(antiox_model_poc, ~ timepoint)
+pairs(emm)
 ```
 
 
@@ -254,6 +310,12 @@ Generate a Type III Anova of model.
 ```{r}
 anova(antiox_model_por, type="III")
 summary(antiox_model_por)
+
+emm<-emmeans(antiox_model_por, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(antiox_model_por, ~ timepoint)
+pairs(emm)
 ```
 
 
@@ -323,7 +385,7 @@ symbplot_prot<-master %>%
 
 View by site and timepoint for each species.   
 ```{r}
-symbplot_afdw<-master %>%
+symbplot_afdw_box<-master %>%
   filter(!is.na(cells.mgAFDW)) %>%
     filter(!is.na(species))%>%
   select(colony_id_corr, species, site, timepoint, cells.mgAFDW)%>%
@@ -346,13 +408,50 @@ symbplot_afdw<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
+      );symbplot_afdw_box
+```
+
+View by means
+```{r}
+symbplot_afdw<-master %>%
+  filter(!is.na(cells.mgAFDW)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, site, month, cells.mgAFDW)%>%
+  
+  group_by(species, site, month)%>%
+  summarise(mean=mean(cells.mgAFDW, na.rm=TRUE), se=sd(cells.mgAFDW, na.rm=TRUE)/sqrt(length(cells.mgAFDW)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+    geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
+  
+    labs(fill = "Site") +
+    facet_wrap(~species) +
+  
+    scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+    scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  
+    ylim(1e+04, 9e+05)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Symbiont Density (cells mg afdw"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
       );symbplot_afdw
 ```
 
 Join all plots for each normalization together.  
 
 ```{r}
-symbcells_figure<-plot_grid(symbplot_prot, symbplot_afdw, symbplot_cm2, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1)
+symbcells_figure<-plot_grid(symbplot_prot, symbplot_afdw_box, symbplot_cm2, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1)
 
 ggsave(filename="Figures/Univariate/CellDensity_Figure.pdf", plot=symbcells_figure, dpi=300, width=24, height=5, units="in")
 ```
@@ -383,6 +482,9 @@ Generate a Type III Anova of model.
 
 ```{r}
 anova(density_model, type="III")
+
+emm<-emmeans(density_model, ~ species)
+pairs(emm)
 ```
 
 Since species is significant, test for effects of time and site within each species.  
@@ -400,6 +502,15 @@ Generate a Type III Anova of model.
 
 ```{r}
 anova(density_model_acr, type="III")
+
+emm<-emmeans(density_model_acr, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(density_model_acr, ~ site | timepoint)
+pairs(emm)
+
+emm<-emmeans(density_model_acr, ~ timepoint | site)
+pairs(emm)
 ```
 
 *Pocillopora*  
@@ -415,6 +526,15 @@ Generate a Type III Anova of model.
 
 ```{r}
 anova(density_model_poc, type="III")
+
+emm<-emmeans(density_model_poc, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(density_model_poc, ~ site | timepoint)
+pairs(emm)
+
+emm<-emmeans(density_model_poc, ~ timepoint | site)
+pairs(emm)
 ```
 
 *Porites*  
@@ -430,6 +550,18 @@ Generate a Type III Anova of model.
 
 ```{r}
 anova(density_model_por, type="III")
+
+emm<-emmeans(density_model_poc, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(density_model_poc, ~ site)
+pairs(emm)
+
+emm<-emmeans(density_model_poc, ~ site | timepoint)
+pairs(emm)
+
+emm<-emmeans(density_model_poc, ~ timepoint | site)
+pairs(emm)
 ```
 
 
@@ -439,7 +571,7 @@ anova(density_model_por, type="III")
  
 View by site and timepoint for each species in the host.  
 ```{r} 
-hAFDWplot<-master %>%
+hAFDWplot_box<-master %>%
   filter(!is.na(Host_AFDW.mg.cm2)) %>%
   filter(!is.na(species))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
@@ -454,7 +586,7 @@ hAFDWplot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("log Host Biomass (mg AFDW cm"^-2, ")"))))+
+    ylab(expression(bold(paste("log Host Biomass (mg afdw cm"^-2, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -463,15 +595,52 @@ hAFDWplot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
-      );hAFDWplot
+      );hAFDWplot_box
 ```
 
+View by means
+```{r}
+hAFDWplot<-master %>%
+  filter(!is.na(Host_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, site, month, Host_AFDW.mg.cm2)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  
+  group_by(species, site, month)%>%
+  summarise(mean=mean(Host_AFDW.mg.cm2, na.rm=TRUE), se=sd(Host_AFDW.mg.cm2, na.rm=TRUE)/sqrt(length(Host_AFDW.mg.cm2)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+    geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
+  
+    labs(fill = "Site") +
+    facet_wrap(~species) +
+  
+    scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+    scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+  
+    ylim(0, 10)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Host Biomass (mg afdw cm"^-2, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );hAFDWplot
+```
 
 ### Plot Symbiont biomass  
 
 View by site and timepoint for each species in the symbiont   
 ```{r} 
-sAFDWplot<-master %>%
+sAFDWplot_box<-master %>%
   filter(!is.na(Sym_AFDW.mg.cm2)) %>%
   filter(!is.na(species))%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
@@ -487,7 +656,7 @@ sAFDWplot<-master %>%
     labs(fill = "Month") +
     facet_wrap(~species) +
     xlab("Site") + 
-    ylab(expression(bold(paste("log Sym. Biomass (mg AFDW cm"^-2, ")"))))+
+    ylab(expression(bold(paste("log Sym. Biomass (mg afdw cm"^-2, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -496,6 +665,45 @@ sAFDWplot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
+      );sAFDWplot_box
+```
+
+View by means
+```{r}
+sAFDWplot<-master %>%
+  filter(!is.na(Sym_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, site, month, Sym_AFDW.mg.cm2)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  
+  group_by(species, site, month)%>%
+  summarise(mean=mean(Sym_AFDW.mg.cm2, na.rm=TRUE), se=sd(Sym_AFDW.mg.cm2, na.rm=TRUE)/sqrt(length(Sym_AFDW.mg.cm2)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+    geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
+  
+    labs(fill = "Site") +
+    facet_wrap(~species) +
+  
+    scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+    scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  
+    ylim(0, 5)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Symbiont Biomass (mg afdw cm"^-2, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
       );sAFDWplot
 ```
 
@@ -504,7 +712,7 @@ sAFDWplot<-master %>%
 Calculate biomass as a ratio of host to symbiont and plot.  
 
 ```{r} 
-ratioAFDWplot<-master %>%
+ratioAFDWplot_box<-master %>%
   filter(!is.na(Host_AFDW.mg.cm2)) %>%
   filter(!is.na(species))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
@@ -530,13 +738,51 @@ ratioAFDWplot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
+      );ratioAFDWplot_box
+```
+
+View by means
+```{r}
+ratioAFDWplot<-master %>%
+  filter(!is.na(Sym_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  select(colony_id_corr, species, site, month, Ratio_AFDW.mg.cm2)%>%
+  
+  group_by(species, site, month)%>%
+  summarise(mean=mean(Ratio_AFDW.mg.cm2, na.rm=TRUE), se=sd(Ratio_AFDW.mg.cm2, na.rm=TRUE)/sqrt(length(Ratio_AFDW.mg.cm2)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+    geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
+  
+    labs(fill = "Site") +
+    facet_wrap(~species) +
+  
+    scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+    scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  
+    ylim(0, 0.5)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Symbiont : Host Biomass"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
       );ratioAFDWplot
 ```
 
 Join all plots together.  
 
 ```{r}
-afdw_figure<-plot_grid(hAFDWplot, sAFDWplot, ratioAFDWplot, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1)
+afdw_figure<-plot_grid(hAFDWplot_box, sAFDWplot_box, ratioAFDWplot_box, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1)
 
 ggsave(filename="Figures/Univariate/Biomass_Figure.pdf", plot=afdw_figure, dpi=300, width=24, height=5, units="in")
 ```
@@ -570,6 +816,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(hAFDW_model, type="III")
 summary(hAFDW_model)
+
+emm<-emmeans(hAFDW_model, ~ species)
+pairs(emm)
 ```
 
 Since species is significant, test for effects of site and time within each species.  
@@ -588,6 +837,12 @@ Generate a Type III Anova of model.
 ```{r}
 anova(hAFDW_model_acr, type="III")
 summary(hAFDW_model_acr)
+
+emm<-emmeans(hAFDW_model_acr, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(hAFDW_model_acr, ~ site)
+pairs(emm)
 ```
 
 *Pocillopora*  
@@ -604,6 +859,18 @@ Generate a Type III Anova of model.
 ```{r}
 anova(hAFDW_model_poc, type="III")
 summary(hAFDW_model_poc)
+
+emm<-emmeans(hAFDW_model_poc, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(hAFDW_model_poc, ~ site)
+pairs(emm)
+
+emm<-emmeans(hAFDW_model_poc, ~ site | timepoint)
+pairs(emm)
+
+emm<-emmeans(hAFDW_model_poc, ~ timepoint | site)
+pairs(emm)
 ```
 
 *Porites*  
@@ -620,6 +887,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(hAFDW_model_por, type="III")
 summary(hAFDW_model_por)
+
+emm<-emmeans(hAFDW_model_por, ~ site)
+pairs(emm)
 ```
 
 #### Symbiont Biomass:  
@@ -646,6 +916,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(sAFDW_model, type="III")
 summary(sAFDW_model)
+
+emm<-emmeans(sAFDW_model, ~ species)
+pairs(emm)
 ```
 
 Since species is significant, test for effects of site and time within each species.  
@@ -664,6 +937,18 @@ Generate a Type III Anova of model.
 ```{r}
 anova(sAFDW_model_acr, type="III")
 summary(sAFDW_model_acr)
+
+emm<-emmeans(sAFDW_model_acr, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(sAFDW_model_acr, ~ site)
+pairs(emm)
+
+emm<-emmeans(sAFDW_model_acr, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(sAFDW_model_acr, ~ site | timepoint)
+pairs(emm)
 ```
 
 *Pocillopora* 
@@ -680,6 +965,15 @@ Generate a Type III Anova of model.
 ```{r}
 anova(sAFDW_model_poc, type="III")
 summary(sAFDW_model_poc)
+
+emm<-emmeans(sAFDW_model_poc, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(sAFDW_model_poc, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(sAFDW_model_poc, ~ site | timepoint)
+pairs(emm)
 ```
 
 *Porites* 
@@ -696,6 +990,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(sAFDW_model_por, type="III")
 summary(sAFDW_model_por)
+
+emm<-emmeans(sAFDW_model_por, ~ site)
+pairs(emm)
 ```
 
 
@@ -724,6 +1021,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(shAFDW_model, type="III")
 summary(shAFDW_model)
+
+emm<-emmeans(shAFDW_model, ~ species)
+pairs(emm)
 ```
 
 Since species is significant, test for effects of time and site within species.  
@@ -742,6 +1042,18 @@ Generate a Type III Anova of model.
 ```{r}
 anova(shAFDW_model_acr, type="III")
 summary(shAFDW_model_acr)
+
+emm<-emmeans(shAFDW_model_acr, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(shAFDW_model_acr, ~ site)
+pairs(emm)
+
+emm<-emmeans(shAFDW_model_acr, ~ site | timepoint)
+pairs(emm)
+
+emm<-emmeans(shAFDW_model_acr, ~ timepoint | site)
+pairs(emm)
 ```
 
 *Pocillopora*   
@@ -758,6 +1070,18 @@ Generate a Type III Anova of model.
 ```{r}
 anova(shAFDW_model_poc, type="III")
 summary(shAFDW_model_poc)
+
+emm<-emmeans(shAFDW_model_poc, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(shAFDW_model_poc, ~ site)
+pairs(emm)
+
+emm<-emmeans(shAFDW_model_poc, ~ site | timepoint)
+pairs(emm)
+
+emm<-emmeans(shAFDW_model_poc, ~ timepoint | site)
+pairs(emm)
 ```
 
 *Porites*   
@@ -774,6 +1098,12 @@ Generate a Type III Anova of model.
 ```{r}
 anova(shAFDW_model_por, type="III")
 summary(shAFDW_model_por)
+
+emm<-emmeans(shAFDW_model_poc, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(shAFDW_model_poc, ~ site)
+pairs(emm)
 ```
 
 ## Chlorophyll  
@@ -1012,7 +1342,7 @@ chlc2plot_cell<-master %>%
 
 View by site and timepoint for each species for total chl per unit AFDW.     
 ```{r}
-chlplot_total<-master %>%
+chlplot_total_box<-master %>%
   filter(!is.na(Total_Chl)) %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site, timepoint, Total_Chl)%>%
@@ -1036,12 +1366,50 @@ chlplot_total<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
+      );chlplot_total_box
+```
+
+View by means
+```{r}
+chlplot_total<-master %>%
+  filter(!is.na(Total_Chl)) %>%
+  filter(!is.na(species))%>%
+  filter(Total_Chl>0)%>%
+  select(colony_id_corr, species, site, month, Total_Chl)%>%
+  
+  group_by(species, site, month)%>%
+  summarise(mean=mean(Total_Chl, na.rm=TRUE), se=sd(Total_Chl, na.rm=TRUE)/sqrt(length(Total_Chl)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+    geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
+  
+    labs(fill = "Site") +
+    facet_wrap(~species) +
+  
+    scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+    scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  
+    ylim(0, 7)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Total Chlorophyll (", mu, "g mg afdw"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
       );chlplot_total
 ```
 
 View by site and timepoint for each species for total chl per cell.     
 ```{r}
-chlplot_total_cell<-master %>%
+chlplot_total_cell_box<-master %>%
   filter(!is.na(Total_Chl_cell)) %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site, timepoint, Total_Chl_cell)%>%
@@ -1065,13 +1433,51 @@ chlplot_total_cell<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
+      );chlplot_total_cell_box
+```
+
+View by means
+```{r}
+chlplot_total_cell<-master %>%
+  filter(!is.na(Total_Chl_cell)) %>%
+  filter(!is.na(species))%>%
+  filter(Total_Chl_cell>0)%>%
+  select(colony_id_corr, species, site, month, Total_Chl_cell)%>%
+  
+  group_by(species, site, month)%>%
+  summarise(mean=mean(Total_Chl_cell, na.rm=TRUE), se=sd(Total_Chl_cell, na.rm=TRUE)/sqrt(length(Total_Chl_cell)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+    geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
+  
+    labs(fill = "Site") +
+    facet_wrap(~species) +
+  
+    scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+    scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  
+    ylim(0, 3e-05)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Total Chlorophyll (", mu, "g cell"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
       );chlplot_total_cell
 ```
 
 Join all plots for each normalization together.  
 
 ```{r}
-chl_figure<-plot_grid(chlplot_total, chlaplot_prot, chlaplot_afdw, chlaplot_cell, chlaplot_cm2, chlplot_total_cell, chlc2plot_prot, chlc2plot_afdw, chlc2plot_cell, chlc2plot_cm2,  labels = c("", "", ""), ncol=5, nrow=2, rel_widths = c(.8, .8, .8, .8, 1, .8, .8, .8, .8, 1), label_size = 20, label_x = 0.1)
+chl_figure<-plot_grid(chlplot_total_box, chlaplot_prot, chlaplot_afdw, chlaplot_cell, chlaplot_cm2, chlplot_total_cell_box, chlc2plot_prot, chlc2plot_afdw, chlc2plot_cell, chlc2plot_cm2,  labels = c("", "", ""), ncol=5, nrow=2, rel_widths = c(.8, .8, .8, .8, 1, .8, .8, .8, .8, 1), label_size = 20, label_x = 0.1)
 
 ggsave(filename="Figures/Univariate/Chlorophyll_Figure.pdf", plot=chl_figure, dpi=300, width=36, height=10, units="in")
 ```
@@ -1104,6 +1510,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chla_model, type="III")
 summary(chla_model)
+
+emm<-emmeans(chla_model, ~ species)
+pairs(emm)
 ```
 
 Since species is significant, test for effects of site and time within each species.  
@@ -1122,6 +1531,15 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chla_model_acr, type="III")
 summary(chla_model_acr)
+
+emm<-emmeans(chla_model_acr, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(chla_model_acr, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(chla_model_acr, ~ site | timepoint)
+pairs(emm)
 ```
 
 *Pocillopora*  
@@ -1138,6 +1556,18 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chla_model_poc, type="III")
 summary(chla_model_poc)
+
+emm<-emmeans(chla_model_poc, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(chla_model_poc, ~ site)
+pairs(emm)
+
+emm<-emmeans(chla_model_poc, ~ site | timepoint)
+pairs(emm)
+
+emm<-emmeans(chla_model_poc, ~ timepoint | site)
+pairs(emm)
 ```
 
 *Porites*  
@@ -1154,6 +1584,18 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chla_model_por, type="III")
 summary(chla_model_por)
+
+emm<-emmeans(chla_model_por, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(chla_model_por, ~ site)
+pairs(emm)
+
+emm<-emmeans(chla_model_por, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(chla_model_por, ~ site | timepoint)
+pairs(emm)
 ```
 
 
@@ -1184,6 +1626,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chlc2_model, type="III")
 summary(chlc2_model)
+
+emm<-emmeans(chlc2_model, ~ species)
+pairs(emm)
 ```
 
 Since species is significant, test for effects of site and time within species.  
@@ -1202,6 +1647,18 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chlc2_model_acr, type="III")
 summary(chlc2_model_acr)
+
+emm<-emmeans(chlc2_model_acr, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(chlc2_model_acr, ~ site)
+pairs(emm)
+
+emm<-emmeans(chlc2_model_acr, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(chlc2_model_acr, ~ site | timepoint)
+pairs(emm)
 ```
 
 
@@ -1219,8 +1676,19 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chlc2_model_poc, type="III")
 summary(chlc2_model_poc)
-```
 
+emm<-emmeans(chlc2_model_poc, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(chlc2_model_poc, ~ site)
+pairs(emm)
+
+emm<-emmeans(chlc2_model_poc, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(chlc2_model_poc, ~ site | timepoint)
+pairs(emm)
+```
 
 *Porites* 
 
@@ -1236,6 +1704,18 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chlc2_model_por, type="III")
 summary(chlc2_model_por)
+
+emm<-emmeans(chlc2_model_por, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(chlc2_model_por, ~ site)
+pairs(emm)
+
+emm<-emmeans(chlc2_model_por, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(chlc2_model_por, ~ site | timepoint)
+pairs(emm)
 ```
 
 #### Total Chlorophyll (a + c2): 
@@ -1263,6 +1743,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chltotal_model, type="III")
 summary(chltotal_model)
+
+emm<-emmeans(chltotal_model, ~ species)
+pairs(emm)
 ```
 
 Since species is significant, test for effects of time and site within species.  
@@ -1281,6 +1764,18 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chltotal_model_acr, type="III")
 summary(chltotal_model_acr)
+
+emm<-emmeans(chltotal_model_acr, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(chltotal_model_acr, ~ site)
+pairs(emm)
+
+emm<-emmeans(chltotal_model_acr, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(chltotal_model_acr, ~ site | timepoint)
+pairs(emm)
 ```
 
 *Pocillopora*  
@@ -1297,6 +1792,18 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chltotal_model_poc, type="III")
 summary(chltotal_model_poc)
+
+emm<-emmeans(chltotal_model_poc, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(chltotal_model_poc, ~ site)
+pairs(emm)
+
+emm<-emmeans(chltotal_model_poc, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(chltotal_model_poc, ~ site | timepoint)
+pairs(emm)
 ```
 
 *Porites*  
@@ -1313,6 +1820,18 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chltotal_model_por, type="III")
 summary(chltotal_model_por)
+
+emm<-emmeans(chltotal_model_por, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(chltotal_model_por, ~ site)
+pairs(emm)
+
+emm<-emmeans(chltotal_model_por, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(chltotal_model_por, ~ site | timepoint)
+pairs(emm)
 ```
 
 #### Total Chlorophyll per cell (a + c2): 
@@ -1342,6 +1861,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chltotalcell_model, type="III")
 summary(chltotalcell_model)
+
+emm<-emmeans(chltotalcell_model, ~ species)
+pairs(emm)
 ```
 
 Since species is significant, test for effects of time and set within species.  
@@ -1360,6 +1882,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chltotalcell_model_acr, type="III")
 summary(chltotalcell_model_acr)
+
+emm<-emmeans(chltotalcell_model_acr, ~ timepoint)
+pairs(emm)
 ```
 
 *Pocillopora*   
@@ -1376,6 +1901,12 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chltotalcell_model_poc, type="III")
 summary(chltotalcell_model_poc)
+
+emm<-emmeans(chltotalcell_model_poc, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(chltotalcell_model_poc, ~ site)
+pairs(emm)
 ```
 
 *Porites*   
@@ -1392,6 +1923,12 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chltotalcell_model_por, type="III")
 summary(chltotalcell_model_por)
+
+emm<-emmeans(chltotalcell_model_por, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(chltotalcell_model_por, ~ site)
+pairs(emm)
 ```
 
 ## Protein 
@@ -1429,7 +1966,7 @@ protplot_cm2<-master %>%
 
 View by site and timepoint for each species.    
 ```{r}
-protplot_afdw<-master %>%
+protplot_afdw_box<-master %>%
   filter(!is.na(prot_mg.mgafdw)) %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site, timepoint, prot_mg.mgafdw)%>%
@@ -1453,13 +1990,52 @@ protplot_afdw<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
+      );protplot_afdw_box
+```
+
+View by means
+```{r}
+protplot_afdw<-master %>%
+  filter(!is.na(prot_mg.mgafdw)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, site, month, prot_mg.mgafdw)%>%
+  filter(prot_mg.mgafdw>0)%>%
+  filter(prot_mg.mgafdw<1)%>%
+  
+  group_by(species, site, month)%>%
+  summarise(mean=mean(prot_mg.mgafdw, na.rm=TRUE), se=sd(prot_mg.mgafdw, na.rm=TRUE)/sqrt(length(prot_mg.mgafdw)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+    geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
+  
+    labs(fill = "Site") +
+    facet_wrap(~species) +
+  
+    scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+    scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  
+    ylim(0, 0.5)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Protein (mg mg afdw"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
       );protplot_afdw
 ```
 
 Join all plots for each normalization together.  
 
 ```{r}
-prot_figure<-plot_grid(protplot_afdw, protplot_cm2, labels = c("", "", ""), ncol=2, nrow=1, rel_widths = c(.8, 1), label_size = 20, label_x = 0.1)
+prot_figure<-plot_grid(protplot_afdw_box, protplot_cm2, labels = c("", "", ""), ncol=2, nrow=1, rel_widths = c(.8, 1), label_size = 20, label_x = 0.1)
 
 ggsave(filename="Figures/Univariate/Protein_Figure.pdf", plot=prot_figure, dpi=300, width=16, height=5, units="in")
 ```
@@ -1471,7 +2047,7 @@ Build a mixed model for univariate analysis and examine data distribution.
 `prot_model<-lmer(prot_mg.mgafdw~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_ug.mgAFDW>0))` 
 
 ```{r}
-prot_model<-lmer(prot_mg.mgafdw~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0))
+prot_model<-lmer(prot_mg.mgafdw~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & prot_mg.mgafdw<1))
 qqPlot(residuals(prot_model))
 ```
 
@@ -1480,7 +2056,7 @@ Residuals are not normally distributed. Attempt with log transformation.
 `prot_model<-lmer(log(1+prot_mg.mgafdw)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_ug.mgafdw>0))` 
 
 ```{r}
-prot_model<-lmer(log(1+prot_mg.mgafdw)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0))
+prot_model<-lmer(log(1+prot_mg.mgafdw)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & prot_mg.mgafdw<1))
 qqPlot(residuals(prot_model))
 ```
 
@@ -1489,6 +2065,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(prot_model, type="III")
 summary(prot_model)
+
+emm<-emmeans(prot_model, ~ species)
+pairs(emm)
 ```
 
 Since species is significant, test for effects of site and time within each species.  
@@ -1498,7 +2077,7 @@ Since species is significant, test for effects of site and time within each spec
 `prot_model_acr<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_ug.mgafdw>0 & species=="Acropora"))` 
 
 ```{r}
-prot_model_acr<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & species=="Acropora"))
+prot_model_acr<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & prot_mg.mgafdw<1 & species=="Acropora"))
 qqPlot(residuals(prot_model_acr))
 ```
 
@@ -1507,6 +2086,15 @@ Generate a Type III Anova of model.
 ```{r}
 anova(prot_model_acr, type="III")
 summary(prot_model_acr)
+
+emm<-emmeans(prot_model_acr, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(prot_model_acr, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(prot_model_acr, ~ site | timepoint)
+pairs(emm)
 ```
 
 *Pocillopora*  
@@ -1514,7 +2102,7 @@ summary(prot_model_acr)
 `prot_model_poc<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_ug.mgafdw>0 & species=="Pocillopora"))` 
 
 ```{r}
-prot_model_poc<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & species=="Pocillopora"))
+prot_model_poc<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & prot_mg.mgafdw<1 & species=="Pocillopora"))
 qqPlot(residuals(prot_model_poc))
 ```
 
@@ -1523,6 +2111,18 @@ Generate a Type III Anova of model.
 ```{r}
 anova(prot_model_poc, type="III")
 summary(prot_model_poc)
+
+emm<-emmeans(prot_model_poc, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(prot_model_poc, ~ site)
+pairs(emm)
+
+emm<-emmeans(prot_model_poc, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(prot_model_poc, ~ site | timepoint)
+pairs(emm)
 ```
 
 *Porites*  
@@ -1530,7 +2130,7 @@ summary(prot_model_poc)
 `prot_model_por<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_ug.mgafdw>0 & species=="Porites"))` 
 
 ```{r}
-prot_model_por<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & species=="Porites"))
+prot_model_por<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & prot_mg.mgafdw<1 & species=="Porites"))
 qqPlot(residuals(prot_model_por))
 ```
 
@@ -1539,6 +2139,18 @@ Generate a Type III Anova of model.
 ```{r}
 anova(prot_model_por, type="III")
 summary(prot_model_por)
+
+emm<-emmeans(prot_model_por, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(prot_model_por, ~ site)
+pairs(emm)
+
+emm<-emmeans(prot_model_por, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(prot_model_por, ~ site | timepoint)
+pairs(emm)
 ```
 
 ## PI Curve Parameters   
@@ -1547,7 +2159,7 @@ summary(prot_model_por)
 
 View by site and timepoint for each species.    
 ```{r}
-am_plot<-master %>%
+am_plot_box<-master %>%
   filter(!is.na(AQY)) %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site, timepoint, AQY, Am, Rd)%>%
@@ -1570,6 +2182,43 @@ am_plot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
+      );am_plot_box
+```
+
+View by means
+```{r}
+am_plot<-master %>%
+  filter(!is.na(Am)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, site, month, Am)%>%
+  
+  group_by(species, site, month)%>%
+  summarise(mean=mean(Am, na.rm=TRUE), se=sd(Am, na.rm=TRUE)/sqrt(length(Am)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+    geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
+  
+    labs(fill = "Site") +
+    facet_wrap(~species) +
+  
+    scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+    scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  
+    ylim(0, 3)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("log P" [Max], " (µmol O" [2], " cm"^-2, " h"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
       );am_plot
 ```
 
@@ -1577,7 +2226,7 @@ am_plot<-master %>%
 
 View by site and timepoint for each species.    
 ```{r}
-aqy_plot<-master %>%
+aqy_plot_box<-master %>%
   filter(!is.na(AQY)) %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site, timepoint, AQY, Am, Rd)%>%
@@ -1600,6 +2249,43 @@ aqy_plot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
+      );aqy_plot_box
+```
+
+View by means
+```{r}
+aqy_plot<-master %>%
+  filter(!is.na(AQY)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, site, month, AQY)%>%
+  
+  group_by(species, site, month)%>%
+  summarise(mean=mean(AQY, na.rm=TRUE), se=sd(AQY, na.rm=TRUE)/sqrt(length(AQY)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+    geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
+  
+    labs(fill = "Site") +
+    facet_wrap(~species) +
+  
+    scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+    scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  
+    ylim(0, 0.012)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Apparent Quantum Yield (AQY)"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
       );aqy_plot
 ```
 
@@ -1607,7 +2293,7 @@ aqy_plot<-master %>%
 
 View by site and timepoint for each species.    
 ```{r}
-rd_plot<-master %>%
+rd_plot_box<-master %>%
   filter(!is.na(AQY)) %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site, timepoint, AQY, Am, Rd)%>%
@@ -1630,6 +2316,43 @@ rd_plot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
+      );rd_plot_box
+```
+
+View by means
+```{r}
+rd_plot<-master %>%
+  filter(!is.na(Rd)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, site, month, Rd)%>%
+  
+  group_by(species, site, month)%>%
+  summarise(mean=mean(Rd, na.rm=TRUE), se=sd(Rd, na.rm=TRUE)/sqrt(length(Rd)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+    geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
+  
+    labs(fill = "Site") +
+    facet_wrap(~species) +
+  
+    scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+    scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  
+    ylim(0, 1.25)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Respiration (R" [D], ") (µmol O" [2], " cm"^-2, " h"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
       );rd_plot
 ```
 
@@ -1637,7 +2360,7 @@ rd_plot<-master %>%
 
 View by site and timepoint for each species.    
 ```{r}
-Ik_plot<-master %>%
+Ik_plot_box<-master %>%
   filter(!is.na(AQY)) %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site, timepoint, AQY, Am, Rd, Ik, Ic)%>%
@@ -1660,6 +2383,43 @@ Ik_plot<-master %>%
       axis.text=element_text(size=10, color="black"), 
       legend.position="none",
       strip.text.x=element_text(face="italic", size=14)
+      );Ik_plot_box
+```
+
+View by means
+```{r}
+Ik_plot<-master %>%
+  filter(!is.na(Ik)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, site, month, Ik)%>%
+  
+  group_by(species, site, month)%>%
+  summarise(mean=mean(Ik, na.rm=TRUE), se=sd(Ik, na.rm=TRUE)/sqrt(length(Ik)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+    geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
+  
+    labs(fill = "Site") +
+    facet_wrap(~species) +
+  
+    scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+    scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  
+    ylim(0, 650)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("I" [K], " (PAR)"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
       );Ik_plot
 ```
 
@@ -1667,7 +2427,7 @@ Ik_plot<-master %>%
 
 View by site and timepoint for each species.    
 ```{r}
-Ic_plot<-master %>%
+Ic_plot_box<-master %>%
   filter(!is.na(AQY)) %>%
   filter(!is.na(species)) %>%
   select(colony_id_corr, species, site, timepoint, AQY, Am, Rd, Ik, Ic)%>%
@@ -1690,13 +2450,51 @@ Ic_plot<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
+      );Ic_plot_box
+```
+
+View by means
+```{r}
+Ic_plot<-master %>%
+  filter(!is.na(Ic)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, site, month, Ic)%>%
+  filter(Ic<1000)%>%
+  
+  group_by(species, site, month)%>%
+  summarise(mean=mean(Ic, na.rm=TRUE), se=sd(Ic, na.rm=TRUE)/sqrt(length(Ic)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+    geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
+  
+    labs(fill = "Site") +
+    facet_wrap(~species) +
+  
+    scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+    scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  
+    ylim(0, 650)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("I" [C], " (PAR)"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
       );Ic_plot
 ```
 
 Join all plots together.  
 
 ```{r}
-pi_figure<-plot_grid(am_plot, aqy_plot, rd_plot, Ik_plot, Ic_plot, labels = c("", "", "", "", ""), ncol=5, nrow=1, rel_widths = c(.8, .8, .8, .8, 1), label_size = 20, label_x = 0.1)
+pi_figure<-plot_grid(am_plot_box, aqy_plot_box, rd_plot_box, Ik_plot_box, Ic_plot_box, labels = c("", "", "", "", ""), ncol=5, nrow=1, rel_widths = c(.8, .8, .8, .8, 1), label_size = 20, label_x = 0.1)
 
 ggsave(filename="Figures/Univariate/PI_Figure.pdf", plot=pi_figure, dpi=300, width=30, height=5, units="in")
 ```
@@ -1725,6 +2523,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(am_model, type="III")
 summary(am_model)
+
+emm<-emmeans(am_model, ~ species)
+pairs(emm)
 ```
 
 Since species is significant, test for effects of time and site within species.  
@@ -1743,6 +2544,12 @@ Generate a Type III Anova of model.
 ```{r}
 anova(am_model_acr, type="III")
 summary(am_model_acr)
+
+emm<-emmeans(am_model_acr, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(am_model_acr, ~ site)
+pairs(emm)
 ```
 
 *Pocillopora*  
@@ -1759,6 +2566,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(am_model_poc, type="III")
 summary(am_model_poc)
+
+emm<-emmeans(am_model_poc, ~ timepoint)
+pairs(emm)
 ```
 
 *Porites*  
@@ -1775,8 +2585,13 @@ Generate a Type III Anova of model.
 ```{r}
 anova(am_model_por, type="III")
 summary(am_model_por)
-```
 
+emm<-emmeans(am_model_por, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(am_model_por, ~ site)
+pairs(emm)
+```
 
 ### Analysis of AQY   
 
@@ -1803,6 +2618,9 @@ Generate a Type II Anova of model.
 ```{r}
 anova(aqy_model, type="II")
 summary(aqy_model)
+
+emm<-emmeans(aqy_model, ~ species)
+pairs(emm)
 ```
 
 Since species is significant, test for effect of site and time within species.  
@@ -1821,6 +2639,8 @@ Generate a Type III Anova of model.
 ```{r}
 anova(aqy_model_acr, type="III")
 summary(aqy_model_acr)
+
+#no significant effects, no posthoc 
 ```
 
 *Pocillopora*  
@@ -1837,6 +2657,12 @@ Generate a Type III Anova of model.
 ```{r}
 anova(aqy_model_poc, type="III")
 summary(aqy_model_poc)
+
+emm<-emmeans(aqy_model_poc, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(aqy_model_poc, ~ site)
+pairs(emm)
 ```
 
 *Porites*  
@@ -1853,6 +2679,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(aqy_model_por, type="III")
 summary(aqy_model_por)
+
+emm<-emmeans(aqy_model_por, ~ timepoint)
+pairs(emm)
 ```
 
 ### Analysis of Rd   
@@ -1880,6 +2709,9 @@ Generate a Type II Anova of model.
 ```{r}
 anova(rd_model, type="III")
 summary(rd_model)
+
+emm<-emmeans(rd_model, ~ species)
+pairs(emm)
 ```
 
 Since species is significant, test for effects of site and time within species.  
@@ -1898,6 +2730,12 @@ Generate a Type II Anova of model.
 ```{r}
 anova(rd_model_acr, type="III")
 summary(rd_model_acr)
+
+emm<-emmeans(rd_model_acr, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(rd_model_acr, ~ site)
+pairs(emm)
 ```
 
 *Pocillopora*  
@@ -1914,6 +2752,15 @@ Generate a Type II Anova of model.
 ```{r}
 anova(rd_model_poc, type="III")
 summary(rd_model_poc)
+
+emm<-emmeans(rd_model_poc, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(rd_model_poc, ~ site)
+pairs(emm)
+
+emm<-emmeans(rd_model_poc, ~ site | timepoint)
+pairs(emm)
 ```
 
 *Porites*  
@@ -1930,6 +2777,12 @@ Generate a Type II Anova of model.
 ```{r}
 anova(rd_model_por, type="III")
 summary(rd_model_por)
+
+emm<-emmeans(rd_model_por, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(rd_model_por, ~ site)
+pairs(emm)
 ```
 
 
@@ -1957,6 +2810,9 @@ Generate a Type II Anova of model.
 ```{r}
 anova(Ik_model, type="III")
 summary(Ik_model)
+
+emm<-emmeans(Ik_model, ~ species)
+pairs(emm)
 ```
 
 Since species is significant, test for effects of site and time within species.  
@@ -1975,6 +2831,9 @@ Generate a Type II Anova of model.
 ```{r}
 anova(Ik_model_acr, type="III")
 summary(Ik_model_acr)
+
+emm<-emmeans(Ik_model_acr, ~ timepoint)
+pairs(emm)
 ```
 
 *Pocillopora*  
@@ -1991,6 +2850,9 @@ Generate a Type II Anova of model.
 ```{r}
 anova(Ik_model_poc, type="III")
 summary(Ik_model_poc)
+
+emm<-emmeans(Ik_model_poc, ~ timepoint)
+pairs(emm)
 ```
 
 *Porites*  
@@ -2007,9 +2869,125 @@ Generate a Type II Anova of model.
 ```{r}
 anova(Ik_model_por, type="III")
 summary(Ik_model_por)
+
+emm<-emmeans(Ik_model_por, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(Ik_model_por, ~ site)
+pairs(emm)
+
+emm<-emmeans(Ik_model_por, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(Ik_model_por, ~ site | timepoint)
+pairs(emm)
 ```
 
 Ik is different by site and time for POR, but only by time in other species. 
+
+
+### Analysis of Ic   
+
+Build a mixed model for univariate analysis and examine data distribution. 
+
+`Ic_model<-lmer(Ic~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+
+```{r}
+Ic_model<-lmer(Ic~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(Ic_model))
+```
+
+Residuals are not normally distributed. Attempt with log transformation.      
+
+`Ik_model<-lmer(log(Ik)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+```{r}
+Ic_model<-lmer(log(Ic)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+qqPlot(residuals(Ic_model))
+```
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(Ic_model, type="III")
+summary(Ic_model)
+
+emm<-emmeans(Ic_model, ~ species)
+pairs(emm)
+```
+
+Since species is significant, test for effects of site and time within species.  
+
+*Acropora*  
+
+`Ic_model_acr<-lmer(log(Ic)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
+
+```{r}
+Ic_model_acr<-lmer(log(Ic)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
+qqPlot(residuals(Ic_model_acr))
+```
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(Ic_model_acr, type="III")
+summary(Ic_model_acr)
+
+emm<-emmeans(Ic_model_acr, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(Ic_model_acr, ~ site)
+pairs(emm)
+```
+
+*Pocillopora*  
+
+`Ic_model_poc<-lmer(log(Ic)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
+
+```{r}
+Ic_model_poc<-lmer(log(Ic)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+qqPlot(residuals(Ic_model_poc))
+```
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(Ic_model_poc, type="III")
+summary(Ic_model_poc)
+
+emm<-emmeans(Ic_model_poc, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(Ic_model_poc, ~ site | timepoint)
+pairs(emm)
+
+emm<-emmeans(Ic_model_poc, ~ timepoint | site)
+pairs(emm)
+```
+
+*Porites*  
+
+`Ic_model_por<-lmer(log(Ic)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
+
+```{r}
+Ic_model_por<-lmer(log(Ic)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+qqPlot(residuals(Ic_model_por))
+```
+
+Generate a Type II Anova of model.    
+
+```{r}
+anova(Ic_model_por, type="III")
+summary(Ic_model_por)
+
+emm<-emmeans(Ic_model_por, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(Ic_model_por, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(Ic_model_por, ~ site | timepoint)
+pairs(emm)
+```
 
 ## Calcification    
 
@@ -2079,7 +3057,7 @@ calcplot_afdw<-master %>%
 
 View by site and timepoint for each species.   
 ```{r}
-calcplot_cm2<-master %>%
+calcplot_cm2_box<-master %>%
   filter(!is.na(calc.umol.cm2.hr)) %>% 
   filter(!is.na(species))%>%
   select(colony_id_corr, species, site, timepoint, calc.umol.cm2.hr)%>%
@@ -2093,7 +3071,7 @@ calcplot_cm2<-master %>%
     xlab("Site") + 
     scale_x_discrete(labels=c("Mahana Low" = "Mahana \nLow", "Hilton Medium" = "Hilton \nMedium",
                               "Manava High" = "Manava \nHigh"))+
-    ylab(expression(bold(paste("log Calcification (", mu,"mol Ca", CO[3], " mg protein"^-1, " hr"^-1, ")"))))+
+    ylab(expression(bold(paste("log Calcification (", mu,"mol Ca", CO[3], " cm"^-2, " hr"^-1, ")"))))+
     theme_classic() + 
     theme(
       legend.position="none",
@@ -2102,13 +3080,51 @@ calcplot_cm2<-master %>%
       axis.title=element_text(face="bold", size=14),
       axis.text=element_text(size=10, color="black"), 
       strip.text.x=element_text(face="italic", size=14)
+      );calcplot_cm2_box
+```
+
+View by means
+```{r}
+calcplot_cm2<-master %>%
+  filter(!is.na(calc.umol.cm2.hr)) %>%
+  filter(calc.umol.cm2.hr>0)%>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, site, month, calc.umol.cm2.hr)%>%
+  
+  group_by(species, site, month)%>%
+  summarise(mean=mean(calc.umol.cm2.hr, na.rm=TRUE), se=sd(calc.umol.cm2.hr, na.rm=TRUE)/sqrt(length(calc.umol.cm2.hr)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+    geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
+  
+    labs(fill = "Site") +
+    facet_wrap(~species) +
+  
+    scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
+    scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
+  
+    ylim(0, 1.5)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Calcification (", mu,"mol Ca", CO[3], " cm"^-2, " hr"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
       );calcplot_cm2
 ```
 
 Join all plots for each normalization together.  
 
 ```{r}
-calc_figure<-plot_grid(calcplot_prot, calcplot_afdw, calcplot_cm2, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1);calc_figure
+calc_figure<-plot_grid(calcplot_prot, calcplot_afdw, calcplot_cm2_box, labels = c("", "", ""), ncol=3, nrow=1, rel_widths = c(.8, .8, 1), label_size = 20, label_x = 0.1);calc_figure
 
 ggsave(filename="Figures/Univariate/Calcification_Figure.pdf", plot=calc_figure, dpi=300, width=24, height=5, units="in")
 ```
@@ -2135,13 +3151,14 @@ qqPlot(residuals(calc_model))
 #hist(residuals(antiox_model))
 ```
 
-We are going to need to find a stronger transformation for this data.  
-
 Generate a Type III Anova of model.    
 
 ```{r}
 anova(calc_model, type="III")
 summary(calc_model)
+
+emm<-emmeans(calc_model, ~ species)
+pairs(emm)
 ```
 
 Since species is significant, run a model for site and time effects within each species to see if this helps assumptions.  
@@ -2160,9 +3177,16 @@ Generate a Type III Anova of model.
 ```{r}
 anova(calc_model_acr, type="III")
 summary(calc_model_acr)
-```
 
-Time and time x site are significant.  
+emm<-emmeans(calc_model_acr, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(calc_model_acr, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(calc_model_acr, ~ site | timepoint)
+pairs(emm)
+```
 
 *Pocillopora*: 
 
@@ -2179,6 +3203,9 @@ Generate a Type III Anova of model.
 ```{r}
 anova(calc_model_poc, type="III")
 summary(calc_model_poc)
+
+emm<-emmeans(calc_model_poc, ~ timepoint)
+pairs(emm)
 ```
 Time is significant. 
 
@@ -2197,6 +3224,18 @@ Generate a Type III Anova of model.
 ```{r}
 anova(calc_model_por, type="III")
 summary(calc_model_por)
+
+emm<-emmeans(calc_model_por, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(calc_model_por, ~ site)
+pairs(emm)
+
+emm<-emmeans(calc_model_por, ~ timepoint | site)
+pairs(emm)
+
+emm<-emmeans(calc_model_por, ~ site | timepoint)
+pairs(emm)
 ```
 Time, site, and time x site are significant. 
 
@@ -2222,7 +3261,14 @@ legend <- get_legend(
 
 Ic_plot<-Ic_plot + theme(legend.position="none")
 
-symbiont_univ<-plot_grid(symbplot_afdw, sAFDWplot, am_plot, aqy_plot, Ik_plot, Ic_plot, chlplot_total, chlplot_total_cell, ratioAFDWplot, ncol=3, nrow=3, rel_widths = c(1,1), align="h", label_y=1, labels=c("A", "B", "C", "D", "E", "F", "G", "H", "I"), label_size=20)
+symbplot_afdw<-symbplot_afdw+theme(axis.text.x=element_blank())
+sAFDWplot<-sAFDWplot+theme(axis.text.x=element_blank())
+am_plot<-am_plot+theme(axis.text.x=element_blank())
+aqy_plot<-aqy_plot+theme(axis.text.x=element_blank())
+Ik_plot<-Ik_plot+theme(axis.text.x=element_blank())
+Ic_plot<-Ic_plot+theme(axis.text.x=element_blank())
+
+symbiont_univ<-plot_grid(symbplot_afdw, sAFDWplot, am_plot, aqy_plot, Ik_plot, Ic_plot, chlplot_total, chlplot_total_cell, ratioAFDWplot, ncol=3, nrow=3, rel_widths = c(1,1,1), rel_heights = c(0.8, 0.8, 1), align="v", label_y=1, labels=c("A", "B", "C", "D", "E", "F", "G", "H", "I"), label_size=20)
 
 symbiont_univ2<-plot_grid(symbiont_univ, legend, ncol=1, nrow=2, rel_heights = c(4, .2))
 
@@ -2237,11 +3283,17 @@ legend_plot<-calcplot_cm2+theme(legend.position="bottom")
 rd_plot<-rd_plot+theme(legend.position="none")
 calcplot_cm2<-calcplot_cm2+theme(legend.position="none") 
 
-host_univ<-plot_grid(tacplot_afdw, hAFDWplot, protplot_afdw, rd_plot, calcplot_cm2, ncol=3, nrow=2, rel_widths = c(1, 1), align="h", label_y=1, labels=c("A", "B", "C", "D", "E"), label_size=20)
+tacplot_afdw<-tacplot_afdw+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank()) + theme(axis.title.y=element_text(size=12))
+hAFDWplot<-hAFDWplot+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank())+ theme(axis.title.y=element_text(size=12))
+protplot_afdw<-protplot_afdw+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank()) + theme(axis.title.y=element_text(size=12))
+rd_plot<-rd_plot+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank())+ theme(axis.title.y=element_text(size=12))
+calcplot_cm2<-calcplot_cm2+ theme(axis.title.y=element_text(size=12))
+ 
+host_univ<-plot_grid(tacplot_afdw, hAFDWplot, protplot_afdw, rd_plot, calcplot_cm2, ncol=1, nrow=5, rel_heights = c(0.8, 0.8, 0.8, 0.8, 1), align="v", label_y=1, labels=c("A", "B", "C", "D", "E"), label_size=20)
 
 host_univ2<-plot_grid(host_univ, legend, ncol=1, nrow=2, rel_heights = c(4, .2))
 
-ggsave(filename="Figures/Univariate/Host_Univariate_Panel.png", plot=host_univ2, dpi=150, width=20, height=11, units="in")
+ggsave(filename="Figures/Univariate/Host_Univariate_Panel.png", plot=host_univ2, dpi=150, width=8, height=22, units="in")
 ```
 
 # Correlations  
@@ -2530,4 +3582,40 @@ time_plot3<-timeseries%>%
   theme_classic(); time_plot3
 
 ggsave(plot=time_plot3, "Figures/Univariate/Relative_Change_Calcification.png", width=9, height=6, unit="in", dpi=300)
+```
+
+
+# Run and summarize models for all metrics and generate output table 
+
+```{r}
+# Assuming 'master' is your dataframe
+
+# Create a list to store model summaries
+model_summaries <- list()
+
+# Loop through each numeric column
+for (col_name in names(master)) {
+  if (is.numeric(master[[col_name]])) {
+    # Perform log+1 transformation
+    transformed_data <- log1p(master[[col_name]])
+    
+    # Fit a linear mixed-effects model
+    model <- lmer(transformed_data ~ timepoint * site * species + (1 | colony_id_corr), data = master)  # Change 'Group' to your grouping variable
+    
+    # Store model summary
+    model_summary <- anova(model, type="III")
+    model_summaries[[col_name]] <- model_summary
+  }
+}
+
+# Print or process the model summaries
+for (col_name in names(model_summaries)) {
+  cat("Summary for", col_name, ":\n")
+  print(model_summaries[[col_name]])
+  cat("\n")
+}
+
+model_summaries
+
+write.csv(model_summaries, file="Output/univariate_model_results.csv")
 ```

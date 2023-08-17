@@ -1044,6 +1044,12 @@ vegan <- scale(pca_data_species[ ,5:18])
 permanova<-adonis2(vegan ~ species, data = pca_data_species, method='eu')
 z_species<-permanova
 z_species
+
+#adonis2(formula = vegan ~ species, data = pca_data_species, method = "eu")
+#          Df SumOfSqs      R2      F Pr(>F)    
+#species    2   1872.9 0.36059 104.05  0.001 ***
+#Residual 369   3321.1 0.63941                  
+#Total    371   5194.0 1.00000   
 ``` 
  
 Groupings by species:  
