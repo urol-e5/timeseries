@@ -7,6 +7,11 @@ editor_options:
   chunk_output_type: console
 ---
 
+ADD SCRIPT FOR PLOT OF LIGHT, PH, AND SALINITY DATA
+ADD SCRIPT FOR ANNUAL AND DAILY SUMMARY FOR THESE METRICS FROM WHAT WE HAVE 
+
+
+
 # Set Up    
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
@@ -437,7 +442,8 @@ summary_stats_temp<-master_qc%>%
 write_csv(master_qc, "Output/environmental_timeseries.csv")
 ```
 
-# Temperature timeseries plot 
+# Time series plots 
+## Temperature timeseries plot 
 
 ```{r}
 master_qc$site<-factor(master_qc$site, levels=c("site2", "site3", "site1"))
@@ -464,6 +470,82 @@ temp_summary_plot <- master_qc %>%
 
 ggsave(filename="Figures/Environmental/Environmental_Temperature_summary.png", temp_summary_plot, width = 9, height = 4, units = c("in"))
 ggsave(filename="Figures/Environmental/Environmental_Temperature_summary.pdf", temp_summary_plot, width = 9, height = 4, units = c("in"))
+```
+
+## pH timeseries plot 
+
+```{r}
+master_qc$site<-factor(master_qc$site, levels=c("site2", "site3", "site1"))
+
+pH_summary_plot <- master_qc %>%
+  ggplot(., aes(x=Date.Time, y=pH)) + 
+  geom_point(colour="gray", size=0.5, alpha=0.2) + 
+  geom_smooth(data=subset(master_qc, Date.Time >= as.POSIXct("2020-05-01")), aes(colour=site), se=FALSE, method="gam", fullrange = FALSE) + 
+  geom_smooth(data=subset(master_qc, Date.Time <= as.POSIXct("2020-03-02") & Date.Time >= as.POSIXct("2020-01-08")), aes(colour=site), se=FALSE, method="gam", fullrange = FALSE) + 
+  geom_smooth(data=subset(master_qc, Date.Time >= as.POSIXct("2020-03-02") & Date.Time <= as.POSIXct("2020-05-01")), aes(colour=site), se=FALSE, method="gam", fullrange = FALSE) + 
+  geom_smooth(data=subset(master_qc, Date.Time <= as.POSIXct("2020-01-08")), aes(colour=site), se=FALSE, method="gam", fullrange = FALSE) + 
+  
+  scale_colour_manual(name="Site", values=c("#374d7c", "#00cccc", "#ff6633"), labels=c("Mahana", "Hilton", "Manava")) + #add key for colors 
+  ylab("pH") + 
+  xlab("Date") +
+  scale_x_datetime(date_breaks = "1 months", date_labels = "%b %Y")+
+  geom_vline(xintercept = as.POSIXct("2020-01-01"), linetype="dashed")+ 
+  geom_vline(xintercept = as.POSIXct("2020-03-02"), linetype="dashed")+
+  geom_vline(xintercept = as.POSIXct("2020-09-08"), linetype="dashed")+
+  geom_vline(xintercept = as.POSIXct("2020-11-01"), linetype="dashed")+
+  theme_classic() + 
+  theme(
+    text=element_text(size=12, colour="black"), 
+    axis.title=element_text(size=14, colour="black", face="bold"), 
+    axis.text.x=element_text(size=10, colour="black", angle=45, hjust=1, vjust=1),
+    legend.title=element_text(size=14, colour="black", face="bold")
+  );pH_summary_plot
+
+ggsave(filename="Figures/Environmental/Environmental_pH_summary.png", pH_summary_plot, width = 9, height = 4, units = c("in"))
+ggsave(filename="Figures/Environmental/Environmental_pH_summary.pdf", pH_summary_plot, width = 9, height = 4, units = c("in"))
+```
+
+## light timeseries plot 
+
+```{r}
+light_summary_plot <- master_qc %>%
+  filter(!Date.Time > as.POSIXct("2020-11-01")) %>%
+         
+  ggplot(., aes(x=Date.Time, y=light)) + 
+  geom_point(colour="gray", size=0.5, alpha=0.2) + 
+  
+  geom_smooth(data=subset(master_qc, Date.Time <= as.POSIXct("2019-12-10")), aes(colour=site), se=FALSE, method="gam", fullrange = FALSE) + 
+  geom_smooth(data=subset(master_qc, Date.Time <= as.POSIXct("2020-04-02") & Date.Time >= as.POSIXct("2020-01-01")), aes(colour=site), se=FALSE, method="gam", fullrange = FALSE) + 
+  geom_smooth(data=subset(master_qc, Date.Time >= as.POSIXct("2020-09-01") & Date.Time < as.POSIXct("2020-11-01")), aes(colour=site), se=FALSE, method="gam", fullrange = FALSE) + 
+  
+  scale_colour_manual(name="Site", values=c("#374d7c", "#00cccc", "#ff6633"), labels=c("Mahana", "Hilton", "Manava")) + #add key for colors 
+  ylab("Light (PAR)") + 
+  xlab("Date") +
+  scale_x_datetime(date_breaks = "1 months", date_labels = "%b %Y")+
+  geom_vline(xintercept = as.POSIXct("2020-01-01"), linetype="dashed")+ 
+  geom_vline(xintercept = as.POSIXct("2020-03-02"), linetype="dashed")+
+  geom_vline(xintercept = as.POSIXct("2020-09-08"), linetype="dashed")+
+  geom_vline(xintercept = as.POSIXct("2020-11-01"), linetype="dashed")+
+  theme_classic() + 
+  theme(
+    text=element_text(size=12, colour="black"), 
+    axis.title=element_text(size=14, colour="black", face="bold"), 
+    axis.text.x=element_text(size=10, colour="black", angle=45, hjust=1, vjust=1),
+    legend.title=element_text(size=14, colour="black", face="bold")
+  );light_summary_plot
+
+ggsave(filename="Figures/Environmental/Environmental_light_summary.png", light_summary_plot, width = 9, height = 4, units = c("in"))
+ggsave(filename="Figures/Environmental/Environmental_light_summary.pdf", light_summary_plot, width = 9, height = 4, units = c("in"))
+```
+
+## Assemble plots 
+
+```{r}
+library(cowplot)
+
+environment_plots<-plot_grid(pH_summary_plot, light_summary_plot, ncol=1, nrow=2, align="vh")
+
+ggsave(filename="Figures/Environmental/pH_light_plots.png", plot=environment_plots, width=10, height=8)
 ```
 
 
@@ -731,6 +813,167 @@ ggRadar(radar, aes(colour=site), scales="fixed")+
 dev.off()
 
 ```
+
+
+### pH
+
+Generate a data frame with overall metrics and another dataframe with daily metrics. Combine into a single table showing these values for each site. 
+
+```{r}
+master_qc[mapply(is.infinite, master_qc)] <- NA
+master_qc[mapply(is.nan, master_qc)] <- NA
+
+pH_metrics_all<-master_qc %>%
+    mutate(Date=as.factor(as.Date(Date.Time)))%>%
+    select(Date, site, pH) %>%
+    group_by(site) %>%
+    dplyr::summarise(overall_mean = mean(pH, na.rm=TRUE), 
+                     overall_min=min(pH, na.rm=TRUE), 
+                     overall_max=max(pH, na.rm=TRUE),
+                     overall_sd=sd(pH, na.rm=TRUE),
+                     overall_range=overall_max-overall_min)
+
+pH_metrics<-pH_metrics_all
+
+pH_metrics
+```
+
+Generate a plot to view metrics. 
+```{r}
+# Convert wide dataset to long dataset and add a new column for "interval"
+pH_metrics_long <- pH_metrics %>%
+  pivot_longer(cols = -site,
+               names_to = "Variable",
+               values_to = "Value") %>%
+  mutate(Interval=if_else(str_detect(Variable, "daily"), "Daily", "Overall"))%>%
+  mutate(Metric=if_else(str_detect(Variable, "mean"), "Mean", 
+                        if_else(str_detect(Variable, "min"), "Min",
+                                if_else(str_detect(Variable, "max"), "Max",
+                                        if_else(str_detect(Variable, "sd"), "SD",
+                                                if_else(str_detect(Variable, "range"), "Range", NA))))))%>%
+    mutate(site = if_else(site == "site3", "Hilton", 
+                            if_else(site == "site2", "Mahana", 
+                                    if_else(site == "site1", "Manava", "NA"))))
+```
+
+Plot metrics by site and time interval. 
+
+```{r}
+pH_metric_plot<-pH_metrics_long%>%
+  
+  ggplot(aes(x=site, y=Value, colour=site, shape=Interval))+ 
+  facet_wrap(~Variable, scales="free", ncol=5)+
+  geom_point(size=4)+
+  scale_colour_manual(name="Site", values=c("#374d7c", "#00cccc", "#ff6633"), labels=c("Manava", "Mahana", "Hilton")) +
+  ylab("pH (NBS)") + 
+  theme_classic()+
+  theme(
+    text=element_text(size=12, colour="black"), 
+    axis.title=element_text(size=14, colour="black", face="bold"), 
+    axis.text.x=element_text(size=10, colour="black", angle=45, hjust=1, vjust=1),
+    legend.title=element_text(size=14, colour="black", face="bold"), 
+    legend.position="none"
+  ); pH_metric_plot
+  
+
+```
+
+Make a table with the pH metric output. 
+
+```{r}
+# Apply the function to each metric column
+table_pH<-pH_metrics_long %>%
+  pivot_wider(values_from=Value, names_from=site)%>%
+  filter(!Metric=="Min")%>%
+  select(Metric, Interval, Mahana, Hilton, Manava)%>%
+  arrange(Interval, Metric);table_pH
+
+write.csv(table_pH, file="Output/pH_metric_table.csv")
+```
+
+
+
+
+
+
+
+### Light
+
+Generate a data frame with overall metrics and another dataframe with daily metrics. Combine into a single table showing these values for each site. 
+
+```{r}
+master_qc[mapply(is.infinite, master_qc)] <- NA
+master_qc[mapply(is.nan, master_qc)] <- NA
+
+light_metrics_all<-master_qc %>%
+    filter(light>0)%>%
+    mutate(Date=as.factor(as.Date(Date.Time)))%>%
+    select(Date, site, light) %>%
+    group_by(site) %>%
+    dplyr::summarise(overall_mean = mean(light, na.rm=TRUE), 
+                     overall_min=min(light, na.rm=TRUE), 
+                     overall_max=max(light, na.rm=TRUE),
+                     overall_sd=sd(light, na.rm=TRUE),
+                     overall_range=overall_max-overall_min)
+
+light_metrics<-light_metrics_all
+
+light_metrics
+```
+
+Generate a plot to view metrics. 
+```{r}
+# Convert wide dataset to long dataset and add a new column for "interval"
+light_metrics_long <- light_metrics %>%
+  pivot_longer(cols = -site,
+               names_to = "Variable",
+               values_to = "Value") %>%
+  mutate(Interval=if_else(str_detect(Variable, "daily"), "Daily", "Overall"))%>%
+  mutate(Metric=if_else(str_detect(Variable, "mean"), "Mean", 
+                        if_else(str_detect(Variable, "min"), "Min",
+                                if_else(str_detect(Variable, "max"), "Max",
+                                        if_else(str_detect(Variable, "sd"), "SD",
+                                                if_else(str_detect(Variable, "range"), "Range", NA))))))%>%
+    mutate(site = if_else(site == "site3", "Hilton", 
+                            if_else(site == "site2", "Mahana", 
+                                    if_else(site == "site1", "Manava", "NA"))))
+```
+
+Plot metrics by site and time interval. 
+
+```{r}
+light_metric_plot<-light_metrics_long%>%
+  
+  ggplot(aes(x=site, y=Value, colour=site, shape=Interval))+ 
+  facet_wrap(~Variable, scales="free", ncol=5)+
+  geom_point(size=4)+
+  scale_colour_manual(name="Site", values=c("#374d7c", "#00cccc", "#ff6633"), labels=c("Manava", "Mahana", "Hilton")) +
+  ylab("Light (PAR)") + 
+  theme_classic()+
+  theme(
+    text=element_text(size=12, colour="black"), 
+    axis.title=element_text(size=14, colour="black", face="bold"), 
+    axis.text.x=element_text(size=10, colour="black", angle=45, hjust=1, vjust=1),
+    legend.title=element_text(size=14, colour="black", face="bold"), 
+    legend.position="none"
+  ); light_metric_plot
+  
+
+```
+
+Make a table with the pH metric output. 
+
+```{r}
+# Apply the function to each metric column
+table_light<-light_metrics_long %>%
+  pivot_wider(values_from=Value, names_from=site)%>%
+  filter(!Metric=="Min")%>%
+  select(Metric, Interval, Mahana, Hilton, Manava)%>%
+  arrange(Interval, Metric);table_light
+
+write.csv(table_light, file="Output/light_metric_table.csv")
+```
+
 
 
 ## Statistical tests  
