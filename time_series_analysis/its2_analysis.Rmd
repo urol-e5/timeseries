@@ -21,6 +21,7 @@ library(ggh4x)
 library(cowplot)
 library(naniar)
 library(vegan)
+library(emmeans)
 ```
 
 
@@ -410,12 +411,6 @@ pmdf_heatmap_plot <- pmdf_heatmap %>% subset(species == "Acropora") %>% ## CHANG
 ```
 
 
-## NMDS 
-
-```{r}
-
-```
-
 ## PERMANOVA
 
 Below is on relative abundance. Do VST later?
@@ -441,6 +436,7 @@ adonis2(permanova_matrix ~ species*timepoint*site,
 adonis2(permanova_matrix ~ species, 
         data = permanova_meta, method='eu', na.rm = TRUE)
 ```
+
 Symbiont communities are different by species. 
 
 Terms added sequentially (first to last)
@@ -488,8 +484,6 @@ timepoint        3    0.592 0.00543  0.3200  0.997
 site:timepoint   6    1.222 0.01119  0.3299  0.999    
 Residual       151   93.188 0.85378                   
 Total          162  109.149 1.00000                   
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Run for only POCILLOPORA
 ```{r}
@@ -497,11 +491,17 @@ permanova_matrix_poc <- pmdf_heatmap %>%
   mutate(Abundance = coalesce(Abundance, 0)) %>%
   spread(its2_type_profile, Abundance) %>%
   unite(ID, colony_id, timepoint, site, remove = FALSE) %>% na.omit() %>%
-  filter(species=="Pocillopora")
+  filter(species=="Pocillopora")%>%
+  filter(!timepoint=="TP2a")%>%
+  filter(!timepoint=="TP2b")%>%
+  droplevels()
 
 permanova_meta_poc <- permanova_matrix_poc %>% 
   select(ID, colony_id, timepoint, site, species) %>%
-  filter(species=="Pocillopora")
+  filter(species=="Pocillopora")%>%
+  filter(!timepoint=="TP2a")%>%
+  filter(!timepoint=="TP2b")%>%
+  droplevels()
 
 rownames(permanova_matrix_poc) <- permanova_matrix_poc[,1]
 permanova_matrix_poc <- permanova_matrix_poc %>% select(-ID, -colony_id, -timepoint, -site, -species)
@@ -513,13 +513,11 @@ adonis2(permanova_matrix_poc ~ site*timepoint,
 
 ```
                 Df SumOfSqs      R2      F Pr(>F)    
-site             2    6.035 0.04868 3.8847  0.001 ***
-timepoint        5    1.790 0.01444 0.4610  1.000    
-site:timepoint   6    2.747 0.02215 0.5893  0.965    
-Residual       146  113.408 0.91473                  
-Total          159  123.980 1.00000                  
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+site             2    5.691 0.04633 3.6631  0.001 ***
+timepoint        3    0.999 0.00813 0.4286  0.967    
+site:timepoint   6    2.747 0.02236 0.5893  0.952    
+Residual       146  113.408 0.92319                  
+Total          157  122.845 1.00000                     
 
 Run for only ACROPORA
 ```{r}
@@ -527,11 +525,17 @@ permanova_matrix_acr <- pmdf_heatmap %>%
   mutate(Abundance = coalesce(Abundance, 0)) %>%
   spread(its2_type_profile, Abundance) %>%
   unite(ID, colony_id, timepoint, site, remove = FALSE) %>% na.omit() %>%
-  filter(species=="Acropora")
+  filter(species=="Acropora")%>%
+  filter(!timepoint=="TP2a")%>%
+  filter(!timepoint=="TP2b")%>%
+  droplevels()
 
 permanova_meta_acr <- permanova_matrix_acr %>% 
   select(ID, colony_id, timepoint, site, species) %>%
-  filter(species=="Acropora")
+  filter(species=="Acropora")%>%
+  filter(!timepoint=="TP2a")%>%
+  filter(!timepoint=="TP2b")%>%
+  droplevels()
 
 rownames(permanova_matrix_acr) <- permanova_matrix_acr[,1]
 permanova_matrix_acr <- permanova_matrix_acr %>% select(-ID, -colony_id, -timepoint, -site, -species)
@@ -541,11 +545,11 @@ adonis2(permanova_matrix_acr ~ site*timepoint,
 
 ```
                 Df SumOfSqs      R2      F Pr(>F)
-site             2   0.1728 0.00732 0.4085  0.813
-timepoint        5   0.4086 0.01731 0.3863  0.889
-site:timepoint   6   0.3832 0.01623 0.3018  0.989
-Residual       107  22.6385 0.95913              
-Total          120  23.6031 1.00000   
+site             2   0.1860 0.00791 0.4396  0.765
+timepoint        3   0.2992 0.01273 0.4715  0.828
+site:timepoint   6   0.3832 0.01630 0.3018  0.986
+Residual       107  22.6385 0.96306              
+Total          118  23.5069 1.00000     
 
 
 ## NMDS 
@@ -792,6 +796,7 @@ plot_species_site<-ggplot(plot_species_site_df, aes(x = site, y = Abundance)) +
 ```
 
 # Plot individual species separately with all ITS2 profiles in unique colors 
+
 Acropora 
 ```{r}
 #create custom color palette 
@@ -835,6 +840,34 @@ plot_species_site_acr<-ggplot(plot_species_site_df_acr, aes(x = site, y = Abunda
 #ggsave(plot_species_site_acr, filename="Figures/ITS2/ACR_site_profiles.png", height=6, width=8)
 #ggsave(plot_species_site_acr, filename="Figures/ITS2/ACR_site_profiles.jpeg", height=6, width=8)
 #ggsave(plot_species_site_acr, filename="Figures/ITS2/ACR_site_profiles.pdf", height=6, width=8)
+
+#view averages 
+plot_species_site_df_acr_summary<-output_matrix%>%
+  filter(species=="Acropora")%>%
+  group_by(species)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(species), values_to="Abundance", names_to="Profile");plot_species_site_df_acr_summary
+```
+
+Run model of relative abundance for Acropora. 
+```{r}
+acr_model<-output_matrix%>%
+  filter(species=="Acropora")%>%
+  group_by(colony_id, species, site)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(colony_id, species,site), values_to="Abundance", names_to="Profile")%>%
+  
+  aov(Abundance~site*Profile, data=.)
+
+summary(acr_model)
+qqPlot(residuals(acr_model))
+
+emm<-emmeans(acr_model, ~ site | Profile)
+pairs(emm)
 ```
 
 Pocillopora 
@@ -885,6 +918,25 @@ plot_species_site_poc<-ggplot(plot_species_site_df_poc, aes(x = site, y = Abunda
 #ggsave(plot_species_site_poc, filename="Figures/ITS2/POC_site_profiles.png", height=6, width=8)
 #ggsave(plot_species_site_poc, filename="Figures/ITS2/POC_site_profiles.jpeg", height=6, width=8)
 #ggsave(plot_species_site_poc, filename="Figures/ITS2/POC_site_profiles.pdf", height=6, width=8)
+```
+
+Run model of relative abundance for Pocillopora 
+```{r}
+poc_model<-output_matrix%>%
+  filter(species=="Pocillopora")%>%
+  group_by(colony_id, species, site)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(colony_id, species,site), values_to="Abundance", names_to="Profile")%>%
+  
+  aov(Abundance~site*Profile, data=.)
+
+summary(poc_model)
+qqPlot(residuals(poc_model))
+
+emm<-emmeans(poc_model, ~ site | Profile)
+pairs(emm)
 ```
 
 Porites 
@@ -957,6 +1009,25 @@ plot_species_site_por<-ggplot(plot_species_site_df_por, aes(x = site, y = Abunda
 #ggsave(plot_species_site_por, filename="Figures/ITS2/POR_site_profiles.png", height=6, width=8)
 #ggsave(plot_species_site_por, filename="Figures/ITS2/POR_site_profiles.jpeg", height=6, width=8)
 #ggsave(plot_species_site_por, filename="Figures/ITS2/POR_site_profiles.pdf", height=6, width=8)
+```
+
+Run model of relative abundance for Porites 
+```{r}
+por_model<-output_matrix%>%
+  filter(species=="Porites")%>%
+  group_by(colony_id, species, site)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(colony_id, species,site), values_to="Abundance", names_to="Profile")%>%
+  
+  aov(Abundance~site*Profile, data=.)
+
+summary(por_model)
+qqPlot(residuals(por_model))
+
+emm<-emmeans(por_model, ~ site | Profile)
+pairs(emm)
 ```
 
 Assemble plots. 

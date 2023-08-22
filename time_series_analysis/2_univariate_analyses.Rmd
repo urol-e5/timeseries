@@ -2423,6 +2423,17 @@ Ik_plot<-master %>%
       );Ik_plot
 ```
 
+View species means 
+```{r}
+master %>%
+  filter(!is.na(Ik)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, site, month, Ik)%>%
+  group_by(species)%>%
+  summarise(mean=mean(Ik, na.rm=TRUE), se=sd(Ik, na.rm=TRUE)/sqrt(length(Ik)))
+
+```
+
 ### Plot: Ic  
 
 View by site and timepoint for each species.    
@@ -2489,6 +2500,18 @@ Ic_plot<-master %>%
       strip.text.x=element_text(face="italic", size=14), 
       panel.border = element_rect(fill=NA) 
       );Ic_plot
+```
+
+View species means. 
+
+```{r}
+master %>%
+  filter(!is.na(Ic)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, site, month, Ic)%>%
+  group_by(species)%>%
+  summarise(mean=mean(Ic, na.rm=TRUE), se=sd(Ic, na.rm=TRUE)/sqrt(length(Ic)))
+
 ```
 
 Join all plots together.  
