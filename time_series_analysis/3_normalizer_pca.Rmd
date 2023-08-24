@@ -1051,7 +1051,10 @@ z_species
 #          Df SumOfSqs      R2      F Pr(>F)    
 #species    2   1872.9 0.36059 104.05  0.001 ***
 #Residual 369   3321.1 0.63941                  
-#Total    371   5194.0 1.00000   
+#Total    371   5194.0 1.00000  
+
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=pca_data_species[ ,5:18],factors=pca_data_species$species, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
 ``` 
  
 Groupings by species:  
