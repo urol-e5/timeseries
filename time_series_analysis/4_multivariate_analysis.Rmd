@@ -34,6 +34,7 @@ if (!require("ggcorrplot")) install.packages("ggcorrplot")
 if (!require("GGally")) install.packages("GGally")
 if (!require("broom")) install.packages("broom")
 if (!require("cowplot")) install.packages("cowplot")
+if (!require("pairwiseAdonis")) install.packages("pairwiseAdonis")
 
 # load packages
 library(tidyverse)
@@ -51,6 +52,7 @@ library(ggcorrplot)
 library(GGally)
 library(broom)
 library(cowplot)
+library(pairwiseAdonis)
 ```
 
 # Load dataframe
@@ -136,6 +138,34 @@ site             2    95.01 0.06719  5.2666  0.001 ***
 timepoint:site   6    83.20 0.05884  1.5374  0.025 *  
 Residual        90   811.81 0.57412                   
 Total          101  1414.00 1.00000  
+
+Examine dispersion for this model by site 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=acr_data_afdw[ ,5:18],factors=acr_data_afdw$site, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_site<-betadisper(vegdist(acr_data_afdw[ ,5:18], "euclidian"), acr_data_afdw$site)
+anova(beta_site)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_site)
+```
+There is a difference in dispersion by site, so therefore differences are likely due to both dispersion and centroid location. 
+
+Examine dispersion for this model by season 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=acr_data_afdw[ ,5:18],factors=acr_data_afdw$timepoint, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_time<-betadisper(vegdist(acr_data_afdw[ ,5:18], "euclidian"), acr_data_afdw$timepoint)
+anova(beta_time)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_time)
+```
+There is no difference in dispersion between time points, therefore differences are due to centroid location. 
 
 Assemble plot with background points 
 ```{r}
@@ -267,6 +297,34 @@ site             2   210.18 0.10879 10.4838  0.001 ***
 timepoint:site   6   111.51 0.05772  1.8541  0.003 ** 
 Residual       127  1273.08 0.65894                   
 Total          138  1932.00 1.00000     
+
+Examine dispersion for this model by site 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=por_data_afdw[ ,5:18],factors=por_data_afdw$site, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_site<-betadisper(vegdist(por_data_afdw[ ,5:18], "euclidian"), por_data_afdw$site)
+anova(beta_site)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_site)
+```
+There is a difference in dispersion by site, so therefore differences are likely due to both dispersion and centroid location. 
+
+Examine dispersion for this model by season 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=por_data_afdw[ ,5:18],factors=por_data_afdw$timepoint, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_time<-betadisper(vegdist(por_data_afdw[ ,5:18], "euclidian"), por_data_afdw$timepoint)
+anova(beta_time)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_time)
+```
+There is no difference in dispersion between time points, therefore differences are due to centroid location. 
 
 Assemble plot with background points
 ```{r}
@@ -407,6 +465,34 @@ site             2    69.20 0.03745  3.5327  0.001 ***
 timepoint:site   6   138.82 0.07512  2.3622  0.001 ***
 Residual       121  1185.13 0.64131                   
 Total          132  1848.00 1.00000   
+
+Examine dispersion for this model by site 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=poc_data_afdw[ ,5:18],factors=poc_data_afdw$site, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_site<-betadisper(vegdist(poc_data_afdw[ ,5:18], "euclidian"), poc_data_afdw$site)
+anova(beta_site)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_site)
+```
+There is no difference in dispersion by site, so therefore differences are due to centroid location. 
+
+Examine dispersion for this model by season 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=poc_data_afdw[ ,5:18],factors=poc_data_afdw$timepoint, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_time<-betadisper(vegdist(poc_data_afdw[ ,5:18], "euclidian"), poc_data_afdw$timepoint)
+anova(beta_time)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_time)
+```
+There is a significant difference in dispersion by timepoint, so differences are likely due to both dispersion and centroid location.
 
 Assemble plot with background points
 ```{r}
@@ -1068,6 +1154,42 @@ z_acr<-permanova
 z_acr
 ``` 
  
+adonis2(formula = vegan ~ timepoint * site, data = acr_data_afdw, method = "eu")
+                Df SumOfSqs      R2       F Pr(>F)    
+timepoint        3   196.82 0.38217 23.6506  0.001 ***
+site             2    35.68 0.06928  6.4312  0.001 ***
+timepoint:site   6    27.30 0.05300  1.6400  0.033 *  
+Residual        92   255.21 0.49554                   
+Total          103   515.00 1.00000  
+
+Examine dispersion for this model by site 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=acr_data_afdw[ ,5:9],factors=acr_data_afdw$site, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_site<-betadisper(vegdist(acr_data_afdw[ ,5:9], "euclidian"), acr_data_afdw$site)
+anova(beta_site)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_site)
+```
+There is a difference in dispersion by site, so therefore differences are likely due to both dispersion and centroid location. 
+
+Examine dispersion for this model by season 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=acr_data_afdw[ ,5:9],factors=acr_data_afdw$timepoint, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_time<-betadisper(vegdist(acr_data_afdw[ ,5:9], "euclidian"), acr_data_afdw$timepoint)
+anova(beta_time)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_time)
+```
+There is no significant difference in dispersion by timepoint, so differences are likely due to only centroid location.
+
 Assemble plot with background points
 ```{r}
 #1. make plot with dots
@@ -1198,6 +1320,42 @@ z_por<-permanova
 z_por
 ```
 
+adonis2(formula = vegan ~ timepoint * site, data = por_data_afdw, method = "eu")
+                Df SumOfSqs      R2       F Pr(>F)    
+timepoint        3   153.82 0.21974 15.2898  0.001 ***
+site             2    80.06 0.11438 11.9373  0.001 ***
+timepoint:site   6    33.52 0.04789  1.6659  0.026 *  
+Residual       129   432.60 0.61799                   
+Total          140   700.00 1.00000 
+
+Examine dispersion for this model by site 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=por_data_afdw[ ,5:9],factors=por_data_afdw$site, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_site<-betadisper(vegdist(por_data_afdw[ ,5:9], "euclidian"), por_data_afdw$site)
+anova(beta_site)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_site)
+```
+There is no difference in dispersion by site, so therefore differences are likely due to  centroid location. 
+
+Examine dispersion for this model by season 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=por_data_afdw[ ,5:9],factors=por_data_afdw$timepoint, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_time<-betadisper(vegdist(por_data_afdw[ ,5:9], "euclidian"), por_data_afdw$timepoint)
+anova(beta_time)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_time)
+```
+There is no significant difference in dispersion by timepoint (rounds to p=0.05), so differences are likely due to only centroid location.
+
 Assemble plot with background points
 ```{r}
 #1. make plot with dots
@@ -1327,6 +1485,41 @@ permanova<-adonis2(vegan ~ timepoint*site, data = poc_data_afdw, method='eu')
 z_poc<-permanova
 z_poc
 ```
+adonis2(formula = vegan ~ timepoint * site, data = poc_data_afdw, method = "eu")
+                Df SumOfSqs      R2       F Pr(>F)    
+timepoint        3   175.68 0.24232 17.0879  0.001 ***
+site             2    28.47 0.03927  4.1534  0.001 ***
+timepoint:site   6    61.63 0.08500  2.9971  0.001 ***
+Residual       134   459.22 0.63341                   
+Total          145   725.00 1.00000 
+
+Examine dispersion for this model by site 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=poc_data_afdw[ ,5:9],factors=poc_data_afdw$site, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_site<-betadisper(vegdist(poc_data_afdw[ ,5:9], "euclidian"), poc_data_afdw$site)
+anova(beta_site)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_site)
+```
+There is no difference in dispersion by site, so therefore differences are likely due to  centroid location. 
+
+Examine dispersion for this model by season 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=poc_data_afdw[ ,5:9],factors=poc_data_afdw$timepoint, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_time<-betadisper(vegdist(poc_data_afdw[ ,5:9], "euclidian"), poc_data_afdw$timepoint)
+anova(beta_time)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_time)
+```
+There is a significant difference in dispersion by timepoint, so differences are likely due to dispersion and centroid location.
 
 Assemble plot with background points
 ```{r}
@@ -1975,6 +2168,42 @@ z_acr<-permanova
 z_acr
 ``` 
  
+adonis2(formula = vegan ~ timepoint * site, data = acr_data_afdw, method = "eu")
+                Df SumOfSqs      R2       F Pr(>F)    
+timepoint        3   255.03 0.25529 13.6811  0.001 ***
+site             2    60.94 0.06100  4.9037  0.001 ***
+timepoint:site   6    61.66 0.06172  1.6539  0.022 *  
+Residual       100   621.37 0.62199                   
+Total          111   999.00 1.00000 
+
+Examine dispersion for this model by site 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=acr_data_afdw[ ,5:13],factors=acr_data_afdw$site, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_site<-betadisper(vegdist(acr_data_afdw[ ,5:13], "euclidian"), acr_data_afdw$site)
+anova(beta_site)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_site)
+```
+There is a difference in dispersion by site, so therefore differences are likely due to  both dispersion and centroid location. 
+
+Examine dispersion for this model by season 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=acr_data_afdw[ ,5:13],factors=acr_data_afdw$timepoint, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_time<-betadisper(vegdist(acr_data_afdw[ ,5:13], "euclidian"), acr_data_afdw$timepoint)
+anova(beta_time)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_time)
+```
+There is a significant difference in dispersion by timepoint, so differences are likely due to dispersion and centroid location.
+
 Assemble plot with background points
 ```{r}
 #1. make plot with dots
@@ -2099,6 +2328,42 @@ permanova<-adonis2(vegan ~ timepoint*site, data = por_data_afdw, method='eu')
 z_por<-permanova
 z_por
 ```
+
+adonis2(formula = vegan ~ timepoint * site, data = por_data_afdw, method = "eu")
+                Df SumOfSqs      R2       F Pr(>F)    
+timepoint        3   210.14 0.14967 10.5910  0.001 ***
+site             2   155.16 0.11051 11.7296  0.001 ***
+timepoint:site   6    79.69 0.05676  2.0081  0.003 ** 
+Residual       145   959.01 0.68306                   
+Total          156  1404.00 1.00000     
+
+Examine dispersion for this model by site 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=por_data_afdw[ ,5:13],factors=por_data_afdw$site, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_site<-betadisper(vegdist(por_data_afdw[ ,5:13], "euclidian"), por_data_afdw$site)
+anova(beta_site)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_site)
+```
+There is a difference in dispersion by site, so therefore differences are likely due to  both dispersion and centroid location. 
+
+Examine dispersion for this model by season 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=por_data_afdw[ ,5:13],factors=por_data_afdw$timepoint, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_time<-betadisper(vegdist(por_data_afdw[ ,5:13], "euclidian"), por_data_afdw$timepoint)
+anova(beta_time)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_time)
+```
+There is no significant difference in dispersion by timepoint, so differences are likely due to only centroid location.
 
 Assemble plot with background points
 ```{r}
@@ -2242,6 +2507,41 @@ permanova<-adonis2(vegan ~ timepoint*site, data = poc_data_afdw, method='eu')
 z_poc<-permanova
 z_poc
 ```
+adonis2(formula = vegan ~ timepoint * site, data = poc_data_afdw, method = "eu")
+                Df SumOfSqs      R2       F Pr(>F)    
+timepoint        3   285.86 0.21905 14.4893  0.001 ***
+site             2    39.15 0.03000  2.9764  0.003 ** 
+timepoint:site   6    98.78 0.07569  2.5034  0.001 ***
+Residual       134   881.22 0.67526                   
+Total          145  1305.00 1.00000 
+
+Examine dispersion for this model by site 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=poc_data_afdw[ ,5:13],factors=poc_data_afdw$site, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_site<-betadisper(vegdist(poc_data_afdw[ ,5:13], "euclidian"), poc_data_afdw$site)
+anova(beta_site)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_site)
+```
+There is a difference in dispersion by site, so therefore differences are likely due to  both dispersion and centroid location. 
+
+Examine dispersion for this model by season 
+```{r}
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=poc_data_afdw[ ,5:13],factors=poc_data_afdw$timepoint, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#evaluate dispersion
+beta_time<-betadisper(vegdist(poc_data_afdw[ ,5:13], "euclidian"), poc_data_afdw$timepoint)
+anova(beta_time)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_time)
+```
+There is a significant difference in dispersion by timepoint, so differences are likely due to dispersion and centroid location.
 
 Assemble plot with background points
 ```{r}
