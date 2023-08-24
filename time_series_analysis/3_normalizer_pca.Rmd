@@ -1017,6 +1017,8 @@ ggsave(filename="Figures/NormalizerPCA/All_Species_PCAs.pdf", plot=All_PCAs_spec
 
 ## Final species PCA of selected normalizers  
 
+### Holobiont 
+
 Plot PCA using prcomp to center and scale using biomass normalized tissue responses and surface area normalized metabolic rates and calcification rates. 
   
 ```{r}
@@ -1096,6 +1098,172 @@ pcaSpecies_afdw_biplot<-ggplot2::autoplot(scaled_data_species, data=pca_data_spe
 ggsave(filename="Figures/NormalizerPCA/Species_Overall_BiPlot.png", plot=pcaSpecies_afdw_biplot, dpi=300, width=5, height=5, units="in")
 ggsave(filename="Figures/NormalizerPCA/Species_Overall_BiPlot.jpeg", plot=pcaSpecies_afdw_biplot, dpi=300, width=5, height=5, units="in")
 ggsave(filename="Figures/NormalizerPCA/Species_Overall_BiPlot.pdf", plot=pcaSpecies_afdw_biplot, dpi=300, width=5, height=5, units="in")
+```
+
+Species specific PCAs and PERMANOVAs are in the next script, `4_multivariate_analysis.RmD`.  
+
+
+### Host 
+
+Plot PCA using prcomp to center and scale using biomass normalized tissue responses and surface area normalized metabolic rates and calcification rates. 
+  
+```{r}
+pca_data_species_host<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, prot_mg.mgafdw, cre.umol.mgafdw, Rd, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(prot_mg.mgafdw<1.5) #%>%
+  #filter(Total_Chl<14)%>%
+  #filter(Total_Chl_cell<6e-05)%>%
+  #filter(Ic<1000)#remove outliers
+
+pca_data_species_host<-pca_data_species_host[complete.cases(pca_data_species_host), ]
+
+scaled_data_species_host<-prcomp(pca_data_species_host[c(5:9)], scale=TRUE, center=TRUE) 
+```
+
+```{r}
+# scale data
+vegan <- scale(pca_data_species_host[ ,5:9])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis2(vegan ~ species, data = pca_data_species_host, method='eu')
+z_species<-permanova
+z_species
+
+#adonis2(formula = vegan ~ species, data = pca_data_species_host, method = "eu")
+#          Df SumOfSqs     R2      F Pr(>F)    
+#species    2   835.18 0.4283 145.34  0.001 ***
+#Residual 388  1114.82 0.5717                  
+#Total    390  1950.00 1.0000                  
+``` 
+ 
+Groupings by species:  
+```{r}
+pcaSpecies_afdw_host<-ggplot2::autoplot(scaled_data_species_host, data=pca_data_species_host, frame.colour="species", loadings=FALSE,  colour="species", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  scale_colour_manual(values=c("darkgray", "orange", "purple")) +
+  scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
+  theme_classic()+
+  geom_text(x=-0.04, y=0.3, label=paste("p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+  ggtitle("A. Host Responses")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="none",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pcaSpecies_afdw_host
+
+ggsave(filename="Figures/NormalizerPCA/Species_Host_PCA.jpeg", plot=pcaSpecies_afdw_host, dpi=300, width=5, height=5, units="in")
+```
+
+Generate a biplot for this PCA. 
+```{r}
+pcaSpecies_afdw_host_biplot<-ggplot2::autoplot(scaled_data_species_host, data=pca_data_species_host, frame.colour="species", loadings=TRUE,  colour="species", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.0) + 
+  scale_colour_manual(values=c("darkgray", "orange", "purple")) +
+  scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
+  theme_classic()+
+  #geom_text(x=-0.04, y=0.3, label=paste("p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="none",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pcaSpecies_afdw_host_biplot
+
+ggsave(filename="Figures/NormalizerPCA/Species_Host_BiPlot.jpeg", plot=pcaSpecies_afdw_host_biplot, dpi=300, width=5, height=5, units="in")
+```
+
+Species specific PCAs and PERMANOVAs are in the next script, `4_multivariate_analysis.RmD`.  
+
+
+### Symbiont 
+
+Plot PCA using prcomp to center and scale using biomass normalized tissue responses and surface area normalized metabolic rates and calcification rates. 
+  
+```{r}
+pca_data_species_sym<-master%>%
+  select(colony_id_corr, timepoint, species, site_code, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, cells.mgAFDW, Am, AQY, Ik, Ic)%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  #filter(prot_mg.mgafdw<1.5)%>%
+  filter(Total_Chl<14)%>%
+  filter(Total_Chl_cell<6e-05)%>%
+  filter(Ic<1000)#remove outliers
+
+pca_data_species_sym<-pca_data_species_sym[complete.cases(pca_data_species_sym), ]
+
+scaled_data_species_sym<-prcomp(pca_data_species_sym[c(5:13)], scale=TRUE, center=TRUE) 
+```
+
+```{r}
+# scale data
+vegan <- scale(pca_data_species_sym[ ,5:13])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis2(vegan ~ species, data = pca_data_species_sym, method='eu')
+z_species<-permanova
+z_species
+
+#adonis2(formula = vegan ~ species, data = pca_data_species_sym, method = "eu")
+#          Df SumOfSqs      R2      F Pr(>F)    
+#species    2   1174.5 0.31829 95.248  0.001 ***
+#Residual 408   2515.5 0.68171                  
+#Total    410   3690.0 1.00000                
+``` 
+ 
+Groupings by species:  
+```{r}
+pcaSpecies_afdw_sym<-ggplot2::autoplot(scaled_data_species_sym, data=pca_data_species_sym, frame.colour="species", loadings=FALSE,  colour="species", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  scale_colour_manual(values=c("darkgray", "orange", "purple")) +
+  scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
+  theme_classic()+
+  geom_text(x=-0.11, y=0.1, label=paste("p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+  ggtitle("B. Symbiont Responses")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pcaSpecies_afdw_sym
+
+ggsave(filename="Figures/NormalizerPCA/Species_Symbiont_PCA.jpeg", plot=pcaSpecies_afdw_sym, dpi=300, width=7, height=5, units="in")
+```
+
+Generate a biplot for this PCA. 
+```{r}
+pcaSpecies_afdw_sym_biplot<-ggplot2::autoplot(scaled_data_species_sym, data=pca_data_species_sym, frame.colour="species", loadings=TRUE,  colour="species", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.0) + 
+  scale_colour_manual(values=c("darkgray", "orange", "purple")) +
+  scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
+  theme_classic()+
+  #geom_text(x=-0.04, y=0.3, label=paste("p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="none",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pcaSpecies_afdw_sym_biplot
+
+ggsave(filename="Figures/NormalizerPCA/Species_Sym_BiPlot.jpeg", plot=pcaSpecies_afdw_sym_biplot, dpi=300, width=5, height=5, units="in")
 ```
 
 Species specific PCAs and PERMANOVAs are in the next script, `4_multivariate_analysis.RmD`.  
