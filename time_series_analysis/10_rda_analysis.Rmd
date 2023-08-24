@@ -195,16 +195,16 @@ por.comm.rda.sym<-dbrda(vegdist(por_data_community[, c(23:62)], "bray") ~ Symbio
 
 ##Check model significance
 anova(por.comm.rda.sym)
-#           Df SumOfSqs      F Pr(>F)    
-#Model      8   10.253 4.3733  0.001 ***
-#Residual 126   36.924  
+#          Df SumOfSqs      F Pr(>F)    
+#Model      9   10.655 4.0519  0.001 ***
+#Residual 125   36.522   
 # The model is significant
 
 plot(por.comm.rda.sym)
 
 ##Check variance explained by model
 (summary(por.comm.rda.sym)$constr.chi/summary(por.comm.rda.sym)$tot.chi)*100
-#22.58% of the variance in Symbiont community composition is constrained by Host physiological metrics 
+#22.58% of the variance in Symbiont community composition is constrained by symbiont physiological metrics 
 
 RsquareAdj(por.comm.rda.sym)$adj.r.squared*100
 #Adjusted: The model explains 17.01% of the variation in Symbiont community composition

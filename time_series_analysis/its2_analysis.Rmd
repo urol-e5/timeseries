@@ -568,12 +568,16 @@ data.scores$colony_id = permanova_meta$colony_id
 data.scores$timepoint = permanova_meta$timepoint
 data.scores$site = permanova_meta$site
 data.scores$species = permanova_meta$species
+
+data.scores<-data.scores%>%
+  filter(!timepoint=="TP2a")%>%
+  filter(!timepoint=="TP2b")
  
 head(data.scores)
 set.seed(15647)
-NMDS_plot <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) + 
-    geom_point(size = 2, aes(colour = site))+ 
-    stat_ellipse(aes(colour=site), level=0.95, type="norm")+
+NMDS_plot_site <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) + 
+    geom_point(size = 2, aes(fill = site), pch=21, color="black")+ 
+    #stat_ellipse(aes(colour=site), level=0.95, type="norm")+
     theme(axis.text.y = element_text(colour = "black", size = 10, face = "bold"), 
           axis.text.x = element_text(colour = "black", face = "bold", size = 10), 
           legend.text = element_text(size = 10, face ="bold", colour ="black"), 
@@ -583,11 +587,11 @@ NMDS_plot <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) +
           panel.background = element_blank(), 
           panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
           legend.key=element_blank()) + 
-          labs(x = "NMDS1", colour = "Site", y = "NMDS2")  + 
-    scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc")) +
-  facet_wrap(~species, scales = "free");NMDS_plot
+          labs(x = "NMDS1", fill = "Site", y = "NMDS2")  + 
+    scale_fill_manual(values=c("#ff6633", "#374d7c", "#00cccc"), labels=c("Manava", "Mahana", "Hilton")) +
+  facet_wrap(~species, scales = "free");NMDS_plot_site
 
-ggsave(file="Figures/ITS2/NMDS.png", NMDS_plot, width = 10, height = 5, units = c("in"))
+ggsave(file="Figures/ITS2/NMDS_site.png", NMDS_plot_site, width = 10, height = 5, units = c("in"))
 ```
 
 Stress output from NMDS: 
@@ -650,6 +654,83 @@ Scaling: centring, PC rotation, halfchange scaling
 Species: expanded scores based on ‘permanova_matrix_com’
 
 **For a good representation of your data, the stress value should ideally be less than 0.2** 
+
+Plot by timepoint
+```{r}
+permanova_matrix_com = as.matrix(permanova_matrix)
+nmds = metaMDS(permanova_matrix_com, distance = "bray")
+
+#extract NMDS scores (x and y coordinates) for sites from newer versions of vegan package
+data.scores = as.data.frame(scores(nmds)$site)
+
+#add columns to data frame 
+data.scores$colony_id = permanova_meta$colony_id
+data.scores$timepoint = permanova_meta$timepoint
+data.scores$site = permanova_meta$site
+data.scores$species = permanova_meta$species
+
+data.scores<-data.scores%>%
+  filter(!timepoint=="TP2a")%>%
+  filter(!timepoint=="TP2b")
+ 
+head(data.scores)
+set.seed(15647)
+NMDS_plot_time <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) + 
+    geom_point(size = 2, aes(fill = timepoint), color="black", pch=21)+ 
+    #stat_ellipse(aes(colour=site), level=0.95, type="norm")+
+    theme(axis.text.y = element_text(colour = "black", size = 10, face = "bold"), 
+          axis.text.x = element_text(colour = "black", face = "bold", size = 10), 
+          legend.text = element_text(size = 10, face ="bold", colour ="black"), 
+          legend.position = "right", axis.title.y = element_text(face = "bold", size = 12), 
+          axis.title.x = element_text(face = "bold", size = 12, colour = "black"), 
+          legend.title = element_text(size = 12, colour = "black", face = "bold"), 
+          panel.background = element_blank(), 
+          panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
+          legend.key=element_blank()) + 
+          labs(x = "NMDS1", fill = "Timepoint", y = "NMDS2")  + 
+        scale_fill_manual(values=c("white", "lightgray", "darkgray", "black"), labels=c("Jan 2020", "Mar 2020", "Sep 2020", "Nov 2020")) +
+  facet_wrap(~species, scales = "free");NMDS_plot_time
+
+ggsave(file="Figures/ITS2/NMDS_time.png", NMDS_plot_time, width = 10, height = 5, units = c("in"))
+```
+
+Plot by species
+```{r}
+permanova_matrix_com = as.matrix(permanova_matrix)
+nmds = metaMDS(permanova_matrix_com, distance = "bray")
+
+#extract NMDS scores (x and y coordinates) for sites from newer versions of vegan package
+data.scores = as.data.frame(scores(nmds)$site)
+
+#add columns to data frame 
+data.scores$colony_id = permanova_meta$colony_id
+data.scores$timepoint = permanova_meta$timepoint
+data.scores$site = permanova_meta$site
+data.scores$species = permanova_meta$species
+
+data.scores<-data.scores%>%
+  filter(!timepoint=="TP2a")%>%
+  filter(!timepoint=="TP2b")
+ 
+head(data.scores)
+set.seed(15647)
+NMDS_plot_species <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) + 
+    geom_point(size = 2, aes(fill = species), color="black", pch=21)+ 
+    #stat_ellipse(aes(colour=site), level=0.95, type="norm")+
+    theme(axis.text.y = element_text(colour = "black", size = 10, face = "bold"), 
+          axis.text.x = element_text(colour = "black", face = "bold", size = 10), 
+          legend.text = element_text(size = 10, face ="bold", colour ="black"), 
+          legend.position = "right", axis.title.y = element_text(face = "bold", size = 12), 
+          axis.title.x = element_text(face = "bold", size = 12, colour = "black"), 
+          legend.title = element_text(size = 12, colour = "black", face = "bold"), 
+          panel.background = element_blank(), 
+          panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
+          legend.key=element_blank()) + 
+          labs(x = "NMDS1", fill = "Species", y = "NMDS2")  + 
+          scale_fill_manual(values=c("gray", "orange", "purple")); NMDS_plot_species
+
+ggsave(file="Figures/ITS2/NMDS_species.png", NMDS_plot_species, width = 5, height = 4, units = c("in"))
+```
 
 Output matrix for additional analyses. 
 ```{r}
