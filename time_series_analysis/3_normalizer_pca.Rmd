@@ -34,6 +34,7 @@ if (!require("ggcorrplot")) install.packages("ggcorrplot")
 if (!require("GGally")) install.packages("GGally")
 if (!require("broom")) install.packages("broom")
 if (!require("cowplot")) install.packages("cowplot")
+if (!require("pairwiseAdonis")) install.packages("pairwiseAdonis")
 
 # load packages
 library(tidyverse)
@@ -51,6 +52,7 @@ library(ggcorrplot)
 library(GGally)
 library(broom)
 library(cowplot)
+library(pairwiseAdonis)
 ```
 
 # Load dataframe
@@ -1015,9 +1017,9 @@ All_PCAs_species<-plot_grid(porSite_prot, porTimepoint_prot, porSite_afdw, porTi
 ggsave(filename="Figures/NormalizerPCA/All_Species_PCAs.pdf", plot=All_PCAs_species, dpi=300, width=48, height=15, units="in")
 ``` 
 
-## Final species PCA of selected normalizers  
+# Final species PCA of selected normalizers  
 
-### Holobiont 
+## Holobiont 
 
 Plot PCA using prcomp to center and scale using biomass normalized tissue responses and surface area normalized metabolic rates and calcification rates. 
   
@@ -1055,6 +1057,15 @@ z_species
 
 #conduct pairwise adonis to look at pairwise permanova comparisons
 pairwise.adonis(x=pca_data_species[ ,5:18],factors=pca_data_species$species, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#                    pairs Df    SumsOfSqs  F.Model        R2 p.value p.adjusted
+#1 Acropora vs Pocillopora  1 4.536182e+12 181.3893 0.4387857   0.001      0.003
+#2     Acropora vs Porites  1 1.998949e+12  72.5289 0.2335657   0.001      0.003
+#3  Pocillopora vs Porites  1 6.239125e+11 100.7953 0.2733095   0.001      0.003
+#  sig
+#1   *
+#2   *
+#3   *
 ``` 
  
 Groupings by species:  
@@ -1106,7 +1117,7 @@ ggsave(filename="Figures/NormalizerPCA/Species_Overall_BiPlot.pdf", plot=pcaSpec
 Species specific PCAs and PERMANOVAs are in the next script, `4_multivariate_analysis.RmD`.  
 
 
-### Host 
+## Host 
 
 Plot PCA using prcomp to center and scale using biomass normalized tissue responses and surface area normalized metabolic rates and calcification rates. 
   
@@ -1189,7 +1200,7 @@ ggsave(filename="Figures/NormalizerPCA/Species_Host_BiPlot.jpeg", plot=pcaSpecie
 Species specific PCAs and PERMANOVAs are in the next script, `4_multivariate_analysis.RmD`.  
 
 
-### Symbiont 
+## Symbiont 
 
 Plot PCA using prcomp to center and scale using biomass normalized tissue responses and surface area normalized metabolic rates and calcification rates. 
   
