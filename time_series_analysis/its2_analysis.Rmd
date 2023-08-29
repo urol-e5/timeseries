@@ -718,7 +718,7 @@ data.scores<-data.scores%>%
 head(data.scores)
 set.seed(15647)
 NMDS_plot_species <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) + 
-    geom_point(size = 2, aes(fill = species), color="black", pch=21)+ 
+    geom_point(size = 4, aes(fill = species), color="black", pch=21)+ 
     #stat_ellipse(aes(colour=site), level=0.95, type="norm")+
     geom_text(x=-40, y=40, label="stress 0.005", size=4)+
     theme(axis.text.y = element_text(colour = "black", size = 10, face = "bold"), 
@@ -734,6 +734,7 @@ NMDS_plot_species <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) +
           scale_fill_manual(values=c("gray", "orange", "purple")); NMDS_plot_species
 
 ggsave(file="Figures/ITS2/NMDS_species.png", NMDS_plot_species, width = 5, height = 4, units = c("in"))
+ggsave(file="Figures/ITS2/NMDS_species.pdf", NMDS_plot_species, width = 5, height = 4, units = c("in"))
 ```
 
 Output matrix for additional analyses. 
