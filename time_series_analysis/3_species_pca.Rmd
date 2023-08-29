@@ -1067,6 +1067,16 @@ pairwise.adonis(x=pca_data_species[ ,5:18],factors=pca_data_species$species, sim
 #2   *
 #3   *
 ``` 
+
+Examine dispersion for this model by species 
+```{r}
+#evaluate dispersion
+beta_species<-betadisper(vegdist(pca_data_species[ ,5:18], "euclidian"), pca_data_species$species)
+anova(beta_species)
+
+#conduct posthoc analysis of betadispersion
+TukeyHSD(beta_site)
+```
  
 Groupings by species:  
 ```{r}
@@ -1074,7 +1084,8 @@ pcaSpecies_afdw<-ggplot2::autoplot(scaled_data_species, data=pca_data_species, f
   scale_colour_manual(values=c("darkgray", "orange", "purple")) +
   scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
   theme_classic()+
-  geom_text(x=-0.04, y=0.3, label=paste("p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=0, y=0.28, label=paste("PERMANOVA p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=-0, y=0.26, label="PERMDISP p < 0.001", size=6, color="black") + 
   #xlim(-0.3,0.5)+
   #ylim(-0.3, 0.5)+
   xlab("PC1")+
@@ -1151,8 +1162,26 @@ z_species
 #          Df SumOfSqs     R2      F Pr(>F)    
 #species    2   835.18 0.4283 145.34  0.001 ***
 #Residual 388  1114.82 0.5717                  
-#Total    390  1950.00 1.0000                  
+#Total    390  1950.00 1.0000        
+
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=pca_data_species_host[ ,5:9],factors=pca_data_species_host$species, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#                    pairs Df  SumsOfSqs   F.Model        R2 p.value p.adjusted sig
+#1 Acropora vs Pocillopora  1   34.77993  80.33426 0.2446722   0.001      0.003   *
+#2     Acropora vs Porites  1 1998.46501 607.08105 0.7141449   0.001      0.003   *
+#3  Pocillopora vs Porites  1 1818.04340 618.79392 0.6846626   0.001      0.003   *
 ``` 
+
+Examine dispersion for this model by species 
+```{r}
+#evaluate dispersion
+beta_species<-betadisper(vegdist(pca_data_species_host[ ,5:9], "euclidian"), pca_data_species_host$species)
+anova(beta_species)
+
+#conduct posthoc analysis of betadispersion
+#TukeyHSD(beta_site)
+```
  
 Groupings by species:  
 ```{r}
@@ -1160,7 +1189,8 @@ pcaSpecies_afdw_host<-ggplot2::autoplot(scaled_data_species_host, data=pca_data_
   scale_colour_manual(values=c("darkgray", "orange", "purple")) +
   scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
   theme_classic()+
-  geom_text(x=-0.04, y=0.3, label=paste("p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=0, y=0.29, label=paste("PERMANOVA p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=0, y=0.26, label="PERMDISP p < 0.001", size=6, color="black") +
   #xlim(-0.3,0.5)+
   #ylim(-0.3, 0.5)+
   xlab("PC1")+
@@ -1169,6 +1199,7 @@ pcaSpecies_afdw_host<-ggplot2::autoplot(scaled_data_species_host, data=pca_data_
    theme(legend.text = element_text(size=18, face="italic"), 
          legend.position="none",
         plot.background = element_blank(),
+        plot.title = element_text(size=18, color="black", face="bold"),
         legend.title = element_blank(), 
         axis.text = element_text(size=18, color="black"), 
         axis.title = element_text(size=18, color="black"));pcaSpecies_afdw_host
@@ -1234,24 +1265,48 @@ z_species
 #          Df SumOfSqs      R2      F Pr(>F)    
 #species    2   1174.5 0.31829 95.248  0.001 ***
 #Residual 408   2515.5 0.68171                  
-#Total    410   3690.0 1.00000                
+#Total    410   3690.0 1.00000      
+
+#conduct pairwise adonis to look at pairwise permanova comparisons
+pairwise.adonis(x=pca_data_species_sym[ ,5:9],factors=pca_data_species_sym$species, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
+
+#                    pairs Df    SumsOfSqs   F.Model        R2 p.value p.adjusted
+#1 Acropora vs Pocillopora  1 5.049196e+12 196.22623 0.4368094   0.001      0.003
+#2     Acropora vs Porites  1 2.183380e+12  78.96107 0.2302333   0.001      0.003
+#3  Pocillopora vs Porites  1 7.537429e+11 121.37191 0.2887251   0.001      0.003
+#  sig
+#1   *
+#2   *
+#3   *
 ``` 
  
+ Examine dispersion for this model by species 
+```{r}
+#evaluate dispersion
+beta_species<-betadisper(vegdist(pca_data_species_sym[ ,5:9], "euclidian"), pca_data_species_sym$species)
+anova(beta_species)
+
+#conduct posthoc analysis of betadispersion
+#TukeyHSD(beta_site)
+```
+
 Groupings by species:  
 ```{r}
 pcaSpecies_afdw_sym<-ggplot2::autoplot(scaled_data_species_sym, data=pca_data_species_sym, frame.colour="species", loadings=FALSE,  colour="species", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
   scale_colour_manual(values=c("darkgray", "orange", "purple")) +
   scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
   theme_classic()+
-  geom_text(x=-0.11, y=0.1, label=paste("p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  #xlim(-0.3,0.5)+
-  #ylim(-0.3, 0.5)+
+  geom_text(x=-0.05, y=0.17, label=paste("PERMANOVA p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  geom_text(x=-0.05, y=0.14, label="PERMDISP p < 0.001", size=6, color="black") +
+  xlim(-0.2,0.2)+
+  ylim(-0.22, 0.18)+
   xlab("PC1")+
   ylab("PC2")+
   ggtitle("B. Symbiont Responses")+
    theme(legend.text = element_text(size=18, face="italic"), 
          legend.position="right",
         plot.background = element_blank(),
+        plot.title = element_text(size=18, color="black", face="bold"),
         legend.title = element_blank(), 
         axis.text = element_text(size=18, color="black"), 
         axis.title = element_text(size=18, color="black"));pcaSpecies_afdw_sym
