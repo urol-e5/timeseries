@@ -494,7 +494,7 @@ Since species is significant, test for effects of time and site within each spec
 `density_model_acr<-lmer(log(cells.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(subset=c(cells.mgAFDW>0 & species=="Acropora"))` 
 
 ```{r}
-density_model_acr<-lmer(log(cells.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0 & species=="Acropora"))
+density_model_acr<-lmer(log(cells.mgAFDW+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0 & species=="Acropora"))
 qqPlot(residuals(density_model_acr))
 ```
 
@@ -518,7 +518,7 @@ pairs(emm)
 `density_model_poc<-lmer(log(cells.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
 
 ```{r}
-density_model_poc<-lmer(log(cells.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0 & species=="Pocillopora"))
+density_model_poc<-lmer(log(cells.mgAFDW+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0 & species=="Pocillopora"))
 qqPlot(residuals(density_model_poc))
 ```
 
@@ -542,7 +542,7 @@ pairs(emm)
 `density_model_por<-lmer(log(cells.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
 
 ```{r}
-density_model_por<-lmer(log(cells.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0 & species=="Porites"))
+density_model_por<-lmer(log(cells.mgAFDW+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0 & species=="Porites"))
 qqPlot(residuals(density_model_por))
 ```
 
@@ -2537,7 +2537,7 @@ Residuals are not normally distributed. Attempt with log transformation.
 
 `am_model<-lmer(log(Am)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
 ```{r}
-am_model<-lmer(log(Am)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+am_model<-lmer(log(Am+1)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(am_model))
 ```
 
@@ -2558,7 +2558,7 @@ Since species is significant, test for effects of time and site within species.
 `am_model<-lmer(log(Am)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
-am_model_acr<-lmer(log(Am)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
+am_model_acr<-lmer(log(Am+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
 qqPlot(residuals(am_model_acr))
 ```
 
@@ -2580,7 +2580,7 @@ pairs(emm)
 `am_model_poc<-lmer(log(Am)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
 
 ```{r}
-am_model_poc<-lmer(log(Am)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+am_model_poc<-lmer(log(Am+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
 qqPlot(residuals(am_model_poc))
 ```
 
@@ -2599,7 +2599,7 @@ pairs(emm)
 `am_model_por<-lmer(log(Am)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
 
 ```{r}
-am_model_por<-lmer(log(Am)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+am_model_por<-lmer(log(Am+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
 qqPlot(residuals(am_model_por))
 ```
 
@@ -2632,7 +2632,7 @@ Residuals are not normally distributed. Attempt with log transformation.
 `aqy_model<-lmer(log(AQY)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
 
 ```{r}
-aqy_model<-lmer(log(AQY)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+aqy_model<-lmer(log(AQY+1)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(aqy_model))
 ```
 
@@ -2653,7 +2653,7 @@ Since species is significant, test for effect of site and time within species.
 `aqy_model_acr<-lmer(log(AQY)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
-aqy_model_acr<-lmer(log(AQY)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
+aqy_model_acr<-lmer(log(AQY+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
 qqPlot(residuals(aqy_model_acr))
 ```
 
@@ -2671,7 +2671,7 @@ summary(aqy_model_acr)
 `aqy_model_poc<-lmer(log(AQY)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
 
 ```{r}
-aqy_model_poc<-lmer(log(AQY)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+aqy_model_poc<-lmer(log(AQY+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
 qqPlot(residuals(aqy_model_poc))
 ```
 
@@ -2693,7 +2693,7 @@ pairs(emm)
 `aqy_model_por<-lmer(log(AQY)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
 
 ```{r}
-aqy_model_por<-lmer(log(AQY)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+aqy_model_por<-lmer(log(AQY+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
 qqPlot(residuals(aqy_model_por))
 ```
 
@@ -2723,7 +2723,7 @@ Residuals are not normally distributed. Attempt with log transformation.
 `rd_model<-lmer(log(Rd)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
 
 ```{r}
-rd_model<-lmer(log(Rd)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+rd_model<-lmer(log(Rd+1)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(rd_model))
 ```
 
@@ -2744,7 +2744,7 @@ Since species is significant, test for effects of site and time within species.
 `rd_model_acr<-lmer(log(Rd)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
-rd_model_acr<-lmer(log(Rd)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
+rd_model_acr<-lmer(log(Rd+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
 qqPlot(residuals(rd_model_acr))
 ```
 
@@ -2766,7 +2766,7 @@ pairs(emm)
 `rd_model_poc<-lmer(log(Rd)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
 
 ```{r}
-rd_model_poc<-lmer(log(Rd)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+rd_model_poc<-lmer(log(Rd+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
 qqPlot(residuals(rd_model_poc))
 ```
 
@@ -2791,7 +2791,7 @@ pairs(emm)
 `rd_model_por<-lmer(log(Rd)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
 
 ```{r}
-rd_model_por<-lmer(log(Rd)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+rd_model_por<-lmer(log(Rd+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
 qqPlot(residuals(rd_model_por))
 ```
 
@@ -2824,7 +2824,7 @@ Residuals are not normally distributed. Attempt with log transformation.
 
 `Ik_model<-lmer(log(Ik)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
 ```{r}
-Ik_model<-lmer(log(Ik)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+Ik_model<-lmer(log(Ik+1)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(Ik_model))
 ```
 
@@ -2845,7 +2845,7 @@ Since species is significant, test for effects of site and time within species.
 `Ik_model_acr<-lmer(log(Ik)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
-Ik_model_acr<-lmer(log(Ik)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
+Ik_model_acr<-lmer(log(Ik+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
 qqPlot(residuals(Ik_model_acr))
 ```
 
@@ -2864,7 +2864,7 @@ pairs(emm)
 `Ik_model_poc<-lmer(log(Ik)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
 
 ```{r}
-Ik_model_poc<-lmer(log(Ik)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+Ik_model_poc<-lmer(log(Ik+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
 qqPlot(residuals(Ik_model_poc))
 ```
 
@@ -2883,7 +2883,7 @@ pairs(emm)
 `Ik_model_por<-lmer(log(Ik)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
 
 ```{r}
-Ik_model_por<-lmer(log(Ik)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+Ik_model_por<-lmer(log(Ik+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
 qqPlot(residuals(Ik_model_por))
 ```
 
@@ -2924,7 +2924,7 @@ Residuals are not normally distributed. Attempt with log transformation.
 
 `Ik_model<-lmer(log(Ik)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
 ```{r}
-Ic_model<-lmer(log(Ic)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+Ic_model<-lmer(log(Ic+1)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(Ic_model))
 ```
 
@@ -2945,7 +2945,7 @@ Since species is significant, test for effects of site and time within species.
 `Ic_model_acr<-lmer(log(Ic)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
-Ic_model_acr<-lmer(log(Ic)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
+Ic_model_acr<-lmer(log(Ic+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
 qqPlot(residuals(Ic_model_acr))
 ```
 
@@ -2967,7 +2967,7 @@ pairs(emm)
 `Ic_model_poc<-lmer(log(Ic)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
 
 ```{r}
-Ic_model_poc<-lmer(log(Ic)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+Ic_model_poc<-lmer(log(Ic+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
 qqPlot(residuals(Ic_model_poc))
 ```
 
@@ -2992,7 +2992,7 @@ pairs(emm)
 `Ic_model_por<-lmer(log(Ic)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
 
 ```{r}
-Ic_model_por<-lmer(log(Ic)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+Ic_model_por<-lmer(log(Ic+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
 qqPlot(residuals(Ic_model_por))
 ```
 
