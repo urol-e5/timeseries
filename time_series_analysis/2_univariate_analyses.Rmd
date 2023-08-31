@@ -314,7 +314,7 @@ summary(antiox_model_por)
 emm<-emmeans(antiox_model_por, ~ timepoint)
 pairs(emm)
 
-emm<-emmeans(antiox_model_por, ~ timepoint)
+emm<-emmeans(antiox_model_por, ~ site)
 pairs(emm)
 ```
 
@@ -551,16 +551,16 @@ Generate a Type III Anova of model.
 ```{r}
 anova(density_model_por, type="III")
 
-emm<-emmeans(density_model_poc, ~ timepoint)
+emm<-emmeans(density_model_por, ~ timepoint)
 pairs(emm)
 
-emm<-emmeans(density_model_poc, ~ site)
+emm<-emmeans(density_model_por, ~ site)
 pairs(emm)
 
-emm<-emmeans(density_model_poc, ~ site | timepoint)
+emm<-emmeans(density_model_por, ~ site | timepoint)
 pairs(emm)
 
-emm<-emmeans(density_model_poc, ~ timepoint | site)
+emm<-emmeans(density_model_por, ~ timepoint | site)
 pairs(emm)
 ```
 
@@ -1099,10 +1099,10 @@ Generate a Type III Anova of model.
 anova(shAFDW_model_por, type="III")
 summary(shAFDW_model_por)
 
-emm<-emmeans(shAFDW_model_poc, ~ timepoint)
+emm<-emmeans(shAFDW_model_por, ~ timepoint)
 pairs(emm)
 
-emm<-emmeans(shAFDW_model_poc, ~ site)
+emm<-emmeans(shAFDW_model_por, ~ site)
 pairs(emm)
 ```
 
@@ -2783,6 +2783,9 @@ emm<-emmeans(rd_model_poc, ~ timepoint | site)
 pairs(emm)
 
 emm<-emmeans(rd_model_poc, ~ site)
+pairs(emm)
+
+emm<-emmeans(rd_model_poc, ~ timepoint)
 pairs(emm)
 
 emm<-emmeans(rd_model_poc, ~ site | timepoint)
