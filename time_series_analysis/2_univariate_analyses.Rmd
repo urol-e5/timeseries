@@ -77,7 +77,7 @@ master$month<-fct_relevel(master$month, "January 2020", "March 2020", "September
 
 # Univariate Responses  
 
-Plot univariate response plots and then generate panel of all plots at the end of this section. Individual plots will not be displayed.  
+Plot univariate response plots and then generate panel of all plots at the end of this section. Individual plots will not be displayed.
 
 ## Antioxidant capacity  
 
@@ -2088,6 +2088,9 @@ anova(prot_model_acr, type="III")
 summary(prot_model_acr)
 
 emm<-emmeans(prot_model_acr, ~ timepoint)
+pairs(emm)
+
+emm<-emmeans(prot_model_acr, ~ site)
 pairs(emm)
 
 emm<-emmeans(prot_model_acr, ~ timepoint | site)
