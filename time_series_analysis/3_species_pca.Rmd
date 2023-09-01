@@ -1075,7 +1075,7 @@ beta_species<-betadisper(vegdist(pca_data_species[ ,5:18], "euclidian"), pca_dat
 anova(beta_species)
 
 #conduct posthoc analysis of betadispersion
-TukeyHSD(beta_site)
+TukeyHSD(beta_species)
 ```
  
 Groupings by species:  
