@@ -180,9 +180,12 @@ acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site)) +
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Acropora")))+
-  geom_text(x=3, y=5.5, label=paste("T=",z_acr$`Pr(>F)`[1]), size=6, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4.75, label=paste("S=",z_acr$`Pr(>F)`[2]), size=6, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4, label=paste("TxS=",z_acr$`Pr(>F)`[3]), size=6, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=5.5, label=paste("T=",z_acr$`Pr(>F)`[1]), size=6, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4.75, label=paste("S=",z_acr$`Pr(>F)`[2]), size=6, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4, label=paste("TxS=",z_acr$`Pr(>F)`[3]), size=6, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label="T=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4.75, label="S=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4, label="TxS=0.025", size=6, color="black") + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -339,9 +342,12 @@ porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site)) +
   ylim(-6,6)+
   xlim(-6,6)+
   ggtitle(expression(italic("Porites")))+
-  geom_text(x=3, y=5.5, label=paste("T=",z_por$`Pr(>F)`[1]), size=6, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4.75, label=paste("S=",z_por$`Pr(>F)`[2]), size=6, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4, label=paste("TxS=",z_por$`Pr(>F)`[3]), size=6, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=5.5, label=paste("T=",z_por$`Pr(>F)`[1]), size=6, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4.75, label=paste("S=",z_por$`Pr(>F)`[2]), size=6, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4, label=paste("TxS=",z_por$`Pr(>F)`[3]), size=6, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label="T=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4.75, label="S=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4, label="TxS=0.003", size=6, color="black") + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -507,9 +513,12 @@ pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site)) +
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Pocillopora")))+
-  geom_text(x=3, y=5.5, label=paste("T=", z_poc$`Pr(>F)`[1]), size=6, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4.75, label=paste("S=", z_poc$`Pr(>F)`[2]), size=6, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4, label=paste("TxS=", z_poc$`Pr(>F)`[3]), size=6, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=5.5, label=paste("T=", z_poc$`Pr(>F)`[1]), size=6, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4.75, label=paste("S=", z_poc$`Pr(>F)`[2]), size=6, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4, label=paste("TxS=", z_poc$`Pr(>F)`[3]), size=6, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label="T=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4.75, label="S=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4, label="TxS=0.001", size=6, color="black") + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -1203,9 +1212,12 @@ acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site)) +
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Acropora")))+
-  geom_text(x=3, y=5.5, label=paste("T=",z_acr$`Pr(>F)`[1]), size=6, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4.75, label=paste("S=",z_acr$`Pr(>F)`[2]), size=6, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4, label=paste("TxS=",z_acr$`Pr(>F)`[3]), size=6, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=5.5, label=paste("T=",z_acr$`Pr(>F)`[1]), size=6, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4.75, label=paste("S=",z_acr$`Pr(>F)`[2]), size=6, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4, label=paste("TxS=",z_acr$`Pr(>F)`[3]), size=6, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) +
+  geom_text(x=3, y=5.5, label="T=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4.75, label="S=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4, label="TxS=0.035", size=6, color="black") + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -1369,9 +1381,12 @@ porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site)) +
   ylim(-6,6)+
   xlim(-6,6)+
   ggtitle(expression(italic("Porites")))+
-  geom_text(x=3, y=5.5, label=paste("T=",z_por$`Pr(>F)`[1]), size=6, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4.75, label=paste("S=",z_por$`Pr(>F)`[2]), size=6, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4, label=paste("TxS=",z_por$`Pr(>F)`[3]), size=6, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=5.5, label=paste("T=",z_por$`Pr(>F)`[1]), size=6, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4.75, label=paste("S=",z_por$`Pr(>F)`[2]), size=6, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4, label=paste("TxS=",z_por$`Pr(>F)`[3]), size=6, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label="T=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4.75, label="S=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4, label="TxS=0.027", size=6, color="black") + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -1534,9 +1549,12 @@ pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site)) +
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Pocillopora")))+
-  geom_text(x=3, y=5.5, label=paste("T=",z_poc$`Pr(>F)`[1]), size=6, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4.75, label=paste("S=",z_poc$`Pr(>F)`[2]), size=6, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4, label=paste("TxS=",z_poc$`Pr(>F)`[3]), size=6, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=5.5, label=paste("T=",z_poc$`Pr(>F)`[1]), size=6, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4.75, label=paste("S=",z_poc$`Pr(>F)`[2]), size=6, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4, label=paste("TxS=",z_poc$`Pr(>F)`[3]), size=6, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label="T=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4.75, label="S=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4, label="TxS=0.001", size=6, color="black") + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -1598,7 +1616,7 @@ pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,
 #### Assemble all plots    
 
 ```{r}
-PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("E", "F", "G"), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=0.85, align="vh")
+PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("D", "E", "F"), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=0.85, align="vh")
 
 # add the legend to the row we made earlier. Give it one-third of 
 # the width of one plot (via rel_widths).
@@ -2217,9 +2235,12 @@ acrPCA<-ggplot(acr_data, aes(.fittedPC1, .fittedPC2, color=site)) +
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Acropora")))+
-  geom_text(x=3, y=5.5, label=paste("T=",z_acr$`Pr(>F)`[1]), size=6, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4.75, label=paste("S=",z_acr$`Pr(>F)`[2]), size=6, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4, label=paste("TxS=",z_acr$`Pr(>F)`[3]), size=6, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=5.5, label=paste("T=",z_acr$`Pr(>F)`[1]), size=6, color=ifelse(z_acr$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4.75, label=paste("S=",z_acr$`Pr(>F)`[2]), size=6, color=ifelse(z_acr$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4, label=paste("TxS=",z_acr$`Pr(>F)`[3]), size=6, color=ifelse(z_acr$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label="T=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4.75, label="S=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4, label="TxS=0.021", size=6, color="black") + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -2378,9 +2399,12 @@ porPCA<-ggplot(por_data, aes(.fittedPC1, .fittedPC2, color=site)) +
   ylim(-6,6)+
   xlim(-6,6)+
   ggtitle(expression(italic("Porites")))+
-  geom_text(x=3, y=5.5, label=paste("T=",z_por$`Pr(>F)`[1]), size=6, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4.75, label=paste("S=",z_por$`Pr(>F)`[2]), size=6, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4, label=paste("TxS=",z_por$`Pr(>F)`[3]), size=6, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=5.5, label=paste("T=",z_por$`Pr(>F)`[1]), size=6, color=ifelse(z_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4.75, label=paste("S=",z_por$`Pr(>F)`[2]), size=6, color=ifelse(z_por$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4, label=paste("TxS=",z_por$`Pr(>F)`[3]), size=6, color=ifelse(z_por$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label="T=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4.75, label="S=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4, label="TxS=0.001", size=6, color="black") + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -2556,9 +2580,12 @@ pocPCA<-ggplot(poc_data, aes(.fittedPC1, .fittedPC2, color=site)) +
   ylab("PC2")+
   xlab("PC1")+
   ggtitle(expression(italic("Pocillopora")))+
-  geom_text(x=3, y=5.5, label=paste("T=",z_poc$`Pr(>F)`[1]), size=6, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4.75, label=paste("S=",z_poc$`Pr(>F)`[2]), size=6, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
-  geom_text(x=3, y=4, label=paste("TxS=",z_poc$`Pr(>F)`[3]), size=6, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=5.5, label=paste("T=",z_poc$`Pr(>F)`[1]), size=6, color=ifelse(z_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4.75, label=paste("S=",z_poc$`Pr(>F)`[2]), size=6, color=ifelse(z_poc$`Pr(>F)`[2] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=3, y=4, label=paste("TxS=",z_poc$`Pr(>F)`[3]), size=6, color=ifelse(z_poc$`Pr(>F)`[3] < 0.05, "black", "darkgray")) + 
+  geom_text(x=3, y=5.5, label="T=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4.75, label="S=0.001", size=6, color="black") + 
+  geom_text(x=3, y=4, label="TxS=0.001", size=6, color="black") + 
   theme(legend.text = element_text(size=18), 
          legend.position="none",
          plot.background = element_blank(),
@@ -2621,7 +2648,7 @@ pocArrows<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, loadings=TRUE,
 #### Assemble all plots    
 
 ```{r}
-PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("I", "J", "K"), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=0.85, align="vh")
+PCA_full_panel<-plot_grid(acrPCAfull, pocPCAfull, porPCAfull, labels = c("G", "H", "I"), ncol=3, nrow=1, rel_heights= c(1,1,1), rel_widths = c(1,1,1), label_size = 20, label_y=0.85, align="vh")
 
 # add the legend to the row we made earlier. Give it one-third of 
 # the width of one plot (via rel_widths).
