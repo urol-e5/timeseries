@@ -424,6 +424,37 @@ summary_group<-master%>%
 ```
 
 
+```{r}
+# Generate normalized values of all measurements that remove species- and site-specific variation
+df <- summary_group %>%
+  ungroup()
+
+longdf <- df %>% 
+  select(!code) %>%
+  pivot_longer(!1:4, names_to = "variable") 
+
+ggplot(longdf, aes(x = month, y = value, color = species, shape = site)) +
+  geom_point() +
+  facet_wrap(~variable, scales = "free")
+
+res <- longdf %>%
+  group_by(variable) %>%
+  mutate(grandmean = mean(value, na.rm = TRUE)) %>%
+  group_by(variable, species, site) %>%
+  mutate(groupmean = mean(value, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(adj_value = value - groupmean + grandmean)
+
+
+ggplot(res, aes(x = month, y = adj_value, color = species, shape = site)) +
+  geom_point() +
+  facet_wrap(~variable, scales = "free")
+
+res %>%
+  select(month, site, nutrient, species, variable, adj_value) %>%
+  pivot_wider(names_from = variable, values_from = adj_value) %>%
+  write_csv("Output/Summary_Responses_normalized.csv")
+```
 
 
 
