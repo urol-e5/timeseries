@@ -408,14 +408,14 @@ Summarize all response values by group (species + timepoint + site).
 
 ```{r}
 summary_colony<-master%>%
-  select(., -c(colony_id, timepoint, site_code))%>%
+  select(., -c(colony_id, timepoint, site_code, code))%>%
   group_by(colony_id_corr, month, site, nutrient, species)%>%
   summarise(across(.cols=everything(), ~mean(.x, na.rm = TRUE)))%>%
   drop_na("site")%>%
   write_csv(., "Output/Summary_Colony_Responses.csv")
 
 summary_group<-master%>%
-  select(., -c(colony_id, timepoint, site_code, colony_id_corr))%>%
+  select(., -c(colony_id, timepoint, site_code, colony_id_corr, code))%>%
   group_by(month, site, nutrient, species)%>%
   summarise(across(.cols=everything(), ~mean(.x, na.rm = TRUE)))%>%
   drop_na("site")%>%
