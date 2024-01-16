@@ -413,7 +413,7 @@ pmdf_heatmap_plot <- pmdf_heatmap %>% subset(species == "Acropora") %>% ## CHANG
 
 ## PERMANOVA
 
-Below is on relative abundance. Do VST later?
+Below is on relative abundance. 
 
 I'm removing the samples that we don't know a timepoint or site. 
 
