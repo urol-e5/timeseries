@@ -47,10 +47,10 @@ This repository is organized such that each sampling time point (1 = January 202
 		- This script analyzes available temperature, light, pH, and salinity data. Figures and summary data are stored in the  [Figures/Environmental folder](https://github.com/urol-e5/timeseries/tree/master/time_series_analysis/Figures/Environmental) and [Output folder](https://github.com/urol-e5/timeseries/tree/master/time_series_analysis/Output). 
 
 	- [`1_assemble_data.Rmd`](https://github.com/urol-e5/timeseries/blob/master/time_series_analysis/1_assemble_data.Rmd)
-		- This script reads in all data files for each physiological response from each individual time point and assembles the data into one master dataframe. This script corrects colony ID errors, QC's data, calculates different normalizations for each metric, and subsets data for other analyses. Master data frame is stored in the [Output directory](https://github.com/urol-e5/timeseries/tree/master/time_series_analysis/Output). 
+		- This script reads in all data files for each physiological response from each individual time point and assembles the data into one master dataframe. This script corrects colony ID errors, and QC's data, calculates different normalizations for each metric, and subsets data for other analyses. Master data frame is stored in the [Output directory](https://github.com/urol-e5/timeseries/tree/master/time_series_analysis/Output). 
 
 	- [`2_univariate_analyses.Rmd`](https://github.com/urol-e5/timeseries/blob/master/time_series_analysis/2_univariate_analyses.Rmd)
-		- This script plots univariate repsonse metrics for all physiological variables across site and time and species. Each response is analyzed using linear mixed effect models accounting for repeated measures. Figures are stored in the [Figures/Univariate folder](https://github.com/urol-e5/timeseries/tree/master/time_series_analysis/Figures/Univariate) and summaries of data are stored in the [Output directory](https://github.com/urol-e5/timeseries/tree/master/time_series_analysis/Output). 
+		- This script plots univariate response metrics for all physiological variables across site and time and species. Each response is analyzed using linear mixed effect models accounting for repeated measures. Figures are stored in the [Figures/Univariate folder](https://github.com/urol-e5/timeseries/tree/master/time_series_analysis/Figures/Univariate) and summaries of data are stored in the [Output directory](https://github.com/urol-e5/timeseries/tree/master/time_series_analysis/Output). 
 
 	- [`3_species_pca.Rmd`](https://github.com/urol-e5/timeseries/blob/master/time_series_analysis/3_species_pca.Rmd)
 		- This script generates PCA plots and conducts PERMANOVA analyses of multivariate physiology by species. PCA's were also generated for each species for responses normalized to each possible normalizer (surface area, protein, and biomass). Figures are stored in the [Figures/NormalizerPCA folder](https://github.com/urol-e5/timeseries/tree/master/time_series_analysis/Figures/NormalizerPCA)
@@ -68,7 +68,7 @@ This repository is organized such that each sampling time point (1 = January 202
 		- This script conducts variance partitioning and redundancy analyses (RDA) on physiological metrics. Figures are stored in the [Figures/Multivariate folder](https://github.com/urol-e5/timeseries/tree/master/time_series_analysis/Figures/Multivariate). 
 
 	- [`8_plasticity_analysis_centroid_distances.Rmd`](https://github.com/urol-e5/timeseries/blob/master/time_series_analysis/8_plasticity_analysis_centroid_distances.Rmd)
-		- This script also conducts an analysis to generate a "plasticity" metric calculated as distance between group centroids. Figures are stored in the [Figures/Multivariate folder](https://github.com/urol-e5/timeseries/tree/master/time_series_analysis/Figures/Multivariate). Note that this analysis is not used in further analyses or presented in the publication. We instead used variance partioning analyses. 
+		- This script also conducts an analysis to generate a "plasticity" metric calculated as the distance between group centroids. Figures are stored in the [Figures/Multivariate folder](https://github.com/urol-e5/timeseries/tree/master/time_series_analysis/Figures/Multivariate). Note that this analysis is not used in further analyses or presented in the publication. We instead used variance partitioning analyses. 
 
 	- [`9_multivariate_analysis_betadispersion.Rmd`](https://github.com/urol-e5/timeseries/blob/master/time_series_analysis/9_multivariate_analysis_betadispersion.Rmd)
 		- This scripts conducts multivariate analyses of betadispersion. 
@@ -80,7 +80,7 @@ This repository is organized such that each sampling time point (1 = January 202
 
 We measured the following physiological responses:  
 
-AH INSERT PHOTO HERE 
+<img width="554" alt="responses" src="https://github.com/urol-e5/timeseries/assets/32178010/733de652-9b2d-49c0-974d-30778f81fbb6">
 
 ### Running scripts 
 
