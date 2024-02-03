@@ -1,141 +1,141 @@
-colony_id_corr,site,species
-ACR-139,Manava,Acropora
-ACR-140,Manava,Acropora
-ACR-145,Manava,Acropora
-ACR-150,Manava,Acropora
-ACR-165,Manava,Acropora
-ACR-173,Manava,Acropora
-ACR-175,Manava,Acropora
-ACR-176,Manava,Acropora
-ACR-178,Manava,Acropora
-ACR-180,Manava,Acropora
-ACR-185,Manava,Acropora
-ACR-186,Manava,Acropora
-ACR-187,Manava,Acropora
-ACR-190,Manava,Acropora
-ACR-193,Manava,Acropora
-ACR-210,Mahana,Acropora
-ACR-213,Mahana,Acropora
-ACR-218,Mahana,Acropora
-ACR-220,Mahana,Acropora
-ACR-225,Mahana,Acropora
-ACR-228,Mahana,Acropora
-ACR-229,Mahana,Acropora
-ACR-231,Mahana,Acropora
-ACR-234,Mahana,Acropora
-ACR-237,Mahana,Acropora
-ACR-241,Mahana,Acropora
-ACR-243,Mahana,Acropora
-ACR-244,Mahana,Acropora
-ACR-246,Mahana,Acropora
-ACR-247,Mahana,Acropora
-ACR-256,Mahana,Acropora
-ACR-258,Mahana,Acropora
-ACR-265,Mahana,Acropora
-ACR-267,Mahana,Acropora
-ACR-343,Hilton,Acropora
-ACR-345,Hilton,Acropora
-ACR-347,Hilton,Acropora
-ACR-350,Hilton,Acropora
-ACR-351,Hilton,Acropora
-ACR-360,Hilton,Acropora
-ACR-363,Hilton,Acropora
-ACR-364,Hilton,Acropora
-ACR-368,Hilton,Acropora
-ACR-374,Hilton,Acropora
-ACR-379,Hilton,Acropora
-ACR-389,Hilton,Acropora
-ACR-390,Hilton,Acropora
-ACR-393,Hilton,Acropora
-ACR-396,Hilton,Acropora
-ACR-51,Manava,Acropora
-POC-200,Mahana,Pocillopora
-POC-201,Mahana,Pocillopora
-POC-205,Mahana,Pocillopora
-POC-207,Mahana,Pocillopora
-POC-215,Mahana,Pocillopora
-POC-217,Mahana,Pocillopora
-POC-219,Mahana,Pocillopora
-POC-222,Mahana,Pocillopora
-POC-238,Mahana,Pocillopora
-POC-239,Mahana,Pocillopora
-POC-248,Mahana,Pocillopora
-POC-254,Mahana,Pocillopora
-POC-255,Mahana,Pocillopora
-POC-257,Mahana,Pocillopora
-POC-259,Mahana,Pocillopora
-POC-346,Hilton,Pocillopora
-POC-358,Hilton,Pocillopora
-POC-359,Hilton,Pocillopora
-POC-366,Hilton,Pocillopora
-POC-369,Hilton,Pocillopora
-POC-371,Hilton,Pocillopora
-POC-372,Hilton,Pocillopora
-POC-373,Hilton,Pocillopora
-POC-375,Hilton,Pocillopora
-POC-377,Hilton,Pocillopora
-POC-378,Hilton,Pocillopora
-POC-386,Hilton,Pocillopora
-POC-391,Hilton,Pocillopora
-POC-394,Hilton,Pocillopora
-POC-395,Hilton,Pocillopora
-POC-40,Manava,Pocillopora
-POC-41,Manava,Pocillopora
-POC-42,Manava,Pocillopora
-POC-43,Manava,Pocillopora
-POC-44,Manava,Pocillopora
-POC-45,Manava,Pocillopora
-POC-47,Manava,Pocillopora
-POC-48,Manava,Pocillopora
-POC-50,Manava,Pocillopora
-POC-52,Manava,Pocillopora
-POC-53,Manava,Pocillopora
-POC-55,Manava,Pocillopora
-POC-56,Manava,Pocillopora
-POC-57,Manava,Pocillopora
-POC-68,Manava,Pocillopora
-POR-209,Mahana,Porites
-POR-214,Mahana,Porites
-POR-216,Mahana,Porites
-POR-221,Mahana,Porites
-POR-224,Mahana,Porites
-POR-235,Mahana,Porites
-POR-236,Mahana,Porites
-POR-240,Mahana,Porites
-POR-242,Mahana,Porites
-POR-245,Mahana,Porites
-POR-251,Mahana,Porites
-POR-253,Mahana,Porites
-POR-260,Mahana,Porites
-POR-262,Mahana,Porites
-POR-266,Mahana,Porites
-POR-338,Hilton,Porites
-POR-340,Hilton,Porites
-POR-341,Hilton,Porites
-POR-349,Hilton,Porites
-POR-353,Hilton,Porites
-POR-354,Hilton,Porites
-POR-355,Hilton,Porites
-POR-357,Hilton,Porites
-POR-362,Hilton,Porites
-POR-365,Hilton,Porites
-POR-367,Hilton,Porites
-POR-381,Hilton,Porites
-POR-383,Hilton,Porites
-POR-384,Hilton,Porites
-POR-385,Hilton,Porites
-POR-69,Manava,Porites
-POR-70,Manava,Porites
-POR-71,Manava,Porites
-POR-72,Manava,Porites
-POR-73,Manava,Porites
-POR-74,Manava,Porites
-POR-75,Manava,Porites
-POR-76,Manava,Porites
-POR-77,Manava,Porites
-POR-78,Manava,Porites
-POR-79,Manava,Porites
-POR-80,Manava,Porites
-POR-81,Manava,Porites
-POR-82,Manava,Porites
-POR-83,Manava,Porites
+colony_id_corr,site,genus,mtORF,Histone,H2.Forward,H2.Reverse,Genus.Species
+ACR-139,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-140,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-145,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-150,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-165,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-173,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-175,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-176,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-178,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-180,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-185,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-186,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-187,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-190,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-193,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-210,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-213,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-218,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-220,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-225,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-228,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-229,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-231,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-234,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-237,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-241,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-243,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-244,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-246,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-247,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-256,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-258,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-265,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-267,Mahana,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-343,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-345,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-347,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-350,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-351,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-360,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-363,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-364,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-368,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-374,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-379,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-389,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-390,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-393,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-396,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
+ACR-51,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
+POC-200,Mahana,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
+POC-201,Mahana,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-205,Mahana,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
+POC-207,Mahana,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
+POC-215,Mahana,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
+POC-217,Mahana,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
+POC-219,Mahana,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-222,Mahana,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-238,Mahana,Pocillopora,Haplotype 8a,Need Histone,NA,NA,Pmean Pgrand
+POC-239,Mahana,Pocillopora,Haplotype 1c,Need Histone,NA,NA,Pmean Pgrand
+POC-248,Mahana,Pocillopora,Haplotype 8a,Need Histone,NA,NA,Pmean Pgrand
+POC-254,Mahana,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
+POC-255,Mahana,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-257,Mahana,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-259,Mahana,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-346,Hilton,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-358,Hilton,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-359,Hilton,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-366,Hilton,Pocillopora,Haplotype 8a,Need Histone,NA,NA,Pmean Pgrand
+POC-369,Hilton,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-371,Hilton,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-372,Hilton,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-373,Hilton,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-375,Hilton,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-377,Hilton,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-378,Hilton,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-386,Hilton,Pocillopora,Haplotype 8a,Need Histone,NA,NA,Pmean Pgrand
+POC-391,Hilton,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-394,Hilton,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-395,Hilton,Pocillopora,Haplotype 8a,Need Histone,NA,NA,Pmean Pgrand
+POC-40,Manava,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-41,Manava,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
+POC-42,Manava,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-43,Manava,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-44,Manava,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-45,Manava,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
+POC-47,Manava,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-48,Manava,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-50,Manava,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-52,Manava,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-53,Manava,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-55,Manava,Pocillopora,Haplotype 1c,Need Histone,NA,NA,Pmean Pgrand
+POC-56,Manava,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-57,Manava,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POC-68,Manava,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
+POR-209,Mahana,Porites,NA,NA,Porites lobata,Porites lobata,Porites lobata
+POR-214,Mahana,Porites,NA,NA,Porites lobata,Porites lobata,Porites lobata
+POR-216,Mahana,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-221,Mahana,Porites,NA,NA,Porites lobata,Porites lobata,Porites lobata
+POR-224,Mahana,Porites,NA,NA,Porites lobata,Porites lobata,Porites lobata
+POR-235,Mahana,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-236,Mahana,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-240,Mahana,Porites,NA,NA,Porites lobata,Porites lobata,Porites lobata
+POR-242,Mahana,Porites,NA,NA,Porites lobata,Porites lobata,Porites lobata
+POR-245,Mahana,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-251,Mahana,Porites,NA,NA,Porites lobata,Porites lobata,Porites lobata
+POR-253,Mahana,Porites,NA,NA,Failed Seq,Porites lobata,Porites lobata
+POR-260,Mahana,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-262,Mahana,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-266,Mahana,Porites,NA,NA,Porites lobata,Porites lobata,Porites lobata
+POR-338,Hilton,Porites,NA,NA,Porites evermanni,Failed Seq,Porites evermanni
+POR-340,Hilton,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-341,Hilton,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-349,Hilton,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-353,Hilton,Porites,NA,NA,Porites lobata,Porites lobata,Porites lobata
+POR-354,Hilton,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-355,Hilton,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-357,Hilton,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-362,Hilton,Porites,NA,NA,Failed Seq,Failed Seq,Reseq
+POR-365,Hilton,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-367,Hilton,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-381,Hilton,Porites,NA,NA,Porites lobata,Porites lobata,Porites lobata
+POR-383,Hilton,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-384,Hilton,Porites,NA,NA,Porites lobata,Porites lobata,Porites lobata
+POR-385,Hilton,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-69,Manava,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-70,Manava,Porites,NA,NA,Porites evermanni,Failed Seq,Porites evermanni
+POR-71,Manava,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-72,Manava,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-73,Manava,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-74,Manava,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-75,Manava,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-76,Manava,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-77,Manava,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-78,Manava,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-79,Manava,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-80,Manava,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-81,Manava,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-82,Manava,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-83,Manava,Porites,NA,NA,Failed Seq,Failed Seq,Reseq
