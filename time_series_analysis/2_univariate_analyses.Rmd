@@ -75,6 +75,25 @@ master$month<-as.factor(master$month)
 master$month<-fct_relevel(master$month, "January 2020", "March 2020", "September 2020", "November 2020")
 ```
 
+# Filter to colonies that are present throughout entire time series
+
+Filter our data set to only analyze colonies that had all physiological metrics measured. This will show univariate responses that match the same data sets that are analyzed in our multivariate work. The full data set including colonies that did not have all metrics measured can be run by removing this filtering step. 
+
+Read in list of colonies present in multivariate time series by filtering the master data frame for complete cases.  
+
+```{r}
+str(master)
+```
+There are 448 observations before filtering. 
+
+```{r}
+master<-master%>%
+  filter(complete.cases(.)) 
+
+str(master)
+```
+There are 379 observations remaining after complete cases filtering. 
+
 # Univariate Responses  
 
 Plot univariate response plots and then generate panel of all plots at the end of this section. Individual plots will not be displayed.
@@ -3377,7 +3396,7 @@ Acropora:
 ```{r}
 p<-master%>%
   filter(species=="Acropora")%>%
-  select(site, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, calc.umol.cm2.hr)%>%
+  select(site, cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -3532,6 +3551,66 @@ p %>% correlate() %>%
 
 The strongest correlations are between metabolic rates and Host/Symbiont biomass and antioxidant capacity. There is also a strong correlation between chlorophyll content and cell density. 
 
+Plot medium threshold for each species independently. 
+
+Acropora
+```{r}
+p<-master%>%
+  filter(species=="Acropora")%>%
+  select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(prot_mg.mgafdw<1.5)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
+  mutate(across(everything(), ~log(. + 1)))# log transform all data 
+
+p<-na.omit(p)
+
+p %>% correlate() %>%
+  network_plot(min_cor=0.5, colours = c("skyblue1", "white", "indianred2"), repel = TRUE)
+
+```
+
+Pocillopora
+```{r}
+p<-master%>%
+  filter(species=="Pocillopora")%>%
+  select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(prot_mg.mgafdw<1.5)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
+  mutate(across(everything(), ~log(. + 1)))# log transform all data 
+
+p<-na.omit(p)
+
+p %>% correlate() %>%
+  network_plot(min_cor=0.5, colours = c("skyblue1", "white", "indianred2"), repel = TRUE)
+```
+
+Porites
+```{r}
+p<-master%>%
+  filter(species=="Porites")%>%
+  select(cre.umol.mgafdw, prot_mg.mgafdw, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, chlc2.ug.mgAFDW, chla.ug.mgAFDW, cells.mgAFDW, chla.ug.cell, chlc2.ug.cell, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(prot_mg.mgafdw<1.5)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
+  mutate(across(everything(), ~log(. + 1)))# log transform all data 
+
+p<-na.omit(p)
+
+p %>% correlate() %>%
+  network_plot(min_cor=0.5, colours = c("skyblue1", "white", "indianred2"), repel = TRUE)
+```
+
 # Plotting relative change over time in each species  
 
 ## Over time    
@@ -3648,3 +3727,4 @@ model_summaries
 
 write.csv(model_summaries, file="Output/univariate_model_results.csv")
 ```
+
