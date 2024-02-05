@@ -3636,19 +3636,28 @@ timeseries<-master%>%
 head(timeseries)
 ```
 
+Make a color palette. 
+```{r}
+nb.cols <- 13
+mycolors <- colorRampPalette(brewer.pal(8, "Set1"))(nb.cols)
+```
+
 Plot relative change in each metric over time for all species together.  
 ```{r}
 timeseries$month<-factor(timeseries$month, levels = c("January 2020", "March 2020", "September 2020", "November 2020"))
 
 time_plot1<-timeseries%>%
   filter(!Metric=="calc.umol.cm2.hr")%>%
+  group_by(Metric, month)%>%
+  summarise(rel_change=mean(rel_change, na.rm=TRUE))%>%
   
   ggplot(., aes(x=month, y=rel_change, colour=Metric))+
-  scale_colour_brewer(palette="Paired")+
+  scale_colour_manual(values=mycolors)+
+  geom_line(aes(group=Metric), linewidth=1)+
   geom_hline(yintercept=0)+
   ylab("Relative Change")+
   xlab("Time Point")+
-  geom_smooth(inherit.aes=T, method="loess", aes(group = Metric), se=FALSE)+
+  #geom_smooth(inherit.aes=T, method="lm", aes(group = Metric), se=FALSE)+
   theme_classic(); time_plot1
 
 ggsave(plot=time_plot1, "Figures/Univariate/Relative_Change_AllSpecies.png", width=9, height=6, unit="in", dpi=300)
@@ -3658,14 +3667,17 @@ Plot by species.
 ```{r}
 time_plot2<-timeseries%>%
   filter(!Metric=="calc.umol.cm2.hr")%>%
+  group_by(Metric, month, species)%>%
+  summarise(rel_change=mean(rel_change, na.rm=TRUE))%>%
   
   ggplot(., aes(x=month, y=rel_change,  colour=Metric))+
   facet_wrap(~species) +
-  scale_colour_brewer(palette="Paired")+
+  scale_colour_manual(values=mycolors)+
+  geom_line(aes(group=Metric), linewidth=1)+
   geom_hline(yintercept=0)+
   ylab("Relative Change")+
   xlab("Time Point")+
-  geom_smooth(inherit.aes=T, method="loess", aes(group = Metric), se=FALSE)+
+  #geom_smooth(inherit.aes=T, method="loess", aes(group = Metric), se=FALSE)+
   theme_classic(); time_plot2
 
 ggsave(plot=time_plot2, "Figures/Univariate/Relative_Change_EachSpecies.png", width=15, height=6, unit="in", dpi=300)
@@ -3680,18 +3692,20 @@ time_plot3<-timeseries%>%
   filter(Metric=="calc.umol.cm2.hr")%>%
   filter(!rel_change=="Inf")%>%
   filter(!rel_change=="NaN")%>%
+  group_by(Metric, month, species)%>%
+  summarise(rel_change=mean(rel_change, na.rm=TRUE))%>%
   
   ggplot(., aes(x=month, y=rel_change, colour=species))+
   scale_color_manual(values=c("orange", "gray", "purple")) +
   geom_hline(yintercept=0)+
+  geom_line(aes(group=species), linewidth=1)+
   ylab("Relative Change")+
   xlab("Time Point")+
-  geom_smooth(inherit.aes=T, method="loess", aes(group = species), se=FALSE)+
+  #geom_smooth(inherit.aes=T, method="loess", aes(group = species), se=FALSE)+
   theme_classic(); time_plot3
 
 ggsave(plot=time_plot3, "Figures/Univariate/Relative_Change_Calcification.png", width=9, height=6, unit="in", dpi=300)
 ```
-
 
 # Run and summarize models for all metrics and generate output table 
 
