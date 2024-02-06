@@ -1445,3 +1445,120 @@ ggsave(filename="Figures/ITS2/ACR_ITS2_PCA.pdf", plot=pca_acr, dpi=300, width=7,
 ```
 
 This plot isn't very helpful 
+# Plot communities by haplotype 
+
+Read in haplotype information and add to dataframe. 
+```{r}
+haplotypes<-read_csv("Species_ID/master_colony_metadata_speciesID.csv")
+head(haplotypes)
+
+output_matrix$haplotype<-haplotypes$Genus.Species[match(output_matrix$colony_id_corr, haplotypes$colony_id_corr)]
+levels(as.factor(output_matrix$haplotype))
+```
+
+Plot as done above by site, but this time faceted by haplotype. 
+
+Pocillopora 
+```{r}
+#create custom color palette 
+plot_species_site_df_poc<-output_matrix%>%
+  filter(species=="Pocillopora")%>%
+  filter(!haplotype=="Reseq")%>%
+  group_by(species, site, haplotype)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(species,site, haplotype), values_to="Abundance", names_to="Profile")
+  
+plot_species_site_poc_haplotypes<-ggplot(plot_species_site_df_poc, aes(x = site, y = Abundance)) + 
+  facet_grid(~haplotype)+
+  geom_bar(position="stack", stat="identity", aes(fill = Profile), color = "black") +
+  scale_fill_manual(values = sapply(plot_species_df$Profile, get_custom_color_poc))+
+  theme_classic() +
+  theme(axis.text.y = element_text(colour = 'black', size = 10), 
+        axis.title = element_text(colour = 'black', size = 12, face="bold"), 
+        axis.text.x = element_text(colour = 'black', size = 10, angle = 60, hjust=1),
+        strip.text =element_text(colour="black", face="italic", size=8))+ 
+  ggtitle(expression(italic("Pocillopora")))+
+  
+  #facet_grid(~site + timepoint, scales = "free") +
+  #facet_nested(~ species, scales = "free_x", space = "free_x") +
+  labs(x="Site", fill="ITS2 Profile", y="Relative Abundance");plot_species_site_poc_haplotypes
+
+ggsave(plot_species_site_poc_haplotypes, filename="Figures/ITS2/POC_haplotype_profiles.png", height=6, width=8)
+```
+
+Run model of relative abundance for Pocillopora 
+```{r}
+poc_model<-output_matrix%>%
+  filter(species=="Pocillopora")%>%
+  group_by(colony_id, species, site, haplotype)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(colony_id, species,site, haplotype), values_to="Abundance", names_to="Profile")%>%
+  
+  aov(Abundance~site*Profile*haplotype, data=.)
+
+summary(poc_model)
+qqPlot(residuals(poc_model))
+
+emm<-emmeans(poc_model, ~ haplotype | Profile | site)
+pairs(emm)
+```
+
+Porites 
+```{r}
+plot_species_site_df_por<-output_matrix%>%
+  filter(species=="Porites")%>%
+  filter(!haplotype=="Reseq")%>%
+  group_by(species, site, haplotype)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(species,site, haplotype), values_to="Abundance", names_to="Profile")
+  
+plot_species_site_por_haplotype<-ggplot(plot_species_site_df_por, aes(x = site, y = Abundance)) + 
+  facet_grid(~haplotype)+
+  geom_bar(position="stack", stat="identity", aes(fill = Profile), color = "black") +
+  scale_fill_manual(values = sapply(plot_species_df$Profile, get_custom_color_por))+
+  theme_classic() +
+  theme(axis.text.y = element_text(colour = 'black', size = 10), 
+        axis.title = element_text(colour = 'black', size = 12, face="bold"), 
+        axis.text.x = element_text(colour = 'black', size = 10, angle = 60, hjust=1),
+        strip.text =element_text(colour="black", face="italic", size=8))+ 
+  ggtitle(expression(italic("Porites")))+
+  labs(x="Site", fill="ITS2 Profile", y="Relative Abundance");plot_species_site_por_haplotype
+
+ggsave(plot_species_site_por_haplotype, filename="Figures/ITS2/POR_haplotype_profiles.png", height=6, width=8)
+```
+
+Run model of relative abundance for Porites 
+```{r}
+por_model<-output_matrix%>%
+  filter(species=="Porites")%>%
+  filter(!haplotype=="Reseq")%>%
+  group_by(colony_id, species, site, haplotype)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(colony_id, species,site, haplotype), values_to="Abundance", names_to="Profile")%>%
+  
+  aov(Abundance~site*Profile*haplotype, data=.)
+
+summary(por_model)
+qqPlot(residuals(por_model))
+
+emm<-emmeans(por_model, ~ site | Profile)
+pairs(emm)
+```
+
+Assemble plots. 
+```{r}
+its2_plots<-plot_grid(plot_species_site_acr, plot_species_site_poc, plot_species_site_por, ncol=1, nrow=3, align="vh")
+
+ggsave(its2_plots, filename="Figures/ITS2/species_site_panel.jpeg", width=8, height=20)
+ggsave(its2_plots, filename="Figures/ITS2/species_site_panel.pdf", width=8, height=20)
+```
+
+
