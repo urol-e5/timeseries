@@ -1337,3 +1337,498 @@ ggsave(filename="Figures/NormalizerPCA/Species_Sym_BiPlot.jpeg", plot=pcaSpecies
 
 Species specific PCAs and PERMANOVAs are in the next script, `4_multivariate_analysis.RmD`.  
 
+
+# View PCA's by haplotype 
+  
+Read in haplotype information and add to master dataframe. 
+```{r}
+haplotypes<-read_csv("Species_ID/master_colony_metadata_speciesID.csv")
+head(haplotypes)
+
+master$haplotype<-haplotypes$Genus.Species[match(master$colony_id_corr, haplotypes$colony_id_corr)]
+levels(as.factor(master$haplotype))
+```
+## Holobiont 
+
+### All genera plotted together 
+
+Plot PCA by haplotype for holobiont information. 
+```{r}
+pca_data_haplotype<-master%>%
+  select(colony_id_corr, haplotype, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(prot_mg.mgafdw<1.5)%>%
+  filter(Total_Chl<14)%>%
+  filter(Total_Chl_cell<6e-05)%>%
+  filter(Ic<1000)%>%
+  filter(!haplotype=="Reseq")
+
+#add in haplotype information
+
+pca_data_haplotype<-pca_data_haplotype[complete.cases(pca_data_haplotype), ]
+
+scaled_data_haplotype<-prcomp(pca_data_haplotype[c(6:19)], scale=TRUE, center=TRUE) 
+```
+
+```{r}
+# scale data
+vegan <- scale(pca_data_haplotype[ ,6:19])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis2(vegan ~ haplotype, data = pca_data_haplotype, method='eu')
+z_species<-permanova
+z_species
+``` 
+ 
+Groupings by halotype:  
+```{r}
+pca_haplotype<-ggplot2::autoplot(scaled_data_haplotype, data=pca_data_haplotype, frame.colour="haplotype", loadings=FALSE,  colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  #scale_colour_manual(values=c("darkgray", "orange", "purple")) +
+  #scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
+  theme_classic()+
+  geom_text(x=0, y=0.28, label=paste("p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=-0, y=0.26, label="PERMDISP p < 0.001", size=6, color="black") + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pca_haplotype
+
+ggsave(filename="Figures/NormalizerPCA/PCA_Haplotype_holobiont.png", plot=pca_haplotype, dpi=300, width=7, height=5, units="in")
+```
+
+### Pocillopora
+
+Plot PCA by haplotype for holobiont information. 
+```{r}
+pca_data_haplotype_poc<-master%>%
+  select(colony_id_corr, haplotype, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(prot_mg.mgafdw<1.5)%>%
+  filter(Total_Chl<14)%>%
+  filter(Total_Chl_cell<6e-05)%>%
+  filter(Ic<1000)%>%
+  filter(!haplotype=="Reseq")%>%
+  filter(species=="Pocillopora")
+
+#add in haplotype information
+
+pca_data_haplotype_poc<-pca_data_haplotype_poc[complete.cases(pca_data_haplotype_poc), ]
+
+scaled_data_haplotype_poc<-prcomp(pca_data_haplotype_poc[c(6:19)], scale=TRUE, center=TRUE) 
+```
+
+```{r}
+# scale data
+vegan_poc <- scale(pca_data_haplotype_poc[ ,6:19])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova_poc<-adonis2(vegan_poc ~ haplotype, data = pca_data_haplotype_poc, method='eu')
+z_species_poc<-permanova_poc
+z_species_poc
+``` 
+ 
+Groupings by halotype:  
+```{r}
+pca_haplotype_poc<-ggplot2::autoplot(scaled_data_haplotype_poc, data=pca_data_haplotype_poc, frame.colour="haplotype", loadings=FALSE,  colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  #scale_colour_manual(values=c("darkgray", "orange", "purple")) +
+  #scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
+  theme_classic()+
+  geom_text(x=0, y=0.28, label=paste("p =", z_species_poc$`Pr(>F)`[1]), size=6, color=ifelse(z_species_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=-0, y=0.26, label="PERMDISP p < 0.001", size=6, color="black") + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pca_haplotype_poc
+
+ggsave(filename="Figures/NormalizerPCA/PCA_Haplotype_holobiont_POC.png", plot=pca_haplotype_poc, dpi=300, width=7, height=5, units="in")
+```
+
+
+### Porites
+
+Plot PCA by haplotype for holobiont information. 
+```{r}
+pca_data_haplotype_por<-master%>%
+  select(colony_id_corr, haplotype, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(prot_mg.mgafdw<1.5)%>%
+  filter(Total_Chl<14)%>%
+  filter(Total_Chl_cell<6e-05)%>%
+  filter(Ic<1000)%>%
+  filter(!haplotype=="Reseq")%>%
+  filter(species=="Porites")
+
+#add in haplotype information
+
+pca_data_haplotype_por<-pca_data_haplotype_por[complete.cases(pca_data_haplotype_por), ]
+
+scaled_data_haplotype_por<-prcomp(pca_data_haplotype_por[c(6:19)], scale=TRUE, center=TRUE) 
+```
+
+```{r}
+# scale data
+vegan_por <- scale(pca_data_haplotype_por[ ,6:19])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova_por<-adonis2(vegan_por ~ haplotype, data = pca_data_haplotype_por, method='eu')
+z_species_por<-permanova_por
+z_species_por
+``` 
+ 
+Groupings by halotype:  
+```{r}
+pca_haplotype_por<-ggplot2::autoplot(scaled_data_haplotype_por, data=pca_data_haplotype_por, frame.colour="haplotype", loadings=FALSE,  colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  #scale_colour_manual(values=c("darkgray", "orange", "purple")) +
+  #scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
+  theme_classic()+
+  geom_text(x=0, y=0.28, label=paste("p =", z_species_por$`Pr(>F)`[1]), size=6, color=ifelse(z_species_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=-0, y=0.26, label="PERMDISP p < 0.001", size=6, color="black") + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pca_haplotype_por
+
+ggsave(filename="Figures/NormalizerPCA/PCA_Haplotype_holobiont_POR.png", plot=pca_haplotype_por, dpi=300, width=7, height=5, units="in")
+```
+
+
+## Host 
+
+### All genera plotted together 
+
+Plot PCA by haplotype for host information. 
+```{r}
+pca_data_haplotype<-master%>%
+  select(colony_id_corr, haplotype, timepoint, species, site_code, Host_AFDW.mg.cm2, prot_mg.mgafdw, cre.umol.mgafdw, Rd, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(prot_mg.mgafdw<1.5)%>%
+  filter(!haplotype=="Reseq")
+
+#add in haplotype information
+
+pca_data_haplotype<-pca_data_haplotype[complete.cases(pca_data_haplotype), ]
+
+scaled_data_haplotype<-prcomp(pca_data_haplotype[c(6:10)], scale=TRUE, center=TRUE) 
+```
+
+```{r}
+# scale data
+vegan <- scale(pca_data_haplotype[ ,6:10])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis2(vegan ~ haplotype, data = pca_data_haplotype, method='eu')
+z_species<-permanova
+z_species
+``` 
+ 
+Groupings by halotype:  
+```{r}
+pca_haplotype<-ggplot2::autoplot(scaled_data_haplotype, data=pca_data_haplotype, frame.colour="haplotype", loadings=FALSE,  colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  #scale_colour_manual(values=c("darkgray", "orange", "purple")) +
+  #scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
+  theme_classic()+
+  geom_text(x=0, y=0.28, label=paste("p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=-0, y=0.26, label="PERMDISP p < 0.001", size=6, color="black") + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pca_haplotype
+
+ggsave(filename="Figures/NormalizerPCA/PCA_Haplotype_host.png", plot=pca_haplotype, dpi=300, width=7, height=5, units="in")
+```
+
+### Pocillopora
+
+Plot PCA by haplotype for holobiont information. 
+```{r}
+pca_data_haplotype_poc<-master%>%
+  select(colony_id_corr, haplotype, timepoint, species, site_code, Host_AFDW.mg.cm2, prot_mg.mgafdw, cre.umol.mgafdw, Rd, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(prot_mg.mgafdw<1.5)%>%
+  filter(!haplotype=="Reseq")%>%
+  filter(species=="Pocillopora")
+
+#add in haplotype information
+
+pca_data_haplotype_poc<-pca_data_haplotype_poc[complete.cases(pca_data_haplotype_poc), ]
+
+scaled_data_haplotype_poc<-prcomp(pca_data_haplotype_poc[c(6:10)], scale=TRUE, center=TRUE) 
+```
+
+```{r}
+# scale data
+vegan_poc <- scale(pca_data_haplotype_poc[ ,6:10])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova_poc<-adonis2(vegan_poc ~ haplotype, data = pca_data_haplotype_poc, method='eu')
+z_species_poc<-permanova_poc
+z_species_poc
+``` 
+ 
+Groupings by halotype:  
+```{r}
+pca_haplotype_poc<-ggplot2::autoplot(scaled_data_haplotype_poc, data=pca_data_haplotype_poc, frame.colour="haplotype", loadings=FALSE,  colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  #scale_colour_manual(values=c("darkgray", "orange", "purple")) +
+  #scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
+  theme_classic()+
+  geom_text(x=0, y=0.28, label=paste("p =", z_species_poc$`Pr(>F)`[1]), size=6, color=ifelse(z_species_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=-0, y=0.26, label="PERMDISP p < 0.001", size=6, color="black") + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pca_haplotype_poc
+
+ggsave(filename="Figures/NormalizerPCA/PCA_Haplotype_host_POC.png", plot=pca_haplotype_poc, dpi=300, width=7, height=5, units="in")
+```
+
+### Porites
+
+Plot PCA by haplotype for holobiont information. 
+```{r}
+pca_data_haplotype_por<-master%>%
+  select(colony_id_corr, haplotype, timepoint, species, site_code, Host_AFDW.mg.cm2, prot_mg.mgafdw, cre.umol.mgafdw, Rd, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(prot_mg.mgafdw<1.5)%>%
+  filter(!haplotype=="Reseq")%>%
+  filter(species=="Porites")
+
+#add in haplotype information
+
+pca_data_haplotype_por<-pca_data_haplotype_por[complete.cases(pca_data_haplotype_por), ]
+
+scaled_data_haplotype_por<-prcomp(pca_data_haplotype_por[c(6:10)], scale=TRUE, center=TRUE) 
+```
+
+```{r}
+# scale data
+vegan_por <- scale(pca_data_haplotype_por[ ,6:10])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova_por<-adonis2(vegan_por ~ haplotype, data = pca_data_haplotype_por, method='eu')
+z_species_por<-permanova_por
+z_species_por
+``` 
+ 
+Groupings by halotype:  
+```{r}
+pca_haplotype_por<-ggplot2::autoplot(scaled_data_haplotype_por, data=pca_data_haplotype_por, frame.colour="haplotype", loadings=FALSE,  colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  #scale_colour_manual(values=c("darkgray", "orange", "purple")) +
+  #scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
+  theme_classic()+
+  geom_text(x=0, y=0.2, label=paste("p =", z_species_por$`Pr(>F)`[1]), size=6, color=ifelse(z_species_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=-0, y=0.26, label="PERMDISP p < 0.001", size=6, color="black") + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pca_haplotype_por
+
+ggsave(filename="Figures/NormalizerPCA/PCA_Haplotype_host_POR.png", plot=pca_haplotype_por, dpi=300, width=7, height=5, units="in")
+```
+
+
+## Symbiont 
+
+### All genera plotted together 
+
+Plot PCA by haplotype for host information. 
+```{r}
+pca_data_haplotype<-master%>%
+  select(colony_id_corr, haplotype, timepoint, species, site_code, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, cells.mgAFDW, Am, AQY, Ik, Ic)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Total_Chl<14)%>%
+  filter(Total_Chl_cell<6e-05)%>%
+  filter(Ic<1000)%>%
+  filter(!haplotype=="Reseq")
+
+#add in haplotype information
+
+pca_data_haplotype<-pca_data_haplotype[complete.cases(pca_data_haplotype), ]
+
+scaled_data_haplotype<-prcomp(pca_data_haplotype[c(6:14)], scale=TRUE, center=TRUE) 
+```
+
+```{r}
+# scale data
+vegan <- scale(pca_data_haplotype[ ,6:14])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis2(vegan ~ haplotype, data = pca_data_haplotype, method='eu')
+z_species<-permanova
+z_species
+``` 
+ 
+Groupings by halotype:  
+```{r}
+pca_haplotype<-ggplot2::autoplot(scaled_data_haplotype, data=pca_data_haplotype, frame.colour="haplotype", loadings=FALSE,  colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  #scale_colour_manual(values=c("darkgray", "orange", "purple")) +
+  #scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
+  theme_classic()+
+  geom_text(x=0, y=0.1, label=paste("p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=-0, y=0.26, label="PERMDISP p < 0.001", size=6, color="black") + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pca_haplotype
+
+ggsave(filename="Figures/NormalizerPCA/PCA_Haplotype_symbiont.png", plot=pca_haplotype, dpi=300, width=7, height=5, units="in")
+```
+
+### Pocillopora
+
+Plot PCA by haplotype for holobiont information. 
+```{r}
+pca_data_haplotype_poc<-master%>%
+  select(colony_id_corr, haplotype, timepoint, species, site_code, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, cells.mgAFDW, Am, AQY, Ik, Ic)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Total_Chl<14)%>%
+  filter(Total_Chl_cell<6e-05)%>%
+  filter(Ic<1000)%>%
+  filter(!haplotype=="Reseq")%>%
+  filter(species=="Pocillopora")
+
+#add in haplotype information
+
+pca_data_haplotype_poc<-pca_data_haplotype_poc[complete.cases(pca_data_haplotype_poc), ]
+
+scaled_data_haplotype_poc<-prcomp(pca_data_haplotype_poc[c(6:14)], scale=TRUE, center=TRUE) 
+```
+
+```{r}
+# scale data
+vegan_poc <- scale(pca_data_haplotype_poc[ ,6:14])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova_poc<-adonis2(vegan_poc ~ haplotype, data = pca_data_haplotype_poc, method='eu')
+z_species_poc<-permanova_poc
+z_species_poc
+``` 
+ 
+Groupings by halotype:  
+```{r}
+pca_haplotype_poc<-ggplot2::autoplot(scaled_data_haplotype_poc, data=pca_data_haplotype_poc, frame.colour="haplotype", loadings=FALSE,  colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  #scale_colour_manual(values=c("darkgray", "orange", "purple")) +
+  #scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
+  theme_classic()+
+  geom_text(x=0, y=0.2, label=paste("p =", z_species_poc$`Pr(>F)`[1]), size=6, color=ifelse(z_species_poc$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=-0, y=0.26, label="PERMDISP p < 0.001", size=6, color="black") + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pca_haplotype_poc
+
+ggsave(filename="Figures/NormalizerPCA/PCA_Haplotype_symbiont_POC.png", plot=pca_haplotype_poc, dpi=300, width=7, height=5, units="in")
+```
+
+### Porites
+
+Plot PCA by haplotype for holobiont information. 
+```{r}
+pca_data_haplotype_por<-master%>%
+  select(colony_id_corr, haplotype, timepoint, species, site_code, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, cells.mgAFDW, Am, AQY, Ik, Ic)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Total_Chl<14)%>%
+  filter(Total_Chl_cell<6e-05)%>%
+  filter(Ic<1000)%>%
+  filter(!haplotype=="Reseq")%>%
+  filter(species=="Porites")
+
+#add in haplotype information
+
+pca_data_haplotype_por<-pca_data_haplotype_por[complete.cases(pca_data_haplotype_por), ]
+
+scaled_data_haplotype_por<-prcomp(pca_data_haplotype_por[c(6:14)], scale=TRUE, center=TRUE) 
+```
+
+```{r}
+# scale data
+vegan_por <- scale(pca_data_haplotype_por[ ,6:14])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova_por<-adonis2(vegan_por ~ haplotype, data = pca_data_haplotype_por, method='eu')
+z_species_por<-permanova_por
+z_species_por
+``` 
+ 
+Groupings by halotype:  
+```{r}
+pca_haplotype_por<-ggplot2::autoplot(scaled_data_haplotype_por, data=pca_data_haplotype_por, frame.colour="haplotype", loadings=FALSE,  colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  #scale_colour_manual(values=c("darkgray", "orange", "purple")) +
+  #scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
+  theme_classic()+
+  geom_text(x=0, y=0.28, label=paste("p =", z_species_por$`Pr(>F)`[1]), size=6, color=ifelse(z_species_por$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=-0, y=0.26, label="PERMDISP p < 0.001", size=6, color="black") + 
+  #xlim(-0.3,0.5)+
+  #ylim(-0.3, 0.5)+
+  xlab("PC1")+
+  ylab("PC2")+
+   theme(legend.text = element_text(size=18, face="italic"), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_blank(), 
+        axis.text = element_text(size=18, color="black"), 
+        axis.title = element_text(size=18, color="black"));pca_haplotype_por
+
+ggsave(filename="Figures/NormalizerPCA/PCA_Haplotype_symbiont_POR.png", plot=pca_haplotype_por, dpi=300, width=7, height=5, units="in")
+```
+
+
