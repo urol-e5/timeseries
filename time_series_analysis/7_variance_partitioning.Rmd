@@ -42,14 +42,21 @@ master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "
 master$site<-fct_relevel(master$site, "Mahana", "Hilton", "Manava")
 ```
 
-#Phys matrix: master_timeseries.csv
-#Temp matrix: Clean_Environmental_Temp_Means.csv
+Add in haplotype information
+```{r}
+haplotypes<-read_csv("Species_ID/master_colony_metadata_speciesID.csv")
 
+master$haplotype<-haplotypes$Genus.Species[match(master$colony_id_corr, haplotypes$colony_id_corr)]
+```
+
+Phys matrix: master_timeseries.csv
+Temp matrix: Clean_Environmental_Temp_Means.csv
 
 # Holobiont responses   
 ```{r}
 data_all<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr, Total_Chl, Total_Chl_cell)%>%
+  select(colony_id_corr, haplotype, timepoint, species, site_code, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr, Total_Chl, Total_Chl_cell)%>%
+  filter(!haplotype=="Reseq")%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -62,15 +69,17 @@ data_all<-master%>%
 #Log+1 transform all responses
 ```{r}
 data_all_log <-data_all
-data_all_log[,-c(1:4)]<-log(data_all_log[,-c(1:4)]+1)
+data_all_log[,-c(1:5)]<-log(data_all_log[,-c(1:5)]+1)
 
 #change timepoint to a factor 
 data_all_log$timepoint<-as.factor(data_all_log$timepoint)
 
 #change species to a factor 
 data_all_log$species<-as.factor(data_all_log$species)
-```
 
+#change species to a factor 
+data_all_log$haplotype<-as.factor(data_all_log$haplotype)
+```
 
 #Acropora  
 ```{r}
@@ -84,7 +93,7 @@ acr_data_afdw_log<-acr_data_afdw_log[complete.cases(acr_data_afdw_log), ]
 ##Variance Partitioning
 ```{r}
 ##Run varpart function with responses and explanatory variables of interest
-varpart_acr_afdw<-varpart(acr_data_afdw_log[,5:18], acr_data_afdw_log$timepoint, acr_data_afdw_log$site)
+varpart_acr_afdw<-varpart(acr_data_afdw_log[,6:19], acr_data_afdw_log$timepoint, acr_data_afdw_log$site)
 
 ##Check variance explained by individual fractions
 varpart_acr_afdw$part
@@ -95,149 +104,184 @@ varpart_acr_afdw$part
 #[d] = Residuals                         0.59637    FALSE
 
 ##Check model significance
-anova(rda(acr_data_afdw_log[,5:18]~ acr_data_afdw_log$timepoint + acr_data_afdw_log$site))
+anova(rda(acr_data_afdw_log[,6:19]~ acr_data_afdw_log$timepoint + acr_data_afdw_log$site))
 #The model is significant p=0.001
 
 ##Check variance explained by model
-RsquareAdj(rda(acr_data_afdw_log[,5:18]~ acr_data_afdw_log$timepoint + acr_data_afdw_log$site))$adj.r.squared*100
+RsquareAdj(rda(acr_data_afdw_log[,6:19]~ acr_data_afdw_log$timepoint + acr_data_afdw_log$site))$adj.r.squared*100
 #The model explains 40.36% of the variation in coral physiology in Acropora
 
 ##Check effect of timepoint 
-anova(rda(acr_data_afdw_log[,5:18], acr_data_afdw_log$timepoint))
+anova(rda(acr_data_afdw_log[,6:19], acr_data_afdw_log$timepoint))
 #The effect of timepoint with overlap with site is significant p=0.001 
-anova(rda(acr_data_afdw_log[,5:18], acr_data_afdw_log$timepoint,  acr_data_afdw_log$site))
+anova(rda(acr_data_afdw_log[,6:19], acr_data_afdw_log$timepoint,  acr_data_afdw_log$site))
 #The effect of timepoint alone (controlling for site) is significant p=0.001 
 
 ##Check effect of site 
-anova(rda(acr_data_afdw_log[,5:18], acr_data_afdw_log$site))
+anova(rda(acr_data_afdw_log[,6:19], acr_data_afdw_log$site))
 #The effect of site with overlap with timepoint is not significant p=0.057
-anova(rda(acr_data_afdw_log[,5:18], acr_data_afdw_log$site,  acr_data_afdw_log$timepoint))
+anova(rda(acr_data_afdw_log[,6:19], acr_data_afdw_log$site,  acr_data_afdw_log$timepoint))
 #The effect of site alone (controlling for timepoint) is significant p=0.001 
 ```
 
 ##Generate figure-Venn
 ```{r}
-par(bty="n")
+#par(bty="n")
 
-varpart_acr_afdw_parts<-data.frame(Parts=c("Season", "Seas&Site", "Site","Residuals"), 
+varpart_acr_afdw_parts<-data.frame(Parts=c("Season", "Site", "NA","Residuals"), 
                             Variance=c(varpart_acr_afdw$part$indfract$Adj.R.square))
 varpart_acr_afdw_parts$PercVar<-paste(as.character(round(varpart_acr_afdw_parts$Variance*100,2)), "%", sep="")
 varpart_acr_afdw_parts$PercVar[which(varpart_acr_afdw_parts$Variance<0)]<-NA
 varpart_acr_afdw_parts$Species<-rep("Acropora", nrow(varpart_acr_afdw_parts))
 
-showvarparts(parts=2, labels=varpart_acr_afdw_parts$PercVar, Xnames=NULL, 
-             cex=c(1.4, 1.4, 1.4, 1, 1, 1.2), 
-             bg=c("#4681F7FF", "#18DEC1FF"), alpha=125)+
-text(-0.1, .4, "Season", cex=2)+
-text(1, 0.4, "Site", cex=2)+
-text(0, -.3, substitute(paste(italic('p = 0.001'))), cex=1.1)+
-text(1, -.3, substitute(paste(italic('p = 0.003'))), cex=1.1)+
-text(0.5, 1, "Acropora", cex=2)
+rows_to_keep <- c(1, 2, 4)
+varpart_acr_afdw_parts <- varpart_acr_afdw_parts[rows_to_keep, ]
+
+#showvarparts(parts=2, labels=varpart_acr_afdw_parts$PercVar, Xnames=NULL, 
+#             cex=c(1.4, 1.4, 1.4, 1, 1, 1.2), 
+#             bg=c("#4681F7FF", "#18DEC1FF"), alpha=125)+
+#text(-0.1, .4, "Season", cex=2)+
+#text(1, 0.4, "Site", cex=2)+
+#text(0, -.3, substitute(paste(italic('p = 0.001'))), cex=1.1)+
+#text(1, -.3, substitute(paste(italic('p = 0.003'))), cex=1.1)+
+#text(0.5, 1, "Acropora", cex=2)
 ```
 
-#Porites
+# Porites
 ```{r}
 por_data_afdw_log<-data_all_log%>%
-  filter(species=="Porites")
+  filter(species=="Porites")%>%
+  droplevels()
 
 por_data_afdw_log<-por_data_afdw_log[complete.cases(por_data_afdw_log), ]
 ```
 
-##Variance Partitioning
+## Variance Partitioning
 ```{r}
 ##Run varpart function with responses and explanatory variables of interest
-varpart_por_afdw<-varpart(por_data_afdw_log[,5:18], por_data_afdw_log$timepoint, por_data_afdw_log$site)
+varpart_por_afdw<-varpart(por_data_afdw_log[,6:19], por_data_afdw_log$timepoint, por_data_afdw_log$site, por_data_afdw_log$haplotype) 
 
 ##Check variance explained by individual fractions
 varpart_por_afdw$part
-#Individual fractions                                    
-#[a] = X1|X2           3                 0.19397     TRUE
-#[b] = X2|X1           2                 0.10816     TRUE
-#[c]                   0                 0.00433    FALSE
-#[d] = Residuals                         0.69354    FALSE
+#[a] = X1 | X2+X3       3               0.18725     TRUE
+#[b] = X2 | X1+X3       2               0.03699     TRUE
+#[c] = X3 | X1+X2       1               0.05609     TRUE
+#[d]                    0               0.00476    FALSE
+#[e]                    0               0.06810    FALSE
+#[f]                    0               0.00087    FALSE
+#[g]                    0              -0.00138    FALSE
+#[h] = Residuals                        0.64733    FALSE
+
+#e is variance explained by both site and haplotype, since we have nested haplotypes 
 
 ##Check model significance
-anova(rda(por_data_afdw_log[,5:18]~ por_data_afdw_log$timepoint + por_data_afdw_log$site))
+anova(rda(por_data_afdw_log[,6:19]~ por_data_afdw_log$timepoint + por_data_afdw_log$site + por_data_afdw_log$haplotype))
 #The model is significant p=0.001
 
 ##Check variance explained by model
-RsquareAdj(rda(por_data_afdw_log[,5:18]~ por_data_afdw_log$timepoint + por_data_afdw_log$site))$adj.r.squared*100
-#The model explains 30.65% of the variation in coral physiology in Acropora
+RsquareAdj(rda(por_data_afdw_log[,6:19]~ por_data_afdw_log$timepoint + por_data_afdw_log$site + por_data_afdw_log$haplotype))$adj.r.squared*100
+#The model explains 35.27% of the variation in coral physiology in Porites
 
 ##Check effect of timepoint 
-anova(rda(por_data_afdw_log[,5:18], por_data_afdw_log$timepoint))
+anova(rda(por_data_afdw_log[,6:19], por_data_afdw_log$timepoint))
 #The effect of timepoint with overlap with site_code is significant p=0.001 
-anova(rda(por_data_afdw_log[,5:18], por_data_afdw_log$timepoint,  por_data_afdw_log$site))
+anova(rda(por_data_afdw_log[,6:19], por_data_afdw_log$timepoint,  por_data_afdw_log$site))
 #The effect of timepoint alone (controlling for site_code) is significant p=0.001 
+anova(rda(por_data_afdw_log[,6:19], por_data_afdw_log$timepoint,  por_data_afdw_log$haplotype))
+#The effect of timepoint alone (controlling for haplotype) is significant p=0.001 
+
+anova(rda(por_data_afdw_log[,6:19], por_data_afdw_log$haplotype))
+
+anova(rda(por_data_afdw_log[,6:19], por_data_afdw_log$haplotype,  por_data_afdw_log$site))
+
+anova(rda(por_data_afdw_log[,6:19], por_data_afdw_log$haplotype,  por_data_afdw_log$timepoint))
+#haplotype is significant
 
 ##Check effect of site 
-anova(rda(por_data_afdw_log[,5:18], por_data_afdw_log$site))
+anova(rda(por_data_afdw_log[,6:19], por_data_afdw_log$site))
 #The effect of site with overlap with timepoint is significant p=0.001
-anova(rda(por_data_afdw_log[,5:18], por_data_afdw_log$site,  por_data_afdw_log$timepoint))
+anova(rda(por_data_afdw_log[,6:19], por_data_afdw_log$site,  por_data_afdw_log$timepoint))
 #The effect of site alone (controlling for timepoint) is significant p=0.001 
+anova(rda(por_data_afdw_log[,6:19], por_data_afdw_log$site,  por_data_afdw_log$haplotype))
+#The effect of site alone (controlling for haplotype) is significant p=0.001 
 
 ```
 
-##Generate figure- Venn
+## Generate figure- Venn
 ```{r}
-par(bty="n")
+#par(bty="n")
 
-varpart_por_afdw_parts<-data.frame(Parts=c("Season", "Seas&Site", "Site","Residuals"), 
+varpart_por_afdw_parts<-data.frame(Parts=c("Season", "Site", "Haplotype","NA", "Site&Haplotype", "NA", "NA", "Residuals"), 
                             Variance=c(varpart_por_afdw$part$indfract$Adj.R.square))
 varpart_por_afdw_parts$PercVar<-paste(as.character(round(varpart_por_afdw_parts$Variance*100,2)), "%", sep="")
 varpart_por_afdw_parts$PercVar[which(varpart_por_afdw_parts$Variance<0)]<-NA
 varpart_por_afdw_parts$Species<-rep("Porites", nrow(varpart_por_afdw_parts))
 
-showvarparts(parts=2, labels=varpart_por_afdw_parts$PercVar, Xnames=NULL, 
-             cex=c(1.4, 1.4, 1.4, 1, 1, 1.2), 
-             bg=c("#4681F7FF", "#18DEC1FF"), alpha=125)+
-text(-0.1, .4, "Season", cex=2)+
-text(1, 0.4, "Site", cex=2)+
-text(0, -.3, substitute(paste(italic('p = 0.001'))), cex=1.1)+
-text(1, -.3, substitute(paste(italic('p = 0.001'))), cex=1.1)+
-text(0.5, 1, "Porites", cex=2)
+rows_to_keep <- c(1, 2, 3, 5, 8)
+varpart_por_afdw_parts <- varpart_por_afdw_parts[rows_to_keep, ]
+
+#showvarparts(parts=2, labels=varpart_por_afdw_parts$PercVar, Xnames=NULL, 
+#             cex=c(1.4, 1.4, 1.4, 1, 1, 1.2), 
+#             bg=c("#4681F7FF", "#18DEC1FF"), alpha=125)+
+#text(-0.1, .4, "Season", cex=2)+
+#text(1, 0.4, "Site", cex=2)+
+#text(0, -.3, substitute(paste(italic('p = 0.001'))), cex=1.1)+
+#text(1, -.3, substitute(paste(italic('p = 0.001'))), cex=1.1)+
+#text(0.5, 1, "Porites", cex=2)
 ```
 
 
-#Pocillopora   
+# Pocillopora   
 ```{r}
 poc_data_afdw_log<-data_all_log%>%
-  filter(species=="Pocillopora")
+  filter(species=="Pocillopora")%>%
+  droplevels()
 
 poc_data_afdw_log<-poc_data_afdw_log[complete.cases(poc_data_afdw_log), ]
 ```
 
-##Variance Partitioning
+## Variance Partitioning
 ```{r}
 ##Run varpart function with responses and explanatory variables of interest
-varpart_poc_afdw<-varpart(poc_data_afdw_log[,5:18], poc_data_afdw_log$timepoint, poc_data_afdw_log$site)
+varpart_poc_afdw<-varpart(poc_data_afdw_log[,6:19], poc_data_afdw_log$timepoint, poc_data_afdw_log$site, poc_data_afdw_log$haplotype)
 
 ##Check variance explained by individual fractions
 varpart_poc_afdw$part
-#Individual fractions                                    
-#[a] = X1|X2           3                 0.28408     TRUE
-#[b] = X2|X1           2                 0.01148     TRUE
-#[c]                   0                -0.00352    FALSE
-#[d] = Residuals                         0.70795    FALSE
+#Individual fractions                                   
+#[a] = X1 | X2+X3       3               0.28398     TRUE
+#[b] = X2 | X1+X3       2               0.01327     TRUE
+#[c] = X3 | X1+X2       1               0.00394     TRUE
+#[d]                    0              -0.00283    FALSE
+#[e]                    0              -0.00179    FALSE
+#[f]                    0               0.00010    FALSE
+#[g]                    0              -0.00068    FALSE
+#[h] = Residuals                        0.70401    FALSE
 
 ##Check model significance
-anova(rda(poc_data_afdw_log[,5:18]~ poc_data_afdw_log$timepoint + poc_data_afdw_log$site))
+anova(rda(poc_data_afdw_log[,6:19]~ poc_data_afdw_log$timepoint + poc_data_afdw_log$site + poc_data_afdw_log$haplotype))
 #The model is significant p=0.001
 
 ##Check variance explained by model
-RsquareAdj(rda(poc_data_afdw_log[,5:18]~ poc_data_afdw_log$timepoint + poc_data_afdw_log$site))$adj.r.squared*100
-#The model explains 29.20% of the variation in coral physiology in Acropora
+RsquareAdj(rda(poc_data_afdw_log[,6:19]~ poc_data_afdw_log$timepoint + poc_data_afdw_log$site + poc_data_afdw_log$haplotype))$adj.r.squared*100
+#The model explains 29.60% of the variation in coral physiology in Acropora
 
 ##Check effect of timepoint 
-anova(rda(poc_data_afdw_log[,5:18], poc_data_afdw_log$timepoint))
+anova(rda(poc_data_afdw_log[,6:19], poc_data_afdw_log$timepoint))
 #The effect of timepoint with overlap with site_code is significant p=0.001 
-anova(rda(poc_data_afdw_log[,5:18], poc_data_afdw_log$timepoint,  poc_data_afdw_log$site))
+anova(rda(poc_data_afdw_log[,6:19], poc_data_afdw_log$timepoint,  poc_data_afdw_log$site))
 #The effect of timepoint alone (controlling for site_code) is significant p=0.001 
+anova(rda(poc_data_afdw_log[,6:19], poc_data_afdw_log$timepoint,  poc_data_afdw_log$haplotype))
+#The effect of timepoint alone (controlling for haplotype) is significant p=0.001 
+
+anova(rda(poc_data_afdw_log[,6:19], poc_data_afdw_log$haplotype,  poc_data_afdw_log$timepoint))
+#The effect of haplotype alone (controlling for time) is not significant p=0.246
+anova(rda(poc_data_afdw_log[,6:19], poc_data_afdw_log$haplotype,  poc_data_afdw_log$site))
+#The effect of haplotype alone (controlling for site) is not significant p=0.165
 
 ##Check effect of site 
-anova(rda(poc_data_afdw_log[,5:18], poc_data_afdw_log$site))
+anova(rda(poc_data_afdw_log[,6:19], poc_data_afdw_log$site))
 #The effect of site with overlap with timepoint is not significant p=0.138.
-anova(rda(poc_data_afdw_log[,5:18], poc_data_afdw_log$site,  poc_data_afdw_log$timepoint))
+anova(rda(poc_data_afdw_log[,6:19], poc_data_afdw_log$site,  poc_data_afdw_log$timepoint))
 #The effect of site alone (controlling for timepoint) is significant p=0.049 
 
 ```
@@ -246,20 +290,24 @@ anova(rda(poc_data_afdw_log[,5:18], poc_data_afdw_log$site,  poc_data_afdw_log$t
 ```{r}
 par(bty="n")
 
-varpart_poc_afdw_parts<-data.frame(Parts=c("Season", "Seas&Site", "Site","Residuals"), 
+varpart_poc_afdw_parts<-data.frame(Parts=c("Season", "Site", "Haplotype","NA", "NA", "NA", "NA", "Residuals"), 
                             Variance=c(varpart_poc_afdw$part$indfract$Adj.R.square))
 varpart_poc_afdw_parts$PercVar<-paste(as.character(round(varpart_poc_afdw_parts$Variance*100,2)), "%", sep="")
 varpart_poc_afdw_parts$PercVar[which(varpart_poc_afdw_parts$Variance<0)]<-NA
 varpart_poc_afdw_parts$Species<-rep("Pocillopora", nrow(varpart_poc_afdw_parts))
 
-showvarparts(parts=2, labels=varpart_poc_afdw_parts$PercVar, Xnames=NULL, 
-             cex=c(1.4, 1.4, 1.4, 1, 1, 1.2), 
-             bg=c("#4681F7FF", "#18DEC1FF"), alpha=125)+
-text(-0.1, .4, "Season", cex=2)+
-text(1, 0.4, "Site", cex=2)+
-text(0, -.3, substitute(paste(italic('p = 0.001'))), cex=1.1)+
-text(1, -.3, substitute(paste(italic('p = 0.008'))), cex=1.1)+
-text(0.5, 1, "Pocillopora", cex=2)
+rows_to_keep <- c(1, 2, 3, 8)
+varpart_poc_afdw_parts <- varpart_poc_afdw_parts[rows_to_keep, ]
+
+#showvarparts(parts=2, labels=varpart_poc_afdw_parts$PercVar, Xnames=NULL, 
+ #            cex=c(1.4, 1.4, 1.4, 1, 1, 1.2), 
+  #           bg=c("#4681F7FF", "#18DEC1FF", "pink"), alpha=125)+
+#text(-0.1, .4, "Season", cex=2)+
+#text(1, 0.4, "Site", cex=2)+
+#text(1, 0.4, "Haplotype", cex=2)+
+#text(0, -.3, substitute(paste(italic('p = 0.001'))), cex=1.1)+
+#text(1, -.3, substitute(paste(italic('p = 0.008'))), cex=1.1)+
+#text(0.5, 1, "Pocillopora", cex=2)
 ```
 
 
@@ -269,34 +317,36 @@ text(0.5, 1, "Pocillopora", cex=2)
 ##Combine VarPart results for all Species
 varpart_afdw_parts_all<-rbind(varpart_acr_afdw_parts, varpart_por_afdw_parts, varpart_poc_afdw_parts)
 varpart_afdw_parts_all<-na.omit(varpart_afdw_parts_all)
-varpart_afdw_parts_all<-varpart_afdw_parts_all%>%filter(!Parts=="Site")
+#varpart_afdw_parts_all<-varpart_afdw_parts_all%>%filter(!Parts=="Site")
 varpart_afdw_parts_all$Response<-rep("Holobiont", nrow(varpart_afdw_parts_all))
 varpart_afdw_parts_all$Percent<-round(varpart_afdw_parts_all$Variance*100,2)
-varpart_afdw_parts_all$Parts<-factor(varpart_afdw_parts_all$Parts, levels=c("Seas&Site", "Season", "Residuals"), ordered=TRUE)
+varpart_afdw_parts_all$Parts<-factor(varpart_afdw_parts_all$Parts)
 
 names(varpart_afdw_parts_all)
 
+varpart_afdw_parts_all$Parts<-factor(varpart_afdw_parts_all$Parts, levels=c("Haplotype", "Site&Haplotype", "Site", "Season", "Residuals"))
+
 varpartBarplot_all.holo<-ggplot(varpart_afdw_parts_all, aes(x=Species, y=Percent, fill=Parts)) + 
   geom_bar(position="stack", stat="identity", colour="black")+
-  scale_fill_manual(name="Predictors", values = c("white", "lightgray", "darkgray"), labels = c("Site", "Season", "Residuals"))+
+  scale_fill_manual(name="Predictors", values = c("lightblue4", "lightblue2", "cyan2", "purple2", "gray"),)+
   theme_classic()+
   theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), 
         axis.text.x=element_text(size=14, colour="black"), axis.text.y=element_text(size=14, colour="black"), 
         legend.text=element_text(size=12), legend.title=element_text(size=15))+
   ylab("% Variance Explained")+
   geom_text(aes(label=paste0(sprintf("%1.1f",Percent),"%"), fontface = "bold"),
-            position=position_stack(vjust=0.5), size=5)+
+            position=position_stack(vjust=0.5), size=5, color="black")+
   theme(plot.title=element_text(hjust=0.5), 
         axis.text.x=element_text(face="italic", color="black"), 
         axis.text.y=element_text(color="black"), 
         axis.title = element_text(face="bold"), 
         legend.title=element_text(face="bold"));varpartBarplot_all.holo
 
-#ggsave(varpartBarplot_all.holo, file="Figures/Multivariate/VarPart_All_Holobiont.png", width=6, height=6)
+ggsave(varpartBarplot_all.holo, file="Figures/Multivariate/VarPart_Holobiont.png", width=6, height=6.5)
+ggsave(varpartBarplot_all.holo, file="Figures/Multivariate/VarPart_Holobiont.jpg", width=6, height=6.5)
+ggsave(varpartBarplot_all.holo, file="Figures/Multivariate/VarPart_Holobiont.pdf", width=6, height=6.5)
 
 ```
-
-Note that the bars do not add up to 100% because we are not displaying the term for variance explained by site and time simultaneously (not testable) and <1%. 
 
 # Generate a list of symbiont and host responses.  Holobiont = all responses
 ```{r}
@@ -307,7 +357,7 @@ host_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd",
 # Host responses
 ```{r}
 data_host<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(host_responses))%>%
+  select(colony_id_corr, haplotype, timepoint, species, site_code, all_of(host_responses))%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   #filter(Sym_AFDW.mg.cm2>0)%>%
   #filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -322,13 +372,16 @@ data_host<-data_host[complete.cases(data_host), ]
 #Log+1 transform all responses
 ```{r}
 data_host_log <-data_host
-data_host_log[,-c(1:4)]<-log(data_host_log[,-c(1:4)]+1)
+data_host_log[,-c(1:5)]<-log(data_host_log[,-c(1:5)]+1)
 
 #change timepoint to a factor 
 data_host_log$timepoint<-as.factor(data_host_log$timepoint)
 
 #change species to a factor 
 data_host_log$species<-as.factor(data_host_log$species)
+
+#change species to a factor 
+data_host_log$haplotype<-as.factor(data_host_log$haplotype)
 ```
 
 
@@ -344,7 +397,7 @@ acr_data_afdw_log_host<-acr_data_afdw_log_host[complete.cases(acr_data_afdw_log_
 ##Variance Partitioning
 ```{r}
 ##Run varpart function with responses and explanatory variables of interest
-varpart_acr_afdw_host<-varpart(acr_data_afdw_log_host[,5:9], acr_data_afdw_log_host$timepoint, acr_data_afdw_log_host$site)
+varpart_acr_afdw_host<-varpart(acr_data_afdw_log_host[,6:10], acr_data_afdw_log_host$timepoint, acr_data_afdw_log_host$site)
 
 ##Check variance explained by individual fractions
 varpart_acr_afdw_host$part
@@ -355,23 +408,23 @@ varpart_acr_afdw_host$part
 #[d] = Residuals                         0.66673    FALSE
 
 ##Check model significance
-anova(rda(acr_data_afdw_log_host[,5:9]~ acr_data_afdw_log_host$timepoint + acr_data_afdw_log_host$site))
+anova(rda(acr_data_afdw_log_host[,6:10]~ acr_data_afdw_log_host$timepoint + acr_data_afdw_log_host$site))
 #The model is significant p=0.001
 
 ##Check variance explained by model
-RsquareAdj(rda(acr_data_afdw_log_host[,5:9]~ acr_data_afdw_log_host$timepoint + acr_data_afdw_log_host$site))$adj.r.squared*100
+RsquareAdj(rda(acr_data_afdw_log_host[,6:10]~ acr_data_afdw_log_host$timepoint + acr_data_afdw_log_host$site))$adj.r.squared*100
 #The model explains 33.33% of the variation in coral physiology in Acropora Host
 
 ##Check effect of timepoint 
-anova(rda(acr_data_afdw_log_host[,5:9], acr_data_afdw_log_host$timepoint))
+anova(rda(acr_data_afdw_log_host[,6:10], acr_data_afdw_log_host$timepoint))
 #The effect of timepoint with overlap with site is significant p=0.001 
-anova(rda(acr_data_afdw_log_host[,5:9], acr_data_afdw_log_host$timepoint,  acr_data_afdw_log_host$site))
+anova(rda(acr_data_afdw_log_host[,6:10], acr_data_afdw_log_host$timepoint,  acr_data_afdw_log_host$site))
 #The effect of timepoint alone (controlling for site) is significant p=0.001 
 
 ##Check effect of site 
-anova(rda(acr_data_afdw_log_host[,5:9], acr_data_afdw_log_host$site))
+anova(rda(acr_data_afdw_log_host[,6:10], acr_data_afdw_log_host$site))
 #The effect of site with overlap with timepoint is significant p=0.003 
-anova(rda(acr_data_afdw_log_host[,5:9], acr_data_afdw_log_host$site,  acr_data_afdw_log_host$timepoint))
+anova(rda(acr_data_afdw_log_host[,6:10], acr_data_afdw_log_host$site,  acr_data_afdw_log_host$timepoint))
 #The effect of site alone (controlling for timepoint) is significant p=0.001 
 ```
 
@@ -379,7 +432,8 @@ anova(rda(acr_data_afdw_log_host[,5:9], acr_data_afdw_log_host$site,  acr_data_a
 #Porites- Host  
 ```{r}
 por_data_afdw_log_host<-data_host_log%>%
-  filter(species=="Porites")
+  filter(species=="Porites")%>%
+  droplevels()
 
 por_data_afdw_log_host<-por_data_afdw_log_host[complete.cases(por_data_afdw_log_host), ]
 ```
@@ -388,42 +442,61 @@ por_data_afdw_log_host<-por_data_afdw_log_host[complete.cases(por_data_afdw_log_
 ##Variance Partitioning
 ```{r}
 ##Run varpart function with responses and explanatory variables of interest
-varpart_por_afdw_host<-varpart(por_data_afdw_log_host[,5:9], por_data_afdw_log_host$timepoint, por_data_afdw_log_host$site)
+varpart_por_afdw_host<-varpart(por_data_afdw_log_host[,6:10], por_data_afdw_log_host$timepoint, por_data_afdw_log_host$site, por_data_afdw_log_host$haplotype)
 
 ##Check variance explained by individual fractions
 varpart_por_afdw_host$part
-# Individual fractions                                    
-#[a] = X1|X2           3                 0.27738     TRUE
-#[b] = X2|X1           2                 0.04781     TRUE
-#[c]                   0                -0.00921    FALSE
-#[d] = Residuals                         0.68402    FALSE
+#Individual fractions                                   
+#[a] = X1 | X2+X3       3               0.28147     TRUE
+#[b] = X2 | X1+X3       2               0.01573     TRUE
+#[c] = X3 | X1+X2       2               0.00965     TRUE
+#[d]                    0              -0.00769    FALSE
+#[e]                    0               0.03208    FALSE
+#[f]                    0              -0.00409    FALSE
+#[g]                    0              -0.00152    FALSE
+#[h] = Residuals                        0.67437    FALSE
+
+#e will be site&haplotype 
 
 ##Check model significance
-anova(rda(por_data_afdw_log_host[,5:9]~ por_data_afdw_log_host$timepoint + por_data_afdw_log_host$site))
+anova(rda(por_data_afdw_log_host[,6:10]~ por_data_afdw_log_host$timepoint + por_data_afdw_log_host$site + por_data_afdw_log_host$haplotype))
 #The model is significant p=0.001
 
 ##Check variance explained by model
-RsquareAdj(rda(por_data_afdw_log_host[,5:9]~ por_data_afdw_log_host$timepoint + por_data_afdw_log_host$site))$adj.r.squared*100
-#The model explains 31.60% of the variation in coral physiology in Porites Host
+RsquareAdj(rda(por_data_afdw_log_host[,6:10]~ por_data_afdw_log_host$timepoint + por_data_afdw_log_host$site + por_data_afdw_log_host$haplotype))$adj.r.squared*100
+#The model explains 32.56% of the variation in coral physiology in Porites Host
 
 ##Check effect of timepoint 
-anova(rda(por_data_afdw_log_host[,5:9], por_data_afdw_log_host$timepoint))
+anova(rda(por_data_afdw_log_host[,6:10], por_data_afdw_log_host$timepoint))
 #The effect of timepoint with overlap with site is significant p=0.001 
-anova(rda(por_data_afdw_log_host[,5:9], por_data_afdw_log_host$timepoint,  por_data_afdw_log_host$site))
+anova(rda(por_data_afdw_log_host[,6:10], por_data_afdw_log_host$timepoint,  por_data_afdw_log_host$site))
 #The effect of timepoint alone (controlling for site) is significant p=0.001 
+anova(rda(por_data_afdw_log_host[,6:10], por_data_afdw_log_host$timepoint,  por_data_afdw_log_host$haplotype))
+#The effect of timepoint alone (controlling for haplotype) is significant p=0.001 
 
 ##Check effect of site 
-anova(rda(por_data_afdw_log_host[,5:9], por_data_afdw_log_host$site))
+anova(rda(por_data_afdw_log_host[,6:10], por_data_afdw_log_host$site))
 #The effect of site with overlap with timepoint is significant p=0.002 
-anova(rda(por_data_afdw_log_host[,5:9], por_data_afdw_log_host$site,  por_data_afdw_log_host$timepoint))
+anova(rda(por_data_afdw_log_host[,6:10], por_data_afdw_log_host$site,  por_data_afdw_log_host$timepoint))
 #The effect of site alone (controlling for timepoint) is significant p=0.001 
+anova(rda(por_data_afdw_log_host[,6:10], por_data_afdw_log_host$site,  por_data_afdw_log_host$haplotype))
+#The effect of site alone (controlling for timepoint) is not significant 
+
+##Check effect of haplotype 
+anova(rda(por_data_afdw_log_host[,6:10], por_data_afdw_log_host$haplotype))
+#The effect of haplotype is significant p=0.005
+anova(rda(por_data_afdw_log_host[,6:10], por_data_afdw_log_host$haplotype,  por_data_afdw_log_host$timepoint))
+#The effect of haplotype alone (controlling for timepoint) is significant p=0.001 
+anova(rda(por_data_afdw_log_host[,6:10], por_data_afdw_log_host$haplotype,  por_data_afdw_log_host$site))
+#The effect of haplotype alone (controlling for site) is not significant 
 ```
 
 
 #Pocillopora- Host  
 ```{r}
 poc_data_afdw_log_host<-data_host_log%>%
-  filter(species=="Pocillopora")
+  filter(species=="Pocillopora")%>%
+  droplevels()
 
 poc_data_afdw_log_host<-poc_data_afdw_log_host[complete.cases(poc_data_afdw_log_host), ]
 ```
@@ -432,41 +505,57 @@ poc_data_afdw_log_host<-poc_data_afdw_log_host[complete.cases(poc_data_afdw_log_
 ##Variance Partitioning
 ```{r}
 ##Run varpart function with responses and explanatory variables of interest
-varpart_poc_afdw_host<-varpart(poc_data_afdw_log_host[,5:9], poc_data_afdw_log_host$timepoint, poc_data_afdw_log_host$site)
+varpart_poc_afdw_host<-varpart(poc_data_afdw_log_host[,6:10], poc_data_afdw_log_host$timepoint, poc_data_afdw_log_host$site, poc_data_afdw_log_host$haplotype)
 
 ##Check variance explained by individual fractions
 varpart_poc_afdw_host$part
-# Individual fractions                                    
-#[a] = X1|X2           3                 0.18242     TRUE
-#[b] = X2|X1           2                 0.04315     TRUE
-#[c]                   0                 0.00323    FALSE
-#[d] = Residuals                         0.77121    FALSE
+#Individual fractions                                   
+#[a] = X1 | X2+X3       3               0.18283     TRUE
+#[b] = X2 | X1+X3       2               0.03051     TRUE
+#[c] = X3 | X1+X2       1              -0.00354     TRUE
+#[d]                    0               0.00037    FALSE
+#[e]                    0               0.01263    FALSE
+#[f]                    0              -0.00041    FALSE
+#[g]                    0               0.00286    FALSE
+#[h] = Residuals                        0.77475    FALSE                       0.77121    FALSE
 
 ##Check model significance
-anova(rda(poc_data_afdw_log_host[,5:9]~ poc_data_afdw_log_host$timepoint + poc_data_afdw_log_host$site))
+anova(rda(poc_data_afdw_log_host[,6:10]~ poc_data_afdw_log_host$timepoint + poc_data_afdw_log_host$site + poc_data_afdw_log_host$haplotype))
 #The model is significant p=0.001
 
 ##Check variance explained by model
-RsquareAdj(rda(poc_data_afdw_log_host[,5:9]~ poc_data_afdw_log_host$timepoint + poc_data_afdw_log_host$site))$adj.r.squared*100
-#The model explains 22.87% of the variation in coral physiology in Pocillopora Host
+RsquareAdj(rda(poc_data_afdw_log_host[,6:10]~ poc_data_afdw_log_host$timepoint + poc_data_afdw_log_host$site+ poc_data_afdw_log_host$haplotype))$adj.r.squared*100
+#The model explains 22.52% of the variation in coral physiology in Pocillopora Host
 
 ##Check effect of timepoint 
-anova(rda(poc_data_afdw_log_host[,5:9], poc_data_afdw_log_host$timepoint))
+anova(rda(poc_data_afdw_log_host[,6:10], poc_data_afdw_log_host$timepoint))
 #The effect of timepoint with overlap with site is significant p=0.001 
-anova(rda(poc_data_afdw_log_host[,5:9], poc_data_afdw_log_host$timepoint,  poc_data_afdw_log_host$site))
+anova(rda(poc_data_afdw_log_host[,6:10], poc_data_afdw_log_host$timepoint,  poc_data_afdw_log_host$site))
 #The effect of timepoint alone (controlling for site) is significant p=0.001 
+anova(rda(poc_data_afdw_log_host[,6:10], poc_data_afdw_log_host$timepoint,  poc_data_afdw_log_host$haplotype))
+#The effect of timepoint alone (controlling for haplotype) is significant p=0.001 
 
 ##Check effect of site 
-anova(rda(poc_data_afdw_log_host[,5:9], poc_data_afdw_log_host$site))
+anova(rda(poc_data_afdw_log_host[,6:10], poc_data_afdw_log_host$site))
 #The effect of site with overlap with timepoint is significant p=0.005 
-anova(rda(poc_data_afdw_log_host[,5:9], poc_data_afdw_log_host$site,  poc_data_afdw_log_host$timepoint))
+anova(rda(poc_data_afdw_log_host[,6:10], poc_data_afdw_log_host$site,  poc_data_afdw_log_host$timepoint))
 #The effect of site alone (controlling for timepoint) is significant p=0.001 
+anova(rda(poc_data_afdw_log_host[,6:10], poc_data_afdw_log_host$site,  poc_data_afdw_log_host$haplotype))
+#The effect of site alone (controlling for haplotype) is significant p=0.013
+
+##Check effect of haplotype 
+anova(rda(poc_data_afdw_log_host[,6:10], poc_data_afdw_log_host$haplotype))
+#The effect of haplotype  is not significant p=0.068
+anova(rda(poc_data_afdw_log_host[,6:10], poc_data_afdw_log_host$haplotype,  poc_data_afdw_log_host$timepoint))
+#The effect of haplotype alone (controlling for timepoint) is not significant p=0.065
+anova(rda(poc_data_afdw_log_host[,6:10], poc_data_afdw_log_host$haplotype,  poc_data_afdw_log_host$site))
+#The effect of haplotype alone (controlling for site) is significant p=0.702
 ```
 
 # Symbiont responses
 ```{r}
 data_sym<-master%>%
-  select(colony_id_corr, timepoint, species, site_code, all_of(symbiont_responses))%>%
+  select(colony_id_corr, haplotype, timepoint, species, site_code, all_of(symbiont_responses))%>%
   #filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -478,23 +567,26 @@ data_sym<-master%>%
 data_sym<-data_sym[complete.cases(data_sym), ]
 ```
 
-
 #Log+1 transform all responses
 ```{r}
 data_sym_log <-data_sym
-data_sym_log[,-c(1:4)]<-log(data_sym_log[,-c(1:4)]+1)
+data_sym_log[,-c(1:5)]<-log(data_sym_log[,-c(1:5)]+1)
 
 #change timepoint to a factor 
 data_sym_log$timepoint<-as.factor(data_sym_log$timepoint)
 
 #change species to a factor 
 data_sym_log$species<-as.factor(data_sym_log$species)
+
+#change species to a factor 
+data_sym_log$haplotype<-as.factor(data_sym_log$haplotype)
 ```
 
 #Acropora- Sym  
 ```{r}
 acr_data_afdw_log_sym<-data_sym_log%>%
-  filter(species=="Acropora")
+  filter(species=="Acropora")%>%
+  droplevels()
 
 acr_data_afdw_log_sym<-acr_data_afdw_log_sym[complete.cases(acr_data_afdw_log_sym), ]
 ```
@@ -503,7 +595,7 @@ acr_data_afdw_log_sym<-acr_data_afdw_log_sym[complete.cases(acr_data_afdw_log_sy
 ##Variance Partitioning
 ```{r}
 ##Run varpart function with responses and explanatory variables of interest
-varpart_acr_afdw_sym<-varpart(acr_data_afdw_log_sym[,5:13], acr_data_afdw_log_sym$timepoint, acr_data_afdw_log_sym$site)
+varpart_acr_afdw_sym<-varpart(acr_data_afdw_log_sym[,6:14], acr_data_afdw_log_sym$timepoint, acr_data_afdw_log_sym$site)
 
 ##Check variance explained by individual fractions
 varpart_acr_afdw_sym$part
@@ -514,23 +606,23 @@ varpart_acr_afdw_sym$part
 #[d] = Residuals                         0.59386    FALSE
 
 ##Check model significance
-anova(rda(acr_data_afdw_log_sym[,5:13]~ acr_data_afdw_log_sym$timepoint + acr_data_afdw_log_sym$site))
+anova(rda(acr_data_afdw_log_sym[,6:14]~ acr_data_afdw_log_sym$timepoint + acr_data_afdw_log_sym$site))
 #The model is significant p=0.001
 
 ##Check variance explained by model
-RsquareAdj(rda(acr_data_afdw_log_sym[,5:13]~ acr_data_afdw_log_sym$timepoint + acr_data_afdw_log_sym$site))$adj.r.squared*100
+RsquareAdj(rda(acr_data_afdw_log_sym[,6:14]~ acr_data_afdw_log_sym$timepoint + acr_data_afdw_log_sym$site))$adj.r.squared*100
 #The model explains 40.61% of the variation in coral physiology in Acropora Symbiont
 
 ##Check effect of timepoint 
-anova(rda(acr_data_afdw_log_sym[,5:13], acr_data_afdw_log_sym$timepoint))
+anova(rda(acr_data_afdw_log_sym[,6:14], acr_data_afdw_log_sym$timepoint))
 #The effect of timepoint with overlap with site is significant p=0.001 
-anova(rda(acr_data_afdw_log_sym[,5:13], acr_data_afdw_log_sym$timepoint,  acr_data_afdw_log_sym$site))
+anova(rda(acr_data_afdw_log_sym[,6:14], acr_data_afdw_log_sym$timepoint,  acr_data_afdw_log_sym$site))
 #The effect of timepoint alone (controlling for site) is significant p=0.001 
 
 ##Check effect of site 
-anova(rda(acr_data_afdw_log_sym[,5:13], acr_data_afdw_log_sym$site))
+anova(rda(acr_data_afdw_log_sym[,6:14], acr_data_afdw_log_sym$site))
 #The effect of site with overlap with timepoint is not significant p=0.082
-anova(rda(acr_data_afdw_log_sym[,5:13], acr_data_afdw_log_sym$site,  acr_data_afdw_log_sym$timepoint))
+anova(rda(acr_data_afdw_log_sym[,6:14], acr_data_afdw_log_sym$site,  acr_data_afdw_log_sym$timepoint))
 #The effect of site alone (controlling for timepoint) is significant p=0.004 
 ```
 
@@ -538,7 +630,8 @@ anova(rda(acr_data_afdw_log_sym[,5:13], acr_data_afdw_log_sym$site,  acr_data_af
 #Porites- Sym  
 ```{r}
 por_data_afdw_log_sym<-data_sym_log%>%
-  filter(species=="Porites")
+  filter(species=="Porites")%>%
+  droplevels()
 
 por_data_afdw_log_sym<-por_data_afdw_log_sym[complete.cases(por_data_afdw_log_sym), ]
 ```
@@ -547,42 +640,57 @@ por_data_afdw_log_sym<-por_data_afdw_log_sym[complete.cases(por_data_afdw_log_sy
 ##Variance Partitioning
 ```{r}
 ##Run varpart function with responses and explanatory variables of interest
-varpart_por_afdw_sym<-varpart(por_data_afdw_log_sym[,5:13], por_data_afdw_log_sym$timepoint, por_data_afdw_log_sym$site)
+varpart_por_afdw_sym<-varpart(por_data_afdw_log_sym[,6:14], por_data_afdw_log_sym$timepoint, por_data_afdw_log_sym$site, por_data_afdw_log_sym$haplotype)
 
 ##Check variance explained by individual fractions
 varpart_por_afdw_sym$part
-#Individual fractions                                    
-#[a] = X1|X2           3                 0.18642     TRUE
-#[b] = X2|X1           2                 0.12658     TRUE
-#[c]                   0                 0.00644    FALSE
-#[d] = Residuals                         0.68056    FALSE
+#Individual fractions                                   
+#[a] = X1 | X2+X3       3               0.18191     TRUE
+#[b] = X2 | X1+X3       2               0.04582     TRUE
+#[c] = X3 | X1+X2       2               0.05827     TRUE
+#[d]                    0               0.00517    FALSE
+#[e]                    0               0.08077    FALSE
+#[f]                    0               0.00451    FALSE
+#[g]                    0               0.00127    FALSE
+#[h] = Residuals                        0.62229    FALSE
 
 ##Check model significance
-anova(rda(por_data_afdw_log_sym[,5:13]~ por_data_afdw_log_sym$timepoint + por_data_afdw_log_sym$site))
+anova(rda(por_data_afdw_log_sym[,6:14]~ por_data_afdw_log_sym$timepoint + por_data_afdw_log_sym$site+ por_data_afdw_log_sym$haplotype))
 #The model is significant p=0.001
 
 ##Check variance explained by model
-RsquareAdj(rda(por_data_afdw_log_sym[,5:13]~ por_data_afdw_log_sym$timepoint + por_data_afdw_log_sym$site))$adj.r.squared*100
-#The model explains 31.94% of the variation in coral physiology in Porites Symbiont
+RsquareAdj(rda(por_data_afdw_log_sym[,6:14]~ por_data_afdw_log_sym$timepoint + por_data_afdw_log_sym$site+ por_data_afdw_log_sym$haplotype))$adj.r.squared*100
+#The model explains 37.77% of the variation in coral physiology in Porites Symbiont
 
 ##Check effect of timepoint 
-anova(rda(por_data_afdw_log_sym[,5:13], por_data_afdw_log_sym$timepoint))
+anova(rda(por_data_afdw_log_sym[,6:14], por_data_afdw_log_sym$timepoint))
 #The effect of timepoint with overlap with site is significant p=0.001 
-anova(rda(por_data_afdw_log_sym[,5:13], por_data_afdw_log_sym$timepoint,  por_data_afdw_log_sym$site))
+anova(rda(por_data_afdw_log_sym[,6:14], por_data_afdw_log_sym$timepoint,  por_data_afdw_log_sym$site))
 #The effect of timepoint alone (controlling for site) is significant p=0.001 
+anova(rda(por_data_afdw_log_sym[,6:14], por_data_afdw_log_sym$timepoint,  por_data_afdw_log_sym$haplotype))
+
 
 ##Check effect of site 
-anova(rda(por_data_afdw_log_sym[,5:13], por_data_afdw_log_sym$site))
+anova(rda(por_data_afdw_log_sym[,6:14], por_data_afdw_log_sym$site))
 #The effect of site with overlap with timepoint is significant p=0.001 
-anova(rda(por_data_afdw_log_sym[,5:13], por_data_afdw_log_sym$site,  por_data_afdw_log_sym$timepoint))
+anova(rda(por_data_afdw_log_sym[,6:14], por_data_afdw_log_sym$site,  por_data_afdw_log_sym$timepoint))
 #The effect of site alone (controlling for timepoint) is significant p=0.001 
+anova(rda(por_data_afdw_log_sym[,6:14], por_data_afdw_log_sym$site,  por_data_afdw_log_sym$haplotype))
+
+##Check effect of haplotype 
+anova(rda(por_data_afdw_log_sym[,6:14], por_data_afdw_log_sym$haplotype))
+
+anova(rda(por_data_afdw_log_sym[,6:14], por_data_afdw_log_sym$haplotype,  por_data_afdw_log_sym$timepoint))
+
+anova(rda(por_data_afdw_log_sym[,6:14], por_data_afdw_log_sym$haplotype,  por_data_afdw_log_sym$site))
 ```
 
 
 #Pocillopora- Sym  
 ```{r}
 poc_data_afdw_log_sym<-data_sym_log%>%
-  filter(species=="Pocillopora")
+  filter(species=="Pocillopora")%>%
+  droplevels()
 
 poc_data_afdw_log_sym<-poc_data_afdw_log_sym[complete.cases(poc_data_afdw_log_sym), ]
 ```
@@ -591,225 +699,206 @@ poc_data_afdw_log_sym<-poc_data_afdw_log_sym[complete.cases(poc_data_afdw_log_sy
 ##Variance Partitioning
 ```{r}
 ##Run varpart function with responses and explanatory variables of interest
-varpart_poc_afdw_sym<-varpart(poc_data_afdw_log_sym[,5:13], poc_data_afdw_log_sym$timepoint, poc_data_afdw_log_sym$site)
+varpart_poc_afdw_sym<-varpart(poc_data_afdw_log_sym[,6:14], poc_data_afdw_log_sym$timepoint, poc_data_afdw_log_sym$site, poc_data_afdw_log_sym$haplotype)
 
 ##Check variance explained by individual fractions
 varpart_poc_afdw_sym$part
-#Individual fractions                                    
-#[a] = X1|X2           3                 0.27749     TRUE
-#[b] = X2|X1           2                 0.00550     TRUE
-#[c]                   0                -0.00385    FALSE
-#[d] = Residuals                         0.72086    FALSE
+#Individual fractions                                   
+#[a] = X1 | X2+X3       3               0.28012     TRUE
+#[b] = X2 | X1+X3       2               0.00647     TRUE
+#[c] = X3 | X1+X2       1               0.00443     TRUE
+#[d]                    0              -0.00299    FALSE
+#[e]                    0              -0.00097    FALSE
+#[f]                    0              -0.00263    FALSE
+#[g]                    0              -0.00086    FALSE
+#[h] = Residuals                        0.71642    FALSE
 
 ##Check model significance
-anova(rda(poc_data_afdw_log_sym[,5:13]~ poc_data_afdw_log_sym$timepoint + poc_data_afdw_log_sym$site))
+anova(rda(poc_data_afdw_log_sym[,6:14]~ poc_data_afdw_log_sym$timepoint + poc_data_afdw_log_sym$site + poc_data_afdw_log_sym$haplotype))
 #The model is significant p=0.001
 
 ##Check variance explained by model
-RsquareAdj(rda(poc_data_afdw_log_sym[,5:13]~ poc_data_afdw_log_sym$timepoint + poc_data_afdw_log_sym$site))$adj.r.squared*100
+RsquareAdj(rda(poc_data_afdw_log_sym[,6:14]~ poc_data_afdw_log_sym$timepoint + poc_data_afdw_log_sym$site+ poc_data_afdw_log_sym$site))$adj.r.squared*100
 #The model explains 27.91% of the variation in coral physiology in Pocillopora Symbiont
 
 ##Check effect of timepoint 
-anova(rda(poc_data_afdw_log_sym[,5:13], poc_data_afdw_log_sym$timepoint))
+anova(rda(poc_data_afdw_log_sym[,6:14], poc_data_afdw_log_sym$timepoint))
 #The effect of timepoint with overlap with site is significant p=0.001 
-anova(rda(poc_data_afdw_log_sym[,5:13], poc_data_afdw_log_sym$timepoint,  poc_data_afdw_log_sym$site))
+anova(rda(poc_data_afdw_log_sym[,6:14], poc_data_afdw_log_sym$timepoint,  poc_data_afdw_log_sym$site))
 #The effect of timepoint alone (controlling for site) is significant p=0.001 
+anova(rda(poc_data_afdw_log_sym[,6:14], poc_data_afdw_log_sym$timepoint,  poc_data_afdw_log_sym$haplotype))
 
 ##Check effect of site 
-anova(rda(poc_data_afdw_log_sym[,5:13], poc_data_afdw_log_sym$site))
+anova(rda(poc_data_afdw_log_sym[,6:14], poc_data_afdw_log_sym$site))
 #The effect of site with overlap with timepoint is not significant p=0.346
-anova(rda(poc_data_afdw_log_sym[,5:13], poc_data_afdw_log_sym$site,  poc_data_afdw_log_sym$timepoint))
+anova(rda(poc_data_afdw_log_sym[,6:14], poc_data_afdw_log_sym$site,  poc_data_afdw_log_sym$timepoint))
 #The effect of site alone (controlling for timepoint) is not significant p=0.156 
+anova(rda(poc_data_afdw_log_sym[,6:14], poc_data_afdw_log_sym$site,  poc_data_afdw_log_sym$haplotype))
+
+##Check effect of site 
+anova(rda(poc_data_afdw_log_sym[,6:14], poc_data_afdw_log_sym$haplotype))
+
+anova(rda(poc_data_afdw_log_sym[,6:14], poc_data_afdw_log_sym$haplotype,  poc_data_afdw_log_sym$timepoint))
+
+anova(rda(poc_data_afdw_log_sym[,6:14], poc_data_afdw_log_sym$haplotype,  poc_data_afdw_log_sym$site))
 ```
 
 #Organize Variance Partitioning Results
 
+Note that I am only keeping categories that account for >1% of variance explained. 
+
 ```{r}
-##Acropora
-#Holobiont
-varpart_acr_afdw_parts.hol<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Holobiont"), Species=c("Acropora"), Variance=c(varpart_acr_afdw$part$indfract$Adj.R.square))
+#varpart_acr_afdw_host
+varpart_acr_afdw_host_plot<-data.frame(Parts=c("Season", "Site", "NA", "Residuals"), 
+                            Variance=c(varpart_acr_afdw_host$part$indfract$Adj.R.square))
+varpart_acr_afdw_host_plot$PercVar<-paste(as.character(round(varpart_acr_afdw_host_plot$Variance*100,2)), "%", sep="")
+varpart_acr_afdw_host_plot$PercVar[which(varpart_acr_afdw_host_plot$Variance<0)]<-NA
+varpart_acr_afdw_host_plot$Species<-rep("Acropora", nrow(varpart_acr_afdw_host_plot))
+rows_to_keep <- c(1, 2, 4)
+varpart_acr_afdw_host_plot <- varpart_acr_afdw_host_plot[rows_to_keep, ]
 
-#Host
-varpart_acr_afdw_parts.host<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Host"), Species=c("Acropora"), Variance=c(varpart_acr_afdw_host$part$indfract$Adj.R.square))
+#varpart_por_afdw_host
+varpart_por_afdw_host_plot<-data.frame(Parts=c("Season", "Site", "Haplotype", "NA", "Site&Haplotype", "NA", "NA", "Residuals"), 
+                            Variance=c(varpart_por_afdw_host$part$indfract$Adj.R.square))
+varpart_por_afdw_host_plot$PercVar<-paste(as.character(round(varpart_por_afdw_host_plot$Variance*100,2)), "%", sep="")
+varpart_por_afdw_host_plot$PercVar[which(varpart_por_afdw_host_plot$Variance<0)]<-NA
+varpart_por_afdw_host_plot$Species<-rep("Porites", nrow(varpart_por_afdw_host_plot))
 
-#Symbiont
-varpart_acr_afdw_parts.sym<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Symbiont"), Species=c("Acropora"), Variance=c(varpart_acr_afdw_sym$part$indfract$Adj.R.square))
+rows_to_keep <- c(1, 2, 3, 5, 8)
+varpart_por_afdw_host_plot <- varpart_por_afdw_host_plot[rows_to_keep, ]
 
+#varpart_poc_afdw_host
+varpart_poc_afdw_host_plot<-data.frame(Parts=c("Season", "Site", "Haplotype", "NA", "Site&Haplotype", "NA", "NA", "Residuals"), 
+                            Variance=c(varpart_poc_afdw_host$part$indfract$Adj.R.square))
+varpart_poc_afdw_host_plot$PercVar<-paste(as.character(round(varpart_poc_afdw_host_plot$Variance*100,2)), "%", sep="")
+varpart_poc_afdw_host_plot$PercVar[which(varpart_poc_afdw_host_plot$Variance<0)]<-NA
+varpart_poc_afdw_host_plot$Species<-rep("Pocillopora", nrow(varpart_poc_afdw_host_plot))
 
-##Porites
-#Holobiont
-varpart_por_afdw_parts.hol<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Holobiont"), Species=c("Porites"), Variance=c(varpart_por_afdw$part$indfract$Adj.R.square))
-
-#Host
-varpart_por_afdw_parts.host<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Host"), Species=c("Porites"), Variance=c(varpart_por_afdw_host$part$indfract$Adj.R.square))
-
-#Symbiont
-varpart_por_afdw_parts.sym<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Symbiont"), Species=c("Porites"), Variance=c(varpart_por_afdw_sym$part$indfract$Adj.R.square))
-
-
-##Pocillopora
-#Holobiont
-varpart_poc_afdw_parts.hol<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Holobiont"), Species=c("Pocillopora"), Variance=c(varpart_poc_afdw$part$indfract$Adj.R.square))
-
-#Host
-varpart_poc_afdw_parts.host<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Host"), Species=c("Pocillopora"), Variance=c(varpart_poc_afdw_host$part$indfract$Adj.R.square))
-
-#Symbiont
-varpart_poc_afdw_parts.sym<-data.frame(Parts=c("Season", "Season&Site", "Site", "Residuals"), Fraction=c("Symbiont"), Species=c("Pocillopora"), Variance=c(varpart_poc_afdw_sym$part$indfract$Adj.R.square))
-
-
-varpart_afdw_parts<-rbind(varpart_acr_afdw_parts.hol, varpart_acr_afdw_parts.host, varpart_acr_afdw_parts.sym, varpart_por_afdw_parts.hol, varpart_por_afdw_parts.host, 
-                          varpart_por_afdw_parts.sym, varpart_poc_afdw_parts.hol, 
-                          varpart_poc_afdw_parts.host, varpart_poc_afdw_parts.sym)
-
-##Percent Variance Explained
-varpart_afdw_parts$Percent<-round(varpart_afdw_parts$Variance*100,2)
-
-##Remove Site EnvFactor
-varpart_afdw_parts<-varpart_afdw_parts[-c(which(varpart_afdw_parts$Parts=="Site")),]
-
-##Ordered Factors
-varpart_afdw_parts$Parts<-factor(varpart_afdw_parts$Parts, levels=c("Season&Site", "Season", "Residuals"), ordered=TRUE)
+rows_to_keep <- c(1, 2, 5, 8)
+varpart_poc_afdw_host_plot <- varpart_poc_afdw_host_plot[rows_to_keep, ]
 
 ```
 
+Host data frames: 
+varpart_acr_afdw_host_plot
+varpart_por_afdw_host_plot
+varpart_poc_afdw_host_plot
 
-#Generate figures Option 1 Barplot Split by Species
+Plot host data 
 
 ```{r}
+##Combine VarPart results for all Species
+varpart_afdw_host_all<-rbind(varpart_acr_afdw_host_plot, varpart_por_afdw_host_plot, varpart_poc_afdw_host_plot)
 
-varpartBarplot_Species<-ggplot(varpart_afdw_parts, aes(x=Fraction, y=Percent, fill=Parts)) + 
+varpart_afdw_host_all<-na.omit(varpart_afdw_host_all)
+varpart_afdw_host_all$Response<-rep("Host", nrow(varpart_afdw_host_all))
+varpart_afdw_host_all$Percent<-round(varpart_afdw_host_all$Variance*100,2)
+varpart_afdw_host_all$Parts<-factor(varpart_afdw_host_all$Parts)
+
+names(varpart_afdw_host_all)
+
+varpart_afdw_host_all$Parts<-factor(varpart_afdw_host_all$Parts, levels=c("Haplotype", "Site&Haplotype", "Site", "Season", "Residuals"))
+
+varpartBarplot_all.host<-ggplot(varpart_afdw_host_all, aes(x=Species, y=Percent, fill=Parts)) + 
   geom_bar(position="stack", stat="identity", colour="black")+
-  scale_fill_manual(name="Predictors", values = c("white", "lightgray", "darkgray"), labels = c("Site", "Season", "Residuals"))+
+  scale_fill_manual(name="Predictors", values = c("lightblue4", "lightblue2", "cyan2", "purple2", "gray"),)+
   theme_classic()+
   theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), 
         axis.text.x=element_text(size=14, colour="black"), axis.text.y=element_text(size=14, colour="black"), 
         legend.text=element_text(size=12), legend.title=element_text(size=15))+
   ylab("% Variance Explained")+
   geom_text(aes(label=paste0(sprintf("%1.1f",Percent),"%"), fontface = "bold"),
-            position=position_stack(vjust=0.5), size=5.5)+
+            position=position_stack(vjust=0.5), size=5, color="black")+
   theme(plot.title=element_text(hjust=0.5), 
         axis.text.x=element_text(face="italic", color="black"), 
         axis.text.y=element_text(color="black"), 
         axis.title = element_text(face="bold"), 
-        legend.title=element_text(face="bold"), 
-        strip.text = element_text(size=16))+
-  facet_wrap(vars(Species), ncol=3);varpartBarplot_Species
+        legend.title=element_text(face="bold"));varpartBarplot_all.host
 
-ggsave(varpartBarplot_Species, file="Figures/Multivariate/VarPart_Species.png", width=12, height=8)
-
+ggsave(varpartBarplot_all.host, file="Figures/Multivariate/VarPart_Host.png", width=6, height=6.5)
+ggsave(varpartBarplot_all.host, file="Figures/Multivariate/VarPart_Host.jpg", width=6, height=6.5)
+ggsave(varpartBarplot_all.host, file="Figures/Multivariate/VarPart_Host.pdf", width=6, height=6.5)
 ```
 
-
-#Generate figures Option 2 Barplot Split by Fraction
+Symbiont data frames and ploting 
 
 ```{r}
+#varpart_acr_afdw_sym
+varpart_acr_afdw_sym_plot<-data.frame(Parts=c("Season", "Site", "NA", "Residuals"), 
+                            Variance=c(varpart_acr_afdw_sym$part$indfract$Adj.R.square))
+varpart_acr_afdw_sym_plot$PercVar<-paste(as.character(round(varpart_acr_afdw_sym_plot$Variance*100,2)), "%", sep="")
+varpart_acr_afdw_sym_plot$PercVar[which(varpart_acr_afdw_sym_plot$Variance<0)]<-NA
+varpart_acr_afdw_sym_plot$Species<-rep("Acropora", nrow(varpart_acr_afdw_sym_plot))
+rows_to_keep <- c(1, 2, 4)
+varpart_acr_afdw_sym_plot <- varpart_acr_afdw_sym_plot[rows_to_keep, ]
 
-varpartBarplot_Fraction<-ggplot(varpart_afdw_parts, aes(x=Species, y=Percent, fill=Parts)) + 
+#varpart_por_afdw_sym
+varpart_por_afdw_sym_plot<-data.frame(Parts=c("Season", "Site", "Haplotype", "NA", "Site&Haplotype", "NA", "NA", "Residuals"), 
+                            Variance=c(varpart_por_afdw_sym$part$indfract$Adj.R.square))
+varpart_por_afdw_sym_plot$PercVar<-paste(as.character(round(varpart_por_afdw_sym_plot$Variance*100,2)), "%", sep="")
+varpart_por_afdw_sym_plot$PercVar[which(varpart_por_afdw_sym_plot$Variance<0)]<-NA
+varpart_por_afdw_sym_plot$Species<-rep("Porites", nrow(varpart_por_afdw_sym_plot))
+
+rows_to_keep <- c(1, 2, 3, 5, 8)
+varpart_por_afdw_sym_plot <- varpart_por_afdw_sym_plot[rows_to_keep, ]
+
+#varpart_poc_afdw_sym
+varpart_poc_afdw_sym_plot<-data.frame(Parts=c("Season", "Site", "Haplotype", "NA", "Site&Haplotype", "NA", "NA", "Residuals"), 
+                            Variance=c(varpart_poc_afdw_sym$part$indfract$Adj.R.square))
+varpart_poc_afdw_sym_plot$PercVar<-paste(as.character(round(varpart_poc_afdw_sym_plot$Variance*100,2)), "%", sep="")
+varpart_poc_afdw_sym_plot$PercVar[which(varpart_poc_afdw_sym_plot$Variance<0)]<-NA
+varpart_poc_afdw_sym_plot$Species<-rep("Pocillopora", nrow(varpart_poc_afdw_sym_plot))
+
+rows_to_keep <- c(1, 2, 3, 8)
+varpart_poc_afdw_sym_plot <- varpart_poc_afdw_sym_plot[rows_to_keep, ]
+```
+
+Plot symbiont data 
+
+```{r}
+##Combine VarPart results for all Species
+varpart_afdw_sym_all<-rbind(varpart_acr_afdw_sym_plot, varpart_por_afdw_sym_plot, varpart_poc_afdw_sym_plot)
+
+varpart_afdw_sym_all<-na.omit(varpart_afdw_sym_all)
+varpart_afdw_sym_all$Response<-rep("Symbiont", nrow(varpart_afdw_sym_all))
+varpart_afdw_sym_all$Percent<-round(varpart_afdw_sym_all$Variance*100,2)
+varpart_afdw_sym_all$Parts<-factor(varpart_afdw_sym_all$Parts)
+
+names(varpart_afdw_sym_all)
+
+varpart_afdw_sym_all$Parts<-factor(varpart_afdw_sym_all$Parts, levels=c("Haplotype", "Site&Haplotype", "Site", "Season", "Residuals"))
+
+varpartBarplot_all.sym<-ggplot(varpart_afdw_sym_all, aes(x=Species, y=Percent, fill=Parts)) + 
   geom_bar(position="stack", stat="identity", colour="black")+
-  scale_fill_manual(name="Predictors", values = c("white", "lightgray", "darkgray"), labels = c("Site", "Season", "Residuals"))+
+  scale_fill_manual(name="Predictors", values = c("lightblue4", "lightblue2", "cyan2", "purple2", "gray"),)+
   theme_classic()+
   theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), 
         axis.text.x=element_text(size=14, colour="black"), axis.text.y=element_text(size=14, colour="black"), 
         legend.text=element_text(size=12), legend.title=element_text(size=15))+
   ylab("% Variance Explained")+
   geom_text(aes(label=paste0(sprintf("%1.1f",Percent),"%"), fontface = "bold"),
-            position=position_stack(vjust=0.5), size=5.5)+
+            position=position_stack(vjust=0.5), size=5, color="black")+
   theme(plot.title=element_text(hjust=0.5), 
         axis.text.x=element_text(face="italic", color="black"), 
         axis.text.y=element_text(color="black"), 
         axis.title = element_text(face="bold"), 
-        legend.title=element_text(face="bold"), 
-        strip.text = element_text(size=16))+
-  facet_wrap(vars(Fraction), ncol=3);varpartBarplot_Fraction
+        legend.title=element_text(face="bold"));varpartBarplot_all.sym
 
-ggsave(varpartBarplot_Fraction, file="Figures/Multivariate/VarPart_Fraction.png", width=12, height=8)
-
+ggsave(varpartBarplot_all.sym, file="Figures/Multivariate/VarPart_Sym.png", width=6, height=6.5)
+ggsave(varpartBarplot_all.sym, file="Figures/Multivariate/VarPart_Sym.jpg", width=6, height=6.5)
+ggsave(varpartBarplot_all.sym, file="Figures/Multivariate/VarPart_Sym.pdf", width=6, height=6.5)
 ```
 
-#Individual plots 
-
-Plot individual fractions for panels in final multivariate plot. 
+Arrange all in one plot
 ```{r}
-varpartBarplot_holobiont<-varpart_afdw_parts%>%
-  filter(Fraction=="Holobiont")%>%
-  
-  ggplot(aes(x=Species, y=Percent, fill=Parts)) + 
-  geom_bar(position="stack", stat="identity", colour="black")+
-  scale_fill_manual(name="Predictors", values = c("white", "lightgray", "darkgray"), labels = c("Site", "Season", "Residuals"))+
-  theme_classic()+
-  theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), 
-        axis.text.x=element_text(size=14, colour="black"), axis.text.y=element_text(size=14, colour="black"), 
-        legend.text=element_text(size=12), legend.title=element_text(size=15))+
-  ylab("% Variance Explained")+
-  geom_text(aes(label=paste0(sprintf("%1.1f",Percent),"%"), fontface = "bold"),
-            position=position_stack(vjust=0.5), size=5.5)+
-  theme(plot.title=element_text(hjust=0.5), 
-        axis.text.x=element_text(face="italic", color="black"), 
-        axis.text.y=element_text(color="black"), 
-        axis.title = element_text(face="bold"), 
-        legend.title=element_text(face="bold"), 
-        legend.position="none",
-        strip.text = element_text(size=16));varpartBarplot_holobiont
+varpartBarplot_all.sym2<-varpartBarplot_all.sym+theme(legend.position="right")
+varpartBarplot_all.host2<-varpartBarplot_all.host+theme(legend.position="none")
+varpartBarplot_all.holo2<-varpartBarplot_all.holo+theme(legend.position="none")
 
-ggsave(varpartBarplot_holobiont, file="Figures/Multivariate/VarPart_Holobiont.png", width=6, height=6)
-ggsave(varpartBarplot_holobiont, file="Figures/Multivariate/VarPart_Holobiont.jpg", width=6, height=6)
-ggsave(varpartBarplot_holobiont, file="Figures/Multivariate/VarPart_Holobiont.pdf", width=6, height=6)
+library(cowplot)
+all.plots<-plot_grid(varpartBarplot_all.holo2, varpartBarplot_all.host2, varpartBarplot_all.sym2, ncol=3, rel_widths = c(0.8,0.8,1), labels =c("Holobiont", "Host", "Symbiont"), label_y=0.99, vjust=1, label_x=0.4)
+
+ggsave(all.plots, file="Figures/Multivariate/VarPart_Panel.png", width=15, height=6.5)
 
 ```
 
-```{r}
-varpartBarplot_host<-varpart_afdw_parts%>%
-  filter(Fraction=="Host")%>%
-  
-  ggplot(aes(x=Species, y=Percent, fill=Parts)) + 
-  geom_bar(position="stack", stat="identity", colour="black")+
-  scale_fill_manual(name="Predictors", values = c("white", "lightgray", "darkgray"), labels = c("Site", "Season", "Residuals"))+
-  theme_classic()+
-  theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), 
-        axis.text.x=element_text(size=14, colour="black"), axis.text.y=element_text(size=14, colour="black"), 
-        legend.text=element_text(size=12), legend.title=element_text(size=15))+
-  ylab("% Variance Explained")+
-  geom_text(aes(label=paste0(sprintf("%1.1f",Percent),"%"), fontface = "bold"),
-            position=position_stack(vjust=0.5), size=5.5)+
-  theme(plot.title=element_text(hjust=0.5), 
-        axis.text.x=element_text(face="italic", color="black"), 
-        axis.text.y=element_text(color="black"), 
-        axis.title = element_text(face="bold"), 
-        legend.title=element_text(face="bold"), 
-        legend.position="none",
-        strip.text = element_text(size=16));varpartBarplot_host
-
-ggsave(varpartBarplot_host, file="Figures/Multivariate/VarPart_Host.png", width=6, height=6)
-ggsave(varpartBarplot_host, file="Figures/Multivariate/VarPart_Host.pdf", width=6, height=6)
-ggsave(varpartBarplot_host, file="Figures/Multivariate/VarPart_Host.jpg", width=6, height=6)
-
-```
-
-```{r}
-varpartBarplot_sym<-varpart_afdw_parts%>%
-  filter(Fraction=="Symbiont")%>%
-  
-  ggplot(aes(x=Species, y=Percent, fill=Parts)) + 
-  geom_bar(position="stack", stat="identity", colour="black")+
-  scale_fill_manual(name="", values = c("white", "lightgray", "darkgray"), labels = c("Site", "Season", "Residuals"))+
-  theme_classic()+
-  theme(axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18), 
-        axis.text.x=element_text(size=14, colour="black"), axis.text.y=element_text(size=14, colour="black"), 
-        legend.text=element_text(size=12), legend.title=element_text(size=15))+
-  ylab("% Variance Explained")+
-  geom_text(aes(label=paste0(sprintf("%1.1f",Percent),"%"), fontface = "bold"),
-            position=position_stack(vjust=0.5), size=5.5)+
-  theme(plot.title=element_text(hjust=0.5), 
-        axis.text.x=element_text(face="italic", color="black"), 
-        axis.text.y=element_text(color="black"), 
-        axis.title = element_text(face="bold"), 
-        legend.title=element_text(face="bold"), 
-        legend.position="bottom",
-        strip.text = element_text(size=16));varpartBarplot_sym
-
-ggsave(varpartBarplot_sym, file="Figures/Multivariate/VarPart_Sym.png", width=6, height=6.5)
-ggsave(varpartBarplot_sym, file="Figures/Multivariate/VarPart_Sym.jpg", width=6, height=6.5)
-ggsave(varpartBarplot_sym, file="Figures/Multivariate/VarPart_Sym.pdf", width=6, height=6.5)
-
-```

@@ -48,10 +48,17 @@ master$site<-as.factor(master$site)
 master$site<-fct_relevel(master$site, "Mahana", "Hilton", "Manava")
 ```
 
+Add in haplotype information
+```{r}
+haplotypes<-read_csv("Species_ID/master_colony_metadata_speciesID.csv")
+
+master$haplotype<-haplotypes$Genus.Species[match(master$colony_id_corr, haplotypes$colony_id_corr)]
+```
+
 # Holobiont responses   
 ```{r}
 data_all<-master%>%
-  select(colony_id_corr, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr, Total_Chl, Total_Chl_cell)%>%
+  select(colony_id_corr, haplotype, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr, Total_Chl, Total_Chl_cell)%>%
   filter(Host_AFDW.mg.cm2>0)%>%
   filter(Sym_AFDW.mg.cm2>0)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
@@ -61,17 +68,19 @@ data_all<-master%>%
   rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
 ```
 
-
 #Log+1 transform all responses
 ```{r}
 data_all_log <-data_all
-data_all_log[,-c(1:4)]<-log(data_all_log[,-c(1:4)]+1)
+data_all_log[,-c(1:5)]<-log(data_all_log[,-c(1:5)]+1)
 
 #change timepoint to a factor 
 data_all_log$timepoint<-as.factor(data_all_log$timepoint)
 
 #change species to a factor 
 data_all_log$species<-as.factor(data_all_log$species)
+
+#change haplotype to a factor 
+data_all_log$haplotype<-as.factor(data_all_log$haplotype)
 ```
 
 
@@ -103,7 +112,7 @@ poc_data_community<-data_community%>%
 #Acropora RDA- Host metrics 
 ```{r}
 names(acr_data_community)
-acr.comm.rda.host<-dbrda(vegdist(acr_data_community[, c(23:62)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc, 
+acr.comm.rda.host<-dbrda(vegdist(acr_data_community[, c(24:63)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc, 
                        data=acr_data_community, dist="bray")
 
 ##Check model significance
@@ -121,7 +130,7 @@ plot(acr.comm.rda.host)
 
 ```{r}
 names(acr_data_community)
-acr.comm.rda.sym<-dbrda(vegdist(acr_data_community[, c(23:62)], "bray") ~ Symbiont_Density + Symbiont_Biomass + Total_Chl + Total_Chl_cell + Am + AQY + Ik + Ic + S_H_Biomass_Ratio, data=acr_data_community, dist="bray")
+acr.comm.rda.sym<-dbrda(vegdist(acr_data_community[, c(24:63)], "bray") ~ Symbiont_Density + Symbiont_Biomass + Total_Chl + Total_Chl_cell + Am + AQY + Ik + Ic + S_H_Biomass_Ratio, data=acr_data_community, dist="bray")
 
 
 ##Check model significance
@@ -138,7 +147,7 @@ plot(acr.comm.rda.sym)
 #Porites RDA- Host metrics 
 ```{r}
 names(por_data_community)
-por.comm.rda.host<-dbrda(vegdist(por_data_community[, c(23:62)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc, 
+por.comm.rda.host<-dbrda(vegdist(por_data_community[, c(24:63)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc, 
                        data=por_data_community, dist="bray")
 
 ##Check model significance
@@ -191,7 +200,7 @@ anova(por.comm.rda.host, by="terms")
 #Porites RDA- Symbiont metrics 
 ```{r}
 names(por_data_community)
-por.comm.rda.sym<-dbrda(vegdist(por_data_community[, c(23:62)], "bray") ~ Symbiont_Density + Symbiont_Biomass + Total_Chl + Total_Chl_cell + Am + AQY + Ik + Ic + S_H_Biomass_Ratio, data=por_data_community, dist="bray")
+por.comm.rda.sym<-dbrda(vegdist(por_data_community[, c(24:63)], "bray") ~ Symbiont_Density + Symbiont_Biomass + Total_Chl + Total_Chl_cell + Am + AQY + Ik + Ic + S_H_Biomass_Ratio, data=por_data_community, dist="bray")
 
 ##Check model significance
 anova(por.comm.rda.sym)
@@ -251,7 +260,7 @@ anova(por.comm.rda.sym, by="terms")
 #Pocillopora RDA- Host metrics 
 ```{r}
 names(poc_data_community)
-poc.comm.rda.host<-dbrda(vegdist(poc_data_community[, c(23:62)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc, 
+poc.comm.rda.host<-dbrda(vegdist(poc_data_community[, c(24:63)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc, 
                        data=poc_data_community, dist="bray")
 
 ##Check model significance
@@ -269,7 +278,7 @@ plot(poc.comm.rda.host)
 #Pocillopora RDA- Symbiont metrics 
 ```{r}
 names(poc_data_community)
-poc.comm.rda.sym<-dbrda(vegdist(poc_data_community[, c(23:62)], "bray") ~ Symbiont_Density + Symbiont_Biomass + Total_Chl + Total_Chl_cell + Am + AQY + Ik + Ic + S_H_Biomass_Ratio, data=poc_data_community, dist="bray")
+poc.comm.rda.sym<-dbrda(vegdist(poc_data_community[, c(24:63)], "bray") ~ Symbiont_Density + Symbiont_Biomass + Total_Chl + Total_Chl_cell + Am + AQY + Ik + Ic + S_H_Biomass_Ratio, data=poc_data_community, dist="bray")
 
 ##Check model significance
 anova(poc.comm.rda.sym)
@@ -345,7 +354,7 @@ panel.lab.sz=25
 acr.comm.rda.sym.scores<- data.frame(scores(acr.comm.rda.sym)$sites)
 acr.comm.rda.sym.scores$sample_id<- rownames(acr.comm.rda.sym.scores)
 names(acr_data_community)
-acr.comm.rda.sym.scores<-merge(acr_data_community[,c(1:22, 63:64)], acr.comm.rda.sym.scores)
+acr.comm.rda.sym.scores<-merge(acr_data_community[,c(1:23, 64:65)], acr.comm.rda.sym.scores)
 names(acr.comm.rda.sym.scores)
 
 #Create dataframe with physiological metric vectors
@@ -378,7 +387,6 @@ acr.comm.rda.sym.plot<-ggplot(data = acr.comm.rda.sym.scores, aes(x = dbRDA1, y 
             colour = "grey20", size=levels.sz-1)+
   annotate("text",  x = -11, y = -5, label = "p = 0.783", size=sig.sz, hjust = 0, fontface="italic")
 
-
 acr.comm.rda.sym.plot
 
 
@@ -388,7 +396,7 @@ acr.comm.rda.sym.plot
 por.comm.rda.sym.scores<- data.frame(scores(por.comm.rda.sym)$sites)
 por.comm.rda.sym.scores$sample_id<- rownames(por.comm.rda.sym.scores)
 names(por_data_community)
-por.comm.rda.sym.scores<-merge(por_data_community[,c(1:22, 63:64)], por.comm.rda.sym.scores)
+por.comm.rda.sym.scores<-merge(por_data_community[,c(1:23, 64:65)], por.comm.rda.sym.scores)
 names(por.comm.rda.sym.scores)
 
 #Create dataframe with physiological metric vectors
@@ -437,7 +445,7 @@ por.comm.rda.sym.plot
 poc.comm.rda.sym.scores<- data.frame(scores(poc.comm.rda.sym)$sites)
 poc.comm.rda.sym.scores$sample_id<- rownames(poc.comm.rda.sym.scores)
 names(poc_data_community)
-poc.comm.rda.sym.scores<-merge(poc_data_community[,c(1:22, 63:64)], poc.comm.rda.sym.scores)
+poc.comm.rda.sym.scores<-merge(poc_data_community[,c(1:23, 64:65)], poc.comm.rda.sym.scores)
 names(poc.comm.rda.sym.scores)
 
 #Create dataframe with physiological metric vectors
