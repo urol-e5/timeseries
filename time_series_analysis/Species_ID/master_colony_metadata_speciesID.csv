@@ -49,21 +49,21 @@ ACR-390,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
 ACR-393,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
 ACR-396,Hilton,Acropora,NA,NA,NA,NA,Acropora pulchra
 ACR-51,Manava,Acropora,NA,NA,NA,NA,Acropora pulchra
-POC-200,Mahana,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
-POC-205,Mahana,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
-POC-207,Mahana,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
-POC-215,Mahana,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
-POC-217,Mahana,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
-POC-238,Mahana,Pocillopora,Haplotype 8a,Need Histone,NA,NA,Pmean Pgrand
-POC-239,Mahana,Pocillopora,Haplotype 1c,Need Histone,NA,NA,Pmean Pgrand
-POC-248,Mahana,Pocillopora,Haplotype 8a,Need Histone,NA,NA,Pmean Pgrand
-POC-254,Mahana,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
-POC-366,Hilton,Pocillopora,Haplotype 8a,Need Histone,NA,NA,Pmean Pgrand
-POC-386,Hilton,Pocillopora,Haplotype 8a,Need Histone,NA,NA,Pmean Pgrand
-POC-395,Hilton,Pocillopora,Haplotype 8a,Need Histone,NA,NA,Pmean Pgrand
-POC-41,Manava,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
-POC-45,Manava,Pocillopora,Haplotype 1a,Need Histone,NA,NA,Pmean Pgrand
-POC-55,Manava,Pocillopora,Haplotype 1c,Need Histone,NA,NA,Pmean Pgrand
+POC-200,Mahana,Pocillopora,Haplotype 1a,Pmeandrina,NA,NA,Pocillopora meandrina
+POC-205,Mahana,Pocillopora,Haplotype 1a,Pmeandrina,NA,NA,Pocillopora meandrina
+POC-207,Mahana,Pocillopora,Haplotype 1a,Pmeandrina,NA,NA,Pocillopora meandrina
+POC-215,Mahana,Pocillopora,Haplotype 1a,Pmeandrina,NA,NA,Pocillopora meandrina
+POC-217,Mahana,Pocillopora,Haplotype 1a,Pmeandrina,NA,NA,Pocillopora meandrina
+POC-238,Mahana,Pocillopora,Haplotype 8a,Pmeandrina,NA,NA,Pocillopora meandrina
+POC-239,Mahana,Pocillopora,Haplotype 1c,Pmeandrina,NA,NA,Pocillopora meandrina
+POC-248,Mahana,Pocillopora,Haplotype 8a,Pmeandrina,NA,NA,Pocillopora meandrina
+POC-254,Mahana,Pocillopora,Haplotype 1a,Pmeandrina,NA,NA,Pocillopora meandrina
+POC-366,Hilton,Pocillopora,Haplotype 8a,Pmeandrina,NA,NA,Pocillopora meandrina
+POC-386,Hilton,Pocillopora,Haplotype 8a,Pmeandrina,NA,NA,Pocillopora meandrina
+POC-395,Hilton,Pocillopora,Haplotype 8a,Pmeandrina,NA,NA,Pocillopora meandrina
+POC-41,Manava,Pocillopora,Haplotype 1a,Pmeandrina,NA,NA,Pocillopora meandrina
+POC-45,Manava,Pocillopora,Haplotype 1a,Pmeandrina,NA,NA,Pocillopora meandrina
+POC-55,Manava,Pocillopora,Haplotype 1c,Pmeandrina,NA,NA,Pocillopora meandrina
 POC-201,Mahana,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
 POC-219,Mahana,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
 POC-222,Mahana,Pocillopora,Haplotype 10,NA,NA,NA,Pocillopora tuahiniensis
@@ -137,5 +137,5 @@ POR-266,Mahana,Porites,NA,NA,Porites lobata,Porites lobata,Porites lobata lutea
 POR-353,Hilton,Porites,NA,NA,Porites lobata,Porites lobata,Porites lobata lutea
 POR-381,Hilton,Porites,NA,NA,Porites lobata,Porites lobata,Porites lobata lutea
 POR-384,Hilton,Porites,NA,NA,Porites lobata,Porites lobata,Porites lobata lutea
-POR-362,Hilton,Porites,NA,NA,Failed Seq,Failed Seq,Reseq
-POR-83,Manava,Porites,NA,NA,Failed Seq,Failed Seq,Reseq
+POR-362,Hilton,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
+POR-83,Manava,Porites,NA,NA,Porites evermanni,Porites evermanni,Porites evermanni
