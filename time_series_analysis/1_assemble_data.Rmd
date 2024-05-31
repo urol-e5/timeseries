@@ -369,6 +369,14 @@ conetta<-master%>%
   write.csv(., "Output/conetta_data.csv")
 ```
 
+Add haplotype information into the master dataframe and export
+
+```{r}
+haplotype<-read_csv("Species_ID/master_colony_metadata_speciesID.csv")
+head(haplotype)
+
+master$haplotype<-haplotype$Genus.Species[match(master$colony_id_corr, haplotype$colony_id_corr)]
+```
  
 Write master file to csv.  
 ```{r}
@@ -409,14 +417,14 @@ Summarize all response values by group (species + timepoint + site).
 ```{r}
 summary_colony<-master%>%
   select(., -c(colony_id, timepoint, site_code, code))%>%
-  group_by(colony_id_corr, month, site, nutrient, species)%>%
+  group_by(colony_id_corr, month, site, nutrient, species, haplotype)%>%
   summarise(across(.cols=everything(), ~mean(.x, na.rm = TRUE)))%>%
   drop_na("site")%>%
   write_csv(., "Output/Summary_Colony_Responses.csv")
 
 summary_group<-master%>%
   select(., -c(colony_id, timepoint, site_code, colony_id_corr, code))%>%
-  group_by(month, site, nutrient, species)%>%
+  group_by(month, site, nutrient, species, haplotype)%>%
   summarise(across(.cols=everything(), ~mean(.x, na.rm = TRUE)))%>%
   drop_na("site")%>%
   write_csv(., "Output/Summary_Responses.csv")
@@ -431,7 +439,7 @@ df <- summary_group %>%
 
 longdf <- df %>% 
   #select(!code) %>%
-  pivot_longer(!1:4, names_to = "variable") 
+  pivot_longer(!1:5, names_to = "variable") 
 
 ggplot(longdf, aes(x = month, y = value, color = species, shape = site)) +
   geom_point() +
@@ -451,7 +459,7 @@ ggplot(res, aes(x = month, y = adj_value, color = species, shape = site)) +
   facet_wrap(~variable, scales = "free")
 
 res %>%
-  select(month, site, nutrient, species, variable, adj_value) %>%
+  select(month, site, nutrient, species, haplotype, variable, adj_value) %>%
   pivot_wider(names_from = variable, values_from = adj_value) %>%
   write_csv("Output/Summary_Responses_normalized.csv")
 ```
@@ -459,11 +467,29 @@ res %>%
 Export a master metadata sheet with unique colony ID,  species, and the site they were at. 
 ```{r}
 master %>%
-  select(colony_id_corr, site, species)%>%
+  select(colony_id_corr, site, species, haplotype)%>%
   unique()%>%
-  arrange(species, colony_id_corr)%>%
+  arrange(species, haplotype, colony_id_corr)%>%
   write_csv("Output/master_colony_metadata.csv")
 ```
+
+# Generate summary of sample size for each species and haplotype at each timepoint and site 
+
+```{r}
+summary<-master %>%
+  group_by(species, haplotype, site, timepoint)%>%
+  summarise(n=length(unique(colony_id_corr)));summary
+
+write_csv(file="Output/sample_sizes.csv", summary)
+```
+
+
+
+
+
+
+
+
 
 
 
