@@ -1,0 +1,57 @@
+species,haplotype,site,timepoint,n
+Acropora,Acropora pulchra,Hilton,timepoint1,13
+Acropora,Acropora pulchra,Hilton,timepoint2,9
+Acropora,Acropora pulchra,Hilton,timepoint3,2
+Acropora,Acropora pulchra,Hilton,timepoint4,6
+Acropora,Acropora pulchra,Mahana,timepoint1,14
+Acropora,Acropora pulchra,Mahana,timepoint2,6
+Acropora,Acropora pulchra,Mahana,timepoint3,10
+Acropora,Acropora pulchra,Mahana,timepoint4,12
+Acropora,Acropora pulchra,Manava,timepoint1,15
+Acropora,Acropora pulchra,Manava,timepoint2,9
+Acropora,Acropora pulchra,Manava,timepoint3,9
+Acropora,Acropora pulchra,Manava,timepoint4,11
+Pocillopora,Pocillopora meandrina,Hilton,timepoint1,3
+Pocillopora,Pocillopora meandrina,Hilton,timepoint2,3
+Pocillopora,Pocillopora meandrina,Hilton,timepoint3,3
+Pocillopora,Pocillopora meandrina,Hilton,timepoint4,3
+Pocillopora,Pocillopora meandrina,Mahana,timepoint1,8
+Pocillopora,Pocillopora meandrina,Mahana,timepoint2,9
+Pocillopora,Pocillopora meandrina,Mahana,timepoint3,7
+Pocillopora,Pocillopora meandrina,Mahana,timepoint4,7
+Pocillopora,Pocillopora meandrina,Manava,timepoint1,3
+Pocillopora,Pocillopora meandrina,Manava,timepoint2,3
+Pocillopora,Pocillopora meandrina,Manava,timepoint3,2
+Pocillopora,Pocillopora meandrina,Manava,timepoint4,2
+Pocillopora,Pocillopora tuahiniensis,Hilton,timepoint1,12
+Pocillopora,Pocillopora tuahiniensis,Hilton,timepoint2,11
+Pocillopora,Pocillopora tuahiniensis,Hilton,timepoint3,10
+Pocillopora,Pocillopora tuahiniensis,Hilton,timepoint4,12
+Pocillopora,Pocillopora tuahiniensis,Mahana,timepoint1,5
+Pocillopora,Pocillopora tuahiniensis,Mahana,timepoint2,6
+Pocillopora,Pocillopora tuahiniensis,Mahana,timepoint3,6
+Pocillopora,Pocillopora tuahiniensis,Mahana,timepoint4,5
+Pocillopora,Pocillopora tuahiniensis,Manava,timepoint1,12
+Pocillopora,Pocillopora tuahiniensis,Manava,timepoint2,12
+Pocillopora,Pocillopora tuahiniensis,Manava,timepoint3,10
+Pocillopora,Pocillopora tuahiniensis,Manava,timepoint4,11
+Porites,Porites evermanni,Hilton,timepoint1,12
+Porites,Porites evermanni,Hilton,timepoint2,11
+Porites,Porites evermanni,Hilton,timepoint3,12
+Porites,Porites evermanni,Hilton,timepoint4,11
+Porites,Porites evermanni,Mahana,timepoint1,6
+Porites,Porites evermanni,Mahana,timepoint2,6
+Porites,Porites evermanni,Mahana,timepoint3,4
+Porites,Porites evermanni,Mahana,timepoint4,4
+Porites,Porites evermanni,Manava,timepoint1,15
+Porites,Porites evermanni,Manava,timepoint2,15
+Porites,Porites evermanni,Manava,timepoint3,13
+Porites,Porites evermanni,Manava,timepoint4,12
+Porites,Porites lobata lutea,Hilton,timepoint1,3
+Porites,Porites lobata lutea,Hilton,timepoint2,3
+Porites,Porites lobata lutea,Hilton,timepoint3,3
+Porites,Porites lobata lutea,Hilton,timepoint4,3
+Porites,Porites lobata lutea,Mahana,timepoint1,9
+Porites,Porites lobata lutea,Mahana,timepoint2,9
+Porites,Porites lobata lutea,Mahana,timepoint3,8
+Porites,Porites lobata lutea,Mahana,timepoint4,8
