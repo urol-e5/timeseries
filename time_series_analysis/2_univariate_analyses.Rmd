@@ -86,6 +86,14 @@ str(master)
 ```
 There are 448 observations before filtering. 
 
+View sample size for each group before filtering. 
+
+```{r}
+n_before<-master%>%
+  group_by(species, timepoint, site)%>%
+  summarise(length=length(unique(colony_id_corr)));n_before
+```
+
 ```{r}
 master<-master%>%
   filter(complete.cases(.)) 
@@ -94,9 +102,21 @@ str(master)
 ```
 There are 379 observations remaining after complete cases filtering. 
 
+View sample size for each group after filtering. 
+
+```{r}
+n_after<-master%>%
+  group_by(species, timepoint, site)%>%
+  summarise(length=length(unique(colony_id_corr)));n_after
+```
+
+Some groups have low sample size (mainly ACR at certain sites and times) due to mortality and loss of tags.  
+
 # Univariate Responses  
 
 Plot univariate response plots and then generate panel of all plots at the end of this section. Individual plots will not be displayed.
+
+Haplotype will be included as a random effect in models. We will include haplotype as a random effect with colony ID nested within haplotype (each colony is assigned to only one haplotype always and always within a species). This will be denoted as `+(1|species/haplotype/colony_id_corr)`. Multiple haplotypes only occur in POC and POR, so models analyzing individual species will not include haplotype for ACR. 
 
 ## Antioxidant capacity  
 
@@ -238,20 +258,16 @@ ggsave(filename="Figures/Univariate/TAC_Figure.pdf", plot=tac_figure, dpi=300, w
 
 Build a mixed model for univariate analysis and examine data distribution of biomass normalized antioxidant capacity. 
 
-`antiox_model<-lmer(cre.umol.mgafdw~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
-
 ```{r}
-antiox_model<-lmer(cre.umol.mgafdw~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+antiox_model<-lmer(cre.umol.mgafdw~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(antiox_model))
 #hist(residuals(antiox_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`antiox_model<-lmer(log(1+cre.umol.mgafdw)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
-
 ```{r}
-antiox_model<-lmer(log(1+cre.umol.mgafdw)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
+antiox_model<-lmer(log(1+cre.umol.mgafdw)~timepoint*site*species+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(antiox_model))
 #hist(residuals(antiox_model))
 ```
@@ -261,16 +277,11 @@ Generate a Type III Anova of model.
 ```{r}
 anova(antiox_model, type="III")
 summary(antiox_model)
-
-emm<-emmeans(antiox_model, ~ species)
-pairs(emm)
 ```
 
-Since species is significant, run a model for site and time effects within each species.  
+Since species:time is significant, run a model for site and time effects within each species.  
 
 *Acropora*:
-
-`antiox_model_acr<-lmer(log(1+cre.umol.mgafdw)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
 antiox_model_acr<-lmer(log(1+cre.umol.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
@@ -295,10 +306,8 @@ pairs(emm)
 
 *Pocillopora*: 
 
-`antiox_model_poc<-lmer(log(1+cre.umol.mgafdw)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
-
 ```{r}
-antiox_model_poc<-lmer(log(1+cre.umol.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+antiox_model_poc<-lmer(log(1+cre.umol.mgafdw)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
 qqPlot(residuals(antiox_model_poc))
 #hist(residuals(antiox_model_poc))
 ```
@@ -313,13 +322,10 @@ emm<-emmeans(antiox_model_poc, ~ timepoint)
 pairs(emm)
 ```
 
-
 *Porites*:  
 
-`antiox_model_por<-lmer(log(1+cre.umol.mgafdw)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
-
 ```{r}
-antiox_model_por<-lmer(log(1+cre.umol.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+antiox_model_por<-lmer(log(1+cre.umol.mgafdw)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
 qqPlot(residuals(antiox_model_por))
 #hist(residuals(antiox_model_por))
 ```
@@ -336,7 +342,6 @@ pairs(emm)
 emm<-emmeans(antiox_model_por, ~ site)
 pairs(emm)
 ```
-
 
 ## Symbiont Densities  
 
@@ -479,19 +484,17 @@ ggsave(filename="Figures/Univariate/CellDensity_Figure.pdf", plot=symbcells_figu
 
 Build a mixed model for univariate analysis and examine data distribution.
 
-`density_model<-lmer(cells.mgAFDW~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
-
 ```{r}
-density_model<-lmer(cells.mgAFDW~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0))
+density_model<-lmer(cells.mgAFDW~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0))
 qqPlot(residuals(density_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`density_model<-lmer(log(cells.mgAFDW)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
+`density_model<-lmer(log(cells.mgAFDW)~timepoint*site*species+(1|colony_id_corr:haplotype)+(1|haplotype), na.action=na.omit, data=master)` 
 
 ```{r}
-density_model<-lmer(log(cells.mgAFDW)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0))
+density_model<-lmer(log(cells.mgAFDW)~timepoint*site*species+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0))
 qqPlot(residuals(density_model))
 ```
 
@@ -506,11 +509,7 @@ emm<-emmeans(density_model, ~ species)
 pairs(emm)
 ```
 
-Since species is significant, test for effects of time and site within each species.  
-
 *Acropora*  
-
-`density_model_acr<-lmer(log(cells.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(subset=c(cells.mgAFDW>0 & species=="Acropora"))` 
 
 ```{r}
 density_model_acr<-lmer(log(cells.mgAFDW+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0 & species=="Acropora"))
@@ -534,10 +533,8 @@ pairs(emm)
 
 *Pocillopora*  
 
-`density_model_poc<-lmer(log(cells.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
-
 ```{r}
-density_model_poc<-lmer(log(cells.mgAFDW+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0 & species=="Pocillopora"))
+density_model_poc<-lmer(log(cells.mgAFDW+1)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0 & species=="Pocillopora"))
 qqPlot(residuals(density_model_poc))
 ```
 
@@ -558,10 +555,8 @@ pairs(emm)
 
 *Porites*  
 
-`density_model_por<-lmer(log(cells.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
-
 ```{r}
-density_model_por<-lmer(log(cells.mgAFDW+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0 & species=="Porites"))
+density_model_por<-lmer(log(cells.mgAFDW+1)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(cells.mgAFDW>0 & species=="Porites"))
 qqPlot(residuals(density_model_por))
 ```
 
@@ -582,7 +577,6 @@ pairs(emm)
 emm<-emmeans(density_model_por, ~ timepoint | site)
 pairs(emm)
 ```
-
 
 ## Biomass
 
@@ -812,19 +806,15 @@ Build a mixed model for univariate analysis and examine data distribution.
 
 #### Host Biomass:  
 
-`hAFDW_model<-lmer(Host_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))` 
-
 ```{r}
-hAFDW_model<-lmer(Host_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))
+hAFDW_model<-lmer(Host_AFDW.mg.cm2~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))
 qqPlot(residuals(hAFDW_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`hAFDW_model<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))` 
-
 ```{r}
-hAFDW_model<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))
+hAFDW_model<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site*species+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0))
 qqPlot(residuals(hAFDW_model))
 ```
 
@@ -839,8 +829,6 @@ summary(hAFDW_model)
 emm<-emmeans(hAFDW_model, ~ species)
 pairs(emm)
 ```
-
-Since species is significant, test for effects of site and time within each species.  
 
 *Acropora*  
  
@@ -865,11 +853,9 @@ pairs(emm)
 ```
 
 *Pocillopora*  
- 
-`hAFDW_model_poc<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0 & species=="Pocillopora"))` 
 
 ```{r}
-hAFDW_model_poc<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0 & species=="Pocillopora"))
+hAFDW_model_poc<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0 & species=="Pocillopora"))
 qqPlot(residuals(hAFDW_model_poc))
 ```
 
@@ -893,11 +879,9 @@ pairs(emm)
 ```
 
 *Porites*  
- 
-`hAFDW_model_por<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0 & species=="Porites"))` 
 
 ```{r}
-hAFDW_model_por<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0 & species=="Porites"))
+hAFDW_model_por<-lmer(log(1+Host_AFDW.mg.cm2)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Host_AFDW.mg.cm2>0 & species=="Porites"))
 qqPlot(residuals(hAFDW_model_por))
 ```
 
@@ -913,18 +897,15 @@ pairs(emm)
 
 #### Symbiont Biomass:  
 
-`sAFDW_model<-lmer(Sym_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))` 
 ```{r}
-sAFDW_model<-lmer(Sym_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))
+sAFDW_model<-lmer(Sym_AFDW.mg.cm2~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))
 qqPlot(residuals(sAFDW_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`sAFDW_model<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))` 
-
 ```{r}
-sAFDW_model<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))
+sAFDW_model<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site*species+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0))
 qqPlot(residuals(sAFDW_model))
 ```
 
@@ -940,11 +921,7 @@ emm<-emmeans(sAFDW_model, ~ species)
 pairs(emm)
 ```
 
-Since species is significant, test for effects of site and time within each species.  
-
 *Acropora* 
-
-`sAFDW_model_acr<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0 & species=="Acropora"))` 
 
 ```{r}
 sAFDW_model_acr<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0 & species=="Acropora"))
@@ -972,10 +949,8 @@ pairs(emm)
 
 *Pocillopora* 
 
-`sAFDW_model_poc<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0 & species=="Pocillopora"))` 
-
 ```{r}
-sAFDW_model_poc<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0 & species=="Pocillopora"))
+sAFDW_model_poc<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0 & species=="Pocillopora"))
 qqPlot(residuals(sAFDW_model_poc))
 ```
 
@@ -997,10 +972,8 @@ pairs(emm)
 
 *Porites* 
 
-`sAFDW_model_poc<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0 & species=="Porites"))` 
-
 ```{r}
-sAFDW_model_por<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0 & species=="Porites"))
+sAFDW_model_por<-lmer(log(1+Sym_AFDW.mg.cm2)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Sym_AFDW.mg.cm2>0 & species=="Porites"))
 qqPlot(residuals(sAFDW_model_por))
 ```
 
@@ -1014,22 +987,17 @@ emm<-emmeans(sAFDW_model_por, ~ site)
 pairs(emm)
 ```
 
-
 #### S:H Biomass: 
 
-`shAFDW_model<-lmer(Ratio_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))` 
-
 ```{r}
-shAFDW_model<-lmer(Ratio_AFDW.mg.cm2~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))
+shAFDW_model<-lmer(Ratio_AFDW.mg.cm2~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))
 qqPlot(residuals(shAFDW_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`shAFDW_model<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))` 
-
 ```{r}
-shAFDW_model<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))
+shAFDW_model<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site*species+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0))
 qqPlot(residuals(shAFDW_model))
 ```
 
@@ -1045,11 +1013,7 @@ emm<-emmeans(shAFDW_model, ~ species)
 pairs(emm)
 ```
 
-Since species is significant, test for effects of time and site within species.  
-
 *Acropora*   
-
-`shAFDW_model_acr<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0 & species=="Acropora"))` 
 
 ```{r}
 shAFDW_model_acr<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0 & species=="Acropora"))
@@ -1077,10 +1041,8 @@ pairs(emm)
 
 *Pocillopora*   
 
-`shAFDW_model_poc<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0 & species=="Pocillopora"))` 
-
 ```{r}
-shAFDW_model_poc<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0 & species=="Pocillopora"))
+shAFDW_model_poc<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0 & species=="Pocillopora"))
 qqPlot(residuals(shAFDW_model_poc))
 ```
 
@@ -1105,10 +1067,8 @@ pairs(emm)
 
 *Porites*   
 
-`shAFDW_model_por<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0 & species=="Porites"))` 
-
 ```{r}
-shAFDW_model_por<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0 & species=="Porites"))
+shAFDW_model_por<-lmer(log(1+Ratio_AFDW.mg.cm2)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Ratio_AFDW.mg.cm2>0 & species=="Porites"))
 qqPlot(residuals(shAFDW_model_por))
 ```
 
@@ -1501,26 +1461,21 @@ chl_figure<-plot_grid(chlplot_total_box, chlaplot_prot, chlaplot_afdw, chlaplot_
 ggsave(filename="Figures/Univariate/Chlorophyll_Figure.pdf", plot=chl_figure, dpi=300, width=36, height=10, units="in")
 ```
 
-
 ### Analysis  
 
 Build a mixed model for univariate analysis and examine data distribution.
 
 #### Chlorophyll a: 
 
-`chla_model<-lmer(chla.ug.mgAFDW~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
-
 ```{r}
-chla_model<-lmer(chla.ug.mgAFDW~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+chla_model<-lmer(chla.ug.mgAFDW~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(chla_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`chla_model<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0))` 
-
 ```{r}
-chla_model<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0))
+chla_model<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site*species+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0))
 qqPlot(residuals(chla_model))
 ```
 
@@ -1534,11 +1489,7 @@ emm<-emmeans(chla_model, ~ species)
 pairs(emm)
 ```
 
-Since species is significant, test for effects of site and time within each species.  
-
 *Acropora*  
-
-`chla_model_acr<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0 & species=="Acropora"))` 
 
 ```{r}
 chla_model_acr<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0 & species=="Acropora"))
@@ -1563,10 +1514,8 @@ pairs(emm)
 
 *Pocillopora*  
 
-`chla_model_poc<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0 & species=="Pocillopora"))` 
-
 ```{r}
-chla_model_poc<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0 & species=="Pocillopora"))
+chla_model_poc<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0 & species=="Pocillopora"))
 qqPlot(residuals(chla_model_poc))
 ```
 
@@ -1591,10 +1540,8 @@ pairs(emm)
 
 *Porites*  
 
-`chla_model_por<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0 & species=="Porites"))` 
-
 ```{r}
-chla_model_por<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0 & species=="Porites"))
+chla_model_por<-lmer(log(1+chla.ug.mgAFDW)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(chla.ug.mgAFDW>0 & species=="Porites"))
 qqPlot(residuals(chla_model_por))
 ```
 
@@ -1622,23 +1569,17 @@ pairs(emm)
 
 Build a mixed model for univariate analysis and examine data distribution.
 
-`chlc2_model<-lmer(chlc2.ug.mgAFDW~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0))` 
-
 ```{r}
-chlc2_model<-lmer(chlc2.ug.mgAFDW~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0))
+chlc2_model<-lmer(chlc2.ug.mgAFDW~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0))
 qqPlot(residuals(chlc2_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`chlc2_model<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0))` 
-
 ```{r}
-chlc2_model<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0))
+chlc2_model<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0))
 qqPlot(residuals(chlc2_model))
 ```
-
-Return to check residual distribution in this model.  
 
 Generate a Type III Anova of model.    
 
@@ -1653,8 +1594,6 @@ pairs(emm)
 Since species is significant, test for effects of site and time within species.  
 
 *Acropora* 
-
-`chlc2_model_acr<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0 & species=="Acropora))` 
 
 ```{r}
 chlc2_model_acr<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0 & species=="Acropora"))
@@ -1680,13 +1619,10 @@ emm<-emmeans(chlc2_model_acr, ~ site | timepoint)
 pairs(emm)
 ```
 
-
 *Pocillopora* 
 
-`chlc2_model_poc<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0 & species=="Pocillopora))` 
-
 ```{r}
-chlc2_model_poc<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0 & species=="Pocillopora"))
+chlc2_model_poc<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0 & species=="Pocillopora"))
 qqPlot(residuals(chlc2_model_poc))
 ```
 
@@ -1711,10 +1647,8 @@ pairs(emm)
 
 *Porites* 
 
-`chlc2_model_por<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0 & species=="Porites))` 
-
 ```{r}
-chlc2_model_por<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0 & species=="Porites"))
+chlc2_model_por<-lmer(log(1+chlc2.ug.mgAFDW)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(chlc2.ug.mgAFDW>0 & species=="Porites"))
 qqPlot(residuals(chlc2_model_por))
 ```
 
@@ -1741,19 +1675,15 @@ pairs(emm)
 
 Build a mixed model for univariate analysis and examine data distribution.
 
-`chltotal_model<-lmer(Total_Chl~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0))` 
-
 ```{r}
-chltotal_model<-lmer(Total_Chl~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0))
+chltotal_model<-lmer(Total_Chl~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0))
 qqPlot(residuals(chltotal_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`chltotal_model<-lmer(log(1+Total_Chl)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0))` 
-
 ```{r}
-chltotal_model<-lmer(log(1+Total_Chl)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0))
+chltotal_model<-lmer(log(1+Total_Chl)~timepoint*site*species+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0))
 qqPlot(residuals(chltotal_model))
 ```
 
@@ -1767,11 +1697,7 @@ emm<-emmeans(chltotal_model, ~ species)
 pairs(emm)
 ```
 
-Since species is significant, test for effects of time and site within species.  
-
 *Acropora*  
-
-`chltotal_model_acr<-lmer(log(1+Total_Chl)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0 & species=="Acropora"))` 
 
 ```{r}
 chltotal_model_acr<-lmer(log(1+Total_Chl)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0 & species=="Acropora"))
@@ -1799,10 +1725,8 @@ pairs(emm)
 
 *Pocillopora*  
 
-`chltotal_model_poc<-lmer(log(1+Total_Chl)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0 & species=="Pocillopora"))` 
-
 ```{r}
-chltotal_model_poc<-lmer(log(1+Total_Chl)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0 & species=="Pocillopora"))
+chltotal_model_poc<-lmer(log(1+Total_Chl)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0 & species=="Pocillopora"))
 qqPlot(residuals(chltotal_model_poc))
 ```
 
@@ -1827,10 +1751,8 @@ pairs(emm)
 
 *Porites*  
 
-`chltotal_model_poc<-lmer(log(1+Total_Chl)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0 & species=="Porites"))` 
-
 ```{r}
-chltotal_model_por<-lmer(log(1+Total_Chl)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0 & species=="Porites"))
+chltotal_model_por<-lmer(log(1+Total_Chl)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl>0 & species=="Porites"))
 qqPlot(residuals(chltotal_model_por))
 ```
 
@@ -1857,19 +1779,15 @@ pairs(emm)
 
 Build a mixed model for univariate analysis and examine data distribution.
 
-`chltotalcell_model<-lmer(Total_Chl_cell~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0))` 
-
 ```{r}
-chltotalcell_model<-lmer(Total_Chl_cell~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0))
+chltotalcell_model<-lmer(Total_Chl_cell~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0))
 qqPlot(residuals(chltotalcell_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`chltotalcell_model<-lmer(log(1+Total_Chl_cell)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0))` 
-
 ```{r}
-chltotalcell_model<-lmer(log(1+Total_Chl_cell)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0))
+chltotalcell_model<-lmer(log(1+Total_Chl_cell)~timepoint*site*species+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0))
 qqPlot(residuals(chltotalcell_model))
 ```
 
@@ -1885,11 +1803,7 @@ emm<-emmeans(chltotalcell_model, ~ species)
 pairs(emm)
 ```
 
-Since species is significant, test for effects of time and set within species.  
-
 *Acropora*   
-
-`chltotalcell_model_acr<-lmer(log(1+Total_Chl_cell)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0 & species=="Acropora"))` 
 
 ```{r}
 chltotalcell_model_acr<-lmer(log(1+Total_Chl_cell)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0 & species=="Acropora"))
@@ -1908,10 +1822,8 @@ pairs(emm)
 
 *Pocillopora*   
 
-`chltotalcell_model_poc<-lmer(log(1+Total_Chl_cell)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0 & species=="Pocillopora"))` 
-
 ```{r}
-chltotalcell_model_poc<-lmer(log(1+Total_Chl_cell)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0 & species=="Pocillopora"))
+chltotalcell_model_poc<-lmer(log(1+Total_Chl_cell)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0 & species=="Pocillopora"))
 qqPlot(residuals(chltotalcell_model_poc))
 ```
 
@@ -1930,10 +1842,8 @@ pairs(emm)
 
 *Porites*   
 
-`chltotalcell_model_por<-lmer(log(1+Total_Chl_cell)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0 & species=="Porites"))` 
-
 ```{r}
-chltotalcell_model_por<-lmer(log(1+Total_Chl_cell)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0 & species=="Porites"))
+chltotalcell_model_por<-lmer(log(1+Total_Chl_cell)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(Total_Chl_cell>0 & species=="Porites"))
 qqPlot(residuals(chltotalcell_model_por))
 ```
 
@@ -2063,19 +1973,15 @@ ggsave(filename="Figures/Univariate/Protein_Figure.pdf", plot=prot_figure, dpi=3
 
 Build a mixed model for univariate analysis and examine data distribution. 
 
-`prot_model<-lmer(prot_mg.mgafdw~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_ug.mgAFDW>0))` 
-
 ```{r}
-prot_model<-lmer(prot_mg.mgafdw~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & prot_mg.mgafdw<1))
+prot_model<-lmer(prot_mg.mgafdw~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & prot_mg.mgafdw<1))
 qqPlot(residuals(prot_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`prot_model<-lmer(log(1+prot_mg.mgafdw)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_ug.mgafdw>0))` 
-
 ```{r}
-prot_model<-lmer(log(1+prot_mg.mgafdw)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & prot_mg.mgafdw<1))
+prot_model<-lmer(log(1+prot_mg.mgafdw)~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & prot_mg.mgafdw<1))
 qqPlot(residuals(prot_model))
 ```
 
@@ -2089,11 +1995,7 @@ emm<-emmeans(prot_model, ~ species)
 pairs(emm)
 ```
 
-Since species is significant, test for effects of site and time within each species.  
-
 *Acropora*  
-
-`prot_model_acr<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_ug.mgafdw>0 & species=="Acropora"))` 
 
 ```{r}
 prot_model_acr<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & prot_mg.mgafdw<1 & species=="Acropora"))
@@ -2121,10 +2023,8 @@ pairs(emm)
 
 *Pocillopora*  
 
-`prot_model_poc<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_ug.mgafdw>0 & species=="Pocillopora"))` 
-
 ```{r}
-prot_model_poc<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & prot_mg.mgafdw<1 & species=="Pocillopora"))
+prot_model_poc<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & prot_mg.mgafdw<1 & species=="Pocillopora"))
 qqPlot(residuals(prot_model_poc))
 ```
 
@@ -2149,10 +2049,8 @@ pairs(emm)
 
 *Porites*  
 
-`prot_model_por<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_ug.mgafdw>0 & species=="Porites"))` 
-
 ```{r}
-prot_model_por<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & prot_mg.mgafdw<1 & species=="Porites"))
+prot_model_por<-lmer(log(1+prot_mg.mgafdw)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(prot_mg.mgafdw>0 & prot_mg.mgafdw<1 & species=="Porites"))
 qqPlot(residuals(prot_model_por))
 ```
 
@@ -2548,18 +2446,15 @@ ggsave(filename="Figures/Univariate/PI_Figure.pdf", plot=pi_figure, dpi=300, wid
 
 Build a mixed model for univariate analysis and examine data distribution. 
 
-`am_model<-lmer(Am~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
-
 ```{r}
-am_model<-lmer(Am~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+am_model<-lmer(Am~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(am_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`am_model<-lmer(log(Am)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
 ```{r}
-am_model<-lmer(log(Am+1)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+am_model<-lmer(log(Am+1)~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(am_model))
 ```
 
@@ -2573,11 +2468,7 @@ emm<-emmeans(am_model, ~ species)
 pairs(emm)
 ```
 
-Since species is significant, test for effects of time and site within species.  
-
 *Acropora*  
-
-`am_model<-lmer(log(Am)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
 am_model_acr<-lmer(log(Am+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
@@ -2599,10 +2490,8 @@ pairs(emm)
 
 *Pocillopora*  
 
-`am_model_poc<-lmer(log(Am)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
-
 ```{r}
-am_model_poc<-lmer(log(Am+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+am_model_poc<-lmer(log(Am+1)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
 qqPlot(residuals(am_model_poc))
 ```
 
@@ -2618,10 +2507,8 @@ pairs(emm)
 
 *Porites*  
 
-`am_model_por<-lmer(log(Am)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
-
 ```{r}
-am_model_por<-lmer(log(Am+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+am_model_por<-lmer(log(Am+1)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
 qqPlot(residuals(am_model_por))
 ```
 
@@ -2642,19 +2529,15 @@ pairs(emm)
 
 Build a mixed model for univariate analysis and examine data distribution. 
 
-`aqy_model<-lmer(AQY~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
-
 ```{r}
-aqy_model<-lmer(AQY~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+aqy_model<-lmer(AQY~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(aqy_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`aqy_model<-lmer(log(AQY)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
-
 ```{r}
-aqy_model<-lmer(log(AQY+1)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+aqy_model<-lmer(log(AQY+1)~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(aqy_model))
 ```
 
@@ -2668,11 +2551,7 @@ emm<-emmeans(aqy_model, ~ species)
 pairs(emm)
 ```
 
-Since species is significant, test for effect of site and time within species.  
-
 *Acropora*  
-
-`aqy_model_acr<-lmer(log(AQY)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
 aqy_model_acr<-lmer(log(AQY+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
@@ -2684,16 +2563,12 @@ Generate a Type III Anova of model.
 ```{r}
 anova(aqy_model_acr, type="III")
 summary(aqy_model_acr)
-
-#no significant effects, no posthoc 
 ```
 
 *Pocillopora*  
 
-`aqy_model_poc<-lmer(log(AQY)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
-
 ```{r}
-aqy_model_poc<-lmer(log(AQY+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+aqy_model_poc<-lmer(log(AQY+1)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
 qqPlot(residuals(aqy_model_poc))
 ```
 
@@ -2712,10 +2587,8 @@ pairs(emm)
 
 *Porites*  
 
-`aqy_model_por<-lmer(log(AQY)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
-
 ```{r}
-aqy_model_por<-lmer(log(AQY+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+aqy_model_por<-lmer(log(AQY+1)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
 qqPlot(residuals(aqy_model_por))
 ```
 
@@ -2733,19 +2606,15 @@ pairs(emm)
 
 Build a mixed model for univariate analysis and examine data distribution. 
 
-`rd_model<-lmer(Rd~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
-
 ```{r}
-rd_model<-lmer(Rd~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+rd_model<-lmer(Rd~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(rd_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`rd_model<-lmer(log(Rd)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
-
 ```{r}
-rd_model<-lmer(log(Rd+1)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+rd_model<-lmer(log(Rd+1)~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(rd_model))
 ```
 
@@ -2759,11 +2628,7 @@ emm<-emmeans(rd_model, ~ species)
 pairs(emm)
 ```
 
-Since species is significant, test for effects of site and time within species.  
-
 *Acropora*  
-
-`rd_model_acr<-lmer(log(Rd)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
 rd_model_acr<-lmer(log(Rd+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
@@ -2785,10 +2650,8 @@ pairs(emm)
 
 *Pocillopora*  
 
-`rd_model_poc<-lmer(log(Rd)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
-
 ```{r}
-rd_model_poc<-lmer(log(Rd+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+rd_model_poc<-lmer(log(Rd+1)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
 qqPlot(residuals(rd_model_poc))
 ```
 
@@ -2813,10 +2676,8 @@ pairs(emm)
 
 *Porites*  
 
-`rd_model_por<-lmer(log(Rd)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
-
 ```{r}
-rd_model_por<-lmer(log(Rd+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+rd_model_por<-lmer(log(Rd+1)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
 qqPlot(residuals(rd_model_por))
 ```
 
@@ -2833,23 +2694,19 @@ emm<-emmeans(rd_model_por, ~ site)
 pairs(emm)
 ```
 
-
 ### Analysis of Ik   
 
 Build a mixed model for univariate analysis and examine data distribution. 
 
-`Ik_model<-lmer(Ik~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
-
 ```{r}
-Ik_model<-lmer(Ik~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+Ik_model<-lmer(Ik~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(Ik_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
-
-`Ik_model<-lmer(log(Ik)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
+ 
 ```{r}
-Ik_model<-lmer(log(Ik+1)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+Ik_model<-lmer(log(Ik+1)~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(Ik_model))
 ```
 
@@ -2866,8 +2723,6 @@ pairs(emm)
 Since species is significant, test for effects of site and time within species.  
 
 *Acropora*  
-
-`Ik_model_acr<-lmer(log(Ik)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
 Ik_model_acr<-lmer(log(Ik+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
@@ -2886,10 +2741,8 @@ pairs(emm)
 
 *Pocillopora*  
 
-`Ik_model_poc<-lmer(log(Ik)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
-
 ```{r}
-Ik_model_poc<-lmer(log(Ik+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+Ik_model_poc<-lmer(log(Ik+1)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
 qqPlot(residuals(Ik_model_poc))
 ```
 
@@ -2905,10 +2758,8 @@ pairs(emm)
 
 *Porites*  
 
-`Ik_model_por<-lmer(log(Ik)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
-
 ```{r}
-Ik_model_por<-lmer(log(Ik+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+Ik_model_por<-lmer(log(Ik+1)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
 qqPlot(residuals(Ik_model_por))
 ```
 
@@ -2931,25 +2782,19 @@ emm<-emmeans(Ik_model_por, ~ site | timepoint)
 pairs(emm)
 ```
 
-Ik is different by site and time for POR, but only by time in other species. 
-
-
 ### Analysis of Ic   
 
 Build a mixed model for univariate analysis and examine data distribution. 
 
-`Ic_model<-lmer(Ic~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
-
 ```{r}
-Ic_model<-lmer(Ic~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+Ic_model<-lmer(Ic~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(Ic_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`Ik_model<-lmer(log(Ik)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
 ```{r}
-Ic_model<-lmer(log(Ic+1)~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+Ic_model<-lmer(log(Ic+1)~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(Ic_model))
 ```
 
@@ -2963,11 +2808,7 @@ emm<-emmeans(Ic_model, ~ species)
 pairs(emm)
 ```
 
-Since species is significant, test for effects of site and time within species.  
-
 *Acropora*  
-
-`Ic_model_acr<-lmer(log(Ic)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
 Ic_model_acr<-lmer(log(Ic+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
@@ -2987,12 +2828,10 @@ emm<-emmeans(Ic_model_acr, ~ site)
 pairs(emm)
 ```
 
-*Pocillopora*  
-
-`Ic_model_poc<-lmer(log(Ic)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
+*Pocillopora* 
 
 ```{r}
-Ic_model_poc<-lmer(log(Ic+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+Ic_model_poc<-lmer(log(Ic+1)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
 qqPlot(residuals(Ic_model_poc))
 ```
 
@@ -3012,12 +2851,10 @@ emm<-emmeans(Ic_model_poc, ~ timepoint | site)
 pairs(emm)
 ```
 
-*Porites*  
-
-`Ic_model_por<-lmer(log(Ic)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
+*Porites* 
 
 ```{r}
-Ic_model_por<-lmer(log(Ic+1)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+Ic_model_por<-lmer(log(Ic+1)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
 qqPlot(residuals(Ic_model_por))
 ```
 
@@ -3181,20 +3018,16 @@ ggsave(filename="Figures/Univariate/Calcification_Figure.pdf", plot=calc_figure,
 
 Build a mixed model for univariate analysis and examine data distribution of surface area normalized antioxidant capacity. 
 
-`calc_model<-lmer(calc.umol.cm2.hr~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)` 
-
 ```{r}
-calc_model<-lmer(calc.umol.mgAFDW.hr~timepoint*species*site+(1|colony_id_corr), na.action=na.omit, data=master)
+calc_model<-lmer(calc.umol.mgAFDW.hr~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(calc_model))
 #hist(residuals(antiox_model))
 ```
 
 Residuals are not normally distributed. Attempt with log transformation.      
 
-`calc_model<-lmer(log(1+calc.umol.cm2.hr)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)` 
-
 ```{r}
-calc_model<-lmer(log(1+calc.umol.cm2.hr)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master)
+calc_model<-lmer(log(1+calc.umol.cm2.hr)~timepoint*site*species+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
 qqPlot(residuals(calc_model))
 #hist(residuals(antiox_model))
 ```
@@ -3209,11 +3042,7 @@ emm<-emmeans(calc_model, ~ species)
 pairs(emm)
 ```
 
-Since species is significant, run a model for site and time effects within each species to see if this helps assumptions.  
-
 *Acropora*:
-
-`calc_model_acr<-lmer(log(1+calc.umol.cm2.hr)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))` 
 
 ```{r}
 calc_model_acr<-lmer(log(1+calc.umol.cm2.hr)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Acropora"))
@@ -3238,10 +3067,8 @@ pairs(emm)
 
 *Pocillopora*: 
 
-`calc_model_poc<-lmer(log(1+calc.umol.cm2.hr)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))` 
-
 ```{r}
-calc_model_poc<-lmer(log(1+calc.umol.cm2.hr)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
+calc_model_poc<-lmer(log(1+calc.umol.cm2.hr)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
 qqPlot(residuals(calc_model_poc))
 #hist(residuals(calc_model_poc))
 ```
@@ -3255,14 +3082,11 @@ summary(calc_model_poc)
 emm<-emmeans(calc_model_poc, ~ timepoint)
 pairs(emm)
 ```
-Time is significant. 
 
 *Porites*:  
 
-`calc_model_por<-lmer(log(1+calc.umol.cm2.hr)~timepoint*site*species+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))` 
-
 ```{r}
-calc_model_por<-lmer(log(1+calc.umol.cm2.hr)~timepoint*site+(1|colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
+calc_model_por<-lmer(log(1+calc.umol.cm2.hr)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
 qqPlot(residuals(calc_model_por))
 #hist(residuals(calc_model_por))
 ```
@@ -3285,7 +3109,6 @@ pairs(emm)
 emm<-emmeans(calc_model_por, ~ site | timepoint)
 pairs(emm)
 ```
-Time, site, and time x site are significant. 
 
 ## Generating univariate response panels  
 
@@ -3512,8 +3335,6 @@ z=z[order(-abs(z$Freq)),]    #Sort by highest correlation (whether +ve or -ve)
 head(z, 10)
 ```
 
-The most highly correlated variables include host and symbiont biomass, max photosynthesis, respiration, cell density, and chlorophyll content. 
-
 ## Plotting correlation network 
 
 First view correlation network for a low correlation threshold (r=0.3). 
@@ -3722,7 +3543,7 @@ for (col_name in names(master)) {
     transformed_data <- log1p(master[[col_name]])
     
     # Fit a linear mixed-effects model
-    model <- lmer(transformed_data ~ timepoint * site * species + (1 | colony_id_corr), data = master)  # Change 'Group' to your grouping variable
+    model <- lmer(transformed_data ~ timepoint * site * species + (1|species/haplotype/colony_id_corr), data = master)  # Change 'Group' to your grouping variable
     
     # Store model summary
     model_summary <- anova(model, type="III")
