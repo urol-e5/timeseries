@@ -417,6 +417,102 @@ porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,
          axis.title = element_text(size=20));porArrows
 ```
 
+##### Generate POR panel by haplotype 
+
+Calculate centroid locations for each site and timepoint and pull PC1 and PC2 locations.     
+```{r}
+por_data_afdw_haplotype<-master%>%
+  select(colony_id_corr, timepoint, species, haplotype, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  filter(Ic<1000)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
+
+por_data_afdw_haplotype<-por_data_afdw_haplotype[complete.cases(por_data_afdw_haplotype), ]
+
+por_data_afdw_haplotype[,-c(1:4)]<-log(por_data_afdw_haplotype[,-c(1:4)]+1)
+
+scaled_por_afdw_haplotype<-prcomp(por_data_afdw_haplotype[c(5:18)], scale=TRUE, center=TRUE) 
+
+por_info_haplotype<-por_data_afdw_haplotype[c(2,4)]
+
+por_data_haplotype<-scaled_por_afdw_haplotype%>%
+  augment(por_info_haplotype)%>%
+  group_by(timepoint, haplotype)%>%
+  mutate(PC1.mean = mean(.fittedPC1),
+         PC2.mean = mean(.fittedPC2))
+
+por.centroids_haplotype<-por_data_haplotype %>% 
+  select(timepoint, haplotype, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, haplotype)%>%
+  summarise(PC1.mean = mean(PC1.mean),
+         PC2.mean = mean(PC2.mean))
+```
+
+Assemble plot with background points
+```{r}
+#1. make plot with dots
+porPCA_haplotype<-ggplot(por_data_haplotype, aes(.fittedPC1, .fittedPC2, color=haplotype)) + 
+  geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
+  scale_colour_manual(values=c("black", "darkgray")) +
+  scale_fill_manual(values=c("black", "darkgray")) + 
+  theme_classic()+
+  ylab("PC2")+
+  xlab("PC1")+
+  #ylim(-6,6)+
+  #xlim(-6,6)+
+  ggtitle("Holobiont")+
+  theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         axis.text = element_text(size=18), 
+         plot.margin = margin(1, 1, 1, 1, "cm"),
+         title = element_text(size=18, face="bold"),
+         axis.title = element_text(size=18,  face="bold"));porPCA_haplotype
+```
+
+Add centroids  
+
+```{r}
+#2. add centroids 
+porPCAcen_haplotype<-porPCA_haplotype + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=haplotype), data=por.centroids_haplotype, size=3, show.legend=FALSE) + 
+  #scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
+  theme(legend.position="right"); porPCAcen_haplotype
+
+#build a plot for the legend
+legend_plot_haplotype<-porPCA_haplotype + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=haplotype), data=por.centroids_haplotype, size=3, show.legend=FALSE) + 
+  #scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
+  theme(legend.position="right")+theme(legend.text=element_text(size=18))
+
+# extract the legend from one of the plots
+legend <- get_legend(
+  # create some space to the left of the legend
+  legend_plot + theme(legend.box.margin = margin(1,1,1,1))
+)
+
+```
+
+Add segments
+
+```{r}
+#3. add segments
+segpoints_haplotype<-por.centroids_haplotype%>%
+  gather(variable, value, -(timepoint:haplotype)) %>%
+  unite(temp, timepoint, variable) %>%
+  spread(temp, value)
+  
+porPCAfull_haplotype<-porPCAcen_haplotype + 
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = haplotype), data = segpoints_haplotype, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = haplotype), data = segpoints_haplotype, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = haplotype), data = segpoints_haplotype, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); porPCAfull_haplotype
+```
+
+
 
 #### Pocillopora   
 
@@ -1456,6 +1552,100 @@ porArrows<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, loadings=TRUE,
          axis.title = element_text(size=20));porArrows
 ```
 
+##### Generate plot for POR haplotypes 
+
+Calculate centroid locations for each haplotype and timepoint and pull PC1 and PC2 locations.      
+```{r}
+por_data_afdw_haplotype<-master%>%
+  select(colony_id_corr, timepoint, species, haplotype, all_of(host_responses))%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(species=="Porites")%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Respiration=Rd, Host_Protein=prot_mg.mgafdw, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
+
+por_data_afdw_haplotype<-por_data_afdw_haplotype[complete.cases(por_data_afdw_haplotype), ]
+
+por_data_afdw_haplotype[,-c(1:4)]<-log(por_data_afdw_haplotype[,-c(1:4)]+1)
+
+scaled_por_afdw_haplotype<-prcomp(por_data_afdw_haplotype[c(5:9)], scale=TRUE, center=TRUE) 
+
+por_info_haplotype<-por_data_afdw_haplotype[c(2,4)]
+
+por_data_haplotype<-scaled_por_afdw_haplotype%>%
+  augment(por_info_haplotype)%>%
+  group_by(timepoint, haplotype)%>%
+  mutate(PC1.mean = mean(.fittedPC1),
+         PC2.mean = mean(.fittedPC2))
+
+por.centroids_haplotype<-por_data_haplotype %>% 
+  select(timepoint, haplotype, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, haplotype)%>%
+  summarise(PC1.mean = mean(PC1.mean),
+         PC2.mean = mean(PC2.mean))
+```
+
+Assemble plot with background points
+```{r}
+#1. make plot with dots
+porPCA_haplotype<-ggplot(por_data_haplotype, aes(.fittedPC1, .fittedPC2, color=haplotype)) + 
+  geom_point(size = 4, alpha=0.2, show.legend=FALSE)+
+  scale_colour_manual(values=c("black", "darkgray")) +
+  scale_fill_manual(values=c("black", "darkgray")) + 
+  theme_classic()+
+  ylab("PC2")+
+  xlab("PC1")+
+  ylim(-6,6)+
+  xlim(-6,6)+
+  ggtitle("Host")+
+  theme(legend.text = element_text(size=18), 
+         legend.position="none",
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         axis.text = element_text(size=18), 
+         plot.margin = margin(1, 1, 1, 1, "cm"),
+         title = element_text(size=18, face="bold"),
+         axis.title = element_text(size=18,  face="bold"));porPCA_haplotype
+```
+
+Add centroids  
+
+```{r}
+#2. add centroids 
+porPCAcen_haplotype<-porPCA_haplotype + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=haplotype), data=por.centroids_haplotype, size=3, show.legend=FALSE) + 
+  #scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
+  theme(legend.position=c(1,0.3)); porPCAcen_haplotype
+
+#build a plot for the legend
+legend_plot_haplotype<-porPCA_haplotype + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=haplotype), data=por.centroids_haplotype, size=3, show.legend=TRUE) + 
+  #scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633"))+
+  theme(legend.position="bottom")+theme(legend.text=element_text(size=18))
+
+# extract the legend from one of the plots
+legend_haplotype <- get_legend(
+  # create some space to the left of the legend
+  legend_plot_haplotype + theme(legend.box.margin = margin(1,1,1,1))
+)
+
+```
+
+Add segments
+
+```{r}
+#3. add segments
+segpoints_haplotype<-por.centroids_haplotype%>%
+  gather(variable, value, -(timepoint:haplotype)) %>%
+  unite(temp, timepoint, variable) %>%
+  spread(temp, value)
+  
+porPCAhost_haplotype<-porPCAcen_haplotype + 
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = haplotype), data = segpoints_haplotype, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = haplotype), data = segpoints_haplotype, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = haplotype), data = segpoints_haplotype, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); porPCAhost_haplotype
+```
+
 #### Pocillopora   
 
 Generate PCA using scaled (scaled_poc_afdw) from dataframe (poc_data_afdw). 
@@ -2482,6 +2672,99 @@ Assemble final figure with inset biplot.
 #ggsave(filename="Figures/FullPCA_Porites.pdf", plot=porFullPCA, dpi=300, width=12, height=8, units="in")
 ```
 
+##### Plot POR haplotypes 
+
+```{r}
+por_data_afdw_haplotype<-master%>%
+  select(colony_id_corr, timepoint, species, haplotype, all_of(symbiont_responses))%>%
+  #filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  #filter(Ratio_AFDW.mg.cm2>0)%>%
+  #filter(Total_Chl<13)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
+  filter(species=="Porites")%>%
+  #filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Symbiont_Biomass=Sym_AFDW.mg.cm2, Symbiont_Density=cells.mgAFDW, Total_Chl=Total_Chl, Total_Chl_Cell=Total_Chl_cell, SH_Ratio=Ratio_AFDW.mg.cm2)
+
+por_data_afdw_haplotype<-por_data_afdw_haplotype[complete.cases(por_data_afdw_haplotype), ]
+
+por_data_afdw_haplotype[,-c(1:4)]<-log(por_data_afdw_haplotype[,-c(1:4)]+1)
+
+scaled_por_afdw_haplotype<-prcomp(por_data_afdw_haplotype[c(5:13)], scale=TRUE, center=TRUE) 
+
+por_info_haplotype<-por_data_afdw_haplotype[c(2,4)]
+
+por_data_haplotype<-scaled_por_afdw_haplotype%>%
+  augment(por_info_haplotype)%>%
+  group_by(timepoint, haplotype)%>%
+  mutate(PC1.mean = mean(.fittedPC1),
+         PC2.mean = mean(.fittedPC2))
+
+por.centroids_haplotype<-por_data_haplotype %>% 
+  select(timepoint, haplotype, PC1.mean, PC2.mean)%>%
+  group_by(timepoint, haplotype)%>%
+  summarise(PC1.mean = mean(PC1.mean),
+         PC2.mean = mean(PC2.mean))
+```
+
+Assemble plot with background points
+```{r}
+#1. make plot with dots
+porPCA_haplotype<-ggplot(por_data_haplotype, aes(.fittedPC1, .fittedPC2, color=haplotype)) + 
+  geom_point(size = 4, alpha=0.2, show.legend=TRUE)+
+  scale_colour_manual(values=c("black", "darkgray")) +
+  scale_fill_manual(values=c("black", "darkgray")) + 
+  theme_classic()+
+  ylab("PC2")+
+  xlab("PC1")+
+  #ylim(-6,6)+
+  #xlim(-6,6)+
+  ggtitle("Symbiont")+
+  theme(legend.text = element_text(size=18), 
+         legend.position="right",
+         plot.background = element_blank(),
+         legend.title = element_blank(), 
+         axis.text = element_text(size=18), 
+         plot.margin = margin(1, 1, 1, 1, "cm"),
+         title = element_text(size=18, face="bold"),
+         axis.title = element_text(size=18,  face="bold"));porPCA_haplotype
+```
+
+Add centroids  
+
+```{r}
+#2. add centroids 
+porPCAcen_haplotype<-porPCA_haplotype + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=haplotype), data=por.centroids_haplotype, size=3, show.legend=TRUE); porPCAcen_haplotype
+
+#build a plot for the legend
+legend_plot_haplotype<-porPCA_haplotype + geom_point(aes(x=PC1.mean, y=PC2.mean, colour=haplotype), data=por.centroids_haplotype, size=3, show.legend=TRUE) + 
+  scale_colour_manual(values=c("black", "darkgray"))+
+  theme(legend.position="bottom")+theme(legend.text=element_text(size=18))
+
+# extract the legend from one of the plots
+legend_haplotype <- get_legend(
+  # create some space to the left of the legend
+  legend_plot_haplotype + theme(legend.box.margin = margin(1,1,1,1))
+)
+
+```
+
+Add segments
+
+```{r}
+#3. add segments
+segpoints_haplotype<-por.centroids_haplotype%>%
+  gather(variable, value, -(timepoint:haplotype)) %>%
+  unite(temp, timepoint, variable) %>%
+  spread(temp, value)
+  
+porPCAsym_haplotype<-porPCAcen_haplotype + 
+  geom_segment(aes(x = timepoint1_PC1.mean, y = timepoint1_PC2.mean, xend = timepoint2_PC1.mean, yend = timepoint2_PC2.mean, colour = haplotype), data = segpoints_haplotype, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint2_PC1.mean, y = timepoint2_PC2.mean, xend = timepoint3_PC1.mean, yend = timepoint3_PC2.mean, colour = haplotype), data = segpoints_haplotype, size=2, show.legend=FALSE) +
+  geom_segment(aes(x = timepoint3_PC1.mean, y = timepoint3_PC2.mean, xend = timepoint4_PC1.mean, yend = timepoint4_PC2.mean, colour = haplotype), data = segpoints_haplotype, size=2, arrow = arrow(length=unit(0.5,"cm")), show.legend=FALSE); porPCAsym_haplotype
+```
+
 #### Pocillopora   
 
 Generate PCA using scaled (scaled_poc_afdw) from dataframe (poc_data_afdw). 
@@ -3185,6 +3468,24 @@ all_grid2<-plot_grid(all_grid, legend, rel_heights = c(4, .2), ncol=1, nrow=2)
 
 ggsave(filename="Figures/Multivariate/Matrix_Symbiont_Responses.png", plot=all_grid2, dpi=500, width=20, height=20, units="in")
 
+```
+
+
+
+
+## Build panel for haplotype plots 
+
+porPCAfull_haplotype = holobiont
+porPCAhost_haplotype = host 
+
+```{r}
+porPCAsym_haplotype 
+porPCAfull_haplotype
+porPCAhost_haplotype
+
+haplotype_grid<-plot_grid(porPCAfull_haplotype, porPCAhost_haplotype, porPCAsym_haplotype, ncol=3, rel_widths=c(0.7, 0.7, 1.1))
+
+ggsave(filename="Figures/Multivariate/Haplotype_POR_Panel.pdf", haplotype_grid, width=18, height=5)
 ```
 
 
