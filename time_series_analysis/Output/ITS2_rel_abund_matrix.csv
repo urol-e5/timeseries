@@ -1,443 +1,442 @@
-colony_id,colony_id_corr,timepoint,site,nutrient,site_code,month,species,A1/A1ee,A1/A1ee-A1ep-A1eq,A1/A1gb-A1ee,C1/C42.2/C42g/C42a-C1b-C1au-C1az-C3-C42h,C116-C116af-C116ag-C116q,C15-C15bn-C15by,C15-C15bn-C15by-C15ai,C15-C15bn-C15dq,C15-C15by-C15ai,C15-C15he,C15-C15kl,C15-C15kl-C15he,C15-C15kl-C15he-C15vz,C15-C15kl-C15pm,C15-C15l-C15bm-C15n,C15-C15l-C15n,C15-C15l-C15n-C15bb-C15.8,C15-C15wa-C15kl-C15he-C15vz,C15/C116,C15/C116-C15h,C15/C116ai-C116aj,C15/C15ev,C15/C93a,C15h/C3,C1d,C1d-C42.2-C1-C1k-C1b-C3cg,C1d/C1/C42.2/C3-C1b-C3cg-C45c-C115k-C1au-C41p,C1d/C42.2,C1d/C42.2/C1/C3cg-C1b-C3cw-C115k-C45c,C1d/C42g-C42.2-C1-C42a-C1b,C3/C115d,C3ae/C3f-C3bj,C42a/C42.2/C1/C42b-C1b-C1az-C1au-C3,C42g/C1/C42.2/C42a-C42h-C1b-C42b-C1ew-C42br,C91,D1,D1-D17d-D1r-D17c,D1-D1u-D1jb,D1/D4-D6-D2.2-D1h,G3a/G3ae-G3ai-G3bi-G3bj
-ACR-139,ACR-139,timepoint1,Manava,High,Manava High,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-139,ACR-139,timepoint2,Manava,High,Manava High,March 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-139,ACR-139,timepoint3,Manava,High,Manava High,September 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-139,ACR-139,timepoint4,Manava,High,Manava High,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-140,ACR-140,timepoint1,Manava,High,Manava High,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-140,ACR-140,timepoint2,Manava,High,Manava High,March 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-140,ACR-140,timepoint3,Manava,High,Manava High,September 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-140,ACR-140,timepoint4,Manava,High,Manava High,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-145,ACR-145,timepoint1,Manava,High,Manava High,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-145,ACR-145,timepoint2,Manava,High,Manava High,March 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-145,ACR-145,timepoint3,Manava,High,Manava High,September 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-145,ACR-145,timepoint4,Manava,High,Manava High,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-150,ACR-150,timepoint1,Manava,High,Manava High,January 2020,Acropora,0.5306835885549265,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.4693164114450735,0,0
-ACR-150,ACR-150,timepoint2,Manava,High,Manava High,March 2020,Acropora,0,0.32391211604095566,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.6760878839590444,0,0
-ACR-150,ACR-150,timepoint3,Manava,High,Manava High,September 2020,Acropora,0,0.4348555084327843,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5651444915672157,0,0
-ACR-150,ACR-150,timepoint4,Manava,High,Manava High,November 2020,Acropora,0.23498118593486442,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7650188140651356,0,0
-ACR-165,ACR-165,timepoint1,Manava,High,Manava High,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-173,ACR-173,timepoint1,Manava,High,Manava High,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-173,ACR-173,timepoint2,Manava,High,Manava High,March 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-173,ACR-173,timepoint3,Manava,High,Manava High,September 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-173,ACR-173,timepoint4,Manava,High,Manava High,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-175,ACR-175,timepoint1,Manava,High,Manava High,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-175,ACR-175,timepoint3,Manava,High,Manava High,September 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-175,ACR-175,timepoint4,Manava,High,Manava High,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-176,ACR-176,timepoint1,Manava,High,Manava High,January 2020,Acropora,0.023183467891267313,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9768165321087326,0,0
-ACR-176,ACR-176,timepoint4,Manava,High,Manava High,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-178,ACR-178,timepoint2,Manava,High,Manava High,March 2020,Acropora,0.840681233933162,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.15931876606683804,0,0
-ACR-178,ACR-178,timepoint3,Manava,High,Manava High,September 2020,Acropora,0.6425422208937378,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.35745777910626214,0,0
-ACR-178,ACR-178,timepoint4,Manava,High,Manava High,November 2020,Acropora,0.7019488646522439,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.2980511353477561,0,0
-ACR-180,ACR-180,timepoint1,Manava,High,Manava High,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-180,ACR-180,timepoint4,Manava,High,Manava High,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.014088209010145613,0,0,0,0,0,0.9859117909898544,0,0
-ACR-185,ACR-185,timepoint1,Manava,High,Manava High,January 2020,Acropora,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-ACR-185,ACR-185,timepoint4,Manava,High,Manava High,November 2020,Acropora,0.930567497850387,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.06943250214961307,0,0
-ACR-186,ACR-186,timepoint1,Manava,High,Manava High,January 2020,Acropora,0.5973188405797102,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.40268115942028987,0,0
-ACR-186,ACR-186,timepoint2,Manava,High,Manava High,March 2020,Acropora,0,0.44007403979639054,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5599259602036094,0,0
-ACR-186,ACR-186,timepoint3,Manava,High,Manava High,September 2020,Acropora,0,0.27242384105960266,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7275761589403974,0,0
-ACR-186,ACR-186,timepoint4,Manava,High,Manava High,November 2020,Acropora,0,0.41250989707046715,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5874901029295329,0,0
-ACR-187,ACR-187,timepoint1,Manava,High,Manava High,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-187,ACR-187,timepoint4,Manava,High,Manava High,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-190,ACR-190,timepoint1,Manava,High,Manava High,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-190,ACR-190,timepoint2,Manava,High,Manava High,March 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-190,ACR-190,timepoint3,Manava,High,Manava High,September 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-190,ACR-190,timepoint4,Manava,High,Manava High,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-193,ACR-193,timepoint1,Manava,High,Manava High,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-210,ACR-210,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-210,ACR-210,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-213,ACR-213,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-213,ACR-213,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-218,ACR-218,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora,0.6193893344589841,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.3806106655410159,0,0
-ACR-218,ACR-218,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora,0.7364000844059928,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.2635999155940072,0,0
-ACR-220,ACR-220,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-220,ACR-220,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-225,ACR-225,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-225,ACR-225,timepoint2,Mahana,Low,Mahana Low,March 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-225,ACR-225,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-225,ACR-225,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-228,ACR-228,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-228,ACR-228,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-229,ACR-229,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-229,ACR-229,timepoint2,Mahana,Low,Mahana Low,March 2020,Acropora,0,0.19872665137399934,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.8012733486260006,0,0
-ACR-229,ACR-229,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora,0,0.3573954780851333,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.6426045219148667,0,0
-ACR-229,ACR-229,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora,0.5012311901504788,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.4987688098495212,0,0
-ACR-231,ACR-231,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-234,ACR-234,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-ACR-234,ACR-234,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-ACR-237,ACR-237,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora,0,0.2987825746834205,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7012174253165795,0,0
-ACR-237,ACR-237,timepoint2,Mahana,Low,Mahana Low,March 2020,Acropora,0,0.41403379867744305,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.585966201322557,0,0
-ACR-237,ACR-237,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora,0.6077669902912621,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.39223300970873787,0,0
-ACR-237,ACR-237,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora,0.49656575934876623,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5034342406512338,0,0
-ACR-241,ACR-241,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora,0.5235019565319882,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.4764980434680119,0,0
-ACR-241,ACR-241,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora,0,0.39148329903435175,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.6085167009656482,0,0
-ACR-243,ACR-243,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-244,ACR-244,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-244,ACR-244,timepoint2,Mahana,Low,Mahana Low,March 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-244,ACR-244,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-244,ACR-244,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-246,ACR-246,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-247,ACR-247,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora,0,0.48762594150445077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5123740584955493,0,0
-ACR-256,ACR-256,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora,0,0.10087571572920175,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.8991242842707983,0,0
-ACR-256,ACR-256,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora,0,0.2972236865225795,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7027763134774205,0,0
-ACR-258,ACR-258,timepoint2,Mahana,Low,Mahana Low,March 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-265,ACR-265,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-265,ACR-265,timepoint2,Mahana,Low,Mahana Low,March 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-265,ACR-265,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-265,ACR-265,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-267,ACR-267,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-267,ACR-267,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-343,ACR-343,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-343,ACR-343,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-343,ACR-343,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-343,ACR-343,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-345,ACR-345,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-347,ACR-347,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora,0,0.16928327645051194,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.02075085324232082,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.8099658703071673,0,0
-ACR-347,ACR-347,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora,0,0.2144002774285838,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7855997225714162,0,0
-ACR-350,ACR-350,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-350,ACR-350,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-351,ACR-351,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-ACR-351,ACR-351,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora,0,0,0.9794975212167045,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.02050247878329552,0,0
-ACR-360,ACR-360,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-363,ACR-363,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-364,ACR-364,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora,0,0.16945180354595477,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.8305481964540452,0,0
-ACR-364,ACR-364,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora,0,0,0,0.017210742752703456,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9827892572472965,0,0
-ACR-364,ACR-364,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-364,ACR-364,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-368,ACR-368,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-368,ACR-368,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Acropora,0,0.10212597733462181,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.8978740226653782,0,0
-ACR-374,ACR-374,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-379,ACR-379,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-389,ACR-389,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-ACR-389,ACR-389,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Acropora,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-ACR-390,ACR-390,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-390,ACR-390,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-393,ACR-393,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-393,ACR-393,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-393,ACR-393,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-ACR-396,ACR-396,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora,0,0.43909842054971615,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5609015794502838,0,0
-ACR-396,ACR-396,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora,0,0.42580195797701503,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.574198042022985,0,0
-ACR-396,ACR-396,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Acropora,0,0.03827915214534651,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9617208478546535,0,0
-ACR-51,ACR-51,timepoint1,Manava,High,Manava High,January 2020,Acropora,0,0.49168717363903724,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5083128263609628,0,0
-ACR-51,ACR-51,timepoint2,Manava,High,Manava High,March 2020,Acropora,0,0.28276770705556314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7172322929444369,0,0
-POC-200,POC-200,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-200,POC-200,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-200,POC-200,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-200,POC-200,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-201,POC-201,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.014104046242774566,0,0,0.9858959537572254,0,0,0,0,0,0
-POC-201,POC-201,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-205,POC-205,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-205,POC-205,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-205,POC-205,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-207,POC-207,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-207,POC-207,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-207,POC-207,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-215,POC-215,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.05703869222627308,0,0,0,0,0,0,0,0,0,0,0.9429613077737269,0,0,0,0,0,0
-POC-217,POC-217,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-219,POC-219,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.02916978309648467,0,0,0.9708302169035153,0,0,0,0,0,0
-POC-219,POC-219,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.02625590757920532,0,0,0.9737440924207946,0,0,0,0,0,0
-POC-219,POC-219,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.03419126924047439,0,0,0.9658087307595256,0,0,0,0,0,0
-POC-219,POC-219,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-222,POC-222,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-222,POC-222,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora,0,0,0,0.9286781977364937,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0713218022635063,0,0,0
-POC-222,POC-222,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-222,POC-222,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-238,POC-238,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-238,POC-238,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-238,POC-238,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.019556403529692346,0,0,0.9804435964703077,0,0,0,0,0,0
-POC-238,POC-238,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021405592675080427,0,0,0.9785944073249195,0,0,0,0,0,0
-POC-239,POC-239,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.019962955340605062,0,0,0.9800370446593949,0,0,0,0,0,0
-POC-239,POC-239,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.02275920202304018,0,0,0.9772407979769598,0,0,0,0,0,0
-POC-239,POC-239,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.019247272281476033,0,0,0.980752727718524,0,0,0,0,0,0
-POC-248,POC-248,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-248,POC-248,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-248,POC-248,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-248,POC-248,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-254,POC-254,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-254,POC-254,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-254,POC-254,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-254,POC-254,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-255,POC-255,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-255,POC-255,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9452000397101161,0,0,0,0,0,0,0,0,0.05479996028988385,0,0
-POC-255,POC-255,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-255,POC-255,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-257,POC-257,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-257,POC-257,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-257,POC-257,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-259,POC-259,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-259,POC-259,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-259,POC-259,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-259,POC-259,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-346,POC-346,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
-POC-346,POC-346,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-346,POC-346,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-358,POC-358,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-358,POC-358,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
-POC-358,POC-358,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-358,POC-358,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-359,POC-359,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-359,POC-359,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-359,POC-359,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-359,POC-359,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-366,POC-366,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
-POC-366,POC-366,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
-POC-366,POC-366,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
-POC-366,POC-366,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
-POC-369,POC-369,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-369,POC-369,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-369,POC-369,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-369,POC-369,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-371,POC-371,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-371,POC-371,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9572140381282496,0,0,0,0,0,0,0,0,0,0,0.04278596187175043,0,0
-POC-371,POC-371,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-371,POC-371,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-372,POC-372,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-372,POC-372,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9613165379926859,0,0,0,0,0,0,0,0,0,0,0,0.0386834620073141,0,0
-POC-372,POC-372,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-372,POC-372,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-373,POC-373,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-373,POC-373,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-373,POC-373,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-373,POC-373,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-375,POC-375,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-375,POC-375,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-375,POC-375,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-375,POC-375,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-377,POC-377,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.06960817334680588,0,0,0,0,0,0,0,0,0.9303918266531941,0,0,0,0,0,0
-POC-377,POC-377,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-377,POC-377,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
-POC-377,POC-377,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.02155631884401279,0,0,0.9784436811559872,0,0,0,0,0,0
-POC-378,POC-378,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-378,POC-378,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-378,POC-378,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-378,POC-378,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-386,POC-386,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-386,POC-386,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-386,POC-386,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-386,POC-386,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-391,POC-391,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-391,POC-391,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-391,POC-391,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-391,POC-391,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-394,POC-394,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-394,POC-394,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-394,POC-394,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-395,POC-395,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.03469181542606938,0,0,0.9653081845739306,0,0,0,0,0,0
-POC-395,POC-395,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-395,POC-395,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-40,POC-40,timepoint1,Manava,High,Manava High,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-40,POC-40,timepoint2,Manava,High,Manava High,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-40,POC-40,timepoint3,Manava,High,Manava High,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-40,POC-40,timepoint4,Manava,High,Manava High,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9737161342498989,0.026283865750101092,0,0,0,0,0,0,0,0,0
-POC-41,POC-41,timepoint2,Manava,High,Manava High,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-42,POC-42,timepoint1,Manava,High,Manava High,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-42,POC-42,timepoint2,Manava,High,Manava High,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-42,POC-42,timepoint3,Manava,High,Manava High,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-42,POC-42,timepoint4,Manava,High,Manava High,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-43,POC-43,timepoint1,Manava,High,Manava High,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-43,POC-43,timepoint2,Manava,High,Manava High,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-43,POC-43,timepoint3,Manava,High,Manava High,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-43,POC-43,timepoint4,Manava,High,Manava High,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-44,POC-44,timepoint1,Manava,High,Manava High,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-44,POC-44,timepoint2,Manava,High,Manava High,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-44,POC-44,timepoint3,Manava,High,Manava High,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-44,POC-44,timepoint4,Manava,High,Manava High,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-45,POC-45,timepoint1,Manava,High,Manava High,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-45,POC-45,timepoint2,Manava,High,Manava High,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-45,POC-45,timepoint3,Manava,High,Manava High,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-45,POC-45,timepoint4,Manava,High,Manava High,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-47,POC-47,timepoint1,Manava,High,Manava High,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-47,POC-47,timepoint2,Manava,High,Manava High,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.13530544372483808,0,0,0,0,0,0,0,0.8646945562751619,0,0,0,0,0,0,0
-POC-47,POC-47,timepoint3,Manava,High,Manava High,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-47,POC-47,timepoint4,Manava,High,Manava High,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-48,POC-48,timepoint1,Manava,High,Manava High,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-48,POC-48,timepoint2,Manava,High,Manava High,March 2020,Pocillopora,0.018641810918774968,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9813581890812251,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-48,POC-48,timepoint3,Manava,High,Manava High,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-48,POC-48,timepoint4,Manava,High,Manava High,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-50,POC-50,timepoint1,Manava,High,Manava High,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-50,POC-50,timepoint2,Manava,High,Manava High,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-50,POC-50,timepoint3,Manava,High,Manava High,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-50,POC-50,timepoint4,Manava,High,Manava High,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.4008951406649616,0,0,0,0,0,0,0,0,0,0.5991048593350383,0,0,0,0,0,0
-POC-52,POC-52,timepoint1,Manava,High,Manava High,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-52,POC-52,timepoint2,Manava,High,Manava High,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-52,POC-52,timepoint3,Manava,High,Manava High,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-52,POC-52,timepoint4,Manava,High,Manava High,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-53,POC-53,timepoint1,Manava,High,Manava High,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-53,POC-53,timepoint2,Manava,High,Manava High,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-53,POC-53,timepoint3,Manava,High,Manava High,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.030856748836407516,0,0,0.9691432511635925,0,0,0,0,0,0
-POC-55,POC-55,timepoint1,Manava,High,Manava High,January 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-55,POC-55,timepoint2,Manava,High,Manava High,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
-POC-55,POC-55,timepoint3,Manava,High,Manava High,September 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-55,POC-55,timepoint4,Manava,High,Manava High,November 2020,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-56,POC-56,timepoint1,Manava,High,Manava High,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-56,POC-56,timepoint2,Manava,High,Manava High,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-57,POC-57,timepoint1,Manava,High,Manava High,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-57,POC-57,timepoint2,Manava,High,Manava High,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-57,POC-57,timepoint3,Manava,High,Manava High,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-57,POC-57,timepoint4,Manava,High,Manava High,November 2020,Pocillopora,0,0,0,0.7052726453357369,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.2947273546642632,0
-POC-68,POC-68,timepoint1,Manava,High,Manava High,January 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-68,POC-68,timepoint2,Manava,High,Manava High,March 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
-POC-68,POC-68,timepoint3,Manava,High,Manava High,September 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POC-68,POC-68,timepoint4,Manava,High,Manava High,November 2020,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-206,POR-206,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9847456050599944,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.015254394940005581,0,0,0,0
-POR-209,POR-209,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-209,POR-209,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-209,POR-209,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-209,POR-209,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-214,POR-214,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-214,POR-214,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-214,POR-214,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-214,POR-214,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-216,POR-216,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-216,POR-216,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-216,POR-216,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-216,POR-216,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-221,POR-221,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-221,POR-221,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-221,POR-221,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-221,POR-221,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-224,POR-224,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-224,POR-224,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9783363802559415,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0216636197440585,0,0
-POR-224,POR-224,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-224,POR-224,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-235,POR-235,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-235,POR-235,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-236,POR-236,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-236,POR-236,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-240,POR-240,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-240,POR-240,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-240,POR-240,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-240,POR-240,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-242,POR-242,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-242,POR-242,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7508632723532437,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.2491367276467563,0,0
-POR-242,POR-242,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-242,POR-242,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-245,POR-245,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-245,POR-245,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0.9396177237185056,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.060382276281494354,0,0
-POR-245,POR-245,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-245,POR-245,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-251,POR-251,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7404983639567078,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.25950163604329224,0,0,0,0,0
-POR-251,POR-251,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-253,POR-253,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-253,POR-253,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-253,POR-253,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-253,POR-253,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-260,POR-260,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-260,POR-260,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-260,POR-260,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-260,POR-260,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-262,POR-262,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-262,POR-262,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-262,POR-262,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-266,POR-266,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-266,POR-266,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-338,POR-338,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-338,POR-338,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-338,POR-338,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-338,POR-338,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-340,POR-340,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-340,POR-340,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-340,POR-340,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-340,POR-340,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-341,POR-341,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-341,POR-341,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-341,POR-341,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-341,POR-341,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-349,POR-349,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-349,POR-349,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-349,POR-349,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-349,POR-349,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-353,POR-353,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-353,POR-353,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-353,POR-353,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-354,POR-354,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-354,POR-354,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-354,POR-354,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-354,POR-354,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-355,POR-355,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-355,POR-355,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites,0.03040488922841864,0,0,0,0,0,0,0,0,0,0,0,0.9695951107715813,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-355,POR-355,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-357,POR-357,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-357,POR-357,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9823052959501558,0,0,0,0,0,0,0,0.01769470404984424,0,0,0,0,0,0,0,0,0,0,0,0
-POR-357,POR-357,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-357,POR-357,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites,0,0,0,0,0.7127373417721519,0,0,0,0,0,0,0,0.2872626582278481,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-362,POR-362,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-362,POR-362,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-362,POR-362,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-365,POR-365,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-365,POR-365,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-365,POR-365,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-365,POR-365,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-367,POR-367,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9857734366705595,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.014226563329440493
-POR-367,POR-367,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-367,POR-367,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-367,POR-367,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-381,POR-381,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-381,POR-381,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-381,POR-381,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-381,POR-381,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-383,POR-383,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-383,POR-383,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-383,POR-383,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-383,POR-383,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-384,POR-384,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-384,POR-384,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-384,POR-384,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-384,POR-384,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-385,POR-385,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-385,POR-385,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-385,POR-385,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-385,POR-385,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-69,POR-69,timepoint1,Manava,High,Manava High,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-69,POR-69,timepoint2,Manava,High,Manava High,March 2020,Porites,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-69,POR-69,timepoint3,Manava,High,Manava High,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-69,POR-69,timepoint4,Manava,High,Manava High,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-70,POR-70,timepoint1,Manava,High,Manava High,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-70,POR-70,timepoint2,Manava,High,Manava High,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-70,POR-70,timepoint3,Manava,High,Manava High,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-70,POR-70,timepoint4,Manava,High,Manava High,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-71,POR-71,timepoint1,Manava,High,Manava High,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0.9893448197687599,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.010655180231240081,0,0
-POR-71,POR-71,timepoint2,Manava,High,Manava High,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-71,POR-71,timepoint3,Manava,High,Manava High,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-71,POR-71,timepoint4,Manava,High,Manava High,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-72,POR-72,timepoint1,Manava,High,Manava High,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-72,POR-72,timepoint2,Manava,High,Manava High,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-72,POR-72,timepoint3,Manava,High,Manava High,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-72,POR-72,timepoint4,Manava,High,Manava High,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-73,POR-73,timepoint2,Manava,High,Manava High,March 2020,Porites,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-73,POR-73,timepoint3,Manava,High,Manava High,September 2020,Porites,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-73,POR-73,timepoint4,Manava,High,Manava High,November 2020,Porites,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-74,POR-74,timepoint1,Manava,High,Manava High,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-74,POR-74,timepoint2,Manava,High,Manava High,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-74,POR-74,timepoint3,Manava,High,Manava High,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-74,POR-74,timepoint4,Manava,High,Manava High,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-75,POR-75,timepoint1,Manava,High,Manava High,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-75,POR-75,timepoint2,Manava,High,Manava High,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-75,POR-75,timepoint3,Manava,High,Manava High,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-75,POR-75,timepoint4,Manava,High,Manava High,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-76,POR-76,timepoint1,Manava,High,Manava High,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-76,POR-76,timepoint2,Manava,High,Manava High,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-76,POR-76,timepoint3,Manava,High,Manava High,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-76,POR-76,timepoint4,Manava,High,Manava High,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-77,POR-77,timepoint1,Manava,High,Manava High,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-77,POR-77,timepoint2,Manava,High,Manava High,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-78,POR-78,timepoint1,Manava,High,Manava High,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-78,POR-78,timepoint2,Manava,High,Manava High,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-79,POR-79,timepoint1,Manava,High,Manava High,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-79,POR-79,timepoint2,Manava,High,Manava High,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-79,POR-79,timepoint3,Manava,High,Manava High,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-79,POR-79,timepoint4,Manava,High,Manava High,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-80,POR-80,timepoint1,Manava,High,Manava High,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-80,POR-80,timepoint2,Manava,High,Manava High,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-80,POR-80,timepoint3,Manava,High,Manava High,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-81,POR-81,timepoint1,Manava,High,Manava High,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-81,POR-81,timepoint2,Manava,High,Manava High,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-81,POR-81,timepoint3,Manava,High,Manava High,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-81,POR-81,timepoint4,Manava,High,Manava High,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-82,POR-82,timepoint1,Manava,High,Manava High,January 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-82,POR-82,timepoint2,Manava,High,Manava High,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-82,POR-82,timepoint3,Manava,High,Manava High,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-82,POR-82,timepoint4,Manava,High,Manava High,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-83,POR-83,timepoint1,Manava,High,Manava High,January 2020,Porites,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-83,POR-83,timepoint2,Manava,High,Manava High,March 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-83,POR-83,timepoint3,Manava,High,Manava High,September 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-POR-83,POR-83,timepoint4,Manava,High,Manava High,November 2020,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+colony_id,colony_id_corr,timepoint,site,nutrient,site_code,month,haplotype,species,A1/A1ee,A1/A1ee-A1ep-A1eq,A1/A1gb-A1ee,C1/C42.2/C42g/C42a-C1b-C1au-C1az-C3-C42h,C116-C116af-C116ag-C116q,C15-C15bn-C15by,C15-C15bn-C15by-C15ai,C15-C15bn-C15dq,C15-C15by-C15ai,C15-C15he,C15-C15kl,C15-C15kl-C15he,C15-C15kl-C15he-C15vz,C15-C15kl-C15pm,C15-C15l-C15bm-C15n,C15-C15l-C15n,C15-C15l-C15n-C15bb-C15.8,C15-C15wa-C15kl-C15he-C15vz,C15/C116,C15/C116-C15h,C15/C116ai-C116aj,C15/C15ev,C15/C93a,C15h/C3,C1d,C1d-C42.2-C1-C1k-C1b-C3cg,C1d/C1/C42.2/C3-C1b-C3cg-C45c-C115k-C1au-C41p,C1d/C42.2,C1d/C42.2/C1/C3cg-C1b-C3cw-C115k-C45c,C1d/C42g-C42.2-C1-C42a-C1b,C3/C115d,C3ae/C3f-C3bj,C42a/C42.2/C1/C42b-C1b-C1az-C1au-C3,C42g/C1/C42.2/C42a-C42h-C1b-C42b-C1ew-C42br,C91,D1,D1-D17d-D1r-D17c,D1-D1u-D1jb,D1/D4-D6-D2.2-D1h,G3a/G3ae-G3ai-G3bi-G3bj
+ACR-139,ACR-139,timepoint1,Manava,High,Manava High,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-139,ACR-139,timepoint2,Manava,High,Manava High,March 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-139,ACR-139,timepoint3,Manava,High,Manava High,September 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-139,ACR-139,timepoint4,Manava,High,Manava High,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-140,ACR-140,timepoint1,Manava,High,Manava High,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-140,ACR-140,timepoint2,Manava,High,Manava High,March 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-140,ACR-140,timepoint3,Manava,High,Manava High,September 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-140,ACR-140,timepoint4,Manava,High,Manava High,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-145,ACR-145,timepoint1,Manava,High,Manava High,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-145,ACR-145,timepoint2,Manava,High,Manava High,March 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-145,ACR-145,timepoint3,Manava,High,Manava High,September 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-145,ACR-145,timepoint4,Manava,High,Manava High,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-150,ACR-150,timepoint1,Manava,High,Manava High,January 2020,Acropora pulchra,Acropora,0.5306835885549265,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.4693164114450735,0,0
+ACR-150,ACR-150,timepoint2,Manava,High,Manava High,March 2020,Acropora pulchra,Acropora,0,0.32391211604095566,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.6760878839590444,0,0
+ACR-150,ACR-150,timepoint3,Manava,High,Manava High,September 2020,Acropora pulchra,Acropora,0,0.4348555084327843,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5651444915672157,0,0
+ACR-150,ACR-150,timepoint4,Manava,High,Manava High,November 2020,Acropora pulchra,Acropora,0.23498118593486442,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7650188140651356,0,0
+ACR-165,ACR-165,timepoint1,Manava,High,Manava High,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-173,ACR-173,timepoint1,Manava,High,Manava High,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-173,ACR-173,timepoint2,Manava,High,Manava High,March 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-173,ACR-173,timepoint3,Manava,High,Manava High,September 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-173,ACR-173,timepoint4,Manava,High,Manava High,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-175,ACR-175,timepoint1,Manava,High,Manava High,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-175,ACR-175,timepoint3,Manava,High,Manava High,September 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-175,ACR-175,timepoint4,Manava,High,Manava High,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-176,ACR-176,timepoint1,Manava,High,Manava High,January 2020,Acropora pulchra,Acropora,0.023183467891267313,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9768165321087326,0,0
+ACR-176,ACR-176,timepoint4,Manava,High,Manava High,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-178,ACR-178,timepoint2,Manava,High,Manava High,March 2020,Acropora pulchra,Acropora,0.840681233933162,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.15931876606683804,0,0
+ACR-178,ACR-178,timepoint3,Manava,High,Manava High,September 2020,Acropora pulchra,Acropora,0.6425422208937378,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.35745777910626214,0,0
+ACR-178,ACR-178,timepoint4,Manava,High,Manava High,November 2020,Acropora pulchra,Acropora,0.7019488646522439,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.2980511353477561,0,0
+ACR-180,ACR-180,timepoint1,Manava,High,Manava High,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-180,ACR-180,timepoint4,Manava,High,Manava High,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.014088209010145613,0,0,0,0,0,0.9859117909898544,0,0
+ACR-185,ACR-185,timepoint1,Manava,High,Manava High,January 2020,Acropora pulchra,Acropora,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ACR-185,ACR-185,timepoint4,Manava,High,Manava High,November 2020,Acropora pulchra,Acropora,0.930567497850387,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.06943250214961307,0,0
+ACR-186,ACR-186,timepoint1,Manava,High,Manava High,January 2020,Acropora pulchra,Acropora,0.5973188405797102,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.40268115942028987,0,0
+ACR-186,ACR-186,timepoint2,Manava,High,Manava High,March 2020,Acropora pulchra,Acropora,0,0.44007403979639054,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5599259602036094,0,0
+ACR-186,ACR-186,timepoint3,Manava,High,Manava High,September 2020,Acropora pulchra,Acropora,0,0.27242384105960266,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7275761589403974,0,0
+ACR-186,ACR-186,timepoint4,Manava,High,Manava High,November 2020,Acropora pulchra,Acropora,0,0.41250989707046715,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5874901029295329,0,0
+ACR-187,ACR-187,timepoint1,Manava,High,Manava High,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-187,ACR-187,timepoint4,Manava,High,Manava High,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-190,ACR-190,timepoint1,Manava,High,Manava High,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-190,ACR-190,timepoint2,Manava,High,Manava High,March 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-190,ACR-190,timepoint3,Manava,High,Manava High,September 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-190,ACR-190,timepoint4,Manava,High,Manava High,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-193,ACR-193,timepoint1,Manava,High,Manava High,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-210,ACR-210,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-210,ACR-210,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-213,ACR-213,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-213,ACR-213,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-218,ACR-218,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora pulchra,Acropora,0.6193893344589841,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.3806106655410159,0,0
+ACR-218,ACR-218,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora pulchra,Acropora,0.7364000844059928,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.2635999155940072,0,0
+ACR-220,ACR-220,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-220,ACR-220,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-225,ACR-225,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-225,ACR-225,timepoint2,Mahana,Low,Mahana Low,March 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-225,ACR-225,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-225,ACR-225,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-228,ACR-228,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-228,ACR-228,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-229,ACR-229,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-229,ACR-229,timepoint2,Mahana,Low,Mahana Low,March 2020,Acropora pulchra,Acropora,0,0.19872665137399934,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.8012733486260006,0,0
+ACR-229,ACR-229,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora pulchra,Acropora,0,0.3573954780851333,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.6426045219148667,0,0
+ACR-229,ACR-229,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora pulchra,Acropora,0.5012311901504788,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.4987688098495212,0,0
+ACR-231,ACR-231,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-234,ACR-234,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora pulchra,Acropora,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ACR-234,ACR-234,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora pulchra,Acropora,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ACR-237,ACR-237,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora pulchra,Acropora,0,0.2987825746834205,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7012174253165795,0,0
+ACR-237,ACR-237,timepoint2,Mahana,Low,Mahana Low,March 2020,Acropora pulchra,Acropora,0,0.41403379867744305,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.585966201322557,0,0
+ACR-237,ACR-237,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora pulchra,Acropora,0.6077669902912621,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.39223300970873787,0,0
+ACR-237,ACR-237,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora pulchra,Acropora,0.49656575934876623,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5034342406512338,0,0
+ACR-241,ACR-241,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora pulchra,Acropora,0.5235019565319882,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.4764980434680119,0,0
+ACR-241,ACR-241,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora pulchra,Acropora,0,0.39148329903435175,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.6085167009656482,0,0
+ACR-243,ACR-243,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-244,ACR-244,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-244,ACR-244,timepoint2,Mahana,Low,Mahana Low,March 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-244,ACR-244,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-244,ACR-244,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-246,ACR-246,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-247,ACR-247,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora pulchra,Acropora,0,0.48762594150445077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5123740584955493,0,0
+ACR-256,ACR-256,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora pulchra,Acropora,0,0.10087571572920175,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.8991242842707983,0,0
+ACR-256,ACR-256,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora pulchra,Acropora,0,0.2972236865225795,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7027763134774205,0,0
+ACR-258,ACR-258,timepoint2,Mahana,Low,Mahana Low,March 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-265,ACR-265,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-265,ACR-265,timepoint2,Mahana,Low,Mahana Low,March 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-265,ACR-265,timepoint3,Mahana,Low,Mahana Low,September 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-265,ACR-265,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-267,ACR-267,timepoint1,Mahana,Low,Mahana Low,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-267,ACR-267,timepoint4,Mahana,Low,Mahana Low,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-343,ACR-343,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-343,ACR-343,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-343,ACR-343,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-343,ACR-343,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-345,ACR-345,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-347,ACR-347,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora pulchra,Acropora,0,0.16928327645051194,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.02075085324232082,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.8099658703071673,0,0
+ACR-347,ACR-347,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora pulchra,Acropora,0,0.2144002774285838,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7855997225714162,0,0
+ACR-350,ACR-350,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-350,ACR-350,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-351,ACR-351,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora pulchra,Acropora,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ACR-351,ACR-351,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora pulchra,Acropora,0,0,0.9794975212167045,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.02050247878329552,0,0
+ACR-360,ACR-360,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-363,ACR-363,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-364,ACR-364,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora pulchra,Acropora,0,0.16945180354595477,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.8305481964540452,0,0
+ACR-364,ACR-364,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora pulchra,Acropora,0,0,0,0.017210742752703456,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9827892572472965,0,0
+ACR-364,ACR-364,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-364,ACR-364,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-368,ACR-368,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-368,ACR-368,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Acropora pulchra,Acropora,0,0.10212597733462181,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.8978740226653782,0,0
+ACR-374,ACR-374,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-379,ACR-379,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-389,ACR-389,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora pulchra,Acropora,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ACR-389,ACR-389,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Acropora pulchra,Acropora,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ACR-390,ACR-390,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-390,ACR-390,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-393,ACR-393,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-393,ACR-393,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-393,ACR-393,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Acropora pulchra,Acropora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+ACR-396,ACR-396,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Acropora pulchra,Acropora,0,0.43909842054971615,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5609015794502838,0,0
+ACR-396,ACR-396,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Acropora pulchra,Acropora,0,0.42580195797701503,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.574198042022985,0,0
+ACR-396,ACR-396,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Acropora pulchra,Acropora,0,0.03827915214534651,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9617208478546535,0,0
+ACR-51,ACR-51,timepoint1,Manava,High,Manava High,January 2020,Acropora pulchra,Acropora,0,0.49168717363903724,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5083128263609628,0,0
+ACR-51,ACR-51,timepoint2,Manava,High,Manava High,March 2020,Acropora pulchra,Acropora,0,0.28276770705556314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7172322929444369,0,0
+POC-200,POC-200,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-200,POC-200,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-200,POC-200,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-200,POC-200,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-201,POC-201,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.014104046242774566,0,0,0.9858959537572254,0,0,0,0,0,0
+POC-201,POC-201,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-205,POC-205,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-205,POC-205,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-205,POC-205,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-207,POC-207,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora meandrina,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-207,POC-207,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora meandrina,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-207,POC-207,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora meandrina,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-215,POC-215,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.05703869222627308,0,0,0,0,0,0,0,0,0,0,0.9429613077737269,0,0,0,0,0,0
+POC-217,POC-217,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-219,POC-219,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.02916978309648467,0,0,0.9708302169035153,0,0,0,0,0,0
+POC-219,POC-219,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.02625590757920532,0,0,0.9737440924207946,0,0,0,0,0,0
+POC-219,POC-219,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.03419126924047439,0,0,0.9658087307595256,0,0,0,0,0,0
+POC-219,POC-219,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-222,POC-222,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-222,POC-222,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0.9286781977364937,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0713218022635063,0,0,0
+POC-222,POC-222,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-222,POC-222,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-238,POC-238,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-238,POC-238,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-238,POC-238,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.019556403529692346,0,0,0.9804435964703077,0,0,0,0,0,0
+POC-238,POC-238,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021405592675080427,0,0,0.9785944073249195,0,0,0,0,0,0
+POC-239,POC-239,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.019962955340605062,0,0,0.9800370446593949,0,0,0,0,0,0
+POC-239,POC-239,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.02275920202304018,0,0,0.9772407979769598,0,0,0,0,0,0
+POC-239,POC-239,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.019247272281476033,0,0,0.980752727718524,0,0,0,0,0,0
+POC-248,POC-248,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora meandrina,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-248,POC-248,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora meandrina,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-248,POC-248,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora meandrina,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-248,POC-248,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora meandrina,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-254,POC-254,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora meandrina,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-254,POC-254,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora meandrina,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-254,POC-254,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora meandrina,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-254,POC-254,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora meandrina,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-255,POC-255,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-255,POC-255,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9452000397101161,0,0,0,0,0,0,0,0,0.05479996028988385,0,0
+POC-255,POC-255,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-255,POC-255,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-257,POC-257,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-257,POC-257,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-257,POC-257,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-259,POC-259,timepoint1,Mahana,Low,Mahana Low,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-259,POC-259,timepoint2,Mahana,Low,Mahana Low,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-259,POC-259,timepoint3,Mahana,Low,Mahana Low,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-259,POC-259,timepoint4,Mahana,Low,Mahana Low,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-346,POC-346,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+POC-346,POC-346,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-346,POC-346,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-358,POC-358,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-358,POC-358,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+POC-358,POC-358,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-358,POC-358,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-359,POC-359,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-359,POC-359,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-359,POC-359,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-359,POC-359,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-366,POC-366,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+POC-366,POC-366,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+POC-366,POC-366,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+POC-366,POC-366,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0
+POC-369,POC-369,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-369,POC-369,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-369,POC-369,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-369,POC-369,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-371,POC-371,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-371,POC-371,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9572140381282496,0,0,0,0,0,0,0,0,0,0,0.04278596187175043,0,0
+POC-371,POC-371,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-371,POC-371,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-372,POC-372,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-372,POC-372,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9613165379926859,0,0,0,0,0,0,0,0,0,0,0,0.0386834620073141,0,0
+POC-372,POC-372,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-372,POC-372,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-373,POC-373,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-373,POC-373,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-373,POC-373,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-373,POC-373,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-375,POC-375,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-375,POC-375,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-375,POC-375,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-375,POC-375,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-377,POC-377,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.06960817334680588,0,0,0,0,0,0,0,0,0.9303918266531941,0,0,0,0,0,0
+POC-377,POC-377,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-377,POC-377,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+POC-377,POC-377,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.02155631884401279,0,0,0.9784436811559872,0,0,0,0,0,0
+POC-378,POC-378,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-378,POC-378,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-378,POC-378,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-378,POC-378,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-386,POC-386,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-386,POC-386,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-386,POC-386,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora meandrina,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-386,POC-386,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-391,POC-391,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-391,POC-391,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-391,POC-391,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-391,POC-391,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-394,POC-394,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-394,POC-394,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-394,POC-394,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-395,POC-395,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.03469181542606938,0,0,0.9653081845739306,0,0,0,0,0,0
+POC-395,POC-395,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-395,POC-395,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-40,POC-40,timepoint1,Manava,High,Manava High,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-40,POC-40,timepoint2,Manava,High,Manava High,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-40,POC-40,timepoint3,Manava,High,Manava High,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-40,POC-40,timepoint4,Manava,High,Manava High,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9737161342498989,0.026283865750101092,0,0,0,0,0,0,0,0,0
+POC-41,POC-41,timepoint2,Manava,High,Manava High,March 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-42,POC-42,timepoint1,Manava,High,Manava High,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-42,POC-42,timepoint2,Manava,High,Manava High,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-42,POC-42,timepoint3,Manava,High,Manava High,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-42,POC-42,timepoint4,Manava,High,Manava High,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-43,POC-43,timepoint1,Manava,High,Manava High,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-43,POC-43,timepoint2,Manava,High,Manava High,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-43,POC-43,timepoint3,Manava,High,Manava High,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-43,POC-43,timepoint4,Manava,High,Manava High,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-44,POC-44,timepoint1,Manava,High,Manava High,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-44,POC-44,timepoint2,Manava,High,Manava High,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-44,POC-44,timepoint3,Manava,High,Manava High,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-44,POC-44,timepoint4,Manava,High,Manava High,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-45,POC-45,timepoint1,Manava,High,Manava High,January 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-45,POC-45,timepoint2,Manava,High,Manava High,March 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-45,POC-45,timepoint3,Manava,High,Manava High,September 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-45,POC-45,timepoint4,Manava,High,Manava High,November 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-47,POC-47,timepoint1,Manava,High,Manava High,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-47,POC-47,timepoint2,Manava,High,Manava High,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.13530544372483808,0,0,0,0,0,0,0,0.8646945562751619,0,0,0,0,0,0,0
+POC-47,POC-47,timepoint3,Manava,High,Manava High,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-47,POC-47,timepoint4,Manava,High,Manava High,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-48,POC-48,timepoint1,Manava,High,Manava High,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-48,POC-48,timepoint2,Manava,High,Manava High,March 2020,Pocillopora tuahiniensis,Pocillopora,0.018641810918774968,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9813581890812251,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-48,POC-48,timepoint3,Manava,High,Manava High,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-48,POC-48,timepoint4,Manava,High,Manava High,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-50,POC-50,timepoint1,Manava,High,Manava High,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-50,POC-50,timepoint2,Manava,High,Manava High,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-50,POC-50,timepoint3,Manava,High,Manava High,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-50,POC-50,timepoint4,Manava,High,Manava High,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.4008951406649616,0,0,0,0,0,0,0,0,0,0.5991048593350383,0,0,0,0,0,0
+POC-52,POC-52,timepoint1,Manava,High,Manava High,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-52,POC-52,timepoint2,Manava,High,Manava High,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-52,POC-52,timepoint3,Manava,High,Manava High,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-52,POC-52,timepoint4,Manava,High,Manava High,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-53,POC-53,timepoint1,Manava,High,Manava High,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-53,POC-53,timepoint2,Manava,High,Manava High,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-53,POC-53,timepoint3,Manava,High,Manava High,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.030856748836407516,0,0,0.9691432511635925,0,0,0,0,0,0
+POC-55,POC-55,timepoint1,Manava,High,Manava High,January 2020,Pocillopora meandrina,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-55,POC-55,timepoint2,Manava,High,Manava High,March 2020,Pocillopora meandrina,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+POC-55,POC-55,timepoint3,Manava,High,Manava High,September 2020,Pocillopora meandrina,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-55,POC-55,timepoint4,Manava,High,Manava High,November 2020,Pocillopora meandrina,Pocillopora,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-56,POC-56,timepoint1,Manava,High,Manava High,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-56,POC-56,timepoint2,Manava,High,Manava High,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-57,POC-57,timepoint1,Manava,High,Manava High,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-57,POC-57,timepoint2,Manava,High,Manava High,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-57,POC-57,timepoint3,Manava,High,Manava High,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-57,POC-57,timepoint4,Manava,High,Manava High,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0.7052726453357369,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.2947273546642632,0
+POC-68,POC-68,timepoint1,Manava,High,Manava High,January 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-68,POC-68,timepoint2,Manava,High,Manava High,March 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+POC-68,POC-68,timepoint3,Manava,High,Manava High,September 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POC-68,POC-68,timepoint4,Manava,High,Manava High,November 2020,Pocillopora tuahiniensis,Pocillopora,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-209,POR-209,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-209,POR-209,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-209,POR-209,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-209,POR-209,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-214,POR-214,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-214,POR-214,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-214,POR-214,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-214,POR-214,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-216,POR-216,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-216,POR-216,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-216,POR-216,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-216,POR-216,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-221,POR-221,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-221,POR-221,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-221,POR-221,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-221,POR-221,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-224,POR-224,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-224,POR-224,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9783363802559415,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0216636197440585,0,0
+POR-224,POR-224,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-224,POR-224,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-235,POR-235,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-235,POR-235,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-236,POR-236,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-236,POR-236,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-240,POR-240,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-240,POR-240,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-240,POR-240,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-240,POR-240,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-242,POR-242,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-242,POR-242,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7508632723532437,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.2491367276467563,0,0
+POR-242,POR-242,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-242,POR-242,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-245,POR-245,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-245,POR-245,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0.9396177237185056,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.060382276281494354,0,0
+POR-245,POR-245,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-245,POR-245,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-251,POR-251,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.7404983639567078,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.25950163604329224,0,0,0,0,0
+POR-251,POR-251,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-253,POR-253,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-253,POR-253,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-253,POR-253,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-253,POR-253,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-260,POR-260,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-260,POR-260,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-260,POR-260,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-260,POR-260,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-262,POR-262,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-262,POR-262,timepoint3,Mahana,Low,Mahana Low,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-262,POR-262,timepoint4,Mahana,Low,Mahana Low,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-266,POR-266,timepoint1,Mahana,Low,Mahana Low,January 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-266,POR-266,timepoint2,Mahana,Low,Mahana Low,March 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-338,POR-338,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-338,POR-338,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-338,POR-338,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-338,POR-338,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-340,POR-340,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-340,POR-340,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-340,POR-340,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-340,POR-340,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-341,POR-341,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-341,POR-341,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-341,POR-341,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-341,POR-341,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-349,POR-349,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-349,POR-349,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-349,POR-349,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-349,POR-349,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-353,POR-353,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-353,POR-353,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-353,POR-353,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-354,POR-354,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-354,POR-354,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-354,POR-354,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-354,POR-354,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-355,POR-355,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-355,POR-355,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites evermanni,Porites,0.03040488922841864,0,0,0,0,0,0,0,0,0,0,0,0.9695951107715813,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-355,POR-355,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-357,POR-357,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-357,POR-357,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9823052959501558,0,0,0,0,0,0,0,0.01769470404984424,0,0,0,0,0,0,0,0,0,0,0,0
+POR-357,POR-357,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-357,POR-357,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites evermanni,Porites,0,0,0,0,0.7127373417721519,0,0,0,0,0,0,0,0.2872626582278481,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-362,POR-362,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-362,POR-362,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-362,POR-362,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-365,POR-365,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-365,POR-365,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-365,POR-365,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-365,POR-365,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-367,POR-367,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.9857734366705595,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.014226563329440493
+POR-367,POR-367,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-367,POR-367,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-367,POR-367,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-381,POR-381,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-381,POR-381,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-381,POR-381,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-381,POR-381,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-383,POR-383,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-383,POR-383,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-383,POR-383,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-383,POR-383,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-384,POR-384,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-384,POR-384,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-384,POR-384,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-384,POR-384,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites lobata lutea,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-385,POR-385,timepoint1,Hilton,Medium,Hilton Medium,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-385,POR-385,timepoint2,Hilton,Medium,Hilton Medium,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-385,POR-385,timepoint3,Hilton,Medium,Hilton Medium,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-385,POR-385,timepoint4,Hilton,Medium,Hilton Medium,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-69,POR-69,timepoint1,Manava,High,Manava High,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-69,POR-69,timepoint2,Manava,High,Manava High,March 2020,Porites evermanni,Porites,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-69,POR-69,timepoint3,Manava,High,Manava High,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-69,POR-69,timepoint4,Manava,High,Manava High,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-70,POR-70,timepoint1,Manava,High,Manava High,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-70,POR-70,timepoint2,Manava,High,Manava High,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-70,POR-70,timepoint3,Manava,High,Manava High,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-70,POR-70,timepoint4,Manava,High,Manava High,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-71,POR-71,timepoint1,Manava,High,Manava High,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0.9893448197687599,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.010655180231240081,0,0
+POR-71,POR-71,timepoint2,Manava,High,Manava High,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-71,POR-71,timepoint3,Manava,High,Manava High,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-71,POR-71,timepoint4,Manava,High,Manava High,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-72,POR-72,timepoint1,Manava,High,Manava High,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-72,POR-72,timepoint2,Manava,High,Manava High,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-72,POR-72,timepoint3,Manava,High,Manava High,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-72,POR-72,timepoint4,Manava,High,Manava High,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-73,POR-73,timepoint2,Manava,High,Manava High,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-73,POR-73,timepoint3,Manava,High,Manava High,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-73,POR-73,timepoint4,Manava,High,Manava High,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-74,POR-74,timepoint1,Manava,High,Manava High,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-74,POR-74,timepoint2,Manava,High,Manava High,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-74,POR-74,timepoint3,Manava,High,Manava High,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-74,POR-74,timepoint4,Manava,High,Manava High,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-75,POR-75,timepoint1,Manava,High,Manava High,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-75,POR-75,timepoint2,Manava,High,Manava High,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-75,POR-75,timepoint3,Manava,High,Manava High,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-75,POR-75,timepoint4,Manava,High,Manava High,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-76,POR-76,timepoint1,Manava,High,Manava High,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-76,POR-76,timepoint2,Manava,High,Manava High,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-76,POR-76,timepoint3,Manava,High,Manava High,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-76,POR-76,timepoint4,Manava,High,Manava High,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-77,POR-77,timepoint1,Manava,High,Manava High,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-77,POR-77,timepoint2,Manava,High,Manava High,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-78,POR-78,timepoint1,Manava,High,Manava High,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-78,POR-78,timepoint2,Manava,High,Manava High,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-79,POR-79,timepoint1,Manava,High,Manava High,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-79,POR-79,timepoint2,Manava,High,Manava High,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-79,POR-79,timepoint3,Manava,High,Manava High,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-79,POR-79,timepoint4,Manava,High,Manava High,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-80,POR-80,timepoint1,Manava,High,Manava High,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-80,POR-80,timepoint2,Manava,High,Manava High,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-80,POR-80,timepoint3,Manava,High,Manava High,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-81,POR-81,timepoint1,Manava,High,Manava High,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-81,POR-81,timepoint2,Manava,High,Manava High,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-81,POR-81,timepoint3,Manava,High,Manava High,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-81,POR-81,timepoint4,Manava,High,Manava High,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-82,POR-82,timepoint1,Manava,High,Manava High,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-82,POR-82,timepoint2,Manava,High,Manava High,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-82,POR-82,timepoint3,Manava,High,Manava High,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-82,POR-82,timepoint4,Manava,High,Manava High,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-83,POR-83,timepoint1,Manava,High,Manava High,January 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-83,POR-83,timepoint2,Manava,High,Manava High,March 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-83,POR-83,timepoint3,Manava,High,Manava High,September 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+POR-83,POR-83,timepoint4,Manava,High,Manava High,November 2020,Porites evermanni,Porites,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
