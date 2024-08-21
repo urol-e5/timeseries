@@ -12,6 +12,14 @@ editor_options:
   chunk_output_type: console
 --- 
 
+Definitions: 
+
+- Genus (Pocillopora, Acropora, and Porites) are coded as "species"
+- Haplotype are coded as "haplotype". In the manuscript document, haplotype is referred to as "holobiont" because the host genetic haplotype and the associated symbiont communities are exclusive. 
+- Biological levels are categorized in the code as all host and symbiont metrics together "holobiont" (i.e., "combined responses" in the manuscript to avoid confusion with above mentioned definition of holobiont), host metrics as "host", and symbiont metrics as "symbiont". 
+- Time point is coded for seasonal sampling (January, March, September, and November) as "timepoint"
+- Site is coded as "site" 
+
 # Set Up    
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
@@ -191,8 +199,11 @@ tacplot_afdw<-master %>%
   summarise(mean=mean(cre.umol.mgafdw, na.rm=TRUE), se=sd(cre.umol.mgafdw, na.rm=TRUE)/sqrt(length(cre.umol.mgafdw)))%>%
   
   ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+    geom_line(aes(group=site, colour=site), position=position_dodge(0.5), size=1, show.legend=FALSE)+  
     geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
+  
+
   
     labs(fill = "Site") +
     facet_wrap(~species) +
@@ -293,6 +304,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(antiox_model_acr, type="III")
 summary(antiox_model_acr)
+rand(antiox_model_acr)
 
 emm<-emmeans(antiox_model_acr, ~ site | timepoint)
 pairs(emm)
@@ -317,6 +329,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(antiox_model_poc, type="III")
 summary(antiox_model_poc)
+rand(antiox_model_poc)
 
 emm<-emmeans(antiox_model_poc, ~ timepoint)
 pairs(emm)
@@ -335,6 +348,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(antiox_model_por, type="III")
 summary(antiox_model_por)
+rand(antiox_model_por)
 
 emm<-emmeans(antiox_model_por, ~ timepoint)
 pairs(emm)
@@ -446,6 +460,7 @@ symbplot_afdw<-master %>%
   summarise(mean=mean(cells.mgAFDW, na.rm=TRUE), se=sd(cells.mgAFDW, na.rm=TRUE)/sqrt(length(cells.mgAFDW)))%>%
   
   ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+  geom_line(aes(group=site, colour=site), position=position_dodge(0.5), size=1, show.legend=FALSE)+
     geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
   
@@ -520,6 +535,7 @@ Generate a Type III Anova of model.
 
 ```{r}
 anova(density_model_acr, type="III")
+rand(density_model_acr)
 
 emm<-emmeans(density_model_acr, ~ timepoint)
 pairs(emm)
@@ -542,6 +558,7 @@ Generate a Type III Anova of model.
 
 ```{r}
 anova(density_model_poc, type="III")
+rand(density_model_poc)
 
 emm<-emmeans(density_model_poc, ~ timepoint)
 pairs(emm)
@@ -564,6 +581,8 @@ Generate a Type III Anova of model.
 
 ```{r}
 anova(density_model_por, type="III")
+summary(density_model_por)
+rand(density_model_por)
 
 emm<-emmeans(density_model_por, ~ timepoint)
 pairs(emm)
@@ -623,6 +642,7 @@ hAFDWplot<-master %>%
   summarise(mean=mean(Host_AFDW.mg.cm2, na.rm=TRUE), se=sd(Host_AFDW.mg.cm2, na.rm=TRUE)/sqrt(length(Host_AFDW.mg.cm2)))%>%
   
   ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+  geom_line(aes(group=site, colour=site), position=position_dodge(0.5), size=1, show.legend=FALSE)+
     geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
   
@@ -632,7 +652,7 @@ hAFDWplot<-master %>%
     scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
     scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
   
-    ylim(0, 10)+
+    ylim(0, 12)+
   
     xlab("Month") + 
     ylab(expression(bold(paste("Host Biomass (mg afdw cm"^-2, ")"))))+
@@ -694,6 +714,7 @@ sAFDWplot<-master %>%
   summarise(mean=mean(Sym_AFDW.mg.cm2, na.rm=TRUE), se=sd(Sym_AFDW.mg.cm2, na.rm=TRUE)/sqrt(length(Sym_AFDW.mg.cm2)))%>%
   
   ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+  geom_line(aes(group=site, colour=site), position=position_dodge(0.5), size=1, show.legend=FALSE)+
     geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
   
@@ -703,7 +724,7 @@ sAFDWplot<-master %>%
     scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
     scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   
-    ylim(0, 5)+
+    ylim(0, 6)+
   
     xlab("Month") + 
     ylab(expression(bold(paste("Symbiont Biomass (mg afdw cm"^-2, ")"))))+
@@ -766,6 +787,7 @@ ratioAFDWplot<-master %>%
   summarise(mean=mean(Ratio_AFDW.mg.cm2, na.rm=TRUE), se=sd(Ratio_AFDW.mg.cm2, na.rm=TRUE)/sqrt(length(Ratio_AFDW.mg.cm2)))%>%
   
   ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+  geom_line(aes(group=site, colour=site), position=position_dodge(0.5), size=1, show.legend=FALSE)+
     geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
   
@@ -826,7 +848,7 @@ Generate a Type III Anova of model.
 anova(hAFDW_model, type="III")
 summary(hAFDW_model)
 
-emm<-emmeans(hAFDW_model, ~ species)
+#emm<-emmeans(hAFDW_model, ~ species)
 pairs(emm)
 ```
 
@@ -844,6 +866,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(hAFDW_model_acr, type="III")
 summary(hAFDW_model_acr)
+rand(hAFDW_model_acr)
 
 emm<-emmeans(hAFDW_model_acr, ~ timepoint)
 pairs(emm)
@@ -864,6 +887,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(hAFDW_model_poc, type="III")
 summary(hAFDW_model_poc)
+rand(hAFDW_model_poc)
 
 emm<-emmeans(hAFDW_model_poc, ~ timepoint)
 pairs(emm)
@@ -890,6 +914,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(hAFDW_model_por, type="III")
 summary(hAFDW_model_por)
+rand(hAFDW_model_por)
 
 emm<-emmeans(hAFDW_model_por, ~ site)
 pairs(emm)
@@ -933,6 +958,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(sAFDW_model_acr, type="III")
 summary(sAFDW_model_acr)
+rand(sAFDW_model_acr)
 
 emm<-emmeans(sAFDW_model_acr, ~ timepoint)
 pairs(emm)
@@ -959,6 +985,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(sAFDW_model_poc, type="III")
 summary(sAFDW_model_poc)
+rand(sAFDW_model_poc)
 
 emm<-emmeans(sAFDW_model_poc, ~ timepoint)
 pairs(emm)
@@ -982,6 +1009,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(sAFDW_model_por, type="III")
 summary(sAFDW_model_por)
+rand(sAFDW_model_por)
 
 emm<-emmeans(sAFDW_model_por, ~ site)
 pairs(emm)
@@ -1025,6 +1053,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(shAFDW_model_acr, type="III")
 summary(shAFDW_model_acr)
+rand(shAFDW_model_acr)
 
 emm<-emmeans(shAFDW_model_acr, ~ timepoint)
 pairs(emm)
@@ -1051,6 +1080,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(shAFDW_model_poc, type="III")
 summary(shAFDW_model_poc)
+rand(shAFDW_model_poc)
 
 emm<-emmeans(shAFDW_model_poc, ~ timepoint)
 pairs(emm)
@@ -1077,6 +1107,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(shAFDW_model_por, type="III")
 summary(shAFDW_model_por)
+rand(shAFDW_model_por)
 
 emm<-emmeans(shAFDW_model_por, ~ timepoint)
 pairs(emm)
@@ -1360,6 +1391,7 @@ chlplot_total<-master %>%
   summarise(mean=mean(Total_Chl, na.rm=TRUE), se=sd(Total_Chl, na.rm=TRUE)/sqrt(length(Total_Chl)))%>%
   
   ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+  geom_line(aes(group=site, colour=site), position=position_dodge(0.5), size=1, show.legend=FALSE)+
     geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
   
@@ -1427,6 +1459,7 @@ chlplot_total_cell<-master %>%
   summarise(mean=mean(Total_Chl_cell, na.rm=TRUE), se=sd(Total_Chl_cell, na.rm=TRUE)/sqrt(length(Total_Chl_cell)))%>%
   
   ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+  geom_line(aes(group=site, colour=site), position=position_dodge(0.5), size=1, show.legend=FALSE)+
     geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
   
@@ -1709,6 +1742,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chltotal_model_acr, type="III")
 summary(chltotal_model_acr)
+rand(chltotal_model_acr)
 
 emm<-emmeans(chltotal_model_acr, ~ timepoint)
 pairs(emm)
@@ -1735,6 +1769,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chltotal_model_poc, type="III")
 summary(chltotal_model_poc)
+rand(chltotal_model_poc)
 
 emm<-emmeans(chltotal_model_poc, ~ timepoint)
 pairs(emm)
@@ -1761,6 +1796,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chltotal_model_por, type="III")
 summary(chltotal_model_por)
+rand(chltotal_model_por)
 
 emm<-emmeans(chltotal_model_por, ~ timepoint)
 pairs(emm)
@@ -1815,6 +1851,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chltotalcell_model_acr, type="III")
 summary(chltotalcell_model_acr)
+rand(chltotalcell_model_acr)
 
 emm<-emmeans(chltotalcell_model_acr, ~ timepoint)
 pairs(emm)
@@ -1832,6 +1869,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chltotalcell_model_poc, type="III")
 summary(chltotalcell_model_poc)
+rand(chltotalcell_model_poc)
 
 emm<-emmeans(chltotalcell_model_poc, ~ timepoint)
 pairs(emm)
@@ -1852,6 +1890,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(chltotalcell_model_por, type="III")
 summary(chltotalcell_model_por)
+rand(chltotalcell_model_por)
 
 emm<-emmeans(chltotalcell_model_por, ~ timepoint)
 pairs(emm)
@@ -1935,6 +1974,7 @@ protplot_afdw<-master %>%
   summarise(mean=mean(prot_mg.mgafdw, na.rm=TRUE), se=sd(prot_mg.mgafdw, na.rm=TRUE)/sqrt(length(prot_mg.mgafdw)))%>%
   
   ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+  geom_line(aes(group=site, colour=site), position=position_dodge(0.5), size=1, show.legend=FALSE)+
     geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
   
@@ -1944,7 +1984,7 @@ protplot_afdw<-master %>%
     scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
     scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   
-    ylim(0, 0.5)+
+    ylim(0, 0.75)+
   
     xlab("Month") + 
     ylab(expression(bold(paste("Protein (mg mg afdw"^-1, ")"))))+
@@ -2007,6 +2047,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(prot_model_acr, type="III")
 summary(prot_model_acr)
+rand(prot_model_acr)
 
 emm<-emmeans(prot_model_acr, ~ timepoint)
 pairs(emm)
@@ -2033,6 +2074,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(prot_model_poc, type="III")
 summary(prot_model_poc)
+rand(prot_model_poc)
 
 emm<-emmeans(prot_model_poc, ~ timepoint)
 pairs(emm)
@@ -2059,6 +2101,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(prot_model_por, type="III")
 summary(prot_model_por)
+rand(prot_model_por)
 
 emm<-emmeans(prot_model_por, ~ timepoint)
 pairs(emm)
@@ -2116,6 +2159,7 @@ am_plot<-master %>%
   summarise(mean=mean(Am, na.rm=TRUE), se=sd(Am, na.rm=TRUE)/sqrt(length(Am)))%>%
   
   ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+  geom_line(aes(group=site, colour=site), position=position_dodge(0.5), size=1, show.legend=FALSE)+
     geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
   
@@ -2183,6 +2227,7 @@ aqy_plot<-master %>%
   summarise(mean=mean(AQY, na.rm=TRUE), se=sd(AQY, na.rm=TRUE)/sqrt(length(AQY)))%>%
   
   ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+  geom_line(aes(group=site, colour=site), position=position_dodge(0.5), size=1, show.legend=FALSE)+
     geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
   
@@ -2250,6 +2295,7 @@ rd_plot<-master %>%
   summarise(mean=mean(Rd, na.rm=TRUE), se=sd(Rd, na.rm=TRUE)/sqrt(length(Rd)))%>%
   
   ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+  geom_line(aes(group=site, colour=site), position=position_dodge(0.5), size=1, show.legend=FALSE)+
     geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
   
@@ -2317,6 +2363,7 @@ Ik_plot<-master %>%
   summarise(mean=mean(Ik, na.rm=TRUE), se=sd(Ik, na.rm=TRUE)/sqrt(length(Ik)))%>%
   
   ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+  geom_line(aes(group=site, colour=site), position=position_dodge(0.5), size=1, show.legend=FALSE)+
     geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
   
@@ -2326,7 +2373,7 @@ Ik_plot<-master %>%
     scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
     scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   
-    ylim(0, 650)+
+    ylim(0, 800)+
   
     xlab("Month") + 
     ylab(expression(bold(paste("I" [K], " (PAR)"))))+
@@ -2396,6 +2443,7 @@ Ic_plot<-master %>%
   summarise(mean=mean(Ic, na.rm=TRUE), se=sd(Ic, na.rm=TRUE)/sqrt(length(Ic)))%>%
   
   ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+  geom_line(aes(group=site, colour=site), position=position_dodge(0.5), size=1, show.legend=FALSE)+
     geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
   
@@ -2405,7 +2453,7 @@ Ic_plot<-master %>%
     scale_colour_manual(values=c("#374d7c", "#00cccc", "#ff6633")) +
     scale_fill_manual(values=c("#374d7c", "#00cccc", "#ff6633")) + 
   
-    ylim(0, 650)+
+    ylim(0, 800)+
   
     xlab("Month") + 
     ylab(expression(bold(paste("I" [C], " (PAR)"))))+
@@ -2480,6 +2528,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(am_model_acr, type="III")
 summary(am_model_acr)
+rand(am_model_acr)
 
 emm<-emmeans(am_model_acr, ~ timepoint)
 pairs(emm)
@@ -2500,6 +2549,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(am_model_poc, type="III")
 summary(am_model_poc)
+rand(am_model_poc)
 
 emm<-emmeans(am_model_poc, ~ timepoint)
 pairs(emm)
@@ -2517,6 +2567,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(am_model_por, type="III")
 summary(am_model_por)
+rand(am_model_por)
 
 emm<-emmeans(am_model_por, ~ timepoint)
 pairs(emm)
@@ -2563,6 +2614,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(aqy_model_acr, type="III")
 summary(aqy_model_acr)
+rand(aqy_model_acr)
 ```
 
 *Pocillopora*  
@@ -2577,6 +2629,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(aqy_model_poc, type="III")
 summary(aqy_model_poc)
+rand(aqy_model_poc)
 
 emm<-emmeans(aqy_model_poc, ~ timepoint)
 pairs(emm)
@@ -2597,6 +2650,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(aqy_model_por, type="III")
 summary(aqy_model_por)
+rand(aqy_model_por)
 
 emm<-emmeans(aqy_model_por, ~ timepoint)
 pairs(emm)
@@ -2640,6 +2694,7 @@ Generate a Type II Anova of model.
 ```{r}
 anova(rd_model_acr, type="III")
 summary(rd_model_acr)
+rand(rd_model_acr)
 
 emm<-emmeans(rd_model_acr, ~ timepoint)
 pairs(emm)
@@ -2660,6 +2715,7 @@ Generate a Type II Anova of model.
 ```{r}
 anova(rd_model_poc, type="III")
 summary(rd_model_poc)
+rand(rd_model_poc)
 
 emm<-emmeans(rd_model_poc, ~ timepoint | site)
 pairs(emm)
@@ -2686,6 +2742,7 @@ Generate a Type II Anova of model.
 ```{r}
 anova(rd_model_por, type="III")
 summary(rd_model_por)
+rand(rd_model_por)
 
 emm<-emmeans(rd_model_por, ~ timepoint)
 pairs(emm)
@@ -2734,6 +2791,7 @@ Generate a Type II Anova of model.
 ```{r}
 anova(Ik_model_acr, type="III")
 summary(Ik_model_acr)
+rand(Ik_model_acr)
 
 emm<-emmeans(Ik_model_acr, ~ timepoint)
 pairs(emm)
@@ -2751,6 +2809,7 @@ Generate a Type II Anova of model.
 ```{r}
 anova(Ik_model_poc, type="III")
 summary(Ik_model_poc)
+rand(Ik_model_poc)
 
 emm<-emmeans(Ik_model_poc, ~ timepoint)
 pairs(emm)
@@ -2768,6 +2827,7 @@ Generate a Type II Anova of model.
 ```{r}
 anova(Ik_model_por, type="III")
 summary(Ik_model_por)
+rand(Ik_model_por)
 
 emm<-emmeans(Ik_model_por, ~ timepoint)
 pairs(emm)
@@ -2820,6 +2880,7 @@ Generate a Type II Anova of model.
 ```{r}
 anova(Ic_model_acr, type="III")
 summary(Ic_model_acr)
+rand(Ic_model_acr)
 
 emm<-emmeans(Ic_model_acr, ~ timepoint)
 pairs(emm)
@@ -2840,6 +2901,7 @@ Generate a Type II Anova of model.
 ```{r}
 anova(Ic_model_poc, type="III")
 summary(Ic_model_poc)
+rand(Ic_model_poc)
 
 emm<-emmeans(Ic_model_poc, ~ timepoint)
 pairs(emm)
@@ -2863,6 +2925,7 @@ Generate a Type II Anova of model.
 ```{r}
 anova(Ic_model_por, type="III")
 summary(Ic_model_por)
+rand(Ic_model_por)
 
 emm<-emmeans(Ic_model_por, ~ timepoint)
 pairs(emm)
@@ -2980,6 +3043,7 @@ calcplot_cm2<-master %>%
   summarise(mean=mean(calc.umol.cm2.hr, na.rm=TRUE), se=sd(calc.umol.cm2.hr, na.rm=TRUE)/sqrt(length(calc.umol.cm2.hr)))%>%
   
   ggplot(., aes(x = month, y = mean, fill = site, group=interaction(site,month))) +
+  geom_line(aes(group=site, colour=site), position=position_dodge(0.5), size=1, show.legend=FALSE)+
     geom_point(pch = 21, size=4, position = position_dodge(0.5)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.5))+
   
@@ -3054,6 +3118,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(calc_model_acr, type="III")
 summary(calc_model_acr)
+rand(calc_model_acr)
 
 emm<-emmeans(calc_model_acr, ~ timepoint)
 pairs(emm)
@@ -3078,9 +3143,12 @@ Generate a Type III Anova of model.
 ```{r}
 anova(calc_model_poc, type="III")
 summary(calc_model_poc)
+rand(calc_model_poc)
 
 emm<-emmeans(calc_model_poc, ~ timepoint)
 pairs(emm)
+
+rand(calc_model_poc)
 ```
 
 *Porites*:  
@@ -3096,6 +3164,7 @@ Generate a Type III Anova of model.
 ```{r}
 anova(calc_model_por, type="III")
 summary(calc_model_por)
+rand(calc_model_por)
 
 emm<-emmeans(calc_model_por, ~ timepoint)
 pairs(emm)
@@ -3127,7 +3196,7 @@ legend_plot<-chlplot_total_cell+theme(legend.position="bottom")
 # extract the legend from one of the plots
 legend <- get_legend(
   # create some space to the left of the legend
-  legend_plot + theme(legend.box.margin = margin(1,1,1,1))
+  legend_plot + theme(legend.box.margin = margin(1,1,1,1), legend.position="right")
 )
 
 Ic_plot<-Ic_plot + theme(legend.position="none")
@@ -3141,7 +3210,7 @@ Ic_plot<-Ic_plot+theme(axis.text.x=element_blank())
 
 symbiont_univ<-plot_grid(symbplot_afdw, sAFDWplot, am_plot, aqy_plot, Ik_plot, Ic_plot, chlplot_total, chlplot_total_cell, ratioAFDWplot, ncol=3, nrow=3, rel_widths = c(1,1,1), rel_heights = c(0.8, 0.8, 1), align="v", label_y=1, labels=c("A", "B", "C", "D", "E", "F", "G", "H", "I"), label_size=20)
 
-symbiont_univ2<-plot_grid(symbiont_univ, legend, ncol=1, nrow=2, rel_heights = c(4, .2))
+symbiont_univ2<-plot_grid(symbiont_univ, legend, ncol=2, nrow=1, rel_widths = c(1, .1))
 
 ggsave(filename="Figures/Univariate/Symbiont_Univariate_Panel.png", plot=symbiont_univ2, dpi=150, width=20, height=15, units="in")
 ```
@@ -3162,9 +3231,1678 @@ calcplot_cm2<-calcplot_cm2+ theme(axis.title.y=element_text(size=12))
  
 host_univ<-plot_grid(tacplot_afdw, hAFDWplot, protplot_afdw, rd_plot, calcplot_cm2, ncol=1, nrow=5, rel_heights = c(0.8, 0.8, 0.8, 0.8, 1), align="v", label_y=1, labels=c("A", "B", "C", "D", "E"), label_size=20)
 
-host_univ2<-plot_grid(host_univ, legend, ncol=1, nrow=2, rel_heights = c(4, .2))
+host_univ2<-plot_grid(host_univ, legend, ncol=2, nrow=1, rel_widths = c(1, .2))
 
 ggsave(filename="Figures/Univariate/Host_Univariate_Panel.png", plot=host_univ2, dpi=150, width=8, height=22, units="in")
+```
+
+# Generate a panel of responses for Porites haplotypes 
+
+## Antioxidant capacity  
+  
+View by means
+```{r}
+tacplot_afdw_haplotype<-master %>%
+  filter(!is.na(cre.umol.mgafdw)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Porites")%>%
+  select(colony_id_corr, species, haplotype, month, cre.umol.mgafdw)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(cre.umol.mgafdw, na.rm=TRUE), se=sd(cre.umol.mgafdw, na.rm=TRUE)/sqrt(length(cre.umol.mgafdw)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+  
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) +
+  
+    xlab("") + 
+    ylab(expression(bold(paste("Antioxidant Capacity (", mu, "mol CRE mg afdw"^-1,")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );tacplot_afdw_haplotype
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(cre.umol.mgafdw)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Porites")%>%
+  select(colony_id_corr, species, haplotype, month, cre.umol.mgafdw)%>%
+  
+  aov(cre.umol.mgafdw ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+Analyze effect on Pocillopora 
+```{r}
+model<-master %>%
+  filter(!is.na(cre.umol.mgafdw)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Pocillopora")%>%
+  select(colony_id_corr, species, haplotype, month, cre.umol.mgafdw)%>%
+  
+  aov(cre.umol.mgafdw ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+## Symbiont Densities  
+
+### Plot: Biomass   
+
+View by means
+```{r}
+symbplot_afdw_haplotype<-master %>%
+  filter(!is.na(cells.mgAFDW)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Porites")%>%
+  select(colony_id_corr, species, haplotype, month, cells.mgAFDW)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(cells.mgAFDW, na.rm=TRUE), se=sd(cells.mgAFDW, na.rm=TRUE)/sqrt(length(cells.mgAFDW)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+  
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(1e+04, 6e+05)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("Symbiont Density (cells mg afdw"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );symbplot_afdw_haplotype
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(cells.mgAFDW)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Porites")%>%
+  select(colony_id_corr, species, haplotype, month, cells.mgAFDW)%>%
+  
+  aov(cells.mgAFDW ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+```{r}
+model<-master %>%
+  filter(!is.na(cells.mgAFDW)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Pocillopora")%>%
+  select(colony_id_corr, species, haplotype, month, cells.mgAFDW)%>%
+  
+  aov(cells.mgAFDW ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+## Biomass
+
+### Plot Host Biomass  
+
+View by means
+```{r}
+hAFDWplot_haplotype<-master %>%
+  filter(!is.na(Host_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Host_AFDW.mg.cm2)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Host_AFDW.mg.cm2, na.rm=TRUE), se=sd(Host_AFDW.mg.cm2, na.rm=TRUE)/sqrt(length(Host_AFDW.mg.cm2)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+  
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) +
+  
+    ylim(0, 10)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("Host Biomass (mg afdw cm"^-2, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );hAFDWplot_haplotype
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(Host_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Host_AFDW.mg.cm2)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")%>%
+  
+  aov(Host_AFDW.mg.cm2 ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+```{r}
+model<-master %>%
+  filter(!is.na(Host_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Host_AFDW.mg.cm2)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(species=="Pocillopora")%>%
+  
+  aov(Host_AFDW.mg.cm2 ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+### Plot Symbiont biomass  
+
+View by means
+```{r}
+sAFDWplot_haplotype<-master %>%
+  filter(!is.na(Sym_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Sym_AFDW.mg.cm2)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(species=="Porites")%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Sym_AFDW.mg.cm2, na.rm=TRUE), se=sd(Sym_AFDW.mg.cm2, na.rm=TRUE)/sqrt(length(Sym_AFDW.mg.cm2)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+  
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 5)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("Symbiont Biomass (mg afdw cm"^-2, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );sAFDWplot_haplotype
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(Sym_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Sym_AFDW.mg.cm2)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(species=="Porites")%>%
+  
+  aov(Sym_AFDW.mg.cm2 ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+```{r}
+model<-master %>%
+  filter(!is.na(Sym_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Sym_AFDW.mg.cm2)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(species=="Pocillopora")%>%
+  
+  aov(Sym_AFDW.mg.cm2 ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+### Plot S:H Ratio  
+
+View by means
+```{r}
+ratioAFDWplot_haplotype<-master %>%
+  filter(!is.na(Sym_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")%>%
+  select(colony_id_corr, species, haplotype, month, Ratio_AFDW.mg.cm2)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Ratio_AFDW.mg.cm2, na.rm=TRUE), se=sd(Ratio_AFDW.mg.cm2, na.rm=TRUE)/sqrt(length(Ratio_AFDW.mg.cm2)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 0.6)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Symbiont : Host Biomass"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );ratioAFDWplot_haplotype
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(Sym_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")%>%
+  select(colony_id_corr, species, haplotype, month, Ratio_AFDW.mg.cm2)%>%
+  
+  aov(Ratio_AFDW.mg.cm2 ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(Sym_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Pocillopora")%>%
+  select(colony_id_corr, species, haplotype, month, Ratio_AFDW.mg.cm2)%>%
+  
+  aov(Ratio_AFDW.mg.cm2 ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+## Chlorophyll  
+
+### Plot: Total chl  
+
+View by means
+```{r}
+chlplot_total_haplotype<-master %>%
+  filter(!is.na(Total_Chl)) %>%
+  filter(!is.na(species))%>%
+  filter(Total_Chl>0)%>%
+  filter(species=="Porites")%>%
+  select(colony_id_corr, species, haplotype, month, Total_Chl)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Total_Chl, na.rm=TRUE), se=sd(Total_Chl, na.rm=TRUE)/sqrt(length(Total_Chl)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 7)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Total Chlorophyll (", mu, "g mg afdw"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );chlplot_total_haplotype
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(Total_Chl)) %>%
+  filter(!is.na(species))%>%
+  filter(Total_Chl>0)%>%
+  filter(species=="Porites")%>%
+  select(colony_id_corr, species, haplotype, month, Total_Chl)%>%
+  
+  aov(Total_Chl ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(Total_Chl)) %>%
+  filter(!is.na(species))%>%
+  filter(Total_Chl>0)%>%
+  filter(species=="Pocillopora")%>%
+  select(colony_id_corr, species, haplotype, month, Total_Chl)%>%
+  
+  aov(Total_Chl ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+View by means
+```{r}
+chlplot_total_cell_haplotype<-master %>%
+  filter(!is.na(Total_Chl_cell)) %>%
+  filter(!is.na(species))%>%
+  filter(Total_Chl_cell>0)%>%
+  filter(species=="Porites")%>%
+  
+  select(colony_id_corr, species, haplotype, month, Total_Chl_cell)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Total_Chl_cell, na.rm=TRUE), se=sd(Total_Chl_cell, na.rm=TRUE)/sqrt(length(Total_Chl_cell)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 3e-05)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Total Chlorophyll (", mu, "g cell"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );chlplot_total_cell_haplotype
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(Total_Chl_cell)) %>%
+  filter(!is.na(species))%>%
+  filter(Total_Chl_cell>0)%>%
+  filter(species=="Porites")%>%
+  
+  aov(Total_Chl_cell ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(Total_Chl_cell)) %>%
+  filter(!is.na(species))%>%
+  filter(Total_Chl_cell>0)%>%
+  filter(species=="Pocillopora")%>%
+  
+  aov(Total_Chl_cell ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+## Protein 
+
+### Plot: AFDW  
+
+View by means
+```{r}
+protplot_afdw_haplotype<-master %>%
+  filter(!is.na(prot_mg.mgafdw)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, prot_mg.mgafdw)%>%
+  filter(species=="Porites")%>%
+  filter(prot_mg.mgafdw>0)%>%
+  filter(prot_mg.mgafdw<1)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(prot_mg.mgafdw, na.rm=TRUE), se=sd(prot_mg.mgafdw, na.rm=TRUE)/sqrt(length(prot_mg.mgafdw)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+  geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 0.75)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("Protein (mg mg afdw"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );protplot_afdw_haplotype
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(prot_mg.mgafdw)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, prot_mg.mgafdw)%>%
+  filter(species=="Porites")%>%
+  filter(prot_mg.mgafdw>0)%>%
+  filter(prot_mg.mgafdw<1)%>%
+  
+  aov(prot_mg.mgafdw ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(prot_mg.mgafdw)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, prot_mg.mgafdw)%>%
+  filter(species=="Pocillopora")%>%
+  filter(prot_mg.mgafdw>0)%>%
+  filter(prot_mg.mgafdw<1)%>%
+  
+  aov(prot_mg.mgafdw ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+## PI Curve Parameters   
+
+### Plot: Am   
+
+View by means
+```{r}
+am_plot_haplotype<-master %>%
+  filter(!is.na(Am)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Am)%>%
+  filter(species=="Porites")%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Am, na.rm=TRUE), se=sd(Am, na.rm=TRUE)/sqrt(length(Am)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+  geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 4)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("P" [Max], " (µmol O" [2], " cm"^-2, " h"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );am_plot_haplotype
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(Am)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Am)%>%
+  filter(species=="Porites")%>%
+  
+  aov(Am ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(Am)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Am)%>%
+  filter(species=="Pocillopora")%>%
+  
+  aov(Am ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+### Plot: AQY  
+
+View by means
+```{r}
+aqy_plot_haplotype<-master %>%
+  filter(!is.na(AQY)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Porites")%>%
+  select(colony_id_corr, species, haplotype, month, AQY)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(AQY, na.rm=TRUE), se=sd(AQY, na.rm=TRUE)/sqrt(length(AQY)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 0.02)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("Apparent Quantum Yield (AQY)"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );aqy_plot_haplotype
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(AQY)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Porites")%>%
+  select(colony_id_corr, species, haplotype, month, AQY)%>%
+  
+  aov(AQY ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+```{r}
+model<-master %>%
+  filter(!is.na(AQY)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Pocillopora")%>%
+  select(colony_id_corr, species, haplotype, month, AQY)%>%
+  
+  aov(AQY ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+### Plot: Rd  
+
+View by means
+```{r}
+rd_plot_haplotype<-master %>%
+  filter(!is.na(Rd)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Porites")%>%
+  select(colony_id_corr, species, haplotype, month, Rd)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Rd, na.rm=TRUE), se=sd(Rd, na.rm=TRUE)/sqrt(length(Rd)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 2)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("Respiration (R" [D], ") (µmol O" [2], " cm"^-2, " h"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );rd_plot_haplotype
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(Rd)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Porites")%>%
+  select(colony_id_corr, species, haplotype, month, Rd)%>%
+  
+  aov(Rd ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+```{r}
+model<-master %>%
+  filter(!is.na(Rd)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Pocillopora")%>%
+  select(colony_id_corr, species, haplotype, month, Rd)%>%
+  
+  aov(Rd ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+### Plot: Ik  
+
+View by means
+```{r}
+Ik_plot_haplotype<-master %>%
+  filter(!is.na(Ik)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Ik)%>%
+  filter(species=="Porites")%>%
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Ik, na.rm=TRUE), se=sd(Ik, na.rm=TRUE)/sqrt(length(Ik)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 800)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("I" [K], " (PAR)"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );Ik_plot_haplotype
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(Ik)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Ik)%>%
+  filter(species=="Porites")%>%
+  
+  aov(Ik ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+```{r}
+model<-master %>%
+  filter(!is.na(Ik)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Ik)%>%
+  filter(species=="Pocillopora")%>%
+  
+  aov(Ik ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+### Plot: Ic  
+
+View by means
+```{r}
+Ic_plot_haplotype<-master %>%
+  filter(!is.na(Ic)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Ic)%>%
+  filter(species=="Porites")%>%
+  filter(Ic<1000)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Ic, na.rm=TRUE), se=sd(Ic, na.rm=TRUE)/sqrt(length(Ic)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 800)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("I" [C], " (PAR)"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );Ic_plot_haplotype
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(Ic)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Ic)%>%
+  filter(species=="Porites")%>%
+  filter(Ic<1000)%>%
+  
+  aov(Ic ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(Ic)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Ic)%>%
+  filter(species=="Pocillopora")%>%
+  filter(Ic<1000)%>%
+  
+  aov(Ic ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+## Calcification    
+
+### Plot: Calcification umol cm2 
+
+View by means
+```{r}
+calcplot_cm2_haplotype<-master %>%
+  filter(!is.na(calc.umol.cm2.hr)) %>%
+  filter(calc.umol.cm2.hr>0)%>%
+  filter(!is.na(species))%>%
+  filter(species=="Porites")%>%
+  select(colony_id_corr, species, haplotype, month, calc.umol.cm2.hr)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(calc.umol.cm2.hr, na.rm=TRUE), se=sd(calc.umol.cm2.hr, na.rm=TRUE)/sqrt(length(calc.umol.cm2.hr)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 2)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("Calcification (", mu,"mol Ca", CO[3], " cm"^-2, " hr"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );calcplot_cm2_haplotype
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(calc.umol.cm2.hr)) %>%
+  filter(calc.umol.cm2.hr>0)%>%
+  filter(!is.na(species))%>%
+  filter(species=="Porites")%>%
+  select(colony_id_corr, species, haplotype, month, calc.umol.cm2.hr)%>%
+  
+  aov(calc.umol.cm2.hr ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+Analyze for effect of haplotype. 
+```{r}
+model<-master %>%
+  filter(!is.na(calc.umol.cm2.hr)) %>%
+  filter(calc.umol.cm2.hr>0)%>%
+  filter(!is.na(species))%>%
+  filter(species=="Pocillopora")%>%
+  select(colony_id_corr, species, haplotype, month, calc.umol.cm2.hr)%>%
+  
+  aov(calc.umol.cm2.hr ~ haplotype * month, data=.)
+
+summary(model)
+```
+
+## Generating univariate response panels  
+
+First, specify symbiont and holobiont responses for plotting in separate panels.  
+```{r}
+symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ratio_AFDW.mg.cm2", "Ik", "Ic") 
+host_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd", "calc.umol.cm2.hr")
+```
+
+Generate a panel of responses for symbiont metrics.  
+
+```{r}
+#build a plot for the legend
+legend_plot_haplotype<-chlplot_total_cell_haplotype+theme(legend.position="bottom")
+
+# extract the legend from one of the plots
+legend_haplotype <- get_legend(
+  # create some space to the left of the legend
+  legend_plot_haplotype + theme(legend.box.margin = margin(1,1,1,1), legend.position="right")
+)
+
+Ic_plot<-Ic_plot + theme(legend.position="none")
+
+symbplot_afdw_haplotype<-symbplot_afdw_haplotype+theme(axis.text.x=element_blank())
+sAFDWplot_haplotype<-sAFDWplot_haplotype+theme(axis.text.x=element_blank())
+am_plot_haplotype<-am_plot_haplotype+theme(axis.text.x=element_blank())
+aqy_plot_haplotype<-aqy_plot_haplotype+theme(axis.text.x=element_blank())
+Ik_plot_haplotype<-Ik_plot_haplotype+theme(axis.text.x=element_blank())
+Ic_plot_haplotype<-Ic_plot_haplotype+theme(axis.text.x=element_blank())
+
+symbiont_univ_haplotype<-plot_grid(symbplot_afdw_haplotype, sAFDWplot_haplotype, am_plot_haplotype, aqy_plot_haplotype, Ik_plot_haplotype, Ic_plot_haplotype, chlplot_total_haplotype, chlplot_total_cell_haplotype, ratioAFDWplot_haplotype, ncol=3, nrow=3, rel_widths = c(1,1,1), rel_heights = c(0.8, 0.8, 1), align="v", label_y=1, labels=c("A", "B", "C", "D", "E", "F", "G", "H", "I"), label_size=20)
+
+symbiont_univ2_haplotype<-plot_grid(symbiont_univ_haplotype, legend_haplotype, ncol=2, nrow=1, rel_widths = c(1, .2))
+
+ggsave(filename="Figures/Univariate/Symbiont_Univariate_Panel_HaplotypePOR.png", plot=symbiont_univ2_haplotype, dpi=150, width=13, height=15, units="in")
+```
+ 
+Generate a panel of responses for host/holobiont metrics.  
+
+```{r}
+#build a plot for the legend
+legend_plot_haplotype<-calcplot_cm2_haplotype+theme(legend.position="bottom")
+rd_plot_haplotype<-rd_plot_haplotype+theme(legend.position="none")
+calcplot_cm2_haplotype<-calcplot_cm2_haplotype+theme(legend.position="none") 
+
+# extract the legend from one of the plots
+legend_haplotype <- get_legend(
+  # create some space to the left of the legend
+  legend_plot_haplotype + theme(legend.box.margin = margin(1.5,1.5,1.5,1.5), legend.position="right")
+)
+
+tacplot_afdw_haplotype<-tacplot_afdw_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank()) + theme(axis.title.y=element_text(size=12))
+hAFDWplot_haplotype<-hAFDWplot_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank())+ theme(axis.title.y=element_text(size=12))
+protplot_afdw_haplotype<-protplot_afdw_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank()) + theme(axis.title.y=element_text(size=12))
+rd_plot_haplotype<-rd_plot_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank())+ theme(axis.title.y=element_text(size=12))
+calcplot_cm2_haplotype<-calcplot_cm2_haplotype+ theme(axis.title.y=element_text(size=12))
+ 
+host_univ_haplotype<-plot_grid(tacplot_afdw_haplotype, hAFDWplot_haplotype, protplot_afdw_haplotype, rd_plot_haplotype, calcplot_cm2_haplotype, ncol=1, nrow=5, rel_heights = c(0.8, 0.8, 0.8, 0.8, 1), align="v", label_y=1, labels=c("A", "B", "C", "D", "E"), label_size=20)
+
+host_univ2_haplotype<-plot_grid(host_univ_haplotype, legend_haplotype, ncol=2, nrow=1, rel_widths = c(1, .5))
+
+ggsave(filename="Figures/Univariate/Host_Univariate_Panel_HaplotypePOR.png", plot=host_univ2_haplotype, dpi=150, width=8, height=22, units="in")
+```
+
+# Generate a panel of responses for Pocillopora haplotypes 
+
+## Antioxidant capacity  
+  
+View by means
+```{r}
+tacplot_afdw_haplotype<-master %>%
+  filter(!is.na(cre.umol.mgafdw)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Pocillopora")%>%
+  select(colony_id_corr, species, haplotype, month, cre.umol.mgafdw)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(cre.umol.mgafdw, na.rm=TRUE), se=sd(cre.umol.mgafdw, na.rm=TRUE)/sqrt(length(cre.umol.mgafdw)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+  
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) +
+  
+    ylim(0,0.1)+
+    xlab("") + 
+    ylab(expression(bold(paste("Antioxidant Capacity (", mu, "mol CRE mg afdw"^-1,")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );tacplot_afdw_haplotype
+```
+
+## Symbiont Densities  
+
+### Plot: Biomass   
+
+View by means
+```{r}
+symbplot_afdw_haplotype<-master %>%
+  filter(!is.na(cells.mgAFDW)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Pocillopora")%>%
+  select(colony_id_corr, species, haplotype, month, cells.mgAFDW)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(cells.mgAFDW, na.rm=TRUE), se=sd(cells.mgAFDW, na.rm=TRUE)/sqrt(length(cells.mgAFDW)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+  
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(1e+04, 6e+05)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("Symbiont Density (cells mg afdw"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );symbplot_afdw_haplotype
+```
+
+## Biomass
+
+### Plot Host Biomass  
+
+View by means
+```{r}
+hAFDWplot_haplotype<-master %>%
+  filter(!is.na(Host_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Host_AFDW.mg.cm2)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(species=="Pocillopora")%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Host_AFDW.mg.cm2, na.rm=TRUE), se=sd(Host_AFDW.mg.cm2, na.rm=TRUE)/sqrt(length(Host_AFDW.mg.cm2)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+  
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) +
+  
+    ylim(0, 10)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("Host Biomass (mg afdw cm"^-2, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );hAFDWplot_haplotype
+```
+
+
+### Plot Symbiont biomass  
+
+View by means
+```{r}
+sAFDWplot_haplotype<-master %>%
+  filter(!is.na(Sym_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Sym_AFDW.mg.cm2)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(species=="Pocillopora")%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Sym_AFDW.mg.cm2, na.rm=TRUE), se=sd(Sym_AFDW.mg.cm2, na.rm=TRUE)/sqrt(length(Sym_AFDW.mg.cm2)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+  
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 5)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("Symbiont Biomass (mg afdw cm"^-2, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );sAFDWplot_haplotype
+```
+
+
+### Plot S:H Ratio  
+
+View by means
+```{r}
+ratioAFDWplot_haplotype<-master %>%
+  filter(!is.na(Sym_AFDW.mg.cm2)) %>%
+  filter(!is.na(species))%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Pocillopora")%>%
+  select(colony_id_corr, species, haplotype, month, Ratio_AFDW.mg.cm2)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Ratio_AFDW.mg.cm2, na.rm=TRUE), se=sd(Ratio_AFDW.mg.cm2, na.rm=TRUE)/sqrt(length(Ratio_AFDW.mg.cm2)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 0.6)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Symbiont : Host Biomass"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );ratioAFDWplot_haplotype
+```
+
+## Chlorophyll  
+
+### Plot: Total chl  
+
+View by means
+```{r}
+chlplot_total_haplotype<-master %>%
+  filter(!is.na(Total_Chl)) %>%
+  filter(!is.na(species))%>%
+  filter(Total_Chl>0)%>%
+  filter(species=="Pocillopora")%>%
+  select(colony_id_corr, species, haplotype, month, Total_Chl)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Total_Chl, na.rm=TRUE), se=sd(Total_Chl, na.rm=TRUE)/sqrt(length(Total_Chl)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 7)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Total Chlorophyll (", mu, "g mg afdw"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );chlplot_total_haplotype
+```
+
+
+View by means
+```{r}
+chlplot_total_cell_haplotype<-master %>%
+  filter(!is.na(Total_Chl_cell)) %>%
+  filter(!is.na(species))%>%
+  filter(Total_Chl_cell>0)%>%
+  filter(species=="Pocillopora")%>%
+  
+  select(colony_id_corr, species, haplotype, month, Total_Chl_cell)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Total_Chl_cell, na.rm=TRUE), se=sd(Total_Chl_cell, na.rm=TRUE)/sqrt(length(Total_Chl_cell)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 3e-05)+
+  
+    xlab("Month") + 
+    ylab(expression(bold(paste("Total Chlorophyll (", mu, "g cell"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );chlplot_total_cell_haplotype
+```
+
+## Protein 
+
+### Plot: AFDW  
+
+View by means
+```{r}
+protplot_afdw_haplotype<-master %>%
+  filter(!is.na(prot_mg.mgafdw)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, prot_mg.mgafdw)%>%
+  filter(species=="Pocillopora")%>%
+  filter(prot_mg.mgafdw>0)%>%
+  filter(prot_mg.mgafdw<1)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(prot_mg.mgafdw, na.rm=TRUE), se=sd(prot_mg.mgafdw, na.rm=TRUE)/sqrt(length(prot_mg.mgafdw)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+  geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 0.75)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("Protein (mg mg afdw"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );protplot_afdw_haplotype
+```
+
+
+## PI Curve Parameters   
+
+### Plot: Am   
+
+View by means
+```{r}
+am_plot_haplotype<-master %>%
+  filter(!is.na(Am)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Am)%>%
+  filter(species=="Pocillopora")%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Am, na.rm=TRUE), se=sd(Am, na.rm=TRUE)/sqrt(length(Am)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+  geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 4)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("P" [Max], " (µmol O" [2], " cm"^-2, " h"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );am_plot_haplotype
+```
+
+### Plot: AQY  
+
+View by means
+```{r}
+aqy_plot_haplotype<-master %>%
+  filter(!is.na(AQY)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Pocillopora")%>%
+  select(colony_id_corr, species, haplotype, month, AQY)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(AQY, na.rm=TRUE), se=sd(AQY, na.rm=TRUE)/sqrt(length(AQY)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 0.02)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("Apparent Quantum Yield (AQY)"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );aqy_plot_haplotype
+```
+
+### Plot: Rd  
+
+View by means
+```{r}
+rd_plot_haplotype<-master %>%
+  filter(!is.na(Rd)) %>%
+  filter(!is.na(species))%>%
+  filter(species=="Pocillopora")%>%
+  select(colony_id_corr, species, haplotype, month, Rd)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Rd, na.rm=TRUE), se=sd(Rd, na.rm=TRUE)/sqrt(length(Rd)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 2)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("Respiration (R" [D], ") (µmol O" [2], " cm"^-2, " h"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );rd_plot_haplotype
+```
+
+### Plot: Ik  
+
+View by means
+```{r}
+Ik_plot_haplotype<-master %>%
+  filter(!is.na(Ik)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Ik)%>%
+  filter(species=="Pocillopora")%>%
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Ik, na.rm=TRUE), se=sd(Ik, na.rm=TRUE)/sqrt(length(Ik)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 800)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("I" [K], " (PAR)"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );Ik_plot_haplotype
+```
+
+### Plot: Ic  
+
+View by means
+```{r}
+Ic_plot_haplotype<-master %>%
+  filter(!is.na(Ic)) %>%
+  filter(!is.na(species))%>%
+  select(colony_id_corr, species, haplotype, month, Ic)%>%
+  filter(species=="Pocillopora")%>%
+  filter(Ic<1000)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(Ic, na.rm=TRUE), se=sd(Ic, na.rm=TRUE)/sqrt(length(Ic)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 800)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("I" [C], " (PAR)"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );Ic_plot_haplotype
+```
+
+
+## Calcification    
+
+### Plot: Calcification umol cm2 
+
+View by means
+```{r}
+calcplot_cm2_haplotype<-master %>%
+  filter(!is.na(calc.umol.cm2.hr)) %>%
+  filter(calc.umol.cm2.hr>0)%>%
+  filter(!is.na(species))%>%
+  filter(species=="Pocillopora")%>%
+  select(colony_id_corr, species, haplotype, month, calc.umol.cm2.hr)%>%
+  
+  group_by(species, haplotype, month)%>%
+  summarise(mean=mean(calc.umol.cm2.hr, na.rm=TRUE), se=sd(calc.umol.cm2.hr, na.rm=TRUE)/sqrt(length(calc.umol.cm2.hr)))%>%
+  
+  ggplot(., aes(x = month, y = mean, fill = haplotype, group=interaction(haplotype,month))) +
+    geom_line(aes(group=haplotype, colour=haplotype), position=position_dodge(0.1), size=2, show.legend=FALSE)+
+    geom_point(pch = 21, size=4, position = position_dodge(0.1)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0, linewidth=0.8, position=position_dodge(0.1))+
+  
+    labs(fill = "Haplotype") +
+  
+    scale_colour_manual(values=c("darkgray", "black")) +
+    scale_fill_manual(values=c("darkgray", "black")) + 
+  
+    ylim(0, 2)+
+  
+    xlab("") + 
+    ylab(expression(bold(paste("Calcification (", mu,"mol Ca", CO[3], " cm"^-2, " hr"^-1, ")"))))+
+    theme_classic() + 
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1, vjust=1),
+      strip.text.x=element_text(face="italic", size=14), 
+      panel.border = element_rect(fill=NA) 
+      );calcplot_cm2_haplotype
+```
+
+
+## Generating univariate response panels  
+
+First, specify symbiont and holobiont responses for plotting in separate panels.  
+```{r}
+symbiont_responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ratio_AFDW.mg.cm2", "Ik", "Ic") 
+host_responses<-c("cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd", "calc.umol.cm2.hr")
+```
+
+Generate a panel of responses for symbiont metrics.  
+
+```{r}
+#build a plot for the legend
+legend_plot_haplotype<-chlplot_total_cell_haplotype+theme(legend.position="bottom")
+
+# extract the legend from one of the plots
+legend_haplotype <- get_legend(
+  # create some space to the left of the legend
+  legend_plot_haplotype + theme(legend.box.margin = margin(1,1,1,1), legend.position="right")
+)
+
+Ic_plot<-Ic_plot_haplotype + theme(legend.position="none")
+
+symbplot_afdw_haplotype<-symbplot_afdw_haplotype+theme(axis.text.x=element_blank())
+sAFDWplot_haplotype<-sAFDWplot_haplotype+theme(axis.text.x=element_blank())
+am_plot_haplotype<-am_plot_haplotype+theme(axis.text.x=element_blank())
+aqy_plot_haplotype<-aqy_plot_haplotype+theme(axis.text.x=element_blank())
+Ik_plot_haplotype<-Ik_plot_haplotype+theme(axis.text.x=element_blank())
+Ic_plot_haplotype<-Ic_plot_haplotype+theme(axis.text.x=element_blank())
+
+symbiont_univ_haplotype<-plot_grid(symbplot_afdw_haplotype, sAFDWplot_haplotype, am_plot_haplotype, aqy_plot_haplotype, Ik_plot_haplotype, Ic_plot_haplotype, chlplot_total_haplotype, chlplot_total_cell_haplotype, ratioAFDWplot_haplotype, ncol=3, nrow=3, rel_widths = c(1,1,1), rel_heights = c(0.8, 0.8, 1), align="v", label_y=1, labels=c("A", "B", "C", "D", "E", "F", "G", "H", "I"), label_size=20)
+
+symbiont_univ2_haplotype<-plot_grid(symbiont_univ_haplotype, legend_haplotype, ncol=2, nrow=1, rel_widths = c(1, .25))
+
+ggsave(filename="Figures/Univariate/Symbiont_Univariate_Panel_HaplotypePOC.png", plot=symbiont_univ2_haplotype, dpi=150, width=13, height=15, units="in")
+```
+ 
+Generate a panel of responses for host/holobiont metrics.  
+
+```{r}
+#build a plot for the legend
+legend_plot_haplotype<-calcplot_cm2_haplotype+theme(legend.position="bottom")
+rd_plot_haplotype<-rd_plot_haplotype+theme(legend.position="none")
+calcplot_cm2_haplotype<-calcplot_cm2_haplotype+theme(legend.position="none") 
+
+# extract the legend from one of the plots
+legend_haplotype <- get_legend(
+  # create some space to the left of the legend
+  legend_plot_haplotype + theme(legend.box.margin = margin(1.5,1.5,1.5,1.5), legend.position="right")
+)
+
+tacplot_afdw_haplotype<-tacplot_afdw_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank()) + theme(axis.title.y=element_text(size=12))
+hAFDWplot_haplotype<-hAFDWplot_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank())+ theme(axis.title.y=element_text(size=12))
+protplot_afdw_haplotype<-protplot_afdw_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank()) + theme(axis.title.y=element_text(size=12))
+rd_plot_haplotype<-rd_plot_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank())+ theme(axis.title.y=element_text(size=12))
+calcplot_cm2_haplotype<-calcplot_cm2_haplotype+ theme(axis.title.y=element_text(size=12))
+ 
+host_univ_haplotype<-plot_grid(tacplot_afdw_haplotype, hAFDWplot_haplotype, protplot_afdw_haplotype, rd_plot_haplotype, calcplot_cm2_haplotype, ncol=1, nrow=5, rel_heights = c(0.8, 0.8, 0.8, 0.8, 1), align="v", label_y=1, labels=c("A", "B", "C", "D", "E"), label_size=20)
+
+host_univ2_haplotype<-plot_grid(host_univ_haplotype, legend_haplotype, ncol=2, nrow=1, rel_widths = c(1, .5))
+
+ggsave(filename="Figures/Univariate/Host_Univariate_Panel_HaplotypePOC.png", plot=host_univ2_haplotype, dpi=150, width=8, height=22, units="in")
 ```
 
 # Correlations  

@@ -12,6 +12,14 @@ editor_options:
   chunk_output_type: console
 --- 
 
+Definitions: 
+
+- Genus (Pocillopora, Acropora, and Porites) are coded as "species"
+- Haplotype are coded as "haplotype". In the manuscript document, haplotype is referred to as "holobiont" because the host genetic haplotype and the associated symbiont communities are exclusive. 
+- Biological levels are categorized in the code as all host and symbiont metrics together "holobiont" (i.e., "combined responses" in the manuscript to avoid confusion with above mentioned definition of holobiont), host metrics as "host", and symbiont metrics as "symbiont". 
+- Time point is coded for seasonal sampling (January, March, September, and November) as "timepoint"
+- Site is coded as "site" 
+
 # Set Up    
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
@@ -35,7 +43,7 @@ if (!require("GGally")) install.packages("GGally")
 if (!require("broom")) install.packages("broom")
 if (!require("cowplot")) install.packages("cowplot")
 if (!require("pairwiseAdonis")) BiocManager::install("pairwiseAdonis")
-devtools::install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
+#devtools::install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
 
 # load packages
 library(tidyverse)
@@ -717,7 +725,7 @@ pcaSpecies_afdw<-ggplot2::autoplot(scaled_data_afdw, data=pca_data_afdw, frame.c
   scale_colour_manual(values=c("darkgray", "orange", "purple")) +
   scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
   theme_classic()+
-  geom_text(x=0.15, y=-0.1, label=paste("p(Species)=", z_species$`Pr(>F)`[1]), size=4, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=0.15, y=-0.1, label=paste("p(Species)=", z_species$`Pr(>F)`[1]), size=4, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
   #xlim(-0.3,0.5)+
   #ylim(-0.3, 0.5)+
   #geom_text(x=0.3, y=-0.15, label=paste("p(Species)=", z_species$`Pr(>F)`[1]), size=6, color="black") + 
@@ -1085,8 +1093,8 @@ pcaSpecies_afdw<-ggplot2::autoplot(scaled_data_species, data=pca_data_species, f
   scale_colour_manual(values=c("darkgray", "orange", "purple")) +
   scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
   theme_classic()+
-  geom_text(x=0, y=0.28, label=paste("PERMANOVA p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=-0, y=0.26, label="PERMDISP p < 0.001", size=6, color="black") + 
+  #geom_text(x=0, y=0.28, label=paste("PERMANOVA p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=-0, y=0.26, label="PERMDISP p < 0.001", size=6, color="black") + 
   #xlim(-0.3,0.5)+
   #ylim(-0.3, 0.5)+
   xlab("PC1")+
@@ -1204,11 +1212,11 @@ pcaHaplotype_afdw<-ggplot2::autoplot(scaled_data_species, data=pca_data_species,
   scale_fill_manual(values=c("darkgray", "yellow3", "orange", "pink3", "purple2")) + 
   theme_classic()+
   #geom_text(x=0, y=0.28, label=paste("PERMANOVA p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=0.01, y=0.24, label="PERMANOVA POC posthoc p=0.551", size=4, color="darkgray") + 
-  geom_text(x=0.01, y=0.26, label="PERMDISP POC posthoc p=0.999", size=4, color="darkgray") + 
+  #geom_text(x=0.01, y=0.24, label="PERMANOVA POC posthoc p=0.551", size=4, color="darkgray") + 
+  #geom_text(x=0.01, y=0.26, label="PERMDISP POC posthoc p=0.999", size=4, color="darkgray") + 
   
-  geom_text(x=0.1, y=0.18, label="PERMANOVA POR posthoc p=0.010", size=4, color="black") + 
-  geom_text(x=0.11, y=0.2, label="PERMDISP POR posthoc p=0.102", size=4, color="darkgray") + 
+  #geom_text(x=0.1, y=0.18, label="PERMANOVA POR posthoc p=0.010", size=4, color="black") + 
+  #geom_text(x=0.11, y=0.2, label="PERMDISP POR posthoc p=0.102", size=4, color="darkgray") + 
   
   #xlim(-0.3,0.5)+
   #ylim(-0.3, 0.5)+
@@ -1307,8 +1315,8 @@ pcaSpecies_afdw_host<-ggplot2::autoplot(scaled_data_species_host, data=pca_data_
   scale_colour_manual(values=c("darkgray", "orange", "purple")) +
   scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
   theme_classic()+
-  geom_text(x=0, y=0.29, label=paste("PERMANOVA p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=0, y=0.26, label="PERMDISP p < 0.001", size=6, color="black") +
+  #geom_text(x=0, y=0.29, label=paste("PERMANOVA p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=0, y=0.26, label="PERMDISP p < 0.001", size=6, color="black") +
   #xlim(-0.3,0.5)+
   #ylim(-0.3, 0.5)+
   xlab("PC1")+
@@ -1323,6 +1331,7 @@ pcaSpecies_afdw_host<-ggplot2::autoplot(scaled_data_species_host, data=pca_data_
         axis.title = element_text(size=18, color="black"));pcaSpecies_afdw_host
 
 ggsave(filename="Figures/NormalizerPCA/Species_Host_PCA.jpeg", plot=pcaSpecies_afdw_host, dpi=300, width=5, height=5, units="in")
+ggsave(filename="Figures/NormalizerPCA/Species_Host_PCA.pdf", plot=pcaSpecies_afdw_host, dpi=300, width=5, height=5, units="in")
 ```
 
 Generate a biplot for this PCA. 
@@ -1344,6 +1353,7 @@ pcaSpecies_afdw_host_biplot<-ggplot2::autoplot(scaled_data_species_host, data=pc
         axis.title = element_text(size=18, color="black"));pcaSpecies_afdw_host_biplot
 
 ggsave(filename="Figures/NormalizerPCA/Species_Host_BiPlot.jpeg", plot=pcaSpecies_afdw_host_biplot, dpi=300, width=5, height=5, units="in")
+ggsave(filename="Figures/NormalizerPCA/Species_Host_BiPlot.pdf", plot=pcaSpecies_afdw_host_biplot, dpi=300, width=5, height=5, units="in")
 ```
 
 Species specific PCAs and PERMANOVAs are in the next script, `4_multivariate_analysis.RmD`.  
@@ -1372,7 +1382,7 @@ scaled_data_haplotype_host<-prcomp(pca_data_haplotype_host[c(5:9)], scale=TRUE, 
 vegan <- scale(pca_data_haplotype_host[ ,5:9])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
-permanova<-adonis2(vegan ~ haplotype, data = pca_data_haplotype_host, method='eu')
+permanova<-adonis2(vegan ~ species/haplotype, data = pca_data_haplotype_host, method='eu')
 z_haplotype<-permanova
 z_haplotype
 
@@ -1435,8 +1445,8 @@ pcaHaplotype_afdw_host<-ggplot2::autoplot(scaled_data_haplotype_host, data=pca_d
   scale_colour_manual(values=c("darkgray", "yellow3", "orange", "pink3", "purple2")) +
   scale_fill_manual(values=c("darkgray", "yellow3", "orange", "pink3", "purple2")) + 
   theme_classic()+
-  geom_text(x=0.05, y=0.26, label="PERMDISP POC&POR posthoc p > 0.05", size=4, color="darkgray") +
-  geom_text(x=0.05, y=0.22, label="PERMANOVA POC&POR posthoc p > 0.05", size=4, color="darkgray") +
+  #geom_text(x=0.05, y=0.26, label="PERMDISP posthoc POR p=0.16, POC p=0.99", size=4, color="darkgray") +
+  #geom_text(x=0.05, y=0.22, label="PERMANOVA posthoc POR p=0.64, POC p=0.54", size=4, color="darkgray") +
   #xlim(-0.3,0.5)+
   #ylim(-0.3, 0.5)+
   xlab("PC1")+
@@ -1451,6 +1461,7 @@ pcaHaplotype_afdw_host<-ggplot2::autoplot(scaled_data_haplotype_host, data=pca_d
         axis.title = element_text(size=18, color="black"));pcaHaplotype_afdw_host
 
 ggsave(filename="Figures/NormalizerPCA/Haplotype_Host_PCA.jpeg", plot=pcaHaplotype_afdw_host, dpi=300, width=5, height=5, units="in")
+ggsave(filename="Figures/NormalizerPCA/Haplotype_Host_PCA.pdf", plot=pcaHaplotype_afdw_host, dpi=300, width=5, height=5, units="in")
 ```
 
 Generate a biplot for this PCA. 
@@ -1538,8 +1549,8 @@ pcaSpecies_afdw_sym<-ggplot2::autoplot(scaled_data_species_sym, data=pca_data_sp
   scale_colour_manual(values=c("darkgray", "orange", "purple")) +
   scale_fill_manual(values=c("darkgray", "orange", "purple")) + 
   theme_classic()+
-  geom_text(x=-0.05, y=0.17, label=paste("PERMANOVA p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
-  geom_text(x=-0.05, y=0.14, label="PERMDISP p < 0.001", size=6, color="black") +
+  #geom_text(x=-0.05, y=0.17, label=paste("PERMANOVA p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
+  #geom_text(x=-0.05, y=0.14, label="PERMDISP p < 0.001", size=6, color="black") +
   xlim(-0.2,0.2)+
   ylim(-0.22, 0.18)+
   xlab("PC1")+
@@ -1554,6 +1565,7 @@ pcaSpecies_afdw_sym<-ggplot2::autoplot(scaled_data_species_sym, data=pca_data_sp
         axis.title = element_text(size=18, color="black"));pcaSpecies_afdw_sym
 
 ggsave(filename="Figures/NormalizerPCA/Species_Symbiont_PCA.jpeg", plot=pcaSpecies_afdw_sym, dpi=300, width=7, height=5, units="in")
+ggsave(filename="Figures/NormalizerPCA/Species_Symbiont_PCA.pdf", plot=pcaSpecies_afdw_sym, dpi=300, width=7, height=5, units="in")
 ```
 
 Generate a biplot for this PCA. 
@@ -1575,6 +1587,7 @@ pcaSpecies_afdw_sym_biplot<-ggplot2::autoplot(scaled_data_species_sym, data=pca_
         axis.title = element_text(size=18, color="black"));pcaSpecies_afdw_sym_biplot
 
 ggsave(filename="Figures/NormalizerPCA/Species_Sym_BiPlot.jpeg", plot=pcaSpecies_afdw_sym_biplot, dpi=300, width=5, height=5, units="in")
+ggsave(filename="Figures/NormalizerPCA/Species_Sym_BiPlot.pdf", plot=pcaSpecies_afdw_sym_biplot, dpi=300, width=5, height=5, units="in")
 ```
 
 Species specific PCAs and PERMANOVAs are in the next script, `4_multivariate_analysis.RmD`.  
@@ -1603,15 +1616,16 @@ scaled_data_haplotype_sym<-prcomp(pca_data_haplotype_sym[c(5:13)], scale=TRUE, c
 vegan <- scale(pca_data_haplotype_sym[ ,5:13])
 
 # PerMANOVA - partitioning the euclidean distance matrix by haplotype
-permanova<-adonis2(vegan ~ haplotype, data = pca_data_haplotype_sym, method='eu')
+permanova<-adonis2(vegan ~ species/haplotype, data = pca_data_haplotype_sym, method='eu')
 z_haplotype<-permanova
 z_haplotype
 
 # adonis2(formula = vegan ~ haplotype, data = pca_data_haplotype_sym, method = "eu")
-#            Df SumOfSqs      R2      F Pr(>F)    
-# haplotype   4     1303 0.35313 55.408  0.001 ***
-# Residual  406     2387 0.64687                  
-# Total     410     3690 1.00000         
+#                    Df SumOfSqs      R2      F Pr(>F)    
+# species             2   1174.5 0.31829 99.885  0.001 ***
+# species:haplotype   2    128.5 0.03483 10.932  0.001 ***
+# Residual          406   2387.0 0.64687                  
+# Total             410   3690.0 1.00000        
 
 #conduct pairwise adonis to look at pairwise permanova comparisons
 pairwise.adonis(x=pca_data_haplotype_sym[ ,5:9],factors=pca_data_haplotype_sym$haplotype, sim.function="vegdist",  sim.method='euclidean', p.adjust.m='bonferroni')
@@ -1667,9 +1681,8 @@ pcaHaplotype_afdw_sym<-ggplot2::autoplot(scaled_data_haplotype_sym, data=pca_dat
   scale_colour_manual(values=c("darkgray", "yellow3", "orange", "pink3", "purple2")) +
   scale_fill_manual(values=c("darkgray", "yellow3", "orange", "pink3", "purple2")) + 
   theme_classic()+
-  geom_text(x=-0.05, y=0.18, label="PERMANOVA POC posthoc p > 0.05", size=4, color="darkgray") +
-    geom_text(x=-0.05, y=0.16, label="PERMANOVA POR posthoc p = 0.01", size=4, color="black") +
-    geom_text(x=-0.05, y=0.14, label="PERMDISP POC&POR posthoc p > 0.05", size=4, color="darkgray") +
+  #geom_text(x=0, y=0.18, label="PERMANOVA posthoc POC p=1.00, POR p=0.01", size=4, color="black") +
+    #geom_text(x=0, y=0.14, label="PERMDISP posthoc POC p=0.99, POR p=0.15", size=4, color="darkgray") +
   xlim(-0.2,0.2)+
   ylim(-0.22, 0.18)+
   xlab("PC1")+
@@ -1684,6 +1697,7 @@ pcaHaplotype_afdw_sym<-ggplot2::autoplot(scaled_data_haplotype_sym, data=pca_dat
         axis.title = element_text(size=18, color="black"));pcaHaplotype_afdw_sym
 
 ggsave(filename="Figures/NormalizerPCA/Haplotype_Symbiont_PCA.jpeg", plot=pcaHaplotype_afdw_sym, dpi=300, width=8, height=5, units="in")
+ggsave(filename="Figures/NormalizerPCA/Haplotype_Symbiont_PCA.pdf", plot=pcaHaplotype_afdw_sym, dpi=300, width=8, height=5, units="in")
 ```
 
 Generate a biplot for this PCA. 

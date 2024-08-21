@@ -11,6 +11,13 @@ output:
 editor_options: 
   chunk_output_type: console
 --- 
+Definitions: 
+
+- Genus (Pocillopora, Acropora, and Porites) are coded as "species"
+- Haplotype are coded as "haplotype". In the manuscript document, haplotype is referred to as "holobiont" because the host genetic haplotype and the associated symbiont communities are exclusive. 
+- Biological levels are categorized in the code as all host and symbiont metrics together "holobiont" (i.e., "combined responses" in the manuscript to avoid confusion with above mentioned definition of holobiont), host metrics as "host", and symbiont metrics as "symbiont". 
+- Time point is coded for seasonal sampling (January, March, September, and November) as "timepoint"
+- Site is coded as "site" 
 
 # Set Up     
 
