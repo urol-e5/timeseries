@@ -1,0 +1,15 @@
+species,haplotype,site,timepoint,n
+Acropora,Acropora pulchra,Hilton,timepoint1,13
+Acropora,Acropora pulchra,Mahana,timepoint1,14
+Acropora,Acropora pulchra,Manava,timepoint1,15
+Pocillopora,Pocillopora meandrina,Hilton,timepoint1,3
+Pocillopora,Pocillopora meandrina,Mahana,timepoint1,8
+Pocillopora,Pocillopora meandrina,Manava,timepoint1,3
+Pocillopora,Pocillopora tuahiniensis,Hilton,timepoint1,12
+Pocillopora,Pocillopora tuahiniensis,Mahana,timepoint1,5
+Pocillopora,Pocillopora tuahiniensis,Manava,timepoint1,12
+Porites,Porites evermanni,Hilton,timepoint1,12
+Porites,Porites evermanni,Mahana,timepoint1,6
+Porites,Porites evermanni,Manava,timepoint1,15
+Porites,Porites lobata lutea,Hilton,timepoint1,3
+Porites,Porites lobata lutea,Mahana,timepoint1,9
