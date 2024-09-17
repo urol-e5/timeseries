@@ -159,405 +159,223 @@ anova(acr.comm.rda.sym, by="terms")
 #Porites RDA- Host metrics 
 ```{r}
 names(por_data_community)
-por.comm.rda.host<-dbrda(vegdist(por_data_community[, c(24:63)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc + haplotype, 
+por.comm.rda.host<-dbrda(vegdist(por_data_community[, c(24:63)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc, 
                        data=por_data_community, dist="bray")
 
 ##Check model significance
 anova(por.comm.rda.host)
-# Model: dbrda(formula = vegdist(por_data_community[, c(24:63)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc + haplotype, data = por_data_community, distance = "bray")
+# Model: dbrda(formula = vegdist(por_data_community[, c(24:63)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc, data = por_data_community, distance = "bray")
 #           Df SumOfSqs      F Pr(>F)    
-# Model      6   13.854 8.8691  0.001 ***
-# Residual 128   33.323  
+# Model      5    6.684 4.2585  0.001 ***
+# Residual 129   40.493 
 
 plot(por.comm.rda.host)
 
 ##Check variance explained by model
 (summary(por.comm.rda.host)$constr.chi/summary(por.comm.rda.host)$tot.chi)*100
-#29.37% of the variance in Symbiont community composition is constrained by Host physiological metrics 
+#14.17% of the variance in Symbiont community composition is constrained by Host physiological metrics 
 
 RsquareAdj(por.comm.rda.host)$adj.r.squared*100
-#Adjusted: The model explains 26.05% of the variation in Symbiont community composition
+#Adjusted: The model explains 10.84% of the variation in Symbiont community composition
 
 ##Check variance explained by each axis
 anova(por.comm.rda.host, by="axis")
+# Model: dbrda(formula = vegdist(por_data_community[, c(24:63)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc, data = por_data_community, distance = "bray")
 #           Df SumOfSqs       F Pr(>F)    
-# dbRDA1     1   12.872 49.4437  0.001 ***
-# dbRDA2     1    0.492  1.8911  0.784    
-# dbRDA3     1    0.331  1.2699  0.896    
-# dbRDA4     1    0.096  0.3703  1.000    
-# dbRDA5     1    0.035  0.1349           
-# dbRDA6     1    0.027  0.1043           
-# Residual 128   33.323   
+# dbRDA1     1    6.034 19.2228  0.001 ***
+# dbRDA2     1    0.367  1.1705  0.938    
+# dbRDA3     1    0.157  0.4988  0.998    
+# dbRDA4     1    0.095  0.3022  1.000    
+# dbRDA5     1    0.031  0.0980           
+# Residual 129   40.493     
 
 summary(por.comm.rda.host)$cont
-#dbRDA1 explains 27.28% of total variance 
-#dbRDA2 explains 1.04% of total variance 
+#dbRDA1 explains 12.79% of total variance 
+#dbRDA2 explains 0.78% of total variance 
 
 summary(por.comm.rda.host)$concont
-#dbRDA1 explains 92.91% of constrained variance 
-#dbRDA2 explains 3.56% of constrained variance 
+#dbRDA1 explains 90.28% of constrained variance 
+#dbRDA2 explains 5.50% of constrained variance 
 
 ##Check variance explained by each Host physiological metric
 anova(por.comm.rda.host, by="terms")
-#                  Df SumOfSqs       F Pr(>F)    
-# Antiox_Capacity   1    4.067 15.6211  0.001 ***
-# Host_Biomass      1    1.304  5.0089  0.005 ** 
-# Host_Protein      1    0.636  2.4415  0.039 *  
-# Rd                1    0.297  1.1390  0.289    
-# Calc              1    0.381  1.4627  0.181    
-# haplotype         1    7.170 27.5412  0.001 ***
-# Residual        128   33.323  
+#                 Df SumOfSqs       F Pr(>F)    
+# Antiox_Capacity   1    4.067 12.9555  0.001 ***
+# Host_Biomass      1    1.304  4.1542  0.002 ** 
+# Host_Protein      1    0.636  2.0249  0.077 .  
+# Rd                1    0.297  0.9446  0.428    
+# Calc              1    0.381  1.2131  0.269    
+# Residual        129   40.493  
 
 ```
 
 #Porites RDA- Symbiont metrics 
 ```{r}
 names(por_data_community)
-por.comm.rda.sym<-dbrda(vegdist(por_data_community[, c(24:63)], "bray") ~ Symbiont_Density + Symbiont_Biomass + Total_Chl + Total_Chl_cell + Am + AQY + Ik + Ic + S_H_Biomass_Ratio + haplotype, data=por_data_community, dist="bray")
+por.comm.rda.sym<-dbrda(vegdist(por_data_community[, c(24:63)], "bray") ~ Symbiont_Density + Symbiont_Biomass + Total_Chl + Total_Chl_cell + Am + AQY + Ik + Ic + S_H_Biomass_Ratio, data=por_data_community, dist="bray")
 
 ##Check model significance
 anova(por.comm.rda.sym)
-# Model: dbrda(formula = vegdist(por_data_community[, c(24:63)], "bray") ~ Symbiont_Density + Symbiont_Biomass + Total_Chl + Total_Chl_cell + Am + AQY + Ik + Ic + S_H_Biomass_Ratio + haplotype, data = por_data_community, distance = "bray")
+# Model: dbrda(formula = vegdist(por_data_community[, c(24:63)], "bray") ~ Symbiont_Density + Symbiont_Biomass + Total_Chl + Total_Chl_cell + Am + AQY + Ik + Ic + S_H_Biomass_Ratio, data = por_data_community, distance = "bray")
 #           Df SumOfSqs      F Pr(>F)    
-# Model     10   16.032 6.3831  0.001 ***
-# Residual 124   31.144  
+# Model      9   10.655 4.0519  0.001 ***
+# Residual 125   36.522  
 
 plot(por.comm.rda.sym)
 
 ##Check variance explained by model
 (summary(por.comm.rda.sym)$constr.chi/summary(por.comm.rda.sym)$tot.chi)*100
-#33.98% of the variance in Symbiont community composition is constrained by symbiont physiological metrics 
+#22.58% of the variance in Symbiont community composition is constrained by symbiont physiological metrics 
 
 RsquareAdj(por.comm.rda.sym)$adj.r.squared*100
-#Adjusted: The model explains 28.66% of the variation in Symbiont community composition
+#Adjusted: The model explains 17.01% of the variation in Symbiont community composition
 
 ##Check variance explained by each axis
 anova(por.comm.rda.sym, by="axis")
-#           Df SumOfSqs       F Pr(>F)    
-# dbRDA1     1  13.2169 52.6226  0.001 ***
-# dbRDA2     1   1.2356  4.9193  0.303    
-# dbRDA3     1   0.8029  3.1968  0.652    
-# dbRDA4     1   0.3274  1.3036  0.994    
-# dbRDA5     1   0.2045  0.8144  1.000    
-# dbRDA6     1   0.1022  0.4069           
-# dbRDA7     1   0.0588  0.2343           
-# dbRDA8     1   0.0417  0.1660           
-# dbRDA9     1   0.0243  0.0969           
-# dbRDA10    1   0.0176  0.0701           
-# Residual 124  31.1443   
+#  Df SumOfSqs       F Pr(>F)    
+# dbRDA1     1    8.538 29.2228  0.001 ***
+# dbRDA2     1    0.852  2.9160  0.731    
+# dbRDA3     1    0.590  2.0202  0.910    
+# dbRDA4     1    0.296  1.0121  1.000    
+# dbRDA5     1    0.202  0.6926           
+# dbRDA6     1    0.072  0.2464           
+# dbRDA7     1    0.058  0.1979           
+# dbRDA8     1    0.026  0.0884           
+# dbRDA9     1    0.021  0.0709           
+# Residual 125   36.522   
 
 summary(por.comm.rda.sym)$cont
-#dbRDA1 explains 28.02% of total variance 
-#dbRDA2 explains 2.62% of total variance 
+#dbRDA1 explains 18.1% of total variance 
+#dbRDA2 explains 1.81% of total variance 
 
 summary(por.comm.rda.sym)$concont
-#dbRDA1 explains 82.44% of constrained variance 
-#dbRDA2 explains 7.71% of constrained variance 
+#dbRDA1 explains 80.13% of constrained variance 
+#dbRDA2 explains 7.99% of constrained variance 
 
 ##Check variance explained by each Symbiont physiological metric
 anova(por.comm.rda.sym, by="terms")
 #                    Df SumOfSqs       F Pr(>F)    
-# Symbiont_Density    1   2.8876 11.4968  0.001 ***
-# Symbiont_Biomass    1   3.6514 14.5380  0.001 ***
-# Total_Chl           1   0.2881  1.1472  0.300    
-# Total_Chl_cell      1   0.5648  2.2489  0.052 .  
-# Am                  1   0.7719  3.0733  0.025 *  
-# AQY                 1   1.5205  6.0537  0.002 ** 
-# Ik                  1   0.2988  1.1898  0.293    
-# Ic                  1   0.4020  1.6005  0.164    
-# S_H_Biomass_Ratio   1   0.2696  1.0734  0.330    
-# haplotype           1   5.3772 21.4093  0.001 ***
-# Residual          124  31.1443   
+# Symbiont_Density    1    2.888  9.8831  0.002 ** 
+# Symbiont_Biomass    1    3.651 12.4975  0.001 ***
+# Total_Chl           1    0.288  0.9862  0.423    
+# Total_Chl_cell      1    0.565  1.9332  0.101    
+# Am                  1    0.772  2.6419  0.038 *  
+# AQY                 1    1.520  5.2040  0.002 ** 
+# Ik                  1    0.299  1.0228  0.354    
+# Ic                  1    0.402  1.3759  0.214    
+# S_H_Biomass_Ratio   1    0.270  0.9228  0.438    
+# Residual          125   36.522   
 
 ```
 
 #Pocillopora RDA- Host metrics 
 ```{r}
 names(poc_data_community)
-poc.comm.rda.host<-dbrda(vegdist(poc_data_community[, c(24:63)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc + haplotype, 
+poc.comm.rda.host<-dbrda(vegdist(poc_data_community[, c(24:63)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc, 
                        data=poc_data_community, dist="bray")
 
 ##Check model significance
 anova(poc.comm.rda.host)
-#           Df SumOfSqs     F Pr(>F)    
-# Model      6    7.355 3.516  0.001 ***
-# Residual 119   41.487     
+# Model: dbrda(formula = vegdist(poc_data_community[, c(24:63)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc, data = poc_data_community, distance = "bray")
+#           Df SumOfSqs      F Pr(>F)
+# Model      5    1.291 0.6516  0.886
+# Residual 120   47.551     
 
 plot(poc.comm.rda.host)
 
 ##Check variance explained by model
 (summary(poc.comm.rda.host)$constr.chi/summary(poc.comm.rda.host)$tot.chi)*100
-#15.06% of the variance in Symbiont community composition is constrained by symbiont physiological metrics 
+#2.64% of the variance in Symbiont community composition is constrained by symbiont physiological metrics 
 
 RsquareAdj(poc.comm.rda.host)$adj.r.squared*100
-#Adjusted: The model explains 10.78% of the variation in Symbiont community composition
+#Adjusted: The model explains <0% of the variation in Symbiont community composition
 
 ##Check variance explained by each axis
 anova(poc.comm.rda.host, by="axis")
 # Model: dbrda(formula = vegdist(poc_data_community[, c(24:63)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc + haplotype, data = poc_data_community, distance = "bray")
-#           Df SumOfSqs       F Pr(>F)    
-# dbRDA1     1    6.401 18.3598  0.001 ***
-# dbRDA2     1    0.622  1.7828  0.882    
-# dbRDA3     1    0.229  0.6574  0.999    
-# dbRDA4     1    0.074  0.2126  1.000    
-# dbRDA5     1    0.021  0.0601           
-# dbRDA6     1    0.008  0.0230           
-# Residual 119   41.487 
+# Model: dbrda(formula = vegdist(poc_data_community[, c(24:63)], "bray") ~ Antiox_Capacity + Host_Biomass + Host_Protein + Rd + Calc, data = poc_data_community, distance = "bray")
+#           Df SumOfSqs      F Pr(>F)
+# dbRDA1     1    0.824 2.0784  0.755
+# dbRDA2     1    0.251 0.6324  1.000
+# dbRDA3     1    0.175 0.4417       
+# dbRDA4     1    0.031 0.0771       
+# dbRDA5     1    0.011 0.0286       
+# Residual 120   47.551 
 
 summary(poc.comm.rda.host)$cont
-#dbRDA1 explains 13.11% of total variance 
-#dbRDA2 explains 1.27% of total variance 
+#dbRDA1 explains 1.67% of total variance 
+#dbRDA2 explains 0.51% of total variance 
 
 summary(poc.comm.rda.host)$concont
-#dbRDA1 explains 87.03% of constrained variance 
-#dbRDA2 explains 8.45% of constrained variance 
+#dbRDA1 explains 63.79% of constrained variance 
+#dbRDA2 explains 19.41% of constrained variance 
 
 ##Check variance explained by each Symbiont physiological metric
 anova(poc.comm.rda.host, by="terms")
-#                  Df SumOfSqs       F Pr(>F)    
-# Antiox_Capacity   1    0.050  0.1446  0.976    
-# Host_Biomass      1    0.168  0.4818  0.767    
-# Host_Protein      1    0.147  0.4207  0.809    
-# Rd                1    0.742  2.1270  0.073 .  
-# Calc              1    0.184  0.5291  0.726    
-# haplotype         1    6.064 17.3926  0.001 ***
-# Residual        119   41.487  
+#                  Df SumOfSqs      F Pr(>F)  
+# Antiox_Capacity   1    0.050 0.1272  0.992  
+# Host_Biomass      1    0.168 0.4239  0.791  
+# Host_Protein      1    0.147 0.3701  0.826  
+# Rd                1    0.742 1.8714  0.096 .
+# Calc              1    0.184 0.4655  0.826  
+# Residual        120   47.551  
 
 ```
 
 #Pocillopora RDA- Symbiont metrics 
 ```{r}
 names(poc_data_community)
-poc.comm.rda.sym<-dbrda(vegdist(poc_data_community[, c(24:63)], "bray") ~ Symbiont_Density + Symbiont_Biomass + Total_Chl + Total_Chl_cell + Am + AQY + Ik + Ic + S_H_Biomass_Ratio + haplotype, data=poc_data_community, dist="bray")
+poc.comm.rda.sym<-dbrda(vegdist(poc_data_community[, c(24:63)], "bray") ~ Symbiont_Density + Symbiont_Biomass + Total_Chl + Total_Chl_cell + Am + AQY + Ik + Ic + S_H_Biomass_Ratio, data=poc_data_community, dist="bray")
 
 ##Check model significance
 anova(poc.comm.rda.sym)
 #           Df SumOfSqs      F Pr(>F)    
-# Model     10   10.029 2.9715  0.001 ***
-# Residual 115   38.813 
+# Model      9    6.882 2.1141  0.001 ***
+# Residual 116   41.959  
 
 plot(poc.comm.rda.sym)
 
 ##Check variance explained by model
 (summary(poc.comm.rda.sym)$constr.chi/summary(poc.comm.rda.sym)$tot.chi)*100
-#20.53% of the variance in Symbiont community composition is constrained by Host physiological metrics 
+#14.09% of the variance in Symbiont community composition is constrained by Host physiological metrics 
 
 RsquareAdj(poc.comm.rda.sym)$adj.r.squared*100
-#Adjusted: The model explains 13.62% of the variation in Symbiont community composition
+#Adjusted: The model explains 7.43% of the variation in Symbiont community composition
 
 ##Check variance explained by each axis
 anova(poc.comm.rda.sym, by="axis")
+#           Df SumOfSqs       F Pr(>F)    
+# dbRDA1     1    4.173 11.5355  0.001 ***
+# dbRDA2     1    1.444  3.9919  0.486    
+# dbRDA3     1    0.962  2.6584  0.794    
+# dbRDA4     1    0.183  0.5065  1.000    
+# dbRDA5     1    0.094  0.2603           
+# dbRDA6     1    0.016  0.0438           
+# dbRDA7     1    0.009  0.0240           
+# dbRDA8     1    0.002  0.0052           
+# dbRDA9     1    0.000  0.0013           
+# Residual 116   41.959  
 
 summary(poc.comm.rda.sym)$cont
-#dbRDA1 explains 14.42% of total variance 
-#dbRDA2 explains 2.99% of total variance 
+#dbRDA1 explains 8.54% of total variance 
+#dbRDA2 explains 2.96% of total variance 
 
 summary(poc.comm.rda.sym)$concont
-#dbRDA1 explains 70.23% of constrained variance 
-#dbRDA2 explains 14.54% of constrained variance 
+#dbRDA1 explains 60.63% of constrained variance 
+#dbRDA2 explains 20.98% of constrained variance 
 
 ##Check variance explained by each Symbiont physiological metric
 anova(poc.comm.rda.sym, by="terms")
 
-# Model: dbrda(formula = vegdist(poc_data_community[, c(24:63)], "bray") ~ Symbiont_Density + Symbiont_Biomass + Total_Chl + Total_Chl_cell + Am + AQY + Ik + Ic + S_H_Biomass_Ratio + haplotype, data = poc_data_community, distance = "bray")
 #                    Df SumOfSqs      F Pr(>F)    
-# Symbiont_Density    1    0.305 0.9030  0.442    
-# Symbiont_Biomass    1    1.171 3.4685  0.012 *  
-# Total_Chl           1    1.789 5.2993  0.002 ** 
-# Total_Chl_cell      1    0.841 2.4919  0.037 *  
-# Am                  1    0.096 0.2836  0.912    
-# AQY                 1    0.177 0.5238  0.721    
-# Ik                  1    0.488 1.4451  0.209    
-# Ic                  1    1.015 3.0077  0.020 *  
-# S_H_Biomass_Ratio   1    1.002 2.9693  0.023 *  
-# haplotype           1    3.147 9.3230  0.001 ***
-# Residual          115   38.813    
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-NEED TO RE DO THESE FOR STATS AND PLOTS 
-
-
-#Generate Figures- Symbiont metrics 
-```{r}
-
-##Plot Feature Sizes
-axis.title.sz=18
-axis.txt.sz=14
-leg.title.sz=15
-leg.txt.sz=12
-levels.sz=6
-sig.sz=5
-panel.lab.sz=25
-
-
-##Acropora 
-
-#Create dataframe with RDA scores
-acr.comm.rda.sym.scores<- data.frame(scores(acr.comm.rda.sym)$sites)
-acr.comm.rda.sym.scores$sample_id<- rownames(acr.comm.rda.sym.scores)
-names(acr_data_community)
-acr.comm.rda.sym.scores<-merge(acr_data_community[,c(1:23, 64:65)], acr.comm.rda.sym.scores)
-names(acr.comm.rda.sym.scores)
-
-#Create dataframe with physiological metric vectors
-acr.comm.rda.sym.phys<-data.frame(summary(acr.comm.rda.sym)$biplot[,1:2]) * ordiArrowMul(acr.comm.rda.sym, display="bp")
-acr.comm.rda.sym.phys$Metric<-rownames(acr.comm.rda.sym.phys)
-
-#Plot biplot
-acr.comm.rda.sym.plot<-ggplot(data = acr.comm.rda.sym.scores, aes(x = dbRDA1, y = dbRDA2)) + 
-  geom_point(data = acr.comm.rda.sym.scores, size = 3, alpha = 0.8, aes(colour = site, fill = site)) + 
-  theme_classic()+
-  ggtitle("Acropora")+
-  #xlim(-11, 9)+
-  #ylim(-5, 15)+
-  scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+  
-  scale_fill_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+
-  theme(plot.title = element_text(size=panel.lab.sz, hjust = 0.5), 
-        axis.title.x = element_text(size = axis.title.sz), 
-        axis.title.y = element_text(size = axis.title.sz), 
-        axis.text.x=element_text(size=axis.txt.sz, colour="black"), 
-        axis.text.y=element_text(size=axis.txt.sz, colour="black"), 
-        legend.position=c(0.2, 0.9), 
-        legend.direction = "vertical", 
-        legend.text=element_text(size=leg.title.sz), 
-        legend.title=element_text(size=leg.title.sz), 
-        legend.box.background = element_rect(color = "black"))+
-  xlab("RDA 1")+
-  ylab("RDA 2")+
-  geom_segment(aes(x = 0, y = 0, xend = dbRDA1, yend = dbRDA2), 
-               data = acr.comm.rda.sym.phys, size =1, alpha = 0.5, colour = "grey20", 
-               arrow=arrow(length=unit(0.01,"npc")))+
- 
-  
-  geom_text(data = acr.comm.rda.sym.phys, 
-            aes(x=c(dbRDA1[1], dbRDA1[2], dbRDA1[3]+2.5, dbRDA1[4], dbRDA1[5]+.7, dbRDA1[6]-.5, dbRDA1[7], dbRDA1[8], dbRDA1[9]), 
-                y = c(dbRDA2[1], dbRDA2[2], dbRDA2[3]+.5, dbRDA2[4], dbRDA2[5], dbRDA2[6]+.5, dbRDA2[7], dbRDA1[8], dbRDA1[9]), 
-                label = Metric, fontface = "italic",
-                hjust=0.5*(1-sign(dbRDA1)),vjust=0.6*(1-sign(dbRDA2))), 
-            colour = "grey20", size=levels.sz-1)+
-  annotate("text",  x = -11, y = -5, label = "p = 0.783", size=sig.sz, hjust = 0, fontface="italic")
-
-acr.comm.rda.sym.plot
-
-
-##Porites 
-
-#Create dataframe with RDA scores
-por.comm.rda.sym.scores<- data.frame(scores(por.comm.rda.sym)$sites)
-por.comm.rda.sym.scores$sample_id<- rownames(por.comm.rda.sym.scores)
-names(por_data_community)
-por.comm.rda.sym.scores<-merge(por_data_community[,c(1:23, 64:65)], por.comm.rda.sym.scores)
-names(por.comm.rda.sym.scores)
-
-#Create dataframe with physiological metric vectors
-por.comm.rda.sym.phys<-data.frame(summary(por.comm.rda.sym)$biplot[,1:2]) * ordiArrowMul(por.comm.rda.sym, display="bp")
-por.comm.rda.sym.phys$Metric<-rownames(por.comm.rda.sym.phys)
-
-#Plot biplot
-por.comm.rda.sym.plot<-ggplot(data = por.comm.rda.sym.scores, aes(x = dbRDA1, y = dbRDA2)) + 
-  geom_point(data = por.comm.rda.sym.scores, size = 3, alpha = 0.8, aes(colour = site, fill = site)) + 
-  theme_classic()+
-  ggtitle("Porites")+
-  #xlim(-5, 5)+
-  #ylim(-4, 6)+
-  scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+  
-  scale_fill_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+
-  theme(plot.title = element_text(size=panel.lab.sz, hjust = 0.5), axis.title.x = element_text(size = axis.title.sz), axis.title.y = element_text(size = axis.title.sz), 
-        axis.text.x=element_text(size=axis.txt.sz, colour="black"), axis.text.y=element_text(size=axis.txt.sz, colour="black"), 
-        legend.position=c(0.2, 0.9), legend.direction = "vertical", legend.text=element_text(size=leg.title.sz), 
-        legend.title=element_text(size=leg.title.sz), legend.box.background = element_rect(color = "black"))+
-  xlab("RDA 1 (83.85% Fitted, 17.68% Total)")+
-  ylab("RDA 2 (5.90% Fitted, 1.24% Total)")+
-  geom_segment(aes(x = 0, y = 0, xend = dbRDA1, yend = dbRDA2), 
-               data = por.comm.rda.sym.phys, size =1, alpha = 0.5, colour = "grey20", 
-               arrow=arrow(length=unit(0.01,"npc")))+
-  
-  geom_text(data = por.comm.rda.sym.phys[c(1:2, 5:6),], 
-            aes(x=c(dbRDA1[1]-1.2, dbRDA1[2]-1.7, dbRDA1[3]+.5, dbRDA1[4]+0.5, dbRDA1[5], dbRDA1[6], dbRDA1[7], dbRDA1[8], dbRDA1[9], dbRDA1[10]), 
-                y = c(dbRDA2[1]+.25, dbRDA2[2]+.7, dbRDA2[3]+.2, dbRDA2[4]), 
-                label = Metric, fontface = "bold",
-                hjust=0.5*(1-sign(dbRDA1)),vjust=0.6*(1-sign(dbRDA2))), 
-            colour = "grey20", size=levels.sz-1)+
-   
-  geom_text(data = por.comm.rda.sym.phys[c(3:4,7),], 
-            aes(x=c(dbRDA1[1], dbRDA1[2], dbRDA1[3]-1.5), 
-                y = c(dbRDA2[1], dbRDA2[2]+.5, dbRDA2[3]-.2), 
-                label = Metric, fontface = "italic",
-                hjust=0.5*(1-sign(dbRDA1)),vjust=0.6*(1-sign(dbRDA2))), 
-            colour = "grey20", size=levels.sz-1)+
-    annotate("text", x = -5, y = -4, label=expression(bolditalic(paste("Adj. ",R^2, " = 0.167, p = 0.001"))), size=sig.sz, hjust = 0)
-
-
-por.comm.rda.sym.plot
-
-
-##Pocillopora 
-
-#Create dataframe with RDA scores
-poc.comm.rda.sym.scores<- data.frame(scores(poc.comm.rda.sym)$sites)
-poc.comm.rda.sym.scores$sample_id<- rownames(poc.comm.rda.sym.scores)
-names(poc_data_community)
-poc.comm.rda.sym.scores<-merge(poc_data_community[,c(1:23, 64:65)], poc.comm.rda.sym.scores)
-names(poc.comm.rda.sym.scores)
-
-#Create dataframe with physiological metric vectors
-poc.comm.rda.sym.phys<-data.frame(summary(poc.comm.rda.sym)$biplot[,1:2]) * ordiArrowMul(poc.comm.rda.sym, display="bp")
-poc.comm.rda.sym.phys$Metric<-rownames(poc.comm.rda.sym.phys)
-
-#Plot biplot
-poc.comm.rda.sym.plot<-ggplot(data = poc.comm.rda.sym.scores, aes(x = dbRDA1, y = dbRDA2)) + 
-  geom_point(data = poc.comm.rda.sym.scores, size = 3, alpha = 0.8, aes(colour = site_code, fill = site_code)) + 
-  theme_classic()+
-  ggtitle("Pocillopora")+
-  xlim(-4.25, 3.75)+
-  ylim(-5, 3)+
-  scale_colour_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+  
-  scale_fill_manual(values=c("#ff6633", "#374d7c", "#00cccc"))+
-  theme(plot.title = element_text(size=panel.lab.sz, hjust = 0.5), axis.title.x = element_text(size = axis.title.sz), axis.title.y = element_text(size = axis.title.sz), 
-        axis.text.x=element_text(size=axis.txt.sz, colour="black"), axis.text.y=element_text(size=axis.txt.sz, colour="black"), 
-        legend.position=c(0.2, 0.9), legend.direction = "vertical", legend.text=element_text(size=leg.title.sz), 
-        legend.title=element_text(size=leg.title.sz), legend.box.background = element_rect(color = "black"))+
-  xlab("RDA 1 (66.74% Fitted, 7.67% Total)")+
-  ylab("RDA 2 (24.47% Fitted, 2.81% Total)")+
-  geom_segment(aes(x = 0, y = 0, xend = dbRDA1, yend = dbRDA2), 
-               data = poc.comm.rda.sym.phys, size =1, alpha = 0.5, colour = "grey20", 
-               arrow=arrow(length=unit(0.01,"npc")))+
-  geom_text(data = poc.comm.rda.sym.phys[c(2:4,7),], 
-            aes(x=c(dbRDA1[1]+.3, dbRDA1[2], dbRDA1[3], dbRDA1[4]+.5), 
-                y = c(dbRDA2[1]+.5, dbRDA2[2], dbRDA2[3], dbRDA2[4]), 
-                label = Metric, fontface = "bold",
-                hjust=0.5*(1-sign(dbRDA1)),vjust=0.6*(1-sign(dbRDA2))), 
-            colour = "grey20", size=levels.sz-1)+
-    geom_text(data = poc.comm.rda.sym.phys[c(1, 5:6),], 
-            aes(x=c(dbRDA1[1]-.1, dbRDA1[2]-.1, dbRDA1[3]-.2), 
-                y = c(dbRDA2[1], dbRDA2[2], dbRDA2[3]+.2), 
-                label = Metric, fontface = "italic",
-                hjust=0.5*(1-sign(dbRDA1)),vjust=0.6*(1-sign(dbRDA2))), 
-            colour = "grey20", size=levels.sz-1)+
-    annotate("text", x = -4.25, y = -5, label=expression(bolditalic(paste("Adj. ",R^2, " = 0.064, p = 0.001"))), size=sig.sz, hjust = 0)
-
-poc.comm.rda.sym.plot
-
-
-##Plot Figure Grid
-ITS2rda_Sym<-plot_grid(acr.comm.rda.sym.plot, por.comm.rda.sym.plot,
-                          poc.comm.rda.sym.plot, 
-                           rel_widths=c(1, 1, 1), rel_heights=c(1, 1, 1), 
-                           ncol=3, nrow=1, byrow=T, labels = c('A', 'B', 'C'), 
-                           label_size=panel.lab.sz, align="v")
-ggsave(filename="Figures/ITS2/ITS2_Phys_RDA_Panel_Symbiont.png", plot=ITS2rda_Sym, dpi=300, width=18, height=6, units="in")
-
-
+# Symbiont_Density    1    0.305 0.8425  0.514    
+# Symbiont_Biomass    1    1.171 3.2363  0.014 *  
+# Total_Chl           1    1.789 4.9445  0.001 ***
+# Total_Chl_cell      1    0.841 2.3251  0.046 *  
+# Am                  1    0.096 0.2646  0.921    
+# AQY                 1    0.177 0.4887  0.757    
+# Ik                  1    0.488 1.3483  0.254    
+# Ic                  1    1.015 2.8063  0.024 *  
+# S_H_Biomass_Ratio   1    1.002 2.7705  0.033 *  
+# Residual          116   41.959     
 ```
