@@ -43,6 +43,7 @@ if (!require("GGally")) install.packages("GGally")
 if (!require("broom")) install.packages("broom")
 if (!require("cowplot")) install.packages("cowplot")
 if (!require("pairwiseAdonis")) install.packages("pairwiseAdonis")
+if (!require("MicEco")) remotes::install_github("Russel88/MicEco")
 
 # load packages
 library(tidyverse)
@@ -61,6 +62,7 @@ library(GGally)
 library(broom)
 library(cowplot)
 library(pairwiseAdonis)
+library(MicEco)
 ```
 
 # Load dataframe
@@ -146,6 +148,19 @@ site             2    95.01 0.06719  5.2666  0.001 ***
 timepoint:site   6    83.20 0.05884  1.5374  0.025 *  
 Residual        90   811.81 0.57412                   
 Total          101  1414.00 1.00000  
+
+Calculate Omega effect sizes for site and time point. 
+```{r}
+adonis_OmegaSq(z_acr, partial = TRUE)
+```
+
+adonis2(formula = vegan ~ timepoint * site, data = acr_data_afdw, method = "eu")
+                Df SumOfSqs       F parOmegaSq Pr(>F)    
+timepoint        3   423.98 15.6680    0.30139  0.001 ***
+site             2    95.01  5.2666    0.07720  0.001 ***
+timepoint:site   6    83.20  1.5374    0.03064  0.038 *  
+Residual        90   811.81                              
+Total          101  1414.00 
 
 Examine dispersion for this model by site 
 ```{r}
@@ -309,6 +324,11 @@ site             2    75.05 0.03885  4.0742  0.001 ***
 timepoint:site   6   108.94 0.05639  1.9713  0.001 ***
 Residual       126  1160.55 0.60070                   
 Total          138  1932.00 1.00000  
+
+Calculate Omega effect sizes for site and time point. 
+```{r}
+adonis_OmegaSq(z_por, partial = TRUE)
+```
 
 Examine dispersion for this model by site 
 ```{r}
@@ -589,7 +609,12 @@ timepoint        3   442.85 0.23964 15.6727  0.001 ***
 site             2    69.74 0.03774  3.7023  0.001 ***
 timepoint:site   6   137.41 0.07435  2.4315  0.001 ***
 Residual       120  1130.25 0.61161                   
-Total          132  1848.00 1.00000     
+Total          132  1848.00 1.00000   
+
+Calculate Omega effect sizes for site and time point. 
+```{r}
+adonis_OmegaSq(z_poc, partial = TRUE)
+```
 
 Examine dispersion for this model by site 
 ```{r}
@@ -1399,6 +1424,11 @@ timepoint:site   6    27.30 0.05300  1.6400  0.033 *
 Residual        92   255.21 0.49554                   
 Total          103   515.00 1.00000  
 
+Calculate Omega effect sizes for site and time point. 
+```{r}
+adonis_OmegaSq(z_acr, partial = TRUE)
+```
+
 Examine dispersion for this model by site 
 ```{r}
 #conduct pairwise adonis to look at pairwise permanova comparisons
@@ -1568,6 +1598,11 @@ site             2    22.42 0.03203  3.5826  0.002 **
 timepoint:site   6    33.90 0.04843  1.8055  0.012 *  
 Residual       128   400.53 0.57219                   
 Total          140   700.00 1.00000  
+
+Calculate Omega effect sizes for site and time point. 
+```{r}
+adonis_OmegaSq(z_por, partial = TRUE)
+```
 
 Examine dispersion for this model by site 
 ```{r}
@@ -1845,6 +1880,11 @@ site             2    22.18 0.03059  3.2391  0.002 **
 timepoint:site   6    61.73 0.08514  3.0050  0.001 ***
 Residual       133   455.33 0.62804                   
 Total          145   725.00 1.00000   
+
+Calculate Omega effect sizes for site and time point. 
+```{r}
+adonis_OmegaSq(z_poc, partial = TRUE)
+```
 
 Examine dispersion for this model by site 
 ```{r}
@@ -2639,6 +2679,11 @@ timepoint:site   6    61.66 0.06172  1.6539  0.022 *
 Residual       100   621.37 0.62199                   
 Total          111   999.00 1.00000 
 
+Calculate Omega effect sizes for site and time point. 
+```{r}
+adonis_OmegaSq(z_acr, partial = TRUE)
+```
+
 Examine dispersion for this model by site 
 ```{r}
 #conduct pairwise adonis to look at pairwise permanova comparisons
@@ -2803,6 +2848,11 @@ site             2    64.47 0.04592  5.3117  0.001 ***
 timepoint:site   6    76.75 0.05467  2.1078  0.001 ***
 Residual       144   873.90 0.62243                   
 Total          156  1404.00 1.00000     
+
+Calculate Omega effect sizes for site and time point. 
+```{r}
+adonis_OmegaSq(z_por, partial = TRUE)
+```
 
 Examine dispersion for this model by site 
 ```{r}
@@ -3091,6 +3141,11 @@ site             2    39.87 0.03055  3.1614  0.003 **
 timepoint:site   6    98.76 0.07568  2.6104  0.001 ***
 Residual       133   838.62 0.64262                   
 Total          145  1305.00 1.00000 
+
+Calculate Omega effect sizes for site and time point. 
+```{r}
+adonis_OmegaSq(z_poc, partial = TRUE)
+```
 
 Examine dispersion for this model by site 
 ```{r}
