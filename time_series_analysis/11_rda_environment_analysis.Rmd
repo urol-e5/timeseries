@@ -128,7 +128,7 @@ poc_data_temp<-data_temp%>%
 #Acropora RDA- Host metrics 
 ```{r}
 names(acr_data_temp)
-acr.comm.rda.host<-dbrda(acr_data_temp[, c(6,9,11,14,17)] ~ mean + maximum + minimum + SD, 
+acr.comm.rda.host<-rda(acr_data_temp[, c(6,9,11,14,17)] ~ mean + maximum + minimum + SD, 
                        data=acr_data_temp)
 
 ##Check model significance
@@ -175,7 +175,7 @@ anova(acr.comm.rda.host, by="terms")
 ```{r}
 names(acr_data_temp)
 
-acr.comm.rda.sym<-dbrda(acr_data_temp[, c(7,8,10,12,13,15,16,18,19)] ~ mean + maximum + minimum + SD, 
+acr.comm.rda.sym<-rda(acr_data_temp[, c(7,8,10,12,13,15,16,18,19)] ~ mean + maximum + minimum + SD, 
                        data=acr_data_temp)
 
 ##Check model significance
@@ -221,21 +221,21 @@ anova(acr.comm.rda.sym, by="terms")
 #Porites RDA- Host metrics 
 ```{r}
 names(por_data_temp)
-por.comm.rda.host<-dbrda(por_data_temp[, c(6,9,11,14,17)] ~ mean + maximum + minimum + SD, 
+por.comm.rda.host<-rda(por_data_temp[, c(6,9,11,14,17)] ~ mean + maximum + minimum + SD, 
                        data=por_data_temp)
 
 ##Check model significance
 anova(por.comm.rda.host)
-# Model: dbrda(formula = por_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD + range, data = por_data_temp)
-#           Df SumOfSqs      F Pr(>F)    
-# Model      4   8.6155 13.652  0.001 ***
-# Residual 134  21.1418 
+# Model: rda(formula = por_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD, data = por_data_temp)
+#           Df Variance      F Pr(>F)    
+# Model      4 0.062431 13.652  0.001 ***
+# Residual 134 0.153202  
 
 plot(por.comm.rda.host)
 
 ##Check variance explained by model
 (summary(por.comm.rda.host)$constr.chi/summary(por.comm.rda.host)$tot.chi)*100
-#14.17% of the variance in host physiology is constrained by temperature metrics 
+#28.95% of the variance in host physiology is constrained by temperature metrics 
 
 RsquareAdj(por.comm.rda.host)$adj.r.squared*100
 #Adjusted: The model explains 26.83% of the variation in host physiology 
@@ -246,117 +246,116 @@ summary(por.comm.rda.host)$cont
 
 summary(por.comm.rda.host)$concont
 #dbRDA1 explains 84.22% of constrained variance 
-#dbRDA2 explains 12.06% of constrained variance 
+#dbRDA2 explains 12.05% of constrained variance 
 
 ##Check variance explained by each Host physiological metric
 anova(por.comm.rda.host, by="terms")
-# Model: dbrda(formula = por_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD, data = por_data_temp)
-#           Df SumOfSqs       F Pr(>F)    
-# mean       1   6.1633 39.0641  0.001 ***
-# maximum    1   1.8524 11.7409  0.001 ***
-# minimum    1   0.3402  2.1562  0.110    
-# SD         1   0.2596  1.6451  0.174    
-# Residual 134  21.1418   
+# Model: rda(formula = por_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD, data = por_data_temp)
+#           Df Variance       F Pr(>F)    
+# mean       1 0.044662 39.0641  0.001 ***
+# maximum    1 0.013423 11.7409  0.001 ***
+# minimum    1 0.002465  2.1562  0.098 .  
+# SD         1 0.001881  1.6451  0.188    
+# Residual 134 0.153202  
 
 ```
 
 #Porites RDA- Symbiont metrics 
 ```{r}
 names(por_data_temp)
-por.comm.rda.sym<-dbrda(por_data_temp[, c(7,8,10,12,13,15,16,18,19)] ~ mean + maximum + minimum + SD, 
+por.comm.rda.sym<-rda(por_data_temp[, c(7,8,10,12,13,15,16,18,19)] ~ mean + maximum + minimum + SD + Condition(haplotype), 
                        data=por_data_temp)
 
 ##Check model significance
 anova(por.comm.rda.sym)
-# Model: dbrda(formula = por_data_temp[, c(7, 8, 10, 12, 13, 15, 16, 18, 19)] ~ mean + maximum + minimum + SD, data = por_data_temp)
+# Model: rda(formula = por_data_temp[, c(7, 8, 10, 12, 13, 15, 16, 18, 19)] ~ mean + maximum + minimum + SD + Condition(haplotype), data = por_data_temp)
 #           Df Variance      F Pr(>F)    
-# Model      4  0.20855 9.7627  0.001 ***
-# Residual 134  0.71561 
+# Model      4  0.17355 9.4521  0.001 ***
+# Residual 133  0.61050    
 
 plot(por.comm.rda.sym)
 
 ##Check variance explained by model
 (summary(por.comm.rda.sym)$constr.chi/summary(por.comm.rda.sym)$tot.chi)*100
-#22.56% of the variance in symbiont physiology is constrained by temperature
+#18.77% of the variance in symbiont physiology is constrained by temperature
 
 RsquareAdj(por.comm.rda.sym)$adj.r.squared*100
-#Adjusted: The model explains 20.25% of the variation in Symbiont physiology
+#Adjusted: The model explains 16.91% of the variation in Symbiont physiology
 
 summary(por.comm.rda.sym)$cont
-#dbRDA1 explains 16.66% of total variance 
-#dbRDA2 explains 4.93% of total variance 
+#dbRDA1 explains 15.19% of total variance 
+#dbRDA2 explains 5.93 of total variance 
 
 summary(por.comm.rda.sym)$concont
-#dbRDA1 explains 73.82% of constrained variance 
-#dbRDA2 explains 21.82% of constrained variance 
+#dbRDA1 explains 68.64% of constrained variance 
+#dbRDA2 explains 26.78% of constrained variance 
 
 ##Check variance explained by each Symbiont physiological metric
 anova(por.comm.rda.sym, by="terms")
-# Model: dbrda(formula = por_data_temp[, c(7, 8, 10, 12, 13, 15, 16, 18, 19)] ~ mean + maximum + minimum + SD, data = por_data_temp)
+# Model: dbrda(formula = por_data_temp[, c(7, 8, 10, 12, 13, 15, 16, 18, 19)] ~ mean + maximum + minimum + SD + Condition(haplotype), data = por_data_temp)
 #           Df Variance       F Pr(>F)    
-# mean       1  0.05962 11.1649  0.001 ***
-# maximum    1  0.07372 13.8039  0.001 ***
-# minimum    1  0.03160  5.9167  0.001 ***
-# SD         1  0.04360  8.1652  0.001 ***
-# Residual 134  0.71561   
+# mean       1  0.05473 11.9226  0.001 ***
+# maximum    1  0.05334 11.6214  0.001 ***
+# minimum    1  0.03224  7.0226  0.001 ***
+# SD         1  0.03324  7.2417  0.001 ***
+# Residual 133  0.61050    
 
 ```
 
 #Pocillopora RDA- Host metrics 
 ```{r}
 names(poc_data_temp)
-poc.comm.rda.host<-dbrda(poc_data_temp[, c(6,9,11,14,17)] ~ mean + maximum + minimum + SD, 
+poc.comm.rda.host<-rda(poc_data_temp[, c(6,9,11,14,17)] ~ mean + maximum + minimum + SD + Condition(haplotype), 
                        data=poc_data_temp)
 
 ##Check model significance
 anova(poc.comm.rda.host)
-# Model: dbrda(formula = poc_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD, data = poc_data_temp)
-#           Df SumOfSqs      F Pr(>F)    
-# Model      4   2.4136 11.709  0.001 ***
-# Residual 128   6.5962  
+# Model: rda(formula = poc_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD + Condition(haplotype), data = poc_data_temp)
+#           Df Variance      F Pr(>F)    
+# Model      4 0.017712 11.336  0.001 ***
+# Residual 127 0.049605    
 
 plot(poc.comm.rda.host)
 
 ##Check variance explained by model
 (summary(poc.comm.rda.host)$constr.chi/summary(poc.comm.rda.host)$tot.chi)*100
-#26.79% of the variance in host physiology is constrained by temperature metrics 
+#25.94% of the variance in host physiology is constrained by temperature metrics 
 
 RsquareAdj(poc.comm.rda.host)$adj.r.squared*100
-#Adjusted: The model explains 24.50% of the variation in host physiology 
+#Adjusted: The model explains 23.84% of the variation in host physiology 
 
 summary(poc.comm.rda.host)$cont
-#dbRDA1 explains 23.28% of total variance 
-#dbRDA2 explains 3.05% of total variance 
+#dbRDA1 explains 22.66% of total variance 
+#dbRDA2 explains 3.21% of total variance 
 
 summary(poc.comm.rda.host)$concont
-#dbRDA1 explains 86.92% of constrained variance 
-#dbRDA2 explains 11.39% of constrained variance 
+#dbRDA1 explains 86.13% of constrained variance 
+#dbRDA2 explains 12.18% of constrained variance 
 
 ##Check variance explained by each Host physiological metric
 anova(poc.comm.rda.host, by="terms")
-# Model: dbrda(formula = por_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD, data = por_data_temp)
-# Model: dbrda(formula = poc_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD, data = poc_data_temp)
+# Model: dbrda(formula = poc_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD + Condition(haplotype), data = poc_data_temp)
 #           Df SumOfSqs       F Pr(>F)    
-# mean       1   1.9632 38.0963  0.001 ***
-# maximum    1   0.0539  1.0450  0.325    
-# minimum    1   0.0483  0.9378  0.396    
-# SD         1   0.3482  6.7563  0.002 ** 
-# Residual 128   6.5962  
+# mean       1   1.8829 36.5190  0.001 ***
+# maximum    1   0.0528  1.0242  0.367    
+# minimum    1   0.0506  0.9819  0.370    
+# SD         1   0.3516  6.8203  0.002 ** 
+# Residual 127   6.5479 
 
 ```
 
 #Pocillopora RDA- Symbiont metrics 
 ```{r}
 names(poc_data_temp)
-poc.comm.rda.sym<-dbrda(poc_data_temp[, c(7,8,10,12,13,15,16,18,19)] ~ mean + maximum + minimum + SD, 
+poc.comm.rda.sym<-rda(poc_data_temp[, c(7,8,10,12,13,15,16,18,19)] ~ mean + maximum + minimum + SD + Condition(haplotype), 
                        data=poc_data_temp)
 
 ##Check model significance
 anova(poc.comm.rda.sym)
-# Model: dbrda(formula = poc_data_temp[, c(7, 8, 10, 12, 13, 15, 16, 18, 19)] ~ mean + maximum + minimum + SD, data = poc_data_temp)
-#           Df SumOfSqs      F Pr(>F)    
-# Model      4   34.629 14.489  0.001 ***
-# Residual 128   76.482   
+# Model: rda(formula = poc_data_temp[, c(7, 8, 10, 12, 13, 15, 16, 18, 19)] ~ mean + maximum + minimum + SD + Condition(haplotype), data = poc_data_temp)
+#           Df Variance      F Pr(>F)    
+# Model      4  0.26262 14.584  0.001 ***
+# Residual 127  0.57176    
 
 plot(poc.comm.rda.sym)
 
@@ -436,6 +435,7 @@ perc <- round(100*(summary(acr.comm.rda.host)$cont$importance[2, 1:2]), 2)
 ## extract scores - these are coordinates in the RDA space
 sc_si <- scores(acr.comm.rda.host, display="sites", choices=c(1,2), scaling=1)
 sc_bp <- scores(acr.comm.rda.host, display="bp", choices=c(1,2), scaling=1)
+sc_sp <- scores(acr.comm.rda.host, display="species", choices=c(1,2), scaling=1)
 
 scores(acr.comm.rda.host)
 
@@ -447,8 +447,8 @@ plot(acr.comm.rda.host,
      type = "none", # this excludes the plotting of any points from the results
      frame = FALSE,
      # set axis limits
-     xlim = c(-1,1), 
-     ylim = c(-1,1),
+     xlim = c(-2,2), 
+     ylim = c(-2,2),
      # label the plot (title, and axes)
      main = "Acropora Host RDA",
      xlab = paste0("RDA1 (", perc[1], "%)"), 
@@ -460,6 +460,18 @@ points(sc_si,
        col = "darkgray", # outline colour
        bg = "darkgray", # fill colour
        cex = 1.2) # size
+# add points for species scores
+points(sc_sp, 
+       pch = 22, # set shape (here, square with a fill colour)
+       col = "black",
+       bg = "#f2bd33", 
+       cex = 1.2)
+# add text labels for species abbreviations
+text(sc_sp + c(0.03, 0.09), # adjust text coordinates to avoid overlap with points 
+     labels = rownames(sc_sp), 
+     col = "grey40", 
+     font = 2, # bold
+     cex = 0.6)
 
 # add arrows for effects of the expanatory variables
 arrows(0,0, # start them from (0,0)
@@ -485,6 +497,7 @@ perc <- round(100*(summary(acr.comm.rda.sym)$cont$importance[2, 1:2]), 2)
 ## extract scores - these are coordinates in the RDA space
 sc_si <- scores(acr.comm.rda.sym, display="sites", choices=c(1,2), scaling=1)
 sc_bp <- scores(acr.comm.rda.sym, display="bp", choices=c(1,2), scaling=1)
+sc_sp<- scores(acr.comm.rda.sym, display="species", choices=c(1,2), scaling=1)
 
 scores(acr.comm.rda.sym)
 
@@ -496,8 +509,8 @@ plot(acr.comm.rda.sym,
      type = "none", # this excludes the plotting of any points from the results
      frame = FALSE,
      # set axis limits
-     xlim = c(-1,1), 
-     ylim = c(-1,1),
+     xlim = c(-3,1.5), 
+     ylim = c(-2,1.5),
      # label the plot (title, and axes)
      main = "Acropora Symbiont RDA",
      xlab = paste0("RDA1 (", perc[1], "%)"), 
@@ -509,6 +522,18 @@ points(sc_si,
        col = "darkgray", # outline colour
        bg = "darkgray", # fill colour
        cex = 1.2) # size
+# add points for species scores
+points(sc_sp, 
+       pch = 22, # set shape (here, square with a fill colour)
+       col = "black",
+       bg = "#f2bd33", 
+       cex = 1.2)
+# add text labels for species abbreviations
+text(sc_sp + c(0.03, 0.09), # adjust text coordinates to avoid overlap with points 
+     labels = rownames(sc_sp), 
+     col = "grey40", 
+     font = 2, # bold
+     cex = 0.6)
 
 # add arrows for effects of the expanatory variables
 arrows(0,0, # start them from (0,0)
@@ -534,6 +559,7 @@ perc <- round(100*(summary(por.comm.rda.host)$cont$importance[2, 1:2]), 2)
 ## extract scores - these are coordinates in the RDA space
 sc_si <- scores(por.comm.rda.host, display="sites", choices=c(1,2), scaling=1)
 sc_bp <- scores(por.comm.rda.host, display="bp", choices=c(1,2), scaling=1)
+sc_sp <- scores(por.comm.rda.host, display="species", choices=c(1,2), scaling=1)
 
 scores(por.comm.rda.host)
 
@@ -545,8 +571,8 @@ plot(por.comm.rda.host,
      type = "none", # this excludes the plotting of any points from the results
      frame = FALSE,
      # set axis limits
-     xlim = c(-1,1), 
-     ylim = c(-1,1),
+     xlim = c(-2,3), 
+     ylim = c(-2,3),
      # label the plot (title, and axes)
      main = "Porites Host RDA",
      xlab = paste0("RDA1 (", perc[1], "%)"), 
@@ -558,6 +584,18 @@ points(sc_si,
        col = "darkgray", # outline colour
        bg = "darkgray", # fill colour
        cex = 1.2) # size
+# add points for species scores
+points(sc_sp, 
+       pch = 22, # set shape (here, square with a fill colour)
+       col = "black",
+       bg = "#f2bd33", 
+       cex = 1.2)
+# add text labels for species abbreviations
+text(sc_sp + c(0.03, 0.09), # adjust text coordinates to avoid overlap with points 
+     labels = rownames(sc_sp), 
+     col = "grey40", 
+     font = 2, # bold
+     cex = 0.6)
 
 # add arrows for effects of the expanatory variables
 arrows(0,0, # start them from (0,0)
@@ -583,6 +621,7 @@ perc <- round(100*(summary(por.comm.rda.sym)$cont$importance[2, 1:2]), 2)
 ## extract scores - these are coordinates in the RDA space
 sc_si <- scores(por.comm.rda.sym, display="sites", choices=c(1,2), scaling=1)
 sc_bp <- scores(por.comm.rda.sym, display="bp", choices=c(1,2), scaling=1)
+sc_sp <- scores(por.comm.rda.sym, display="species", choices=c(1,2), scaling=1)
 
 scores(por.comm.rda.sym)
 
@@ -594,8 +633,8 @@ plot(por.comm.rda.sym,
      type = "none", # this excludes the plotting of any points from the results
      frame = FALSE,
      # set axis limits
-     xlim = c(-1,1), 
-     ylim = c(-1,1),
+     xlim = c(-3.5,1), 
+     ylim = c(-3,1),
      # label the plot (title, and axes)
      main = "Porites Symbiont RDA",
      xlab = paste0("RDA1 (", perc[1], "%)"), 
@@ -607,6 +646,18 @@ points(sc_si,
        col = "darkgray", # outline colour
        bg = "darkgray", # fill colour
        cex = 1.2) # size
+# add points for species scores
+points(sc_sp, 
+       pch = 22, # set shape (here, square with a fill colour)
+       col = "black",
+       bg = "#f2bd33", 
+       cex = 1.2)
+# add text labels for species abbreviations
+text(sc_sp + c(0.03, 0.09), # adjust text coordinates to avoid overlap with points 
+     labels = rownames(sc_sp), 
+     col = "grey40", 
+     font = 2, # bold
+     cex = 0.6)
 
 # add arrows for effects of the expanatory variables
 arrows(0,0, # start them from (0,0)
@@ -632,6 +683,7 @@ perc <- round(100*(summary(poc.comm.rda.host)$cont$importance[2, 1:2]), 2)
 ## extract scores - these are coordinates in the RDA space
 sc_si <- scores(poc.comm.rda.host, display="sites", choices=c(1,2), scaling=1)
 sc_bp <- scores(poc.comm.rda.host, display="bp", choices=c(1,2), scaling=1)
+sc_sp <- scores(poc.comm.rda.host, display="species", choices=c(1,2), scaling=1)
 
 scores(poc.comm.rda.host)
 
@@ -643,8 +695,8 @@ plot(poc.comm.rda.host,
      type = "none", # this excludes the plotting of any points from the results
      frame = FALSE,
      # set axis limits
-     xlim = c(-1,1), 
-     ylim = c(-1,1),
+     xlim = c(-2,2), 
+     ylim = c(-2,2),
      # label the plot (title, and axes)
      main = "Porites Host RDA",
      xlab = paste0("RDA1 (", perc[1], "%)"), 
@@ -656,6 +708,18 @@ points(sc_si,
        col = "darkgray", # outline colour
        bg = "darkgray", # fill colour
        cex = 1.2) # size
+# add points for species scores
+points(sc_sp, 
+       pch = 22, # set shape (here, square with a fill colour)
+       col = "black",
+       bg = "#f2bd33", 
+       cex = 1.2)
+# add text labels for species abbreviations
+text(sc_sp + c(0.03, 0.09), # adjust text coordinates to avoid overlap with points 
+     labels = rownames(sc_sp), 
+     col = "grey40", 
+     font = 2, # bold
+     cex = 0.6)
 
 # add arrows for effects of the expanatory variables
 arrows(0,0, # start them from (0,0)
@@ -681,6 +745,7 @@ perc <- round(100*(summary(poc.comm.rda.sym)$cont$importance[2, 1:2]), 2)
 ## extract scores - these are coordinates in the RDA space
 sc_si <- scores(poc.comm.rda.sym, display="sites", choices=c(1,2), scaling=1)
 sc_bp <- scores(poc.comm.rda.sym, display="bp", choices=c(1,2), scaling=1)
+sc_sp <- scores(poc.comm.rda.sym, display="species", choices=c(1,2), scaling=1)
 
 scores(poc.comm.rda.sym)
 
@@ -692,8 +757,8 @@ plot(poc.comm.rda.sym,
      type = "none", # this excludes the plotting of any points from the results
      frame = FALSE,
      # set axis limits
-     xlim = c(-1,1), 
-     ylim = c(-1,1),
+     xlim = c(-2,2), 
+     ylim = c(-2,2),
      # label the plot (title, and axes)
      main = "Porites Symbiont RDA",
      xlab = paste0("RDA1 (", perc[1], "%)"), 
@@ -705,6 +770,18 @@ points(sc_si,
        col = "darkgray", # outline colour
        bg = "darkgray", # fill colour
        cex = 1.2) # size
+# add points for species scores
+points(sc_sp, 
+       pch = 22, # set shape (here, square with a fill colour)
+       col = "black",
+       bg = "#f2bd33", 
+       cex = 1.2)
+# add text labels for species abbreviations
+text(sc_sp + c(0.03, 0.09), # adjust text coordinates to avoid overlap with points 
+     labels = rownames(sc_sp), 
+     col = "grey40", 
+     font = 2, # bold
+     cex = 0.6)
 
 # add arrows for effects of the expanatory variables
 arrows(0,0, # start them from (0,0)
