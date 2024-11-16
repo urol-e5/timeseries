@@ -1,0 +1,722 @@
+---
+title: "RDA analysis of environmental data"
+author: "Ariana S Huffmyer, Serena Hackerott, E5 RoL Team"
+date: "2024"
+output: 
+  html_document:
+    code_folding: hide
+    toc: yes
+    toc_depth: 6
+    toc_float: yes
+editor_options: 
+  chunk_output_type: console
+--- 
+
+Definitions: 
+
+- Genus (Pocillopora, Acropora, and Porites) are coded as "species"
+- Haplotype are coded as "haplotype". In the manuscript document, haplotype is referred to as "holobiont" because the host genetic haplotype and the associated symbiont communities are exclusive. 
+- Biological levels are categorized in the code as all host and symbiont metrics together "holobiont" (i.e., "combined responses" in the manuscript to avoid confusion with above mentioned definition of holobiont), host metrics as "host", and symbiont metrics as "symbiont". 
+- Time point is coded for seasonal sampling (January, March, September, and November) as "timepoint"
+- Site is coded as "site" 
+
+# Set Up    
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+```
+
+```{r}
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("vegan")) install.packages("vegan")
+if (!require("cowplot")) install.packages("cowplot")
+
+# load packages
+library(tidyverse)
+library(vegan)
+library(cowplot)
+```
+
+
+# Load dataframes
+
+```{r}
+#Load in dataframe of temperature information   
+temp<-read.csv("Output/Clean_Environmental_Temp_Means.csv")
+
+temp$site_num<-temp$site
+
+temp<-temp%>%
+  mutate(site=if_else(temp$site_num=="site1", "Manava", 
+                   if_else(temp$site_num=="site2", "Mahana", 
+                           if_else(temp$site_num=="site3", "Hilton", NA))))%>%
+  select(!site_num)%>%
+  rename(minimum=FullTemp_min, maximum=FullTemp_max, mean=FullTemp_mean, SD=FullTemp_stdev, range=FullTemp_range)
+  
+#Load in master dataframe generated from 1_assemble_data.Rmd.  
+master<-read.csv("Output/master_timeseries.csv")
+
+#reorder site levels 
+master$site_code<-as.factor(master$site_code)
+master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "Manava High")
+
+#reorder site levels 
+master$site<-as.factor(master$site)
+master$site<-fct_relevel(master$site, "Mahana", "Hilton", "Manava")
+```
+
+Add in haplotype information
+```{r}
+haplotypes<-read_csv("Species_ID/master_colony_metadata_speciesID.csv")
+
+master$haplotype<-haplotypes$Genus.Species[match(master$colony_id_corr, haplotypes$colony_id_corr)]
+```
+
+# Holobiont responses   
+```{r}
+data_all<-master%>%
+  select(colony_id_corr, haplotype, timepoint, species, site, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr, Total_Chl, Total_Chl_cell)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  filter(Ic<1000)%>%
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
+```
+
+#Log+1 transform all responses
+```{r}
+data_all_log <-data_all
+data_all_log[,-c(1:5)]<-log(data_all_log[,-c(1:5)]+1)
+
+#change timepoint to a factor 
+data_all_log$timepoint<-as.factor(data_all_log$timepoint)
+
+#change species to a factor 
+data_all_log$species<-as.factor(data_all_log$species)
+
+#change haplotype to a factor 
+data_all_log$haplotype<-as.factor(data_all_log$haplotype)
+```
+
+#Merge physiology and symbiont composition and subset by species
+```{r}
+data_temp<-merge(data_all_log, temp)
+
+data_temp<-data_temp[complete.cases(data_temp), ]
+
+data_temp$tp<-"TP1"
+data_temp$tp[which(data_temp$timepoint=="timepoint2")]<-"TP2"
+data_temp$tp[which(data_temp$timepoint=="timepoint3")]<-"TP3"
+data_temp$tp[which(data_temp$timepoint=="timepoint4")]<-"TP4"
+
+data_temp$sample_id<-paste(data_temp$colony_id_corr, data_temp$tp, sep="_")
+rownames(data_temp)<-data_temp$sample_id
+
+acr_data_temp<-data_temp%>%
+  filter(species=="Acropora")
+
+por_data_temp<-data_temp%>%
+  filter(species=="Porites")
+
+poc_data_temp<-data_temp%>%
+  filter(species=="Pocillopora")
+```
+
+
+#Acropora RDA- Host metrics 
+```{r}
+names(acr_data_temp)
+acr.comm.rda.host<-dbrda(acr_data_temp[, c(6,9,11,14,17)] ~ mean + maximum + minimum + SD, 
+                       data=acr_data_temp)
+
+##Check model significance
+anova(acr.comm.rda.host)
+# Permutation test for dbrda under reduced model
+# Permutation: free
+# Number of permutations: 999
+# 
+# Model: dbrda(formula = acr_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD, data = acr_data_temp)
+#          Df SumOfSqs      F Pr(>F)    
+# Model     4   2.3901 8.9301  0.001 ***
+# Residual 97   6.4904    
+
+plot(acr.comm.rda.host)
+
+##Check variance explained by model
+(summary(acr.comm.rda.host)$constr.chi/summary(acr.comm.rda.host)$tot.chi)*100
+#26.91% of the variance in host physiology is constrained by temperature metrics 
+
+RsquareAdj(acr.comm.rda.host)$adj.r.squared*100
+#Adjusted: The model explains 23.90% of the variation in host physiology 
+
+summary(acr.comm.rda.host)$cont
+#dbRDA1 explains 20.96% of total variance 
+#dbRDA2 explains 4.40% of total variance 
+
+summary(acr.comm.rda.host)$concont
+#dbRDA1 explains 77.86% of constrained variance 
+#dbRDA2 explains 16.35% of constrained variance 
+
+anova(acr.comm.rda.host, by="terms")
+
+# Model: dbrda(formula = acr_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD + range, data = acr_data_temp)
+#          Df SumOfSqs       F Pr(>F)    
+# mean      1   1.3737 20.5304  0.001 ***
+# maximum   1   0.6318  9.4430  0.001 ***
+# minimum   1   0.2352  3.5154  0.014 *  
+# SD        1   0.1493  2.2315  0.062 .  
+# Residual 97   6.4904 
+```
+
+#Acropora RDA- Symbiont metrics 
+
+```{r}
+names(acr_data_temp)
+
+acr.comm.rda.sym<-dbrda(acr_data_temp[, c(7,8,10,12,13,15,16,18,19)] ~ mean + maximum + minimum + SD, 
+                       data=acr_data_temp)
+
+##Check model significance
+anova(acr.comm.rda.sym)
+# Permutation test for dbrda under reduced model
+# Permutation: free
+# Number of permutations: 999
+# 
+# Model: dbrda(formula = acr_data_temp[, c(7, 8, 10, 12, 13, 15, 16, 18, 19)] ~ mean + maximum + minimum + SD + range, data = acr_data_temp)
+#          Df SumOfSqs      F Pr(>F)    
+# Model     4   35.341 14.917  0.001 ***
+# Residual 97   57.454    
+
+plot(acr.comm.rda.sym)
+
+##Check variance explained by model
+(summary(acr.comm.rda.sym)$constr.chi/summary(acr.comm.rda.sym)$tot.chi)*100
+#38.08% of the variance in symbiont physiology is constrained by temperature metrics 
+
+RsquareAdj(acr.comm.rda.sym)$adj.r.squared*100
+#Adjusted: The model explains 35.53% of the variation in symbiont physiology 
+
+summary(acr.comm.rda.sym)$cont
+#dbRDA1 explains 33.23% of total variance 
+#dbRDA2 explains 3.96% of total variance 
+
+summary(acr.comm.rda.sym)$concont
+#dbRDA1 explains 87.25% of constrained variance 
+#dbRDA2 explains 10.40% of constrained variance 
+
+anova(acr.comm.rda.sym, by="terms")
+
+# Model: dbrda(formula = acr_data_temp[, c(7, 8, 10, 12, 13, 15, 16, 18, 19)] ~ mean + maximum + minimum + SD, data = acr_data_temp)
+#          Df SumOfSqs       F Pr(>F)    
+# mean      1   15.111 25.5131  0.001 ***
+# maximum   1   12.498 21.0999  0.001 ***
+# minimum   1    5.526  9.3304  0.001 ***
+# SD        1    2.205  3.7231  0.014 *  
+# Residual 97   57.454 
+
+```
+
+#Porites RDA- Host metrics 
+```{r}
+names(por_data_temp)
+por.comm.rda.host<-dbrda(por_data_temp[, c(6,9,11,14,17)] ~ mean + maximum + minimum + SD, 
+                       data=por_data_temp)
+
+##Check model significance
+anova(por.comm.rda.host)
+# Model: dbrda(formula = por_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD + range, data = por_data_temp)
+#           Df SumOfSqs      F Pr(>F)    
+# Model      4   8.6155 13.652  0.001 ***
+# Residual 134  21.1418 
+
+plot(por.comm.rda.host)
+
+##Check variance explained by model
+(summary(por.comm.rda.host)$constr.chi/summary(por.comm.rda.host)$tot.chi)*100
+#14.17% of the variance in host physiology is constrained by temperature metrics 
+
+RsquareAdj(por.comm.rda.host)$adj.r.squared*100
+#Adjusted: The model explains 26.83% of the variation in host physiology 
+
+summary(por.comm.rda.host)$cont
+#dbRDA1 explains 24.38% of total variance 
+#dbRDA2 explains 3.49% of total variance 
+
+summary(por.comm.rda.host)$concont
+#dbRDA1 explains 84.22% of constrained variance 
+#dbRDA2 explains 12.06% of constrained variance 
+
+##Check variance explained by each Host physiological metric
+anova(por.comm.rda.host, by="terms")
+# Model: dbrda(formula = por_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD, data = por_data_temp)
+#           Df SumOfSqs       F Pr(>F)    
+# mean       1   6.1633 39.0641  0.001 ***
+# maximum    1   1.8524 11.7409  0.001 ***
+# minimum    1   0.3402  2.1562  0.110    
+# SD         1   0.2596  1.6451  0.174    
+# Residual 134  21.1418   
+
+```
+
+#Porites RDA- Symbiont metrics 
+```{r}
+names(por_data_temp)
+por.comm.rda.sym<-dbrda(por_data_temp[, c(7,8,10,12,13,15,16,18,19)] ~ mean + maximum + minimum + SD, 
+                       data=por_data_temp)
+
+##Check model significance
+anova(por.comm.rda.sym)
+# Model: dbrda(formula = por_data_temp[, c(7, 8, 10, 12, 13, 15, 16, 18, 19)] ~ mean + maximum + minimum + SD, data = por_data_temp)
+#           Df Variance      F Pr(>F)    
+# Model      4  0.20855 9.7627  0.001 ***
+# Residual 134  0.71561 
+
+plot(por.comm.rda.sym)
+
+##Check variance explained by model
+(summary(por.comm.rda.sym)$constr.chi/summary(por.comm.rda.sym)$tot.chi)*100
+#22.56% of the variance in symbiont physiology is constrained by temperature
+
+RsquareAdj(por.comm.rda.sym)$adj.r.squared*100
+#Adjusted: The model explains 20.25% of the variation in Symbiont physiology
+
+summary(por.comm.rda.sym)$cont
+#dbRDA1 explains 16.66% of total variance 
+#dbRDA2 explains 4.93% of total variance 
+
+summary(por.comm.rda.sym)$concont
+#dbRDA1 explains 73.82% of constrained variance 
+#dbRDA2 explains 21.82% of constrained variance 
+
+##Check variance explained by each Symbiont physiological metric
+anova(por.comm.rda.sym, by="terms")
+# Model: dbrda(formula = por_data_temp[, c(7, 8, 10, 12, 13, 15, 16, 18, 19)] ~ mean + maximum + minimum + SD, data = por_data_temp)
+#           Df Variance       F Pr(>F)    
+# mean       1  0.05962 11.1649  0.001 ***
+# maximum    1  0.07372 13.8039  0.001 ***
+# minimum    1  0.03160  5.9167  0.001 ***
+# SD         1  0.04360  8.1652  0.001 ***
+# Residual 134  0.71561   
+
+```
+
+#Pocillopora RDA- Host metrics 
+```{r}
+names(poc_data_temp)
+poc.comm.rda.host<-dbrda(poc_data_temp[, c(6,9,11,14,17)] ~ mean + maximum + minimum + SD, 
+                       data=poc_data_temp)
+
+##Check model significance
+anova(poc.comm.rda.host)
+# Model: dbrda(formula = poc_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD, data = poc_data_temp)
+#           Df SumOfSqs      F Pr(>F)    
+# Model      4   2.4136 11.709  0.001 ***
+# Residual 128   6.5962  
+
+plot(poc.comm.rda.host)
+
+##Check variance explained by model
+(summary(poc.comm.rda.host)$constr.chi/summary(poc.comm.rda.host)$tot.chi)*100
+#26.79% of the variance in host physiology is constrained by temperature metrics 
+
+RsquareAdj(poc.comm.rda.host)$adj.r.squared*100
+#Adjusted: The model explains 24.50% of the variation in host physiology 
+
+summary(poc.comm.rda.host)$cont
+#dbRDA1 explains 23.28% of total variance 
+#dbRDA2 explains 3.05% of total variance 
+
+summary(poc.comm.rda.host)$concont
+#dbRDA1 explains 86.92% of constrained variance 
+#dbRDA2 explains 11.39% of constrained variance 
+
+##Check variance explained by each Host physiological metric
+anova(poc.comm.rda.host, by="terms")
+# Model: dbrda(formula = por_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD, data = por_data_temp)
+# Model: dbrda(formula = poc_data_temp[, c(6, 9, 11, 14, 17)] ~ mean + maximum + minimum + SD, data = poc_data_temp)
+#           Df SumOfSqs       F Pr(>F)    
+# mean       1   1.9632 38.0963  0.001 ***
+# maximum    1   0.0539  1.0450  0.325    
+# minimum    1   0.0483  0.9378  0.396    
+# SD         1   0.3482  6.7563  0.002 ** 
+# Residual 128   6.5962  
+
+```
+
+#Pocillopora RDA- Symbiont metrics 
+```{r}
+names(poc_data_temp)
+poc.comm.rda.sym<-dbrda(poc_data_temp[, c(7,8,10,12,13,15,16,18,19)] ~ mean + maximum + minimum + SD, 
+                       data=poc_data_temp)
+
+##Check model significance
+anova(poc.comm.rda.sym)
+# Model: dbrda(formula = poc_data_temp[, c(7, 8, 10, 12, 13, 15, 16, 18, 19)] ~ mean + maximum + minimum + SD, data = poc_data_temp)
+#           Df SumOfSqs      F Pr(>F)    
+# Model      4   34.629 14.489  0.001 ***
+# Residual 128   76.482   
+
+plot(poc.comm.rda.sym)
+
+##Check variance explained by model
+(summary(poc.comm.rda.sym)$constr.chi/summary(poc.comm.rda.sym)$tot.chi)*100
+#31.16% of the variance in symbiont physiology is constrained by temperature
+
+RsquareAdj(poc.comm.rda.sym)$adj.r.squared*100
+#Adjusted: The model explains 29.02% of the variation in Symbiont physiology
+
+summary(poc.comm.rda.sym)$cont
+#dbRDA1 explains 23.14% of total variance 
+#dbRDA2 explains 7.85% of total variance 
+
+summary(poc.comm.rda.sym)$concont
+#dbRDA1 explains 74.26% of constrained variance 
+#dbRDA2 explains 25.20% of constrained variance 
+
+##Check variance explained by each Symbiont physiological metric
+anova(poc.comm.rda.sym, by="terms")
+# Model: dbrda(formula = poc_data_temp[, c(7, 8, 10, 12, 13, 15, 16, 18, 19)] ~ mean + maximum + minimum + SD, data = poc_data_temp)
+#           Df SumOfSqs       F Pr(>F)    
+# mean       1    9.346 15.6422  0.001 ***
+# maximum    1   10.684 17.8812  0.001 ***
+# minimum    1    2.426  4.0601  0.008 ** 
+# SD         1   12.172 20.3716  0.001 ***
+# Residual 128   76.482  
+```
+
+#Plot results 
+
+ACR: 
+- Significant effect of mean, max, min on host phys 
+- Significant effect of mean, max, min, and SD on sym phys 
+
+POR: 
+- Significant effect of mean and max on host phys 
+- Significant effect of mean, max, min, and SD on sym phys
+
+POC:   
+- Significant effect of mean and SD on host phys 
+- Significant effect of mean, max, min, SD on sym phys
+
+```{r}
+ordiplot(acr.comm.rda.host, scaling = 2, main = "ACR Host RDA")
+```
+
+```{r}
+ordiplot(acr.comm.rda.sym, scaling = 2, main = "ACR Symbiont RDA")
+```
+
+```{r}
+ordiplot(por.comm.rda.host, scaling = 2, main = "POR Host RDA")
+```
+
+```{r}
+ordiplot(por.comm.rda.sym, scaling = 2, main = "POR Symbiont RDA")
+```
+
+```{r}
+ordiplot(poc.comm.rda.host, scaling = 2, main = "POC Host RDA")
+```
+
+```{r}
+ordiplot(poc.comm.rda.sym, scaling = 2, main = "POC Symbiont RDA")
+```
+
+Try a fancy plot. 
+
+ACR host 
+```{r}
+# Custom triplot code!
+
+## extract % explained by the first 2 axes
+perc <- round(100*(summary(acr.comm.rda.host)$cont$importance[2, 1:2]), 2)
+
+## extract scores - these are coordinates in the RDA space
+sc_si <- scores(acr.comm.rda.host, display="sites", choices=c(1,2), scaling=1)
+sc_bp <- scores(acr.comm.rda.host, display="bp", choices=c(1,2), scaling=1)
+
+scores(acr.comm.rda.host)
+
+## Custom triplot, step by step
+
+# Set up a blank plot with scaling, axes, and labels
+plot(acr.comm.rda.host,
+     scaling = 2, # set scaling type 
+     type = "none", # this excludes the plotting of any points from the results
+     frame = FALSE,
+     # set axis limits
+     xlim = c(-1,1), 
+     ylim = c(-1,1),
+     # label the plot (title, and axes)
+     main = "Acropora Host RDA",
+     xlab = paste0("RDA1 (", perc[1], "%)"), 
+     ylab = paste0("RDA2 (", perc[2], "%)") 
+)
+# add points for site scores
+points(sc_si, 
+       pch = 21, # set shape (here, circle with a fill colour)
+       col = "darkgray", # outline colour
+       bg = "darkgray", # fill colour
+       cex = 1.2) # size
+
+# add arrows for effects of the expanatory variables
+arrows(0,0, # start them from (0,0)
+       sc_bp[,1], sc_bp[,2], # end them at the score value
+       col = "red", 
+       lwd = 3)
+# add text labels for arrows
+text(x = sc_bp[,1] +0.1, # adjust text coordinate to avoid overlap with arrow tip
+     y = sc_bp[,2] - 0.03, 
+     labels = rownames(sc_bp), 
+     col = "red", 
+     cex = 1, 
+     font = 2)
+```
+
+ACR sym 
+```{r}
+# Custom triplot code!
+
+## extract % explained by the first 2 axes
+perc <- round(100*(summary(acr.comm.rda.sym)$cont$importance[2, 1:2]), 2)
+
+## extract scores - these are coordinates in the RDA space
+sc_si <- scores(acr.comm.rda.sym, display="sites", choices=c(1,2), scaling=1)
+sc_bp <- scores(acr.comm.rda.sym, display="bp", choices=c(1,2), scaling=1)
+
+scores(acr.comm.rda.sym)
+
+## Custom triplot, step by step
+
+# Set up a blank plot with scaling, axes, and labels
+plot(acr.comm.rda.sym,
+     scaling = 2, # set scaling type 
+     type = "none", # this excludes the plotting of any points from the results
+     frame = FALSE,
+     # set axis limits
+     xlim = c(-1,1), 
+     ylim = c(-1,1),
+     # label the plot (title, and axes)
+     main = "Acropora Symbiont RDA",
+     xlab = paste0("RDA1 (", perc[1], "%)"), 
+     ylab = paste0("RDA2 (", perc[2], "%)") 
+)
+# add points for site scores
+points(sc_si, 
+       pch = 21, # set shape (here, circle with a fill colour)
+       col = "darkgray", # outline colour
+       bg = "darkgray", # fill colour
+       cex = 1.2) # size
+
+# add arrows for effects of the expanatory variables
+arrows(0,0, # start them from (0,0)
+       sc_bp[,1], sc_bp[,2], # end them at the score value
+       col = "red", 
+       lwd = 3)
+# add text labels for arrows
+text(x = sc_bp[,1] +0.1, # adjust text coordinate to avoid overlap with arrow tip
+     y = sc_bp[,2] - 0.03, 
+     labels = rownames(sc_bp), 
+     col = "red", 
+     cex = 1, 
+     font = 2)
+```
+
+POR host 
+```{r}
+# Custom triplot code!
+
+## extract % explained by the first 2 axes
+perc <- round(100*(summary(por.comm.rda.host)$cont$importance[2, 1:2]), 2)
+
+## extract scores - these are coordinates in the RDA space
+sc_si <- scores(por.comm.rda.host, display="sites", choices=c(1,2), scaling=1)
+sc_bp <- scores(por.comm.rda.host, display="bp", choices=c(1,2), scaling=1)
+
+scores(por.comm.rda.host)
+
+## Custom triplot, step by step
+
+# Set up a blank plot with scaling, axes, and labels
+plot(por.comm.rda.host,
+     scaling = 2, # set scaling type 
+     type = "none", # this excludes the plotting of any points from the results
+     frame = FALSE,
+     # set axis limits
+     xlim = c(-1,1), 
+     ylim = c(-1,1),
+     # label the plot (title, and axes)
+     main = "Porites Host RDA",
+     xlab = paste0("RDA1 (", perc[1], "%)"), 
+     ylab = paste0("RDA2 (", perc[2], "%)") 
+)
+# add points for site scores
+points(sc_si, 
+       pch = 21, # set shape (here, circle with a fill colour)
+       col = "darkgray", # outline colour
+       bg = "darkgray", # fill colour
+       cex = 1.2) # size
+
+# add arrows for effects of the expanatory variables
+arrows(0,0, # start them from (0,0)
+       sc_bp[,1], sc_bp[,2], # end them at the score value
+       col = "red", 
+       lwd = 3)
+# add text labels for arrows
+text(x = sc_bp[,1] +0.1, # adjust text coordinate to avoid overlap with arrow tip
+     y = sc_bp[,2] - 0.03, 
+     labels = rownames(sc_bp), 
+     col = "red", 
+     cex = 1, 
+     font = 2)
+```
+
+POR sym 
+```{r}
+# Custom triplot code!
+
+## extract % explained by the first 2 axes
+perc <- round(100*(summary(por.comm.rda.sym)$cont$importance[2, 1:2]), 2)
+
+## extract scores - these are coordinates in the RDA space
+sc_si <- scores(por.comm.rda.sym, display="sites", choices=c(1,2), scaling=1)
+sc_bp <- scores(por.comm.rda.sym, display="bp", choices=c(1,2), scaling=1)
+
+scores(por.comm.rda.sym)
+
+## Custom triplot, step by step
+
+# Set up a blank plot with scaling, axes, and labels
+plot(por.comm.rda.sym,
+     scaling = 2, # set scaling type 
+     type = "none", # this excludes the plotting of any points from the results
+     frame = FALSE,
+     # set axis limits
+     xlim = c(-1,1), 
+     ylim = c(-1,1),
+     # label the plot (title, and axes)
+     main = "Porites Symbiont RDA",
+     xlab = paste0("RDA1 (", perc[1], "%)"), 
+     ylab = paste0("RDA2 (", perc[2], "%)") 
+)
+# add points for site scores
+points(sc_si, 
+       pch = 21, # set shape (here, circle with a fill colour)
+       col = "darkgray", # outline colour
+       bg = "darkgray", # fill colour
+       cex = 1.2) # size
+
+# add arrows for effects of the expanatory variables
+arrows(0,0, # start them from (0,0)
+       sc_bp[,1], sc_bp[,2], # end them at the score value
+       col = "red", 
+       lwd = 3)
+# add text labels for arrows
+text(x = sc_bp[,1] +0.1, # adjust text coordinate to avoid overlap with arrow tip
+     y = sc_bp[,2] - 0.03, 
+     labels = rownames(sc_bp), 
+     col = "red", 
+     cex = 1, 
+     font = 2)
+```
+
+POC host 
+```{r}
+# Custom triplot code!
+
+## extract % explained by the first 2 axes
+perc <- round(100*(summary(poc.comm.rda.host)$cont$importance[2, 1:2]), 2)
+
+## extract scores - these are coordinates in the RDA space
+sc_si <- scores(poc.comm.rda.host, display="sites", choices=c(1,2), scaling=1)
+sc_bp <- scores(poc.comm.rda.host, display="bp", choices=c(1,2), scaling=1)
+
+scores(poc.comm.rda.host)
+
+## Custom triplot, step by step
+
+# Set up a blank plot with scaling, axes, and labels
+plot(poc.comm.rda.host,
+     scaling = 2, # set scaling type 
+     type = "none", # this excludes the plotting of any points from the results
+     frame = FALSE,
+     # set axis limits
+     xlim = c(-1,1), 
+     ylim = c(-1,1),
+     # label the plot (title, and axes)
+     main = "Porites Host RDA",
+     xlab = paste0("RDA1 (", perc[1], "%)"), 
+     ylab = paste0("RDA2 (", perc[2], "%)") 
+)
+# add points for site scores
+points(sc_si, 
+       pch = 21, # set shape (here, circle with a fill colour)
+       col = "darkgray", # outline colour
+       bg = "darkgray", # fill colour
+       cex = 1.2) # size
+
+# add arrows for effects of the expanatory variables
+arrows(0,0, # start them from (0,0)
+       sc_bp[,1], sc_bp[,2], # end them at the score value
+       col = "red", 
+       lwd = 3)
+# add text labels for arrows
+text(x = sc_bp[,1] +0.1, # adjust text coordinate to avoid overlap with arrow tip
+     y = sc_bp[,2] - 0.03, 
+     labels = rownames(sc_bp), 
+     col = "red", 
+     cex = 1, 
+     font = 2)
+```
+
+POC sym 
+```{r}
+# Custom triplot code!
+
+## extract % explained by the first 2 axes
+perc <- round(100*(summary(poc.comm.rda.sym)$cont$importance[2, 1:2]), 2)
+
+## extract scores - these are coordinates in the RDA space
+sc_si <- scores(poc.comm.rda.sym, display="sites", choices=c(1,2), scaling=1)
+sc_bp <- scores(poc.comm.rda.sym, display="bp", choices=c(1,2), scaling=1)
+
+scores(poc.comm.rda.sym)
+
+## Custom triplot, step by step
+
+# Set up a blank plot with scaling, axes, and labels
+plot(poc.comm.rda.sym,
+     scaling = 2, # set scaling type 
+     type = "none", # this excludes the plotting of any points from the results
+     frame = FALSE,
+     # set axis limits
+     xlim = c(-1,1), 
+     ylim = c(-1,1),
+     # label the plot (title, and axes)
+     main = "Porites Symbiont RDA",
+     xlab = paste0("RDA1 (", perc[1], "%)"), 
+     ylab = paste0("RDA2 (", perc[2], "%)") 
+)
+# add points for site scores
+points(sc_si, 
+       pch = 21, # set shape (here, circle with a fill colour)
+       col = "darkgray", # outline colour
+       bg = "darkgray", # fill colour
+       cex = 1.2) # size
+
+# add arrows for effects of the expanatory variables
+arrows(0,0, # start them from (0,0)
+       sc_bp[,1], sc_bp[,2], # end them at the score value
+       col = "red", 
+       lwd = 3)
+# add text labels for arrows
+text(x = sc_bp[,1] +0.1, # adjust text coordinate to avoid overlap with arrow tip
+     y = sc_bp[,2] - 0.03, 
+     labels = rownames(sc_bp), 
+     col = "red", 
+     cex = 1, 
+     font = 2)
+```
+

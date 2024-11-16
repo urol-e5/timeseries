@@ -7,11 +7,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-ADD SCRIPT FOR PLOT OF LIGHT, PH, AND SALINITY DATA
-ADD SCRIPT FOR ANNUAL AND DAILY SUMMARY FOR THESE METRICS FROM WHAT WE HAVE 
-
-
-
 # Set Up    
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
