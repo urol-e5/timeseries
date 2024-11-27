@@ -1,0 +1,1328 @@
+---
+title: "Integrating E5 time series environmental data"
+author: "Ariana S Huffmyer"
+date: "07/31/2023"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Set Up    
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+```
+ 
+```{r}
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("RColorBrewer")) install.packages("RColorBrewer")
+if (!require("lme4")) install.packages("lme4")
+if (!require("lmerTest")) install.packages("lmerTest")
+if (!require("car")) install.packages("car")
+if (!require("effects")) install.packages("effects")
+if (!require("ggfortify")) install.packages("ggfortify")
+if (!require("cowplot")) install.packages("cowplot")
+if (!require("vegan")) install.packages("vegan")
+if (!require("corrr")) install.packages("corrr")
+if (!require("ggcorrplot")) install.packages("ggcorrplot")
+if (!require("GGally")) install.packages("GGally")
+if (!require("broom")) install.packages("broom")
+if (!require("cowplot")) install.packages("cowplot")
+if (!require("scales")) install.packages("scales")
+if (!require("ggiraphExtra")) install.packages("ggiraphExtra")
+#if (!require("ggradar")) remotes::install_github("ricardo-bion/ggradar")
+
+# load packages
+library(tidyverse)
+library(ggplot2)
+library(RColorBrewer)
+library(lme4)
+library(lmerTest)
+library(car)
+library(effects)
+library(ggfortify)
+library(cowplot)
+library(vegan)
+library(corrr)
+library(ggcorrplot)
+library(GGally)
+library(broom)
+library(cowplot)
+library(scales)
+#library(ggradar)
+library(ggiraphExtra)
+```
+ 
+# Load and manipulate data  
+
+Load all .csv files from output of all timepoints for temp/pH, hobo temp, and light measurements.        
+ 
+```{r}
+temp_pH_files<-list.files("../", pattern = "pH_temp.csv", recursive=T, full.names=T)
+light_files<-list.files("../", pattern = "light.csv", recursive=T, full.names=T)
+hobo_files<-list.files("../", pattern = "hobo.csv", recursive=T, full.names=T)
+```
+ 
+## Read data files 
+ 
+Load all data frames.  
+
+```{r}
+#temp and pH 
+temp_pH_dataset <- data.frame()
+
+for (i in 1:length(temp_pH_files)){
+  temp_pH_df <- read.csv(temp_pH_files[i]) #each file will be read in
+  temp_pH_dataset <- rbind(temp_pH_dataset, temp_pH_df) #for each iteration, bind the new data to the building dataset
+}
+
+```
+
+```{r}
+#light 
+light_dataset <- data.frame()
+
+for (i in 1:length(light_files)){
+  light_df <- read.csv(light_files[i]) #each file will be read in
+  light_dataset <- rbind(light_dataset, light_df) #for each iteration, bind the new data to the building dataset
+}
+
+```
+
+```{r}
+#hobo temp 
+hobo_dataset <- data.frame()
+
+for (i in 1:length(hobo_files)){
+  hobo_df <- read.csv(hobo_files[i]) #each file will be read in
+  hobo_dataset <- rbind(hobo_dataset, hobo_df) #for each iteration, bind the new data to the building dataset
+}
+
+```
+
+```{r}
+#remove files that are not needed from loops
+rm(list = ls(pattern = "*_df"))
+```
+
+## Generate master data frame    
+
+Format dataframes for date time.    
+
+```{r}
+light_dataset$Date.Time<-as.POSIXct(light_dataset$Date.Time, "%y/%m/%d %H:%M:%S")
+temp_pH_dataset$Date.Time<-as.POSIXct(temp_pH_dataset$Date.Time, "%y/%m/%d %H:%M:%S")
+hobo_dataset$Date.Time<-as.POSIXct(hobo_dataset$Date.Time, "%y/%m/%d %H:%M:%S")
+```
+
+Join all data frames together.  
+
+```{r}
+#can also use "join_all"
+master <- full_join(full_join(
+  temp_pH_dataset,
+  light_dataset, by=c("site", "timepoint", "Date.Time")),
+  hobo_dataset, by=c("site", "timepoint", "Date.Time"))
+
+head(master)
+```
+
+# Plot data over time series with raw data  
+
+Plot temperature from pH probes.    
+
+```{r}
+temp_plot<-master%>%
+  ggplot(aes(x=Date.Time, y=Temp, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=Temp,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("Temperature (°C)")+
+  xlab("Date");temp_plot
+```
+
+Plot temperature from Hobo loggers    
+
+```{r}
+hobo_plot<-master%>%
+  ggplot(aes(x=Date.Time, y=Hobo, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=Hobo,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("Hobo Temperature (°C)")+
+  xlab("Date");hobo_plot
+```
+
+Plot pH   
+
+```{r}
+pH_plot<-master%>%
+  ggplot(aes(x=Date.Time, y=pH, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=pH,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("pH")+
+  xlab("Date");pH_plot
+```
+
+Plot light   
+
+```{r}
+light_plot<-master%>%
+  ggplot(aes(x=Date.Time, y=light, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=light,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("Light (PAR)")+
+  xlab("Date");light_plot
+```
+
+Generate a panel of these three plots.  
+
+```{r}
+environmental_fig<-plot_grid(temp_plot,hobo_plot, pH_plot,light_plot,rel_widths=c(1,1,1,1), ncol=1, nrow=4, rel_heights= c(1,1,1,1),  label_y=1, align="vh")
+
+ggsave(filename="Figures/Environmental/Environmental_Timeseries_Raw.jpg", plot=environmental_fig, dpi=300, width=10, height=8, units="in")
+```
+
+# Generate table of raw data summary statistics  
+
+```{r}
+summary_stats<-master%>%
+  dplyr::select(Date.Time, site, timepoint, Temp, pH, light, Hobo)%>%
+  group_by(site)%>%
+  summarise(across(Temp:Hobo, list(min=min, max=max, mean=mean, stdev=sd), na.rm=TRUE));summary_stats #%>%
+  #mutate(Temp30=sum(with(., Temp_max>30)));summary_stats
+  #write_csv("Output/Environmental_Summary_Stats_Raw.csv")
+```
+
+
+# QC and plotting clean data  
+
+## Temperature from pH probes  
+
+Trim data out for temperature for data from site 3 after there appears to be a probe malfunction.  
+
+```{r}
+master_qc<-master%>%
+  mutate(Temp = if_else(site=="site1" & Date.Time > '2020-03-01 00:00:00', "NA", as.character(Temp)))%>%
+  mutate(Temp=as.numeric(Temp))
+```
+
+Trim out data from probe errors (likely from read outs).  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(Temp = if_else(Date.Time > '2019-12-30 00:00:00' & Date.Time < '2020-01-14 00:00:00', "NA", as.character(Temp)))%>%
+  mutate(Temp=as.numeric(Temp))%>%
+  mutate(Temp = if_else(Date.Time > '2020-02-29 00:00:00' & Date.Time < '2020-03-07 00:00:00', "NA", as.character(Temp)))%>%
+  mutate(Temp=as.numeric(Temp))
+```
+
+Trim out data from start of series from deployment.  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(Temp = if_else(Date.Time < '2019-10-30 00:00:00', "NA", as.character(Temp)))%>%
+  mutate(Temp=as.numeric(Temp))
+```
+
+View temperature plot again.  
+
+```{r}
+temp_plotQC<-master_qc%>%
+  ggplot(aes(x=Date.Time, y=Temp, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=Temp,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("Temperature (°C)")+
+  xlab("Date");temp_plotQC
+```
+
+## pH 
+
+Remove pH value from site 1 due to probe malfunction as above.    
+```{r}
+master_qc<-master_qc%>%
+  mutate(pH = if_else(site=="site1" & Date.Time > '2020-03-01 00:00:00', "NA", as.character(pH)))%>%
+  mutate(pH=as.numeric(pH))
+```
+
+Trim out data from probe errors (likely from read outs).  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(pH = if_else(Date.Time > '2019-12-30 00:00:00' & Date.Time < '2020-01-14 00:00:00', "NA", as.character(pH)))%>%
+  mutate(pH=as.numeric(pH))%>%
+  mutate(pH = if_else(Date.Time > '2020-02-29 00:00:00' & Date.Time < '2020-03-07 00:00:00', "NA", as.character(pH)))%>%
+  mutate(pH=as.numeric(pH))
+```
+
+Trim out data from start of series from deployment.  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(pH = if_else(Date.Time < '2019-10-30 00:00:00', "NA", as.character(pH)))%>%
+  mutate(pH=as.numeric(pH))
+```
+
+Remove pH probe malfunction at site 2.  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(pH = if_else(Date.Time > '2020-03-17 00:00:00' & Date.Time < '2020-05-16 00:00:00', "NA", as.character(pH)))%>%
+  mutate(pH=as.numeric(pH))
+```
+
+Remove malfunction probe at site 2 for TP3 series.  
+```{r}
+master_qc<-master_qc%>%
+  mutate(pH = if_else(site=="site2" & Date.Time > '2020-05-16 00:00:00' & Date.Time < '2020-08-20 00:00:00', "NA", as.character(pH)))%>%
+  mutate(pH=as.numeric(pH))
+```
+
+
+View pH plot again.    
+
+```{r}
+pH_plotQC<-master_qc%>%
+  ggplot(aes(x=Date.Time, y=pH, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=pH,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("pH")+
+  xlab("Date");pH_plotQC
+```
+
+Need to see if the lower site 2 values are valid after 2020-05-16.  
+
+## Light  
+
+Keep only the first couple weeks of each deployment due to fouling.  
+```{r}
+master_qc<-master_qc%>%
+  mutate(light = if_else(Date.Time > '2019-11-18 00:00:00' & Date.Time < '2020-01-15 00:00:00', "NA", as.character(light)))%>%
+  mutate(light=as.numeric(light))
+```
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(light = if_else(Date.Time > '2020-03-10 00:00:00' & Date.Time < '2020-09-29 00:00:00', "NA", as.character(light)))%>%
+  mutate(light=as.numeric(light))
+```
+
+View light plot again.  
+
+```{r}
+light_plotQC<-master_qc%>%
+  ggplot(aes(x=Date.Time, y=light, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=light,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("Light (PAR)")+
+  xlab("Date");light_plotQC
+```
+
+## Hobo temperature data, from loggers  
+
+Trim out data from start of series from deployment.  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(Hobo = if_else(Date.Time < '2019-10-30 00:00:00', "NA", as.character(Hobo)))%>%
+  mutate(Hobo=as.numeric(Hobo))
+```
+
+Trim out data from probe errors (likely from read outs).  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(Hobo = if_else(Date.Time > '2019-12-30 00:00:00' & Date.Time < '2020-01-14 00:00:00', "NA", as.character(Hobo)))%>%
+  mutate(Hobo=as.numeric(Hobo))%>%
+  mutate(Hobo = if_else(Date.Time > '2020-02-29 00:00:00' & Date.Time < '2020-03-07 00:00:00', "NA", as.character(Hobo)))%>%
+  mutate(Hobo=as.numeric(Hobo))
+```
+
+Trim out data from end of series from deployment.  
+
+```{r}
+master_qc<-master_qc%>%
+  mutate(Hobo = if_else(Date.Time > '2020-11-07 00:00:00', "NA", as.character(Hobo)))%>%
+  mutate(Hobo=as.numeric(Hobo))
+```
+
+View plot of Hobo temperature again.  
+
+```{r}
+hobo_plotQC<-master_qc%>%
+  ggplot(aes(x=Date.Time, y=Hobo, color=site))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=Hobo,color=site),se=FALSE,span=0.15,size=0.5)+
+  scale_x_datetime(date_breaks="20 days",minor_breaks=waiver(),labels=date_format("%m-%d"))+
+  theme_classic()+
+  ylab("Hobo Temperature (°C)")+
+  xlab("Date");hobo_plotQC
+```
+
+
+## Now assemble a revised plot after QC.  
+
+```{r}
+qc_fig<-plot_grid(temp_plotQC,hobo_plotQC,pH_plotQC,light_plotQC,rel_widths=c(1,1,1), ncol=1, nrow=4, rel_heights= c(1,1,1),  label_y=1, align="vh")
+
+ggsave(filename="Figures/Environmental/Clean_Environmental_Timeseries.jpg", plot=qc_fig, dpi=300, width=10, height=8, units="in")
+```
+
+# Combine temperature data     
+
+Plot correlation between data loggers.  
+```{r}
+corr_temp_plot<-master_qc%>%
+  ggplot(aes(x=Hobo, y=Temp))+
+  geom_point(size=0.5, alpha=0.3)+
+  #geom_smooth(aes(x=Date.Time,y=Temp,color=site),se=FALSE,span=0.15,size=0.5)+
+  theme_classic()+
+  ylab("Temp/pH logger temperature (°C)")+
+  xlab("Hobo logger temperature (°C)");corr_temp_plot
+
+ggsave(filename="Figures/Environmental/Hobo_Temp_Correlation.jpg", plot=corr_temp_plot, dpi=300, width=6, height=6, units="in")
+```
+
+Very tight correlation between temperature probes, so we can use the full hobo time series filled in with temperature from pH probe wherever data is missing (site 1 at the beginning of the time series). 
+
+Combine temperature datasets to have complete time series.  
+
+```{r}
+#if hobo is na, fill with data from the pH temperature logger 
+master_qc<-master_qc%>%
+  mutate(FullTemp=if_else(is.na(Hobo), Temp, Hobo))
+```
+
+
+# Generate table of clean summary statistics  
+
+```{r}
+summary_stats_qc<-master_qc%>%
+  dplyr::select(Date.Time, site, timepoint, FullTemp, pH, light)%>%
+  group_by(site)%>%
+  summarise(across(FullTemp:light, list(min=min, max=max, mean=mean, stdev=sd), na.rm=TRUE))%>%
+  mutate(FullTemp_range=(FullTemp_max-FullTemp_min), na.rm=TRUE)%>%
+  mutate(pH_range=(pH_max-pH_min), na.rm=TRUE)%>%
+  write_csv("Output/Clean_Environmental_Summary_Stats.csv")
+```
+
+# Generate table of temperature statistics to correlate responses to  
+
+```{r}
+summary_stats_temp<-master_qc%>%
+  dplyr::select(Date.Time, site, timepoint, FullTemp)%>%
+  group_by(timepoint, site)%>%
+  summarise(across(FullTemp, list(min=min, max=max, mean=mean, stdev=sd), na.rm=TRUE))%>%
+  mutate(FullTemp_range=(FullTemp_max-FullTemp_min))%>%
+  write_csv("Output/Clean_Environmental_Temp_Means.csv"); summary_stats_temp
+```
+
+# Output cleaned and qc dataframe  
+
+```{r}
+write_csv(master_qc, "Output/environmental_timeseries.csv")
+```
+
+# Time series plots 
+## Temperature timeseries plot 
+
+```{r}
+master_qc$site<-factor(master_qc$site, levels=c("site2", "site3", "site1"))
+
+temp_summary_plot <- master_qc %>%
+  ggplot(., aes(x=Date.Time, y=FullTemp)) + 
+  geom_point(colour="gray", size=0.5, alpha=0.05) + 
+  geom_smooth(aes(colour=site), se=FALSE, method="gam") + 
+  scale_colour_manual(name="Site", values=c("#374d7c", "#00cccc", "#ff6633"), labels=c("Mahana", "Hilton", "Manava")) +
+  ylab("Temperature °C") + 
+  xlab("Date") +
+  scale_x_datetime(date_breaks = "1 months", date_labels = "%b %Y")+
+  geom_vline(xintercept = as.POSIXct("2020-01-01"), linetype="dashed")+ 
+  geom_vline(xintercept = as.POSIXct("2020-03-02"), linetype="dashed")+
+  geom_vline(xintercept = as.POSIXct("2020-09-08"), linetype="dashed")+
+  geom_vline(xintercept = as.POSIXct("2020-11-01"), linetype="dashed")+
+  theme_classic() + 
+  theme(
+    text=element_text(size=12, colour="black"), 
+    axis.title=element_text(size=14, colour="black", face="bold"), 
+    axis.text.x=element_text(size=10, colour="black", angle=45, hjust=1, vjust=1),
+    legend.title=element_text(size=14, colour="black", face="bold")
+  );temp_summary_plot
+
+ggsave(filename="Figures/Environmental/Environmental_Temperature_summary.png", temp_summary_plot, width = 9, height = 4, units = c("in"))
+ggsave(filename="Figures/Environmental/Environmental_Temperature_summary.pdf", temp_summary_plot, width = 9, height = 4, units = c("in"))
+```
+
+## pH timeseries plot 
+
+```{r}
+master_qc$site<-factor(master_qc$site, levels=c("site2", "site3", "site1"))
+
+pH_summary_plot <- master_qc %>%
+  ggplot(., aes(x=Date.Time, y=pH)) + 
+  geom_point(colour="gray", size=0.5, alpha=0.2) + 
+  geom_smooth(data=subset(master_qc, Date.Time >= as.POSIXct("2020-05-01")), aes(colour=site), se=FALSE, method="gam", fullrange = FALSE) + 
+  geom_smooth(data=subset(master_qc, Date.Time <= as.POSIXct("2020-03-02") & Date.Time >= as.POSIXct("2020-01-08")), aes(colour=site), se=FALSE, method="gam", fullrange = FALSE) + 
+  geom_smooth(data=subset(master_qc, Date.Time >= as.POSIXct("2020-03-02") & Date.Time <= as.POSIXct("2020-05-01")), aes(colour=site), se=FALSE, method="gam", fullrange = FALSE) + 
+  geom_smooth(data=subset(master_qc, Date.Time <= as.POSIXct("2020-01-08")), aes(colour=site), se=FALSE, method="gam", fullrange = FALSE) + 
+  
+  scale_colour_manual(name="Site", values=c("#374d7c", "#00cccc", "#ff6633"), labels=c("Mahana", "Hilton", "Manava")) + #add key for colors 
+  ylab("pH") + 
+  xlab("Date") +
+  scale_x_datetime(date_breaks = "1 months", date_labels = "%b %Y")+
+  geom_vline(xintercept = as.POSIXct("2020-01-01"), linetype="dashed")+ 
+  geom_vline(xintercept = as.POSIXct("2020-03-02"), linetype="dashed")+
+  geom_vline(xintercept = as.POSIXct("2020-09-08"), linetype="dashed")+
+  geom_vline(xintercept = as.POSIXct("2020-11-01"), linetype="dashed")+
+  theme_classic() + 
+  theme(
+    text=element_text(size=12, colour="black"), 
+    axis.title=element_text(size=14, colour="black", face="bold"), 
+    axis.text.x=element_text(size=10, colour="black", angle=45, hjust=1, vjust=1),
+    legend.title=element_text(size=14, colour="black", face="bold")
+  );pH_summary_plot
+
+ggsave(filename="Figures/Environmental/Environmental_pH_summary.png", pH_summary_plot, width = 9, height = 4, units = c("in"))
+ggsave(filename="Figures/Environmental/Environmental_pH_summary.pdf", pH_summary_plot, width = 9, height = 4, units = c("in"))
+```
+
+## light timeseries plot 
+
+```{r}
+light_summary_plot <- master_qc %>%
+  filter(!Date.Time > as.POSIXct("2020-11-01")) %>%
+         
+  ggplot(., aes(x=Date.Time, y=light)) + 
+  geom_point(colour="gray", size=0.5, alpha=0.2) + 
+  
+  geom_smooth(data=subset(master_qc, Date.Time <= as.POSIXct("2019-12-10")), aes(colour=site), se=FALSE, method="gam", fullrange = FALSE) + 
+  geom_smooth(data=subset(master_qc, Date.Time <= as.POSIXct("2020-04-02") & Date.Time >= as.POSIXct("2020-01-01")), aes(colour=site), se=FALSE, method="gam", fullrange = FALSE) + 
+  geom_smooth(data=subset(master_qc, Date.Time >= as.POSIXct("2020-09-01") & Date.Time < as.POSIXct("2020-11-01")), aes(colour=site), se=FALSE, method="gam", fullrange = FALSE) + 
+  
+  scale_colour_manual(name="Site", values=c("#374d7c", "#00cccc", "#ff6633"), labels=c("Mahana", "Hilton", "Manava")) + #add key for colors 
+  ylab("Light (PAR)") + 
+  xlab("Date") +
+  scale_x_datetime(date_breaks = "1 months", date_labels = "%b %Y")+
+  geom_vline(xintercept = as.POSIXct("2020-01-01"), linetype="dashed")+ 
+  geom_vline(xintercept = as.POSIXct("2020-03-02"), linetype="dashed")+
+  geom_vline(xintercept = as.POSIXct("2020-09-08"), linetype="dashed")+
+  geom_vline(xintercept = as.POSIXct("2020-11-01"), linetype="dashed")+
+  theme_classic() + 
+  theme(
+    text=element_text(size=12, colour="black"), 
+    axis.title=element_text(size=14, colour="black", face="bold"), 
+    axis.text.x=element_text(size=10, colour="black", angle=45, hjust=1, vjust=1),
+    legend.title=element_text(size=14, colour="black", face="bold")
+  );light_summary_plot
+
+ggsave(filename="Figures/Environmental/Environmental_light_summary.png", light_summary_plot, width = 9, height = 4, units = c("in"))
+ggsave(filename="Figures/Environmental/Environmental_light_summary.pdf", light_summary_plot, width = 9, height = 4, units = c("in"))
+```
+
+## Assemble plots 
+
+```{r}
+library(cowplot)
+
+environment_plots<-plot_grid(pH_summary_plot, light_summary_plot, ncol=1, nrow=2, align="vh")
+
+ggsave(filename="Figures/Environmental/pH_light_plots.png", plot=environment_plots, width=10, height=8)
+```
+
+
+# View environmental metrics of each site  
+
+## Daily and Overall Metrics  
+
+Calculate the following metrics: 
+- Overall mean
+- Overall max 
+- Overall range 
+- Overall standard deviation 
+- Daily mean
+- Daily max 
+- Daily range 
+- Daily standard deviation 
+
+### Temperature
+
+Generate a data frame with overall metrics and another dataframe with daily metrics. Combine into a single table showing these values for each site. 
+
+```{r}
+master_qc[mapply(is.infinite, master_qc)] <- NA
+master_qc[mapply(is.nan, master_qc)] <- NA
+
+temp_metrics_all<-master_qc %>%
+    mutate(Date=as.factor(as.Date(Date.Time)))%>%
+    select(Date, site, FullTemp)%>%
+    group_by(site)%>%
+    dplyr::summarise(overall_mean = mean(FullTemp, na.rm=TRUE), 
+                     overall_min=min(FullTemp, na.rm=TRUE), 
+                     overall_max=max(FullTemp, na.rm=TRUE),
+                     overall_sd=sd(FullTemp, na.rm=TRUE),
+                     overall_range=overall_max-overall_min)
+
+#generate daily means
+temp_metrics_daily<-master_qc %>%
+    mutate(Date=as.factor(as.Date(Date.Time)))%>%
+    select(Date, site, FullTemp)%>%
+    group_by(Date, site)%>%
+    dplyr::summarise(daily_mean = mean(FullTemp, na.rm=TRUE), 
+                     daily_min=min(FullTemp, na.rm=TRUE), 
+                     daily_max=max(FullTemp, na.rm=TRUE),
+                     daily_sd=sd(FullTemp, na.rm=TRUE),
+                     daily_range=daily_max-daily_min)
+  
+temp_metrics_daily[mapply(is.infinite, temp_metrics_daily)] <- NA
+temp_metrics_daily[mapply(is.nan, temp_metrics_daily)] <- NA
+
+#summarize daily means
+temp_metrics_daily_sum<-temp_metrics_daily %>%
+    group_by(site)%>%
+    dplyr::summarise(daily_mean = mean(daily_mean, na.rm=TRUE), 
+                     daily_min=mean(daily_min, na.rm=TRUE), 
+                     daily_max=mean(daily_max, na.rm=TRUE),
+                     daily_sd=mean(daily_sd, na.rm=TRUE),
+                     daily_range=mean(daily_range, na.rm=TRUE))
+
+#merge together overall and daily metrics 
+
+temp_metrics<-left_join(temp_metrics_all, temp_metrics_daily_sum)
+
+temp_metrics
+```
+
+Generate a plot to view metrics. 
+```{r}
+# Convert wide dataset to long dataset and add a new column for "interval"
+temp_metrics_long <- temp_metrics %>%
+  pivot_longer(cols = -site,
+               names_to = "Variable",
+               values_to = "Value") %>%
+  mutate(Interval=if_else(str_detect(Variable, "daily"), "Daily", "Overall"))%>%
+  mutate(Metric=if_else(str_detect(Variable, "mean"), "Mean", 
+                        if_else(str_detect(Variable, "min"), "Min",
+                                if_else(str_detect(Variable, "max"), "Max",
+                                        if_else(str_detect(Variable, "sd"), "SD",
+                                                if_else(str_detect(Variable, "range"), "Range", NA))))))%>%
+    mutate(site = if_else(site == "site3", "Hilton", 
+                            if_else(site == "site2", "Mahana", 
+                                    if_else(site == "site1", "Manava", "NA"))))
+```
+
+Plot metrics by site and time interval. 
+
+```{r}
+temp_metric_plot<-temp_metrics_long%>%
+  
+  ggplot(aes(x=site, y=Value, colour=site, shape=Interval))+ 
+  facet_wrap(~Variable, scales="free", ncol=5)+
+  geom_point(size=4)+
+  scale_colour_manual(name="Site", values=c("#374d7c", "#00cccc", "#ff6633"), labels=c("Manava", "Mahana", "Hilton")) +
+  ylab("Temperature °C") + 
+  theme_classic()+
+  theme(
+    text=element_text(size=12, colour="black"), 
+    axis.title=element_text(size=14, colour="black", face="bold"), 
+    axis.text.x=element_text(size=10, colour="black", angle=45, hjust=1, vjust=1),
+    legend.title=element_text(size=14, colour="black", face="bold"), 
+    legend.position="none"
+  ); temp_metric_plot
+  
+
+```
+
+Try with a heatmap approach. 
+
+First generate dataframe that is scaled for visualization. 
+
+NEED TO ADJUST CALCULATION - CURRENTLY MAKES DIFFERENCES THAT ARE SMALL LOOK WAY TOO BIG 
+```{r}
+
+temp_metrics_long_scale <- temp_metrics %>%
+  mutate_at(vars(overall_mean, overall_min, overall_max, overall_sd, overall_range, daily_mean, daily_min, daily_max, daily_sd, daily_range),
+            scale)%>%
+  pivot_longer(cols = -site,
+               names_to = "Variable",
+               values_to = "Value") %>%
+  mutate(Interval=if_else(str_detect(Variable, "daily"), "Daily", "Overall"))%>%
+  mutate(Metric=if_else(str_detect(Variable, "mean"), "Mean", 
+                        if_else(str_detect(Variable, "min"), "Min",
+                                if_else(str_detect(Variable, "max"), "Max",
+                                        if_else(str_detect(Variable, "sd"), "SD",
+                                                if_else(str_detect(Variable, "range"), "Range", NA))))))%>%
+    mutate(site = if_else(site == "site3", "Hilton", 
+                            if_else(site == "site2", "Mahana", 
+                                    if_else(site == "site1", "Manava", "NA"))))
+
+temp_metrics_long_scale$Metric<-factor(temp_metrics_long_scale$Metric, levels=c("Range", "SD", "Max", "Mean"))
+temp_metrics_long_scale$site<-factor(temp_metrics_long_scale$site, levels=c("Mahana", "Hilton", "Manava"))
+```
+
+Daily
+```{r}
+temp_metrics_long_scale_plot <- temp_metrics_long_scale%>%
+  filter(Interval=="Daily")%>%
+  filter(!Metric=="Min")
+
+temp_metrics_long_plot <- temp_metrics_long%>%
+  filter(Interval=="Daily")%>%
+  filter(!Metric=="Min")
+  
+heatmap_plot_daily<-ggplot(data=temp_metrics_long_scale_plot, aes(x = site, y = Metric)) +
+  geom_tile(data=temp_metrics_long_scale_plot, aes(fill = Value), color = "white") +
+  scale_fill_gradient2(name="Relative \nDifference", low = "lightblue", mid = "white", high = "orange", midpoint = 0) +
+  geom_text(data=temp_metrics_long_plot, aes(label = round(Value, 2)), color = "black", size = 4)+
+  labs(title = "Daily Metrics",
+       x = "Site",
+       y = "Metric (°C)") +
+  theme_minimal()+
+  theme(
+    text=element_text(size=12, color="black"), 
+    axis.text=element_text(size=12, color="black"), 
+    legend.position="right",
+    legend.title=element_blank(),
+    axis.title=element_text(size=14, color="black", face="bold")
+  );heatmap_plot_daily
+```
+
+Overall
+```{r}
+temp_metrics_long_scale_plot <- temp_metrics_long_scale%>%
+  filter(Interval=="Overall")%>%
+  filter(!Metric=="Min")
+
+temp_metrics_long_plot <- temp_metrics_long%>%
+  filter(Interval=="Overall")%>%
+  filter(!Metric=="Min")
+  
+heatmap_plot_overall<-ggplot(data=temp_metrics_long_scale_plot, aes(x = site, y = Metric)) +
+  geom_tile(data=temp_metrics_long_scale_plot, aes(fill = Value), color = "white") +
+  scale_fill_gradient2(low = "lightblue", mid = "white", high = "orange", midpoint = 0) +
+  geom_text(data=temp_metrics_long_plot, aes(label = round(Value, 2)), color = "black", size = 4)+
+  labs(title = "Time Series Metrics",
+       x = "Site",
+       y = "Metric (°C)", 
+       legend = "Relative Difference") +
+  theme_minimal()+
+  theme(
+    text=element_text(size=12, color="black"), 
+    axis.text=element_text(size=12, color="black"), 
+    legend.title=element_blank(), 
+    axis.title=element_text(size=14, color="black", face="bold"), 
+    legend.position="none"
+  );heatmap_plot_overall
+```
+
+Save plots. 
+```{r}
+temp_heatmaps<-plot_grid(heatmap_plot_overall, heatmap_plot_daily, ncol=2, nrow=1, rel_widths=c(0.8,1))
+
+ggsave(filename="Figures/Environmental/temp_metric_heatmaps.jpg", plot=temp_heatmaps, width=8, height=4)
+```
+
+Make a table with the temperature metric output. 
+
+```{r}
+# Apply the function to each metric column
+table_temp<-temp_metrics_long %>%
+  pivot_wider(values_from=Value, names_from=site)%>%
+  filter(!Metric=="Min")%>%
+  select(Metric, Interval, Mahana, Hilton, Manava)%>%
+  arrange(Interval, Metric);table_temp
+
+write.csv(table_temp, file="Output/temp_metric_table.csv")
+```
+
+Generate a radar plot for temperature metrics. 
+
+```{r}
+#radar plot for temperature
+radar<-temp_metrics%>%
+  mutate_each(funs(rescale), -site) %>%
+  drop_na()%>%
+  ungroup()%>%
+  droplevels()%>%
+    mutate(site = if_else(site == "site3", "Hilton", 
+                            if_else(site == "site2", "Mahana", 
+                                    if_else(site == "site1", "Manava", "NA"))))
+
+png(filename="Figures/Environmental/Environmental_Radar_Temperature.png", width=2280, heigh=1880, units="px", res=300)
+ggRadar(radar, aes(colour=site), scales="fixed")+
+  ggplot2::theme_minimal()+
+  ggplot2::scale_colour_manual(values=c("#00cccc", "#374d7c", "#ff6633")) +
+  scale_fill_manual(values=c("#00cccc", "#374d7c", "#ff6633")) +
+  ggplot2::theme(text=element_text(color="black", size=11))+
+  ggplot2::theme(legend.position="top")
+dev.off()
+
+```
+
+pH and light 
+```{r}
+radar_data_pH<-master_qc %>%
+    mutate(Date=as.factor(as.Date(Date.Time)))%>%
+    select(Date, site, FullTemp, pH, light)%>%
+    group_by(Date, site)%>%
+    summarise(across(pH:light, list(mean=mean, min=min, max=max, sd=sd), na.rm=TRUE))%>%
+    mutate(pH_range=(pH_max-pH_min), na.rm=TRUE)
+
+radar_data_pH[mapply(is.infinite, radar_data_pH)] <- NA
+radar_data_pH[mapply(is.nan, radar_data_pH)] <- NA
+
+#radar plot for ph/light
+
+radar<-radar_data_pH%>%
+  select(site, pH_mean, light_mean, pH_sd, pH_max, pH_min, pH_range, light_max)%>%
+  mutate_each(funs(rescale), -site) %>%
+  drop_na()%>%
+  ungroup()%>%
+  droplevels()%>%
+  select(!Date)%>%
+  rename(pH_Mean=pH_mean, pH_Variability=pH_sd, pH_Max=pH_max, pH_Min=pH_min, pH_Range=pH_range, Light_Mean=light_mean, Light_Max=light_max)%>%
+  mutate(site = if_else(site == "site3", "Hilton", 
+                            if_else(site == "site2", "Mahana", 
+                                    if_else(site == "site1", "Manava", "NA"))))
+
+png(filename="Figures/Environmental/Environmental_Radar_pH_light.png", width=2280, heigh=1880, units="px", res=300)
+ggRadar(radar, aes(colour=site), scales="fixed")+
+  ggplot2::theme_minimal()+
+  ggplot2::theme(text=element_text(color="black", size=11))+
+  ggplot2::theme(legend.position="top")+
+  ggplot2::scale_colour_manual(values=c("#00cccc", "#374d7c", "#ff6633")) +
+  ggplot2::scale_fill_manual(values=c("#00cccc", "#374d7c", "#ff6633"))
+dev.off()
+
+```
+
+
+### pH
+
+Generate a data frame with overall metrics and another dataframe with daily metrics. Combine into a single table showing these values for each site. 
+
+```{r}
+master_qc[mapply(is.infinite, master_qc)] <- NA
+master_qc[mapply(is.nan, master_qc)] <- NA
+
+pH_metrics_all<-master_qc %>%
+    mutate(Date=as.factor(as.Date(Date.Time)))%>%
+    select(Date, site, pH) %>%
+    group_by(site) %>%
+    dplyr::summarise(overall_mean = mean(pH, na.rm=TRUE), 
+                     overall_min=min(pH, na.rm=TRUE), 
+                     overall_max=max(pH, na.rm=TRUE),
+                     overall_sd=sd(pH, na.rm=TRUE),
+                     overall_range=overall_max-overall_min)
+
+pH_metrics<-pH_metrics_all
+
+pH_metrics
+```
+
+Generate a plot to view metrics. 
+```{r}
+# Convert wide dataset to long dataset and add a new column for "interval"
+pH_metrics_long <- pH_metrics %>%
+  pivot_longer(cols = -site,
+               names_to = "Variable",
+               values_to = "Value") %>%
+  mutate(Interval=if_else(str_detect(Variable, "daily"), "Daily", "Overall"))%>%
+  mutate(Metric=if_else(str_detect(Variable, "mean"), "Mean", 
+                        if_else(str_detect(Variable, "min"), "Min",
+                                if_else(str_detect(Variable, "max"), "Max",
+                                        if_else(str_detect(Variable, "sd"), "SD",
+                                                if_else(str_detect(Variable, "range"), "Range", NA))))))%>%
+    mutate(site = if_else(site == "site3", "Hilton", 
+                            if_else(site == "site2", "Mahana", 
+                                    if_else(site == "site1", "Manava", "NA"))))
+```
+
+Plot metrics by site and time interval. 
+
+```{r}
+pH_metric_plot<-pH_metrics_long%>%
+  
+  ggplot(aes(x=site, y=Value, colour=site, shape=Interval))+ 
+  facet_wrap(~Variable, scales="free", ncol=5)+
+  geom_point(size=4)+
+  scale_colour_manual(name="Site", values=c("#374d7c", "#00cccc", "#ff6633"), labels=c("Manava", "Mahana", "Hilton")) +
+  ylab("pH (NBS)") + 
+  theme_classic()+
+  theme(
+    text=element_text(size=12, colour="black"), 
+    axis.title=element_text(size=14, colour="black", face="bold"), 
+    axis.text.x=element_text(size=10, colour="black", angle=45, hjust=1, vjust=1),
+    legend.title=element_text(size=14, colour="black", face="bold"), 
+    legend.position="none"
+  ); pH_metric_plot
+  
+
+```
+
+Make a table with the pH metric output. 
+
+```{r}
+# Apply the function to each metric column
+table_pH<-pH_metrics_long %>%
+  pivot_wider(values_from=Value, names_from=site)%>%
+  filter(!Metric=="Min")%>%
+  select(Metric, Interval, Mahana, Hilton, Manava)%>%
+  arrange(Interval, Metric);table_pH
+
+write.csv(table_pH, file="Output/pH_metric_table.csv")
+```
+
+
+
+
+
+
+
+### Light
+
+Generate a data frame with overall metrics and another dataframe with daily metrics. Combine into a single table showing these values for each site. 
+
+```{r}
+master_qc[mapply(is.infinite, master_qc)] <- NA
+master_qc[mapply(is.nan, master_qc)] <- NA
+
+light_metrics_all<-master_qc %>%
+    filter(light>0)%>%
+    mutate(Date=as.factor(as.Date(Date.Time)))%>%
+    select(Date, site, light) %>%
+    group_by(site) %>%
+    dplyr::summarise(overall_mean = mean(light, na.rm=TRUE), 
+                     overall_min=min(light, na.rm=TRUE), 
+                     overall_max=max(light, na.rm=TRUE),
+                     overall_sd=sd(light, na.rm=TRUE),
+                     overall_range=overall_max-overall_min)
+
+light_metrics<-light_metrics_all
+
+light_metrics
+```
+
+Generate a plot to view metrics. 
+```{r}
+# Convert wide dataset to long dataset and add a new column for "interval"
+light_metrics_long <- light_metrics %>%
+  pivot_longer(cols = -site,
+               names_to = "Variable",
+               values_to = "Value") %>%
+  mutate(Interval=if_else(str_detect(Variable, "daily"), "Daily", "Overall"))%>%
+  mutate(Metric=if_else(str_detect(Variable, "mean"), "Mean", 
+                        if_else(str_detect(Variable, "min"), "Min",
+                                if_else(str_detect(Variable, "max"), "Max",
+                                        if_else(str_detect(Variable, "sd"), "SD",
+                                                if_else(str_detect(Variable, "range"), "Range", NA))))))%>%
+    mutate(site = if_else(site == "site3", "Hilton", 
+                            if_else(site == "site2", "Mahana", 
+                                    if_else(site == "site1", "Manava", "NA"))))
+```
+
+Plot metrics by site and time interval. 
+
+```{r}
+light_metric_plot<-light_metrics_long%>%
+  
+  ggplot(aes(x=site, y=Value, colour=site, shape=Interval))+ 
+  facet_wrap(~Variable, scales="free", ncol=5)+
+  geom_point(size=4)+
+  scale_colour_manual(name="Site", values=c("#374d7c", "#00cccc", "#ff6633"), labels=c("Manava", "Mahana", "Hilton")) +
+  ylab("Light (PAR)") + 
+  theme_classic()+
+  theme(
+    text=element_text(size=12, colour="black"), 
+    axis.title=element_text(size=14, colour="black", face="bold"), 
+    axis.text.x=element_text(size=10, colour="black", angle=45, hjust=1, vjust=1),
+    legend.title=element_text(size=14, colour="black", face="bold"), 
+    legend.position="none"
+  ); light_metric_plot
+  
+
+```
+
+Make a table with the pH metric output. 
+
+```{r}
+# Apply the function to each metric column
+table_light<-light_metrics_long %>%
+  pivot_wider(values_from=Value, names_from=site)%>%
+  filter(!Metric=="Min")%>%
+  select(Metric, Interval, Mahana, Hilton, Manava)%>%
+  arrange(Interval, Metric);table_light
+
+write.csv(table_light, file="Output/light_metric_table.csv")
+```
+
+
+
+## Statistical tests  
+
+Conduct ANOVA across sites to look at differences in these environmental characteristics.  
+
+*Temperature variables*
+```{r}
+summary(aov(FullTemp_mean~site, radar_data_temp))
+summary(aov(FullTemp_sd~site, radar_data_temp))
+summary(aov(FullTemp_max~site, radar_data_temp))
+summary(aov(FullTemp_min~site, radar_data_temp))
+summary(aov(FullTemp_range~site, radar_data_temp))
+```
+
+
+*Light variables*
+```{r}
+summary(aov(light_mean~site, radar_data_pH))
+summary(aov(light_max~site, radar_data_pH))
+```
+
+Mean daily light and max daily light are different by site.  
+
+*pH variables*  
+```{r}
+summary(aov(pH_mean~site, radar_data_pH))
+summary(aov(pH_sd~site, radar_data_pH))
+summary(aov(pH_max~site, radar_data_pH))
+summary(aov(pH_min~site, radar_data_pH))
+summary(aov(pH_range~site, radar_data_pH))
+```
+
+Mean daily pH, daily pH variability (stdev), max daily pH, min daily pH, and pH daily range are different by site.  
+
+# Plot boxplots of data for each timepoint as a summary.    
+
+Summarize data.  
+
+```{r}
+boxplot_data<-master_qc %>%
+    mutate(Date=as.factor(as.Date(Date.Time)))%>%
+    select(Date, timepoint, site, FullTemp, pH, light)%>%
+    group_by(Date, site, timepoint)%>%
+    summarise(across(FullTemp:light, list(mean=mean, min=min, max=max, sd=sd), na.rm=TRUE))%>%
+    mutate(FullTemp_range=(FullTemp_max-FullTemp_min), na.rm=TRUE)%>%
+    mutate(pH_range=(pH_max-pH_min), na.rm=TRUE)
+
+boxplot_data[mapply(is.infinite, boxplot_data)] <- NA
+boxplot_data[mapply(is.nan, boxplot_data)] <- NA
+```
+
+Temperature
+```{r}
+#mean temp
+temp_plot1<-boxplot_data %>%
+  filter(!is.na(FullTemp_mean))%>%
+
+  ggplot(., aes(x = site, y = FullTemp_mean, fill = site, colour=site)) +
+    geom_boxplot(fill="white", size=1) +
+    geom_point(colour="black",pch = 21, size=1, alpha=0.5, position = position_jitterdodge(0.4)) + 
+    facet_grid(~timepoint) +
+    xlab("Site") + 
+    theme_classic() + 
+    ylim(25,32)+
+    ylab("Daily Mean Temperature °C")+
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      );temp_plot1
+
+#min temp
+temp_plot2<-boxplot_data %>%
+  filter(!is.na(FullTemp_min))%>%
+
+  ggplot(., aes(x = site, y = FullTemp_min, fill = site, colour=site)) +
+    geom_boxplot(fill="white", size=1) +
+    geom_point(colour="black",pch = 21, size=1, alpha=0.5, position = position_jitterdodge(0.4)) + 
+    facet_grid(~timepoint) +
+    xlab("Site") + 
+    theme_classic() + 
+    ylim(25,32)+
+    ylab("Daily Minimum Temperature °C")+
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      );temp_plot2
+
+#max temp
+temp_plot3<-boxplot_data %>%
+  filter(!is.na(FullTemp_max))%>%
+
+  ggplot(., aes(x = site, y = FullTemp_max, fill = site, colour=site)) +
+    geom_boxplot(fill="white", size=1) +
+    geom_point(colour="black",pch = 21, size=1, alpha=0.5, position = position_jitterdodge(0.4)) + 
+    facet_grid(~timepoint) +
+    xlab("Site") + 
+    theme_classic() + 
+    ylim(25,32)+
+    ylab("Daily Maximum Temperature °C")+
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      );temp_plot3
+
+#variability temp
+temp_plot4<-boxplot_data %>%
+  filter(!is.na(FullTemp_sd))%>%
+
+  ggplot(., aes(x = site, y = FullTemp_sd, fill = site, colour=site)) +
+    geom_boxplot(fill="white", size=1) +
+    geom_point(colour="black",pch = 21, size=1, alpha=0.5, position = position_jitterdodge(0.4)) + 
+    facet_grid(~timepoint) +
+    xlab("Site") + 
+    theme_classic() + 
+   #ylim(25,32)+
+    ylab("Daily Temperature Variability (stdev; °C)")+
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      );temp_plot4
+
+#range temp
+temp_plot5<-boxplot_data %>%
+  filter(!is.na(FullTemp_range))%>%
+
+  ggplot(., aes(x = site, y = FullTemp_range, fill = site, colour=site)) +
+    geom_boxplot(fill="white", size=1) +
+    geom_point(colour="black",pch = 21, size=1, alpha=0.5, position = position_jitterdodge(0.4)) + 
+    facet_grid(~timepoint) +
+    xlab("Site") + 
+    theme_classic() + 
+   #ylim(25,32)+
+    ylab("Daily Temperature Range (°C)")+
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      );temp_plot5
+
+#assemble plot
+temp_fig<-plot_grid(temp_plot1, temp_plot2, temp_plot3,temp_plot4,temp_plot5,rel_widths=c(1,1,1,1,1), ncol=5, nrow=1, rel_heights= c(1,1,1,1,1),  label_y=1, align="vh")
+
+ggsave(filename="Figures/Environmental/temp_boxplots.jpg", plot=temp_fig, dpi=200, width=24, height=6, units="in")
+
+```
+
+pH
+```{r}
+#mean pH
+pH_plot1<-boxplot_data %>%
+  filter(!is.na(pH_mean))%>%
+
+  ggplot(., aes(x = site, y = pH_mean, fill = site, colour=site)) +
+    geom_boxplot(fill="white", size=1) +
+    geom_point(colour="black",pch = 21, size=1, alpha=0.5, position = position_jitterdodge(0.4)) + 
+    facet_grid(~timepoint) +
+    xlab("Site") + 
+    theme_classic() + 
+    ylim(7.9,8.7)+
+    ylab("Daily Mean pH")+
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      );pH_plot1
+
+#min pH
+pH_plot2<-boxplot_data %>%
+  filter(!is.na(pH_min))%>%
+
+  ggplot(., aes(x = site, y = pH_min, fill = site, colour=site)) +
+    geom_boxplot(fill="white", size=1) +
+    geom_point(colour="black",pch = 21, size=1, alpha=0.5, position = position_jitterdodge(0.4)) + 
+    facet_grid(~timepoint) +
+    xlab("Site") + 
+    theme_classic() + 
+    ylim(7.9,8.7)+
+    ylab("Daily Minimum pH")+
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      );pH_plot2
+
+#max pH
+pH_plot3<-boxplot_data %>%
+  filter(!is.na(pH_max))%>%
+
+  ggplot(., aes(x = site, y = pH_max, fill = site, colour=site)) +
+    geom_boxplot(fill="white", size=1) +
+    geom_point(colour="black",pch = 21, size=1, alpha=0.5, position = position_jitterdodge(0.4)) + 
+    facet_grid(~timepoint) +
+    xlab("Site") + 
+    theme_classic() + 
+    ylim(7.9,8.7)+
+    ylab("Daily Maximum pH")+
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      );pH_plot3
+
+#variability pH
+pH_plot4<-boxplot_data %>%
+  filter(!is.na(pH_sd))%>%
+
+  ggplot(., aes(x = site, y = pH_sd, fill = site, colour=site)) +
+    geom_boxplot(fill="white", size=1) +
+    geom_point(colour="black",pch = 21, size=1, alpha=0.5, position = position_jitterdodge(0.4)) + 
+    facet_grid(~timepoint) +
+    xlab("Site") + 
+    theme_classic() + 
+    ylim(0,0.2)+
+    ylab("Daily pH Variability (stdev)")+
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      );pH_plot4
+
+#range pH
+pH_plot5<-boxplot_data %>%
+  filter(!is.na(pH_range))%>%
+
+  ggplot(., aes(x = site, y = pH_range, fill = site, colour=site)) +
+    geom_boxplot(fill="white", size=1) +
+    geom_point(colour="black",pch = 21, size=1, alpha=0.5, position = position_jitterdodge(0.4)) + 
+    facet_grid(~timepoint) +
+    xlab("Site") + 
+    theme_classic() + 
+    ylim(0,0.8)+
+    ylab("Daily pH Range")+
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      );pH_plot5
+
+#assemble plot
+pH_fig<-plot_grid(pH_plot1, pH_plot2, pH_plot3,pH_plot4,pH_plot5,rel_widths=c(1,1,1,1,1), ncol=5, nrow=1, rel_heights= c(1,1,1,1,1),  label_y=1, align="vh")
+
+ggsave(filename="Figures/Environmental/pH_boxplots.jpg", plot=pH_fig, dpi=200, width=24, height=6, units="in")
+```
+
+Light
+```{r}
+#mean light
+light_plot1<-boxplot_data %>%
+  filter(!is.na(light_mean))%>%
+   filter(!timepoint=="timepoint3")%>%
+  droplevels()%>%
+
+  ggplot(., aes(x = site, y = light_mean, fill = site, colour=site)) +
+    geom_boxplot(fill="white", size=1) +
+    geom_point(colour="black",pch = 21, size=1, alpha=0.5, position = position_jitterdodge(0.4)) + 
+    facet_grid(~timepoint) +
+    xlab("Site") + 
+    theme_classic() + 
+    ylim(0,2000)+
+    ylab("Daily Mean Light (PAR)")+
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      );light_plot1
+
+#max light
+light_plot2<-boxplot_data %>%
+  filter(!is.na(light_max))%>%
+  filter(!timepoint=="timepoint3")%>%
+  droplevels()%>%
+
+  ggplot(., aes(x = site, y = light_max, fill = site, colour=site)) +
+    geom_boxplot(fill="white", size=1) +
+    geom_point(colour="black",pch = 21, size=1, alpha=0.5, position = position_jitterdodge(0.4)) + 
+    facet_grid(~timepoint) +
+    xlab("Site") + 
+    theme_classic() + 
+    ylim(0,5000)+
+    ylab("Daily Maximum Light (PAR)")+
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      );light_plot2
+
+#light sd
+light_plot3<-boxplot_data %>%
+  filter(!is.na(light_sd))%>%
+  filter(!timepoint=="timepoint3")%>%
+  droplevels()%>%
+
+  ggplot(., aes(x = site, y = light_sd, fill = site, colour=site)) +
+    geom_boxplot(fill="white", size=1) +
+    geom_point(colour="black",pch = 21, size=1, alpha=0.5, position = position_jitterdodge(0.4)) + 
+    facet_grid(~timepoint) +
+    xlab("Site") + 
+    theme_classic() + 
+    ylim(0,2000)+
+    ylab("Daily Light Variability (PAR)")+
+    theme(
+      legend.position="none",
+      legend.title=element_text(face="bold", size=14),
+      legend.text=element_text(size=14),
+      axis.title=element_text(face="bold", size=14),
+      axis.text=element_text(size=10, color="black"), 
+      strip.text.x=element_text(face="italic", size=14)
+      );light_plot3
+
+#assemble plot
+light_fig<-plot_grid(light_plot1, light_plot2, light_plot3,rel_widths=c(1,1,1), ncol=3, nrow=1, rel_heights= c(1,1,1),  label_y=1, align="vh")
+
+ggsave(filename="Figures/Environmental/light_boxplots.jpg", plot=light_fig, dpi=200, width=16, height=6, units="in")
+```
+
+
+

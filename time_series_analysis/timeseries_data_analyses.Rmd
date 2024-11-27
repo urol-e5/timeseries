@@ -1,0 +1,1065 @@
+---
+title: "E5 time series environmental data for RDA analyses"
+author: "Ariana S Huffmyer"
+date: "2024"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Set Up    
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+```
+ 
+```{r}
+## install packages if you dont already have them
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("RColorBrewer")) install.packages("RColorBrewer")
+if (!require("lme4")) install.packages("lme4")
+if (!require("lmerTest")) install.packages("lmerTest")
+if (!require("car")) install.packages("car")
+if (!require("effects")) install.packages("effects")
+if (!require("ggfortify")) install.packages("ggfortify")
+if (!require("cowplot")) install.packages("cowplot")
+if (!require("vegan")) install.packages("vegan")
+if (!require("corrr")) install.packages("corrr")
+if (!require("ggcorrplot")) install.packages("ggcorrplot")
+if (!require("GGally")) install.packages("GGally")
+if (!require("broom")) install.packages("broom")
+if (!require("cowplot")) install.packages("cowplot")
+if (!require("scales")) install.packages("scales")
+if (!require("ggiraphExtra")) install.packages("ggiraphExtra")
+#if (!require("ggradar")) remotes::install_github("ricardo-bion/ggradar")
+
+# load packages
+library(tidyverse)
+library(ggplot2)
+library(RColorBrewer)
+library(lme4)
+library(lmerTest)
+library(car)
+library(effects)
+library(ggfortify)
+library(cowplot)
+library(vegan)
+library(corrr)
+library(ggcorrplot)
+library(GGally)
+library(broom)
+library(cowplot)
+library(scales)
+#library(ggradar)
+library(ggiraphExtra)
+```
+ 
+# MCR data for other enviornmental characteristics across seasons 
+
+Moorea Coral Reef LTER, L. Washburn, and A. Brooks. 2024. MCR LTER: Coral Reef: Gump Station Meteorological Data, ongoing since 2006 ver 50. Environmental Data Initiative. https://doi.org/10.6073/pasta/c41e5ef3131a9328ccee7097a4221f7a (Accessed 2024-11-26). Load in data using provided R script at the citation.  
+
+```{r}
+# Package ID: knb-lter-mcr.9.50 Cataloging System:https://pasta.edirepository.org.
+# Data set title: MCR LTER: Coral Reef: Gump Station Meteorological Data, ongoing since 2006.
+# Data set creator:    - Moorea Coral Reef LTER 
+# Data set creator:  Libe Washburn - Moorea Coral Reef LTER 
+# Data set creator:  Andrew Brooks - Moorea Coral Reef LTER 
+# Metadata Provider:  Hillary Krumbholz - MCR LTER 
+# Contact:  Hillary Krumbholz - Information Manager MCR LTER  - hkrumbholz@ucsb.edu
+# Stylesheet v2.11 for metadata conversion into program: John H. Porter, Univ. Virginia, jporter@virginia.edu 
+
+inUrl1  <- "https://pasta.lternet.edu/package/data/eml/knb-lter-mcr/9/50/6abebe52e6b0245fe74cf0be7191e379" 
+infile1 <- tempfile()
+try(download.file(inUrl1,infile1,method="curl"))
+if (is.na(file.size(infile1))) download.file(inUrl1,infile1,method="auto")
+
+                   
+ dt1 <-read.csv(infile1,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "time_local",     
+                    "time_utc",     
+                    "air_temp_C",     
+                    "data_coverage_air_temp_C",     
+                    "wind_stress_pa",     
+                    "data_coverage_wind_stress_pa",     
+                    "wind_direction_degtrue",     
+                    "data_coverage_wind_direction_degtrue",     
+                    "wind_U_mps",     
+                    "data_coverage_wind_U_mps",     
+                    "wind_V_mps",     
+                    "data_coverage_wind_V_mps",     
+                    "mean_solar_rad_kwpm2",     
+                    "data_coverage_mean_solar_rad_kwpm2",     
+                    "atm_press_mbar",     
+                    "data_coverage_atm_press_mbar",     
+                    "cumulative_rainfall_mm",     
+                    "data_coverage_cumulative_rainfall_mm"    ), check.names=TRUE)
+               
+unlink(infile1)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                                                   
+# attempting to convert dt1$time_local dateTime string to R date structure (date or POSIXct)                                
+tmpDateFormat<-"%Y-%m-%d %H:%M:%S" 
+tmp1time_local<-as.POSIXct(dt1$time_local,format=tmpDateFormat)
+# Keep the new dates only if they all converted correctly
+if(nrow(dt1[dt1$time_local != "",]) == length(tmp1time_local[!is.na(tmp1time_local)])){dt1$time_local <- tmp1time_local } else {print("Date conversion failed for dt1$time_local. Please inspect the data and do the date conversion yourself.")}                                                                    
+                                                                   
+# attempting to convert dt1$time_utc dateTime string to R date structure (date or POSIXct)                                
+tmpDateFormat<-"%Y-%m-%d %H:%M:%S" 
+tmp1time_utc<-as.POSIXct(dt1$time_utc,format=tmpDateFormat)
+# Keep the new dates only if they all converted correctly
+if(nrow(dt1[dt1$time_utc != "",]) == length(tmp1time_utc[!is.na(tmp1time_utc)])){dt1$time_utc <- tmp1time_utc } else {print("Date conversion failed for dt1$time_utc. Please inspect the data and do the date conversion yourself.")}                                                                    
+                                
+if (class(dt1$air_temp_C)=="factor") dt1$air_temp_C <-as.numeric(levels(dt1$air_temp_C))[as.integer(dt1$air_temp_C) ]               
+if (class(dt1$air_temp_C)=="character") dt1$air_temp_C <-as.numeric(dt1$air_temp_C)
+if (class(dt1$data_coverage_air_temp_C)=="factor") dt1$data_coverage_air_temp_C <-as.numeric(levels(dt1$data_coverage_air_temp_C))[as.integer(dt1$data_coverage_air_temp_C) ]               
+if (class(dt1$data_coverage_air_temp_C)=="character") dt1$data_coverage_air_temp_C <-as.numeric(dt1$data_coverage_air_temp_C)
+if (class(dt1$wind_stress_pa)=="factor") dt1$wind_stress_pa <-as.numeric(levels(dt1$wind_stress_pa))[as.integer(dt1$wind_stress_pa) ]               
+if (class(dt1$wind_stress_pa)=="character") dt1$wind_stress_pa <-as.numeric(dt1$wind_stress_pa)
+if (class(dt1$data_coverage_wind_stress_pa)=="factor") dt1$data_coverage_wind_stress_pa <-as.numeric(levels(dt1$data_coverage_wind_stress_pa))[as.integer(dt1$data_coverage_wind_stress_pa) ]               
+if (class(dt1$data_coverage_wind_stress_pa)=="character") dt1$data_coverage_wind_stress_pa <-as.numeric(dt1$data_coverage_wind_stress_pa)
+if (class(dt1$wind_direction_degtrue)=="factor") dt1$wind_direction_degtrue <-as.numeric(levels(dt1$wind_direction_degtrue))[as.integer(dt1$wind_direction_degtrue) ]               
+if (class(dt1$wind_direction_degtrue)=="character") dt1$wind_direction_degtrue <-as.numeric(dt1$wind_direction_degtrue)
+if (class(dt1$data_coverage_wind_direction_degtrue)=="factor") dt1$data_coverage_wind_direction_degtrue <-as.numeric(levels(dt1$data_coverage_wind_direction_degtrue))[as.integer(dt1$data_coverage_wind_direction_degtrue) ]               
+if (class(dt1$data_coverage_wind_direction_degtrue)=="character") dt1$data_coverage_wind_direction_degtrue <-as.numeric(dt1$data_coverage_wind_direction_degtrue)
+if (class(dt1$wind_U_mps)=="factor") dt1$wind_U_mps <-as.numeric(levels(dt1$wind_U_mps))[as.integer(dt1$wind_U_mps) ]               
+if (class(dt1$wind_U_mps)=="character") dt1$wind_U_mps <-as.numeric(dt1$wind_U_mps)
+if (class(dt1$data_coverage_wind_U_mps)=="factor") dt1$data_coverage_wind_U_mps <-as.numeric(levels(dt1$data_coverage_wind_U_mps))[as.integer(dt1$data_coverage_wind_U_mps) ]               
+if (class(dt1$data_coverage_wind_U_mps)=="character") dt1$data_coverage_wind_U_mps <-as.numeric(dt1$data_coverage_wind_U_mps)
+if (class(dt1$wind_V_mps)=="factor") dt1$wind_V_mps <-as.numeric(levels(dt1$wind_V_mps))[as.integer(dt1$wind_V_mps) ]               
+if (class(dt1$wind_V_mps)=="character") dt1$wind_V_mps <-as.numeric(dt1$wind_V_mps)
+if (class(dt1$data_coverage_wind_V_mps)=="factor") dt1$data_coverage_wind_V_mps <-as.numeric(levels(dt1$data_coverage_wind_V_mps))[as.integer(dt1$data_coverage_wind_V_mps) ]               
+if (class(dt1$data_coverage_wind_V_mps)=="character") dt1$data_coverage_wind_V_mps <-as.numeric(dt1$data_coverage_wind_V_mps)
+if (class(dt1$mean_solar_rad_kwpm2)=="factor") dt1$mean_solar_rad_kwpm2 <-as.numeric(levels(dt1$mean_solar_rad_kwpm2))[as.integer(dt1$mean_solar_rad_kwpm2) ]               
+if (class(dt1$mean_solar_rad_kwpm2)=="character") dt1$mean_solar_rad_kwpm2 <-as.numeric(dt1$mean_solar_rad_kwpm2)
+if (class(dt1$data_coverage_mean_solar_rad_kwpm2)=="factor") dt1$data_coverage_mean_solar_rad_kwpm2 <-as.numeric(levels(dt1$data_coverage_mean_solar_rad_kwpm2))[as.integer(dt1$data_coverage_mean_solar_rad_kwpm2) ]               
+if (class(dt1$data_coverage_mean_solar_rad_kwpm2)=="character") dt1$data_coverage_mean_solar_rad_kwpm2 <-as.numeric(dt1$data_coverage_mean_solar_rad_kwpm2)
+if (class(dt1$atm_press_mbar)=="factor") dt1$atm_press_mbar <-as.numeric(levels(dt1$atm_press_mbar))[as.integer(dt1$atm_press_mbar) ]               
+if (class(dt1$atm_press_mbar)=="character") dt1$atm_press_mbar <-as.numeric(dt1$atm_press_mbar)
+if (class(dt1$data_coverage_atm_press_mbar)=="factor") dt1$data_coverage_atm_press_mbar <-as.numeric(levels(dt1$data_coverage_atm_press_mbar))[as.integer(dt1$data_coverage_atm_press_mbar) ]               
+if (class(dt1$data_coverage_atm_press_mbar)=="character") dt1$data_coverage_atm_press_mbar <-as.numeric(dt1$data_coverage_atm_press_mbar)
+if (class(dt1$cumulative_rainfall_mm)=="factor") dt1$cumulative_rainfall_mm <-as.numeric(levels(dt1$cumulative_rainfall_mm))[as.integer(dt1$cumulative_rainfall_mm) ]               
+if (class(dt1$cumulative_rainfall_mm)=="character") dt1$cumulative_rainfall_mm <-as.numeric(dt1$cumulative_rainfall_mm)
+if (class(dt1$data_coverage_cumulative_rainfall_mm)=="factor") dt1$data_coverage_cumulative_rainfall_mm <-as.numeric(levels(dt1$data_coverage_cumulative_rainfall_mm))[as.integer(dt1$data_coverage_cumulative_rainfall_mm) ]               
+if (class(dt1$data_coverage_cumulative_rainfall_mm)=="character") dt1$data_coverage_cumulative_rainfall_mm <-as.numeric(dt1$data_coverage_cumulative_rainfall_mm)
+                
+# Convert Missing Values to NA for non-dates
+                
+dt1$air_temp_C <- ifelse((trimws(as.character(dt1$air_temp_C))==trimws("-999")),NA,dt1$air_temp_C)               
+suppressWarnings(dt1$air_temp_C <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt1$air_temp_C))==as.character(as.numeric("-999"))),NA,dt1$air_temp_C))
+dt1$wind_stress_pa <- ifelse((trimws(as.character(dt1$wind_stress_pa))==trimws("-999")),NA,dt1$wind_stress_pa)               
+suppressWarnings(dt1$wind_stress_pa <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt1$wind_stress_pa))==as.character(as.numeric("-999"))),NA,dt1$wind_stress_pa))
+dt1$wind_direction_degtrue <- ifelse((trimws(as.character(dt1$wind_direction_degtrue))==trimws("-999")),NA,dt1$wind_direction_degtrue)               
+suppressWarnings(dt1$wind_direction_degtrue <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt1$wind_direction_degtrue))==as.character(as.numeric("-999"))),NA,dt1$wind_direction_degtrue))
+dt1$wind_U_mps <- ifelse((trimws(as.character(dt1$wind_U_mps))==trimws("-999")),NA,dt1$wind_U_mps)               
+suppressWarnings(dt1$wind_U_mps <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt1$wind_U_mps))==as.character(as.numeric("-999"))),NA,dt1$wind_U_mps))
+dt1$wind_V_mps <- ifelse((trimws(as.character(dt1$wind_V_mps))==trimws("-999")),NA,dt1$wind_V_mps)               
+suppressWarnings(dt1$wind_V_mps <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt1$wind_V_mps))==as.character(as.numeric("-999"))),NA,dt1$wind_V_mps))
+dt1$mean_solar_rad_kwpm2 <- ifelse((trimws(as.character(dt1$mean_solar_rad_kwpm2))==trimws("-999")),NA,dt1$mean_solar_rad_kwpm2)               
+suppressWarnings(dt1$mean_solar_rad_kwpm2 <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt1$mean_solar_rad_kwpm2))==as.character(as.numeric("-999"))),NA,dt1$mean_solar_rad_kwpm2))
+dt1$atm_press_mbar <- ifelse((trimws(as.character(dt1$atm_press_mbar))==trimws("-999")),NA,dt1$atm_press_mbar)               
+suppressWarnings(dt1$atm_press_mbar <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt1$atm_press_mbar))==as.character(as.numeric("-999"))),NA,dt1$atm_press_mbar))
+dt1$cumulative_rainfall_mm <- ifelse((trimws(as.character(dt1$cumulative_rainfall_mm))==trimws("-999")),NA,dt1$cumulative_rainfall_mm)               
+suppressWarnings(dt1$cumulative_rainfall_mm <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt1$cumulative_rainfall_mm))==as.character(as.numeric("-999"))),NA,dt1$cumulative_rainfall_mm))
+
+
+# Here is the structure of the input data frame:
+str(dt1)                            
+attach(dt1)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(time_local)
+summary(time_utc)
+summary(air_temp_C)
+summary(data_coverage_air_temp_C)
+summary(wind_stress_pa)
+summary(data_coverage_wind_stress_pa)
+summary(wind_direction_degtrue)
+summary(data_coverage_wind_direction_degtrue)
+summary(wind_U_mps)
+summary(data_coverage_wind_U_mps)
+summary(wind_V_mps)
+summary(data_coverage_wind_V_mps)
+summary(mean_solar_rad_kwpm2)
+summary(data_coverage_mean_solar_rad_kwpm2)
+summary(atm_press_mbar)
+summary(data_coverage_atm_press_mbar)
+summary(cumulative_rainfall_mm)
+summary(data_coverage_cumulative_rainfall_mm) 
+                # Get more details on character variables
+                
+detach(dt1)               
+         
+
+inUrl2  <- "https://pasta.lternet.edu/package/data/eml/knb-lter-mcr/9/50/b414775cd20e9185f4b428639d53fc79" 
+infile2 <- tempfile()
+try(download.file(inUrl2,infile2,method="curl"))
+if (is.na(file.size(infile2))) download.file(inUrl2,infile2,method="auto")
+
+                   
+ dt2 <-read.csv(infile2,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "airtc_avg",     
+                    "batt_volt_min",     
+                    "bp_mbar_avg",     
+                    "rain_mm_tot",     
+                    "record",     
+                    "relhum_avg",     
+                    "slrkw_avg",     
+                    "slrkw_max",     
+                    "slrkw_min",     
+                    "slrkw_std",     
+                    "winddir_d1_wvt",     
+                    "winddir_sd1_wvt",     
+                    "ws_ms_max",     
+                    "ws_ms_min",     
+                    "ws_ms_s_wvt",     
+                    "ws_ms_std",     
+                    "tstamp"    ), check.names=TRUE)
+               
+unlink(infile2)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                
+if (class(dt2$airtc_avg)=="factor") dt2$airtc_avg <-as.numeric(levels(dt2$airtc_avg))[as.integer(dt2$airtc_avg) ]               
+if (class(dt2$airtc_avg)=="character") dt2$airtc_avg <-as.numeric(dt2$airtc_avg)
+if (class(dt2$batt_volt_min)=="factor") dt2$batt_volt_min <-as.numeric(levels(dt2$batt_volt_min))[as.integer(dt2$batt_volt_min) ]               
+if (class(dt2$batt_volt_min)=="character") dt2$batt_volt_min <-as.numeric(dt2$batt_volt_min)
+if (class(dt2$bp_mbar_avg)=="factor") dt2$bp_mbar_avg <-as.numeric(levels(dt2$bp_mbar_avg))[as.integer(dt2$bp_mbar_avg) ]               
+if (class(dt2$bp_mbar_avg)=="character") dt2$bp_mbar_avg <-as.numeric(dt2$bp_mbar_avg)
+if (class(dt2$rain_mm_tot)=="factor") dt2$rain_mm_tot <-as.numeric(levels(dt2$rain_mm_tot))[as.integer(dt2$rain_mm_tot) ]               
+if (class(dt2$rain_mm_tot)=="character") dt2$rain_mm_tot <-as.numeric(dt2$rain_mm_tot)
+if (class(dt2$record)=="factor") dt2$record <-as.numeric(levels(dt2$record))[as.integer(dt2$record) ]               
+if (class(dt2$record)=="character") dt2$record <-as.numeric(dt2$record)
+if (class(dt2$relhum_avg)=="factor") dt2$relhum_avg <-as.numeric(levels(dt2$relhum_avg))[as.integer(dt2$relhum_avg) ]               
+if (class(dt2$relhum_avg)=="character") dt2$relhum_avg <-as.numeric(dt2$relhum_avg)
+if (class(dt2$slrkw_avg)=="factor") dt2$slrkw_avg <-as.numeric(levels(dt2$slrkw_avg))[as.integer(dt2$slrkw_avg) ]               
+if (class(dt2$slrkw_avg)=="character") dt2$slrkw_avg <-as.numeric(dt2$slrkw_avg)
+if (class(dt2$slrkw_max)=="factor") dt2$slrkw_max <-as.numeric(levels(dt2$slrkw_max))[as.integer(dt2$slrkw_max) ]               
+if (class(dt2$slrkw_max)=="character") dt2$slrkw_max <-as.numeric(dt2$slrkw_max)
+if (class(dt2$slrkw_min)=="factor") dt2$slrkw_min <-as.numeric(levels(dt2$slrkw_min))[as.integer(dt2$slrkw_min) ]               
+if (class(dt2$slrkw_min)=="character") dt2$slrkw_min <-as.numeric(dt2$slrkw_min)
+if (class(dt2$slrkw_std)=="factor") dt2$slrkw_std <-as.numeric(levels(dt2$slrkw_std))[as.integer(dt2$slrkw_std) ]               
+if (class(dt2$slrkw_std)=="character") dt2$slrkw_std <-as.numeric(dt2$slrkw_std)
+if (class(dt2$winddir_d1_wvt)=="factor") dt2$winddir_d1_wvt <-as.numeric(levels(dt2$winddir_d1_wvt))[as.integer(dt2$winddir_d1_wvt) ]               
+if (class(dt2$winddir_d1_wvt)=="character") dt2$winddir_d1_wvt <-as.numeric(dt2$winddir_d1_wvt)
+if (class(dt2$winddir_sd1_wvt)=="factor") dt2$winddir_sd1_wvt <-as.numeric(levels(dt2$winddir_sd1_wvt))[as.integer(dt2$winddir_sd1_wvt) ]               
+if (class(dt2$winddir_sd1_wvt)=="character") dt2$winddir_sd1_wvt <-as.numeric(dt2$winddir_sd1_wvt)
+if (class(dt2$ws_ms_max)=="factor") dt2$ws_ms_max <-as.numeric(levels(dt2$ws_ms_max))[as.integer(dt2$ws_ms_max) ]               
+if (class(dt2$ws_ms_max)=="character") dt2$ws_ms_max <-as.numeric(dt2$ws_ms_max)
+if (class(dt2$ws_ms_min)=="factor") dt2$ws_ms_min <-as.numeric(levels(dt2$ws_ms_min))[as.integer(dt2$ws_ms_min) ]               
+if (class(dt2$ws_ms_min)=="character") dt2$ws_ms_min <-as.numeric(dt2$ws_ms_min)
+if (class(dt2$ws_ms_s_wvt)=="factor") dt2$ws_ms_s_wvt <-as.numeric(levels(dt2$ws_ms_s_wvt))[as.integer(dt2$ws_ms_s_wvt) ]               
+if (class(dt2$ws_ms_s_wvt)=="character") dt2$ws_ms_s_wvt <-as.numeric(dt2$ws_ms_s_wvt)
+if (class(dt2$ws_ms_std)=="factor") dt2$ws_ms_std <-as.numeric(levels(dt2$ws_ms_std))[as.integer(dt2$ws_ms_std) ]               
+if (class(dt2$ws_ms_std)=="character") dt2$ws_ms_std <-as.numeric(dt2$ws_ms_std)                                   
+# attempting to convert dt2$tstamp dateTime string to R date structure (date or POSIXct)                                
+tmpDateFormat<-"%Y-%m-%d %H:%M:%S" 
+tmp2tstamp<-as.POSIXct(dt2$tstamp,format=tmpDateFormat)
+# Keep the new dates only if they all converted correctly
+if(nrow(dt2[dt2$tstamp != "",]) == length(tmp2tstamp[!is.na(tmp2tstamp)])){dt2$tstamp <- tmp2tstamp } else {print("Date conversion failed for dt2$tstamp. Please inspect the data and do the date conversion yourself.")}                                                                    
+                                
+                
+# Convert Missing Values to NA for non-dates
+                
+dt2$airtc_avg <- ifelse((trimws(as.character(dt2$airtc_avg))==trimws("NaN")),NA,dt2$airtc_avg)               
+suppressWarnings(dt2$airtc_avg <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$airtc_avg))==as.character(as.numeric("NaN"))),NA,dt2$airtc_avg))
+dt2$batt_volt_min <- ifelse((trimws(as.character(dt2$batt_volt_min))==trimws("NaN")),NA,dt2$batt_volt_min)               
+suppressWarnings(dt2$batt_volt_min <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$batt_volt_min))==as.character(as.numeric("NaN"))),NA,dt2$batt_volt_min))
+dt2$bp_mbar_avg <- ifelse((trimws(as.character(dt2$bp_mbar_avg))==trimws("NaN")),NA,dt2$bp_mbar_avg)               
+suppressWarnings(dt2$bp_mbar_avg <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$bp_mbar_avg))==as.character(as.numeric("NaN"))),NA,dt2$bp_mbar_avg))
+dt2$rain_mm_tot <- ifelse((trimws(as.character(dt2$rain_mm_tot))==trimws("NaN")),NA,dt2$rain_mm_tot)               
+suppressWarnings(dt2$rain_mm_tot <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$rain_mm_tot))==as.character(as.numeric("NaN"))),NA,dt2$rain_mm_tot))
+dt2$record <- ifelse((trimws(as.character(dt2$record))==trimws("NaN")),NA,dt2$record)               
+suppressWarnings(dt2$record <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$record))==as.character(as.numeric("NaN"))),NA,dt2$record))
+dt2$relhum_avg <- ifelse((trimws(as.character(dt2$relhum_avg))==trimws("NaN")),NA,dt2$relhum_avg)               
+suppressWarnings(dt2$relhum_avg <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$relhum_avg))==as.character(as.numeric("NaN"))),NA,dt2$relhum_avg))
+dt2$slrkw_avg <- ifelse((trimws(as.character(dt2$slrkw_avg))==trimws("NaN")),NA,dt2$slrkw_avg)               
+suppressWarnings(dt2$slrkw_avg <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$slrkw_avg))==as.character(as.numeric("NaN"))),NA,dt2$slrkw_avg))
+dt2$slrkw_max <- ifelse((trimws(as.character(dt2$slrkw_max))==trimws("NaN")),NA,dt2$slrkw_max)               
+suppressWarnings(dt2$slrkw_max <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$slrkw_max))==as.character(as.numeric("NaN"))),NA,dt2$slrkw_max))
+dt2$slrkw_min <- ifelse((trimws(as.character(dt2$slrkw_min))==trimws("NaN")),NA,dt2$slrkw_min)               
+suppressWarnings(dt2$slrkw_min <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$slrkw_min))==as.character(as.numeric("NaN"))),NA,dt2$slrkw_min))
+dt2$slrkw_std <- ifelse((trimws(as.character(dt2$slrkw_std))==trimws("NaN")),NA,dt2$slrkw_std)               
+suppressWarnings(dt2$slrkw_std <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$slrkw_std))==as.character(as.numeric("NaN"))),NA,dt2$slrkw_std))
+dt2$winddir_d1_wvt <- ifelse((trimws(as.character(dt2$winddir_d1_wvt))==trimws("NaN")),NA,dt2$winddir_d1_wvt)               
+suppressWarnings(dt2$winddir_d1_wvt <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$winddir_d1_wvt))==as.character(as.numeric("NaN"))),NA,dt2$winddir_d1_wvt))
+dt2$winddir_sd1_wvt <- ifelse((trimws(as.character(dt2$winddir_sd1_wvt))==trimws("NaN")),NA,dt2$winddir_sd1_wvt)               
+suppressWarnings(dt2$winddir_sd1_wvt <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$winddir_sd1_wvt))==as.character(as.numeric("NaN"))),NA,dt2$winddir_sd1_wvt))
+dt2$ws_ms_max <- ifelse((trimws(as.character(dt2$ws_ms_max))==trimws("NaN")),NA,dt2$ws_ms_max)               
+suppressWarnings(dt2$ws_ms_max <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$ws_ms_max))==as.character(as.numeric("NaN"))),NA,dt2$ws_ms_max))
+dt2$ws_ms_min <- ifelse((trimws(as.character(dt2$ws_ms_min))==trimws("NaN")),NA,dt2$ws_ms_min)               
+suppressWarnings(dt2$ws_ms_min <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$ws_ms_min))==as.character(as.numeric("NaN"))),NA,dt2$ws_ms_min))
+dt2$ws_ms_s_wvt <- ifelse((trimws(as.character(dt2$ws_ms_s_wvt))==trimws("NaN")),NA,dt2$ws_ms_s_wvt)               
+suppressWarnings(dt2$ws_ms_s_wvt <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$ws_ms_s_wvt))==as.character(as.numeric("NaN"))),NA,dt2$ws_ms_s_wvt))
+dt2$ws_ms_std <- ifelse((trimws(as.character(dt2$ws_ms_std))==trimws("NaN")),NA,dt2$ws_ms_std)               
+suppressWarnings(dt2$ws_ms_std <- ifelse(!is.na(as.numeric("NaN")) & (trimws(as.character(dt2$ws_ms_std))==as.character(as.numeric("NaN"))),NA,dt2$ws_ms_std))
+
+
+# Here is the structure of the input data frame:
+str(dt2)                            
+attach(dt2)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(airtc_avg)
+summary(batt_volt_min)
+summary(bp_mbar_avg)
+summary(rain_mm_tot)
+summary(record)
+summary(relhum_avg)
+summary(slrkw_avg)
+summary(slrkw_max)
+summary(slrkw_min)
+summary(slrkw_std)
+summary(winddir_d1_wvt)
+summary(winddir_sd1_wvt)
+summary(ws_ms_max)
+summary(ws_ms_min)
+summary(ws_ms_s_wvt)
+summary(ws_ms_std)
+summary(tstamp) 
+                # Get more details on character variables
+                
+detach(dt2)               
+         
+
+inUrl3  <- "https://pasta.lternet.edu/package/data/eml/knb-lter-mcr/9/50/b3d5412513c2bda192bb29034c49f1d0" 
+infile3 <- tempfile()
+try(download.file(inUrl3,infile3,method="curl"))
+if (is.na(file.size(infile3))) download.file(inUrl3,infile3,method="auto")
+
+                   
+ dt3 <-read.csv(infile3,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "time_local",     
+                    "time_utc",     
+                    "air_temp_C",     
+                    "data_coverage_air_temp_C",     
+                    "wind_stress_pa",     
+                    "data_coverage_wind_stress_pa",     
+                    "wind_direction_degtrue",     
+                    "data_coverage_wind_direction_degtrue",     
+                    "wind_U_mps",     
+                    "data_coverage_wind_U_mps",     
+                    "wind_V_mps",     
+                    "data_coverage_wind_V_mps",     
+                    "mean_solar_rad_kwpm2",     
+                    "data_coverage_mean_solar_rad_kwpm2",     
+                    "atm_press_mbar",     
+                    "data_coverage_atm_press_mbar",     
+                    "cumulative_rainfall_mm",     
+                    "data_coverage_cumulative_rainfall_mm"    ), check.names=TRUE)
+               
+unlink(infile3)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                                                   
+# attempting to convert dt3$time_local dateTime string to R date structure (date or POSIXct)                                
+tmpDateFormat<-"%Y-%m-%d %H:%M:%S" 
+tmp3time_local<-as.POSIXct(dt3$time_local,format=tmpDateFormat)
+# Keep the new dates only if they all converted correctly
+if(nrow(dt3[dt3$time_local != "",]) == length(tmp3time_local[!is.na(tmp3time_local)])){dt3$time_local <- tmp3time_local } else {print("Date conversion failed for dt3$time_local. Please inspect the data and do the date conversion yourself.")}                                                                    
+                                                                   
+# attempting to convert dt3$time_utc dateTime string to R date structure (date or POSIXct)                                
+tmpDateFormat<-"%Y-%m-%d %H:%M:%S" 
+tmp3time_utc<-as.POSIXct(dt3$time_utc,format=tmpDateFormat)
+# Keep the new dates only if they all converted correctly
+if(nrow(dt3[dt3$time_utc != "",]) == length(tmp3time_utc[!is.na(tmp3time_utc)])){dt3$time_utc <- tmp3time_utc } else {print("Date conversion failed for dt3$time_utc. Please inspect the data and do the date conversion yourself.")}                                                                    
+                                
+if (class(dt3$air_temp_C)=="factor") dt3$air_temp_C <-as.numeric(levels(dt3$air_temp_C))[as.integer(dt3$air_temp_C) ]               
+if (class(dt3$air_temp_C)=="character") dt3$air_temp_C <-as.numeric(dt3$air_temp_C)
+if (class(dt3$data_coverage_air_temp_C)=="factor") dt3$data_coverage_air_temp_C <-as.numeric(levels(dt3$data_coverage_air_temp_C))[as.integer(dt3$data_coverage_air_temp_C) ]               
+if (class(dt3$data_coverage_air_temp_C)=="character") dt3$data_coverage_air_temp_C <-as.numeric(dt3$data_coverage_air_temp_C)
+if (class(dt3$wind_stress_pa)=="factor") dt3$wind_stress_pa <-as.numeric(levels(dt3$wind_stress_pa))[as.integer(dt3$wind_stress_pa) ]               
+if (class(dt3$wind_stress_pa)=="character") dt3$wind_stress_pa <-as.numeric(dt3$wind_stress_pa)
+if (class(dt3$data_coverage_wind_stress_pa)=="factor") dt3$data_coverage_wind_stress_pa <-as.numeric(levels(dt3$data_coverage_wind_stress_pa))[as.integer(dt3$data_coverage_wind_stress_pa) ]               
+if (class(dt3$data_coverage_wind_stress_pa)=="character") dt3$data_coverage_wind_stress_pa <-as.numeric(dt3$data_coverage_wind_stress_pa)
+if (class(dt3$wind_direction_degtrue)=="factor") dt3$wind_direction_degtrue <-as.numeric(levels(dt3$wind_direction_degtrue))[as.integer(dt3$wind_direction_degtrue) ]               
+if (class(dt3$wind_direction_degtrue)=="character") dt3$wind_direction_degtrue <-as.numeric(dt3$wind_direction_degtrue)
+if (class(dt3$data_coverage_wind_direction_degtrue)=="factor") dt3$data_coverage_wind_direction_degtrue <-as.numeric(levels(dt3$data_coverage_wind_direction_degtrue))[as.integer(dt3$data_coverage_wind_direction_degtrue) ]               
+if (class(dt3$data_coverage_wind_direction_degtrue)=="character") dt3$data_coverage_wind_direction_degtrue <-as.numeric(dt3$data_coverage_wind_direction_degtrue)
+if (class(dt3$wind_U_mps)=="factor") dt3$wind_U_mps <-as.numeric(levels(dt3$wind_U_mps))[as.integer(dt3$wind_U_mps) ]               
+if (class(dt3$wind_U_mps)=="character") dt3$wind_U_mps <-as.numeric(dt3$wind_U_mps)
+if (class(dt3$data_coverage_wind_U_mps)=="factor") dt3$data_coverage_wind_U_mps <-as.numeric(levels(dt3$data_coverage_wind_U_mps))[as.integer(dt3$data_coverage_wind_U_mps) ]               
+if (class(dt3$data_coverage_wind_U_mps)=="character") dt3$data_coverage_wind_U_mps <-as.numeric(dt3$data_coverage_wind_U_mps)
+if (class(dt3$wind_V_mps)=="factor") dt3$wind_V_mps <-as.numeric(levels(dt3$wind_V_mps))[as.integer(dt3$wind_V_mps) ]               
+if (class(dt3$wind_V_mps)=="character") dt3$wind_V_mps <-as.numeric(dt3$wind_V_mps)
+if (class(dt3$data_coverage_wind_V_mps)=="factor") dt3$data_coverage_wind_V_mps <-as.numeric(levels(dt3$data_coverage_wind_V_mps))[as.integer(dt3$data_coverage_wind_V_mps) ]               
+if (class(dt3$data_coverage_wind_V_mps)=="character") dt3$data_coverage_wind_V_mps <-as.numeric(dt3$data_coverage_wind_V_mps)
+if (class(dt3$mean_solar_rad_kwpm2)=="factor") dt3$mean_solar_rad_kwpm2 <-as.numeric(levels(dt3$mean_solar_rad_kwpm2))[as.integer(dt3$mean_solar_rad_kwpm2) ]               
+if (class(dt3$mean_solar_rad_kwpm2)=="character") dt3$mean_solar_rad_kwpm2 <-as.numeric(dt3$mean_solar_rad_kwpm2)
+if (class(dt3$data_coverage_mean_solar_rad_kwpm2)=="factor") dt3$data_coverage_mean_solar_rad_kwpm2 <-as.numeric(levels(dt3$data_coverage_mean_solar_rad_kwpm2))[as.integer(dt3$data_coverage_mean_solar_rad_kwpm2) ]               
+if (class(dt3$data_coverage_mean_solar_rad_kwpm2)=="character") dt3$data_coverage_mean_solar_rad_kwpm2 <-as.numeric(dt3$data_coverage_mean_solar_rad_kwpm2)
+if (class(dt3$atm_press_mbar)=="factor") dt3$atm_press_mbar <-as.numeric(levels(dt3$atm_press_mbar))[as.integer(dt3$atm_press_mbar) ]               
+if (class(dt3$atm_press_mbar)=="character") dt3$atm_press_mbar <-as.numeric(dt3$atm_press_mbar)
+if (class(dt3$data_coverage_atm_press_mbar)=="factor") dt3$data_coverage_atm_press_mbar <-as.numeric(levels(dt3$data_coverage_atm_press_mbar))[as.integer(dt3$data_coverage_atm_press_mbar) ]               
+if (class(dt3$data_coverage_atm_press_mbar)=="character") dt3$data_coverage_atm_press_mbar <-as.numeric(dt3$data_coverage_atm_press_mbar)
+if (class(dt3$cumulative_rainfall_mm)=="factor") dt3$cumulative_rainfall_mm <-as.numeric(levels(dt3$cumulative_rainfall_mm))[as.integer(dt3$cumulative_rainfall_mm) ]               
+if (class(dt3$cumulative_rainfall_mm)=="character") dt3$cumulative_rainfall_mm <-as.numeric(dt3$cumulative_rainfall_mm)
+if (class(dt3$data_coverage_cumulative_rainfall_mm)=="factor") dt3$data_coverage_cumulative_rainfall_mm <-as.numeric(levels(dt3$data_coverage_cumulative_rainfall_mm))[as.integer(dt3$data_coverage_cumulative_rainfall_mm) ]               
+if (class(dt3$data_coverage_cumulative_rainfall_mm)=="character") dt3$data_coverage_cumulative_rainfall_mm <-as.numeric(dt3$data_coverage_cumulative_rainfall_mm)
+                
+# Convert Missing Values to NA for non-dates
+                
+dt3$air_temp_C <- ifelse((trimws(as.character(dt3$air_temp_C))==trimws("-999")),NA,dt3$air_temp_C)               
+suppressWarnings(dt3$air_temp_C <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt3$air_temp_C))==as.character(as.numeric("-999"))),NA,dt3$air_temp_C))
+dt3$wind_stress_pa <- ifelse((trimws(as.character(dt3$wind_stress_pa))==trimws("-999")),NA,dt3$wind_stress_pa)               
+suppressWarnings(dt3$wind_stress_pa <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt3$wind_stress_pa))==as.character(as.numeric("-999"))),NA,dt3$wind_stress_pa))
+dt3$wind_direction_degtrue <- ifelse((trimws(as.character(dt3$wind_direction_degtrue))==trimws("-999")),NA,dt3$wind_direction_degtrue)               
+suppressWarnings(dt3$wind_direction_degtrue <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt3$wind_direction_degtrue))==as.character(as.numeric("-999"))),NA,dt3$wind_direction_degtrue))
+dt3$wind_U_mps <- ifelse((trimws(as.character(dt3$wind_U_mps))==trimws("-999")),NA,dt3$wind_U_mps)               
+suppressWarnings(dt3$wind_U_mps <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt3$wind_U_mps))==as.character(as.numeric("-999"))),NA,dt3$wind_U_mps))
+dt3$wind_V_mps <- ifelse((trimws(as.character(dt3$wind_V_mps))==trimws("-999")),NA,dt3$wind_V_mps)               
+suppressWarnings(dt3$wind_V_mps <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt3$wind_V_mps))==as.character(as.numeric("-999"))),NA,dt3$wind_V_mps))
+dt3$mean_solar_rad_kwpm2 <- ifelse((trimws(as.character(dt3$mean_solar_rad_kwpm2))==trimws("-999")),NA,dt3$mean_solar_rad_kwpm2)               
+suppressWarnings(dt3$mean_solar_rad_kwpm2 <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt3$mean_solar_rad_kwpm2))==as.character(as.numeric("-999"))),NA,dt3$mean_solar_rad_kwpm2))
+dt3$atm_press_mbar <- ifelse((trimws(as.character(dt3$atm_press_mbar))==trimws("-999")),NA,dt3$atm_press_mbar)               
+suppressWarnings(dt3$atm_press_mbar <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt3$atm_press_mbar))==as.character(as.numeric("-999"))),NA,dt3$atm_press_mbar))
+dt3$cumulative_rainfall_mm <- ifelse((trimws(as.character(dt3$cumulative_rainfall_mm))==trimws("-999")),NA,dt3$cumulative_rainfall_mm)               
+suppressWarnings(dt3$cumulative_rainfall_mm <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt3$cumulative_rainfall_mm))==as.character(as.numeric("-999"))),NA,dt3$cumulative_rainfall_mm))
+
+
+# Here is the structure of the input data frame:
+str(dt3)                            
+attach(dt3)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(time_local)
+summary(time_utc)
+summary(air_temp_C)
+summary(data_coverage_air_temp_C)
+summary(wind_stress_pa)
+summary(data_coverage_wind_stress_pa)
+summary(wind_direction_degtrue)
+summary(data_coverage_wind_direction_degtrue)
+summary(wind_U_mps)
+summary(data_coverage_wind_U_mps)
+summary(wind_V_mps)
+summary(data_coverage_wind_V_mps)
+summary(mean_solar_rad_kwpm2)
+summary(data_coverage_mean_solar_rad_kwpm2)
+summary(atm_press_mbar)
+summary(data_coverage_atm_press_mbar)
+summary(cumulative_rainfall_mm)
+summary(data_coverage_cumulative_rainfall_mm) 
+                # Get more details on character variables
+                
+detach(dt3)               
+         
+
+inUrl4  <- "https://pasta.lternet.edu/package/data/eml/knb-lter-mcr/9/50/7165fb592255fad3f693c1f5217267d9" 
+infile4 <- tempfile()
+try(download.file(inUrl4,infile4,method="curl"))
+if (is.na(file.size(infile4))) download.file(inUrl4,infile4,method="auto")
+
+                   
+ dt4 <-read.csv(infile4,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "time_local",     
+                    "time_utc",     
+                    "air_temp_C",     
+                    "data_coverage_air_temp_C",     
+                    "wind_stress_pa",     
+                    "data_coverage_wind_stress_pa",     
+                    "wind_direction_degtrue",     
+                    "data_coverage_wind_direction_degtrue",     
+                    "wind_U_mps",     
+                    "data_coverage_wind_U_mps",     
+                    "wind_V_mps",     
+                    "data_coverage_wind_V_mps",     
+                    "mean_solar_rad_kwpm2",     
+                    "data_coverage_mean_solar_rad_kwpm2",     
+                    "atm_press_mbar",     
+                    "data_coverage_atm_press_mbar",     
+                    "cumulative_rainfall_mm",     
+                    "data_coverage_cumulative_rainfall_mm"    ), check.names=TRUE)
+               
+unlink(infile4)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                                                   
+# attempting to convert dt4$time_local dateTime string to R date structure (date or POSIXct)                                
+tmpDateFormat<-"%Y-%m-%d %H:%M:%S" 
+tmp4time_local<-as.POSIXct(dt4$time_local,format=tmpDateFormat)
+# Keep the new dates only if they all converted correctly
+if(nrow(dt4[dt4$time_local != "",]) == length(tmp4time_local[!is.na(tmp4time_local)])){dt4$time_local <- tmp4time_local } else {print("Date conversion failed for dt4$time_local. Please inspect the data and do the date conversion yourself.")}                                                                    
+                                                                   
+# attempting to convert dt4$time_utc dateTime string to R date structure (date or POSIXct)                                
+tmpDateFormat<-"%Y-%m-%d %H:%M:%S" 
+tmp4time_utc<-as.POSIXct(dt4$time_utc,format=tmpDateFormat)
+# Keep the new dates only if they all converted correctly
+if(nrow(dt4[dt4$time_utc != "",]) == length(tmp4time_utc[!is.na(tmp4time_utc)])){dt4$time_utc <- tmp4time_utc } else {print("Date conversion failed for dt4$time_utc. Please inspect the data and do the date conversion yourself.")}                                                                    
+                                
+if (class(dt4$air_temp_C)=="factor") dt4$air_temp_C <-as.numeric(levels(dt4$air_temp_C))[as.integer(dt4$air_temp_C) ]               
+if (class(dt4$air_temp_C)=="character") dt4$air_temp_C <-as.numeric(dt4$air_temp_C)
+if (class(dt4$data_coverage_air_temp_C)=="factor") dt4$data_coverage_air_temp_C <-as.numeric(levels(dt4$data_coverage_air_temp_C))[as.integer(dt4$data_coverage_air_temp_C) ]               
+if (class(dt4$data_coverage_air_temp_C)=="character") dt4$data_coverage_air_temp_C <-as.numeric(dt4$data_coverage_air_temp_C)
+if (class(dt4$wind_stress_pa)=="factor") dt4$wind_stress_pa <-as.numeric(levels(dt4$wind_stress_pa))[as.integer(dt4$wind_stress_pa) ]               
+if (class(dt4$wind_stress_pa)=="character") dt4$wind_stress_pa <-as.numeric(dt4$wind_stress_pa)
+if (class(dt4$data_coverage_wind_stress_pa)=="factor") dt4$data_coverage_wind_stress_pa <-as.numeric(levels(dt4$data_coverage_wind_stress_pa))[as.integer(dt4$data_coverage_wind_stress_pa) ]               
+if (class(dt4$data_coverage_wind_stress_pa)=="character") dt4$data_coverage_wind_stress_pa <-as.numeric(dt4$data_coverage_wind_stress_pa)
+if (class(dt4$wind_direction_degtrue)=="factor") dt4$wind_direction_degtrue <-as.numeric(levels(dt4$wind_direction_degtrue))[as.integer(dt4$wind_direction_degtrue) ]               
+if (class(dt4$wind_direction_degtrue)=="character") dt4$wind_direction_degtrue <-as.numeric(dt4$wind_direction_degtrue)
+if (class(dt4$data_coverage_wind_direction_degtrue)=="factor") dt4$data_coverage_wind_direction_degtrue <-as.numeric(levels(dt4$data_coverage_wind_direction_degtrue))[as.integer(dt4$data_coverage_wind_direction_degtrue) ]               
+if (class(dt4$data_coverage_wind_direction_degtrue)=="character") dt4$data_coverage_wind_direction_degtrue <-as.numeric(dt4$data_coverage_wind_direction_degtrue)
+if (class(dt4$wind_U_mps)=="factor") dt4$wind_U_mps <-as.numeric(levels(dt4$wind_U_mps))[as.integer(dt4$wind_U_mps) ]               
+if (class(dt4$wind_U_mps)=="character") dt4$wind_U_mps <-as.numeric(dt4$wind_U_mps)
+if (class(dt4$data_coverage_wind_U_mps)=="factor") dt4$data_coverage_wind_U_mps <-as.numeric(levels(dt4$data_coverage_wind_U_mps))[as.integer(dt4$data_coverage_wind_U_mps) ]               
+if (class(dt4$data_coverage_wind_U_mps)=="character") dt4$data_coverage_wind_U_mps <-as.numeric(dt4$data_coverage_wind_U_mps)
+if (class(dt4$wind_V_mps)=="factor") dt4$wind_V_mps <-as.numeric(levels(dt4$wind_V_mps))[as.integer(dt4$wind_V_mps) ]               
+if (class(dt4$wind_V_mps)=="character") dt4$wind_V_mps <-as.numeric(dt4$wind_V_mps)
+if (class(dt4$data_coverage_wind_V_mps)=="factor") dt4$data_coverage_wind_V_mps <-as.numeric(levels(dt4$data_coverage_wind_V_mps))[as.integer(dt4$data_coverage_wind_V_mps) ]               
+if (class(dt4$data_coverage_wind_V_mps)=="character") dt4$data_coverage_wind_V_mps <-as.numeric(dt4$data_coverage_wind_V_mps)
+if (class(dt4$mean_solar_rad_kwpm2)=="factor") dt4$mean_solar_rad_kwpm2 <-as.numeric(levels(dt4$mean_solar_rad_kwpm2))[as.integer(dt4$mean_solar_rad_kwpm2) ]               
+if (class(dt4$mean_solar_rad_kwpm2)=="character") dt4$mean_solar_rad_kwpm2 <-as.numeric(dt4$mean_solar_rad_kwpm2)
+if (class(dt4$data_coverage_mean_solar_rad_kwpm2)=="factor") dt4$data_coverage_mean_solar_rad_kwpm2 <-as.numeric(levels(dt4$data_coverage_mean_solar_rad_kwpm2))[as.integer(dt4$data_coverage_mean_solar_rad_kwpm2) ]               
+if (class(dt4$data_coverage_mean_solar_rad_kwpm2)=="character") dt4$data_coverage_mean_solar_rad_kwpm2 <-as.numeric(dt4$data_coverage_mean_solar_rad_kwpm2)
+if (class(dt4$atm_press_mbar)=="factor") dt4$atm_press_mbar <-as.numeric(levels(dt4$atm_press_mbar))[as.integer(dt4$atm_press_mbar) ]               
+if (class(dt4$atm_press_mbar)=="character") dt4$atm_press_mbar <-as.numeric(dt4$atm_press_mbar)
+if (class(dt4$data_coverage_atm_press_mbar)=="factor") dt4$data_coverage_atm_press_mbar <-as.numeric(levels(dt4$data_coverage_atm_press_mbar))[as.integer(dt4$data_coverage_atm_press_mbar) ]               
+if (class(dt4$data_coverage_atm_press_mbar)=="character") dt4$data_coverage_atm_press_mbar <-as.numeric(dt4$data_coverage_atm_press_mbar)
+if (class(dt4$cumulative_rainfall_mm)=="factor") dt4$cumulative_rainfall_mm <-as.numeric(levels(dt4$cumulative_rainfall_mm))[as.integer(dt4$cumulative_rainfall_mm) ]               
+if (class(dt4$cumulative_rainfall_mm)=="character") dt4$cumulative_rainfall_mm <-as.numeric(dt4$cumulative_rainfall_mm)
+if (class(dt4$data_coverage_cumulative_rainfall_mm)=="factor") dt4$data_coverage_cumulative_rainfall_mm <-as.numeric(levels(dt4$data_coverage_cumulative_rainfall_mm))[as.integer(dt4$data_coverage_cumulative_rainfall_mm) ]               
+if (class(dt4$data_coverage_cumulative_rainfall_mm)=="character") dt4$data_coverage_cumulative_rainfall_mm <-as.numeric(dt4$data_coverage_cumulative_rainfall_mm)
+                
+# Convert Missing Values to NA for non-dates
+                
+dt4$air_temp_C <- ifelse((trimws(as.character(dt4$air_temp_C))==trimws("-999")),NA,dt4$air_temp_C)               
+suppressWarnings(dt4$air_temp_C <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt4$air_temp_C))==as.character(as.numeric("-999"))),NA,dt4$air_temp_C))
+dt4$wind_stress_pa <- ifelse((trimws(as.character(dt4$wind_stress_pa))==trimws("-999")),NA,dt4$wind_stress_pa)               
+suppressWarnings(dt4$wind_stress_pa <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt4$wind_stress_pa))==as.character(as.numeric("-999"))),NA,dt4$wind_stress_pa))
+dt4$wind_direction_degtrue <- ifelse((trimws(as.character(dt4$wind_direction_degtrue))==trimws("-999")),NA,dt4$wind_direction_degtrue)               
+suppressWarnings(dt4$wind_direction_degtrue <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt4$wind_direction_degtrue))==as.character(as.numeric("-999"))),NA,dt4$wind_direction_degtrue))
+dt4$wind_U_mps <- ifelse((trimws(as.character(dt4$wind_U_mps))==trimws("-999")),NA,dt4$wind_U_mps)               
+suppressWarnings(dt4$wind_U_mps <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt4$wind_U_mps))==as.character(as.numeric("-999"))),NA,dt4$wind_U_mps))
+dt4$wind_V_mps <- ifelse((trimws(as.character(dt4$wind_V_mps))==trimws("-999")),NA,dt4$wind_V_mps)               
+suppressWarnings(dt4$wind_V_mps <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt4$wind_V_mps))==as.character(as.numeric("-999"))),NA,dt4$wind_V_mps))
+dt4$mean_solar_rad_kwpm2 <- ifelse((trimws(as.character(dt4$mean_solar_rad_kwpm2))==trimws("-999")),NA,dt4$mean_solar_rad_kwpm2)               
+suppressWarnings(dt4$mean_solar_rad_kwpm2 <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt4$mean_solar_rad_kwpm2))==as.character(as.numeric("-999"))),NA,dt4$mean_solar_rad_kwpm2))
+dt4$atm_press_mbar <- ifelse((trimws(as.character(dt4$atm_press_mbar))==trimws("-999")),NA,dt4$atm_press_mbar)               
+suppressWarnings(dt4$atm_press_mbar <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt4$atm_press_mbar))==as.character(as.numeric("-999"))),NA,dt4$atm_press_mbar))
+dt4$cumulative_rainfall_mm <- ifelse((trimws(as.character(dt4$cumulative_rainfall_mm))==trimws("-999")),NA,dt4$cumulative_rainfall_mm)               
+suppressWarnings(dt4$cumulative_rainfall_mm <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt4$cumulative_rainfall_mm))==as.character(as.numeric("-999"))),NA,dt4$cumulative_rainfall_mm))
+
+
+# Here is the structure of the input data frame:
+str(dt4)                            
+attach(dt4)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(time_local)
+summary(time_utc)
+summary(air_temp_C)
+summary(data_coverage_air_temp_C)
+summary(wind_stress_pa)
+summary(data_coverage_wind_stress_pa)
+summary(wind_direction_degtrue)
+summary(data_coverage_wind_direction_degtrue)
+summary(wind_U_mps)
+summary(data_coverage_wind_U_mps)
+summary(wind_V_mps)
+summary(data_coverage_wind_V_mps)
+summary(mean_solar_rad_kwpm2)
+summary(data_coverage_mean_solar_rad_kwpm2)
+summary(atm_press_mbar)
+summary(data_coverage_atm_press_mbar)
+summary(cumulative_rainfall_mm)
+summary(data_coverage_cumulative_rainfall_mm) 
+                # Get more details on character variables
+                
+detach(dt4)               
+         
+
+inUrl5  <- "https://pasta.lternet.edu/package/data/eml/knb-lter-mcr/9/50/a2479a853f484b0a53478176a03ba29d" 
+infile5 <- tempfile()
+try(download.file(inUrl5,infile5,method="curl"))
+if (is.na(file.size(infile5))) download.file(inUrl5,infile5,method="auto")
+
+                   
+ dt5 <-read.csv(infile5,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "time_local",     
+                    "time_utc",     
+                    "air_temp_C",     
+                    "data_coverage_air_temp_C",     
+                    "wind_stress_pa",     
+                    "data_coverage_wind_stress_pa",     
+                    "wind_direction_degtrue",     
+                    "data_coverage_wind_direction_degtrue",     
+                    "wind_U_mps",     
+                    "data_coverage_wind_U_mps",     
+                    "wind_V_mps",     
+                    "data_coverage_wind_V_mps",     
+                    "mean_solar_rad_kwpm2",     
+                    "data_coverage_mean_solar_rad_kwpm2",     
+                    "atm_press_mbar",     
+                    "data_coverage_atm_press_mbar",     
+                    "cumulative_rainfall_mm",     
+                    "data_coverage_cumulative_rainfall_mm"    ), check.names=TRUE)
+               
+unlink(infile5)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                                                   
+# attempting to convert dt5$time_local dateTime string to R date structure (date or POSIXct)                                
+tmpDateFormat<-"%Y-%m-%d %H:%M:%S" 
+tmp5time_local<-as.POSIXct(dt5$time_local,format=tmpDateFormat)
+# Keep the new dates only if they all converted correctly
+if(nrow(dt5[dt5$time_local != "",]) == length(tmp5time_local[!is.na(tmp5time_local)])){dt5$time_local <- tmp5time_local } else {print("Date conversion failed for dt5$time_local. Please inspect the data and do the date conversion yourself.")}                                                                    
+                                                                   
+# attempting to convert dt5$time_utc dateTime string to R date structure (date or POSIXct)                                
+tmpDateFormat<-"%Y-%m-%d %H:%M:%S" 
+tmp5time_utc<-as.POSIXct(dt5$time_utc,format=tmpDateFormat)
+# Keep the new dates only if they all converted correctly
+if(nrow(dt5[dt5$time_utc != "",]) == length(tmp5time_utc[!is.na(tmp5time_utc)])){dt5$time_utc <- tmp5time_utc } else {print("Date conversion failed for dt5$time_utc. Please inspect the data and do the date conversion yourself.")}                                                                    
+                                
+if (class(dt5$air_temp_C)=="factor") dt5$air_temp_C <-as.numeric(levels(dt5$air_temp_C))[as.integer(dt5$air_temp_C) ]               
+if (class(dt5$air_temp_C)=="character") dt5$air_temp_C <-as.numeric(dt5$air_temp_C)
+if (class(dt5$data_coverage_air_temp_C)=="factor") dt5$data_coverage_air_temp_C <-as.numeric(levels(dt5$data_coverage_air_temp_C))[as.integer(dt5$data_coverage_air_temp_C) ]               
+if (class(dt5$data_coverage_air_temp_C)=="character") dt5$data_coverage_air_temp_C <-as.numeric(dt5$data_coverage_air_temp_C)
+if (class(dt5$wind_stress_pa)=="factor") dt5$wind_stress_pa <-as.numeric(levels(dt5$wind_stress_pa))[as.integer(dt5$wind_stress_pa) ]               
+if (class(dt5$wind_stress_pa)=="character") dt5$wind_stress_pa <-as.numeric(dt5$wind_stress_pa)
+if (class(dt5$data_coverage_wind_stress_pa)=="factor") dt5$data_coverage_wind_stress_pa <-as.numeric(levels(dt5$data_coverage_wind_stress_pa))[as.integer(dt5$data_coverage_wind_stress_pa) ]               
+if (class(dt5$data_coverage_wind_stress_pa)=="character") dt5$data_coverage_wind_stress_pa <-as.numeric(dt5$data_coverage_wind_stress_pa)
+if (class(dt5$wind_direction_degtrue)=="factor") dt5$wind_direction_degtrue <-as.numeric(levels(dt5$wind_direction_degtrue))[as.integer(dt5$wind_direction_degtrue) ]               
+if (class(dt5$wind_direction_degtrue)=="character") dt5$wind_direction_degtrue <-as.numeric(dt5$wind_direction_degtrue)
+if (class(dt5$data_coverage_wind_direction_degtrue)=="factor") dt5$data_coverage_wind_direction_degtrue <-as.numeric(levels(dt5$data_coverage_wind_direction_degtrue))[as.integer(dt5$data_coverage_wind_direction_degtrue) ]               
+if (class(dt5$data_coverage_wind_direction_degtrue)=="character") dt5$data_coverage_wind_direction_degtrue <-as.numeric(dt5$data_coverage_wind_direction_degtrue)
+if (class(dt5$wind_U_mps)=="factor") dt5$wind_U_mps <-as.numeric(levels(dt5$wind_U_mps))[as.integer(dt5$wind_U_mps) ]               
+if (class(dt5$wind_U_mps)=="character") dt5$wind_U_mps <-as.numeric(dt5$wind_U_mps)
+if (class(dt5$data_coverage_wind_U_mps)=="factor") dt5$data_coverage_wind_U_mps <-as.numeric(levels(dt5$data_coverage_wind_U_mps))[as.integer(dt5$data_coverage_wind_U_mps) ]               
+if (class(dt5$data_coverage_wind_U_mps)=="character") dt5$data_coverage_wind_U_mps <-as.numeric(dt5$data_coverage_wind_U_mps)
+if (class(dt5$wind_V_mps)=="factor") dt5$wind_V_mps <-as.numeric(levels(dt5$wind_V_mps))[as.integer(dt5$wind_V_mps) ]               
+if (class(dt5$wind_V_mps)=="character") dt5$wind_V_mps <-as.numeric(dt5$wind_V_mps)
+if (class(dt5$data_coverage_wind_V_mps)=="factor") dt5$data_coverage_wind_V_mps <-as.numeric(levels(dt5$data_coverage_wind_V_mps))[as.integer(dt5$data_coverage_wind_V_mps) ]               
+if (class(dt5$data_coverage_wind_V_mps)=="character") dt5$data_coverage_wind_V_mps <-as.numeric(dt5$data_coverage_wind_V_mps)
+if (class(dt5$mean_solar_rad_kwpm2)=="factor") dt5$mean_solar_rad_kwpm2 <-as.numeric(levels(dt5$mean_solar_rad_kwpm2))[as.integer(dt5$mean_solar_rad_kwpm2) ]               
+if (class(dt5$mean_solar_rad_kwpm2)=="character") dt5$mean_solar_rad_kwpm2 <-as.numeric(dt5$mean_solar_rad_kwpm2)
+if (class(dt5$data_coverage_mean_solar_rad_kwpm2)=="factor") dt5$data_coverage_mean_solar_rad_kwpm2 <-as.numeric(levels(dt5$data_coverage_mean_solar_rad_kwpm2))[as.integer(dt5$data_coverage_mean_solar_rad_kwpm2) ]               
+if (class(dt5$data_coverage_mean_solar_rad_kwpm2)=="character") dt5$data_coverage_mean_solar_rad_kwpm2 <-as.numeric(dt5$data_coverage_mean_solar_rad_kwpm2)
+if (class(dt5$atm_press_mbar)=="factor") dt5$atm_press_mbar <-as.numeric(levels(dt5$atm_press_mbar))[as.integer(dt5$atm_press_mbar) ]               
+if (class(dt5$atm_press_mbar)=="character") dt5$atm_press_mbar <-as.numeric(dt5$atm_press_mbar)
+if (class(dt5$data_coverage_atm_press_mbar)=="factor") dt5$data_coverage_atm_press_mbar <-as.numeric(levels(dt5$data_coverage_atm_press_mbar))[as.integer(dt5$data_coverage_atm_press_mbar) ]               
+if (class(dt5$data_coverage_atm_press_mbar)=="character") dt5$data_coverage_atm_press_mbar <-as.numeric(dt5$data_coverage_atm_press_mbar)
+if (class(dt5$cumulative_rainfall_mm)=="factor") dt5$cumulative_rainfall_mm <-as.numeric(levels(dt5$cumulative_rainfall_mm))[as.integer(dt5$cumulative_rainfall_mm) ]               
+if (class(dt5$cumulative_rainfall_mm)=="character") dt5$cumulative_rainfall_mm <-as.numeric(dt5$cumulative_rainfall_mm)
+if (class(dt5$data_coverage_cumulative_rainfall_mm)=="factor") dt5$data_coverage_cumulative_rainfall_mm <-as.numeric(levels(dt5$data_coverage_cumulative_rainfall_mm))[as.integer(dt5$data_coverage_cumulative_rainfall_mm) ]               
+if (class(dt5$data_coverage_cumulative_rainfall_mm)=="character") dt5$data_coverage_cumulative_rainfall_mm <-as.numeric(dt5$data_coverage_cumulative_rainfall_mm)
+                
+# Convert Missing Values to NA for non-dates
+                
+dt5$air_temp_C <- ifelse((trimws(as.character(dt5$air_temp_C))==trimws("-999")),NA,dt5$air_temp_C)               
+suppressWarnings(dt5$air_temp_C <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt5$air_temp_C))==as.character(as.numeric("-999"))),NA,dt5$air_temp_C))
+dt5$wind_stress_pa <- ifelse((trimws(as.character(dt5$wind_stress_pa))==trimws("-999")),NA,dt5$wind_stress_pa)               
+suppressWarnings(dt5$wind_stress_pa <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt5$wind_stress_pa))==as.character(as.numeric("-999"))),NA,dt5$wind_stress_pa))
+dt5$wind_direction_degtrue <- ifelse((trimws(as.character(dt5$wind_direction_degtrue))==trimws("-999")),NA,dt5$wind_direction_degtrue)               
+suppressWarnings(dt5$wind_direction_degtrue <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt5$wind_direction_degtrue))==as.character(as.numeric("-999"))),NA,dt5$wind_direction_degtrue))
+dt5$wind_U_mps <- ifelse((trimws(as.character(dt5$wind_U_mps))==trimws("-999")),NA,dt5$wind_U_mps)               
+suppressWarnings(dt5$wind_U_mps <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt5$wind_U_mps))==as.character(as.numeric("-999"))),NA,dt5$wind_U_mps))
+dt5$wind_V_mps <- ifelse((trimws(as.character(dt5$wind_V_mps))==trimws("-999")),NA,dt5$wind_V_mps)               
+suppressWarnings(dt5$wind_V_mps <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt5$wind_V_mps))==as.character(as.numeric("-999"))),NA,dt5$wind_V_mps))
+dt5$mean_solar_rad_kwpm2 <- ifelse((trimws(as.character(dt5$mean_solar_rad_kwpm2))==trimws("-999")),NA,dt5$mean_solar_rad_kwpm2)               
+suppressWarnings(dt5$mean_solar_rad_kwpm2 <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt5$mean_solar_rad_kwpm2))==as.character(as.numeric("-999"))),NA,dt5$mean_solar_rad_kwpm2))
+dt5$atm_press_mbar <- ifelse((trimws(as.character(dt5$atm_press_mbar))==trimws("-999")),NA,dt5$atm_press_mbar)               
+suppressWarnings(dt5$atm_press_mbar <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt5$atm_press_mbar))==as.character(as.numeric("-999"))),NA,dt5$atm_press_mbar))
+dt5$cumulative_rainfall_mm <- ifelse((trimws(as.character(dt5$cumulative_rainfall_mm))==trimws("-999")),NA,dt5$cumulative_rainfall_mm)               
+suppressWarnings(dt5$cumulative_rainfall_mm <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt5$cumulative_rainfall_mm))==as.character(as.numeric("-999"))),NA,dt5$cumulative_rainfall_mm))
+
+
+# Here is the structure of the input data frame:
+str(dt5)                            
+attach(dt5)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(time_local)
+summary(time_utc)
+summary(air_temp_C)
+summary(data_coverage_air_temp_C)
+summary(wind_stress_pa)
+summary(data_coverage_wind_stress_pa)
+summary(wind_direction_degtrue)
+summary(data_coverage_wind_direction_degtrue)
+summary(wind_U_mps)
+summary(data_coverage_wind_U_mps)
+summary(wind_V_mps)
+summary(data_coverage_wind_V_mps)
+summary(mean_solar_rad_kwpm2)
+summary(data_coverage_mean_solar_rad_kwpm2)
+summary(atm_press_mbar)
+summary(data_coverage_atm_press_mbar)
+summary(cumulative_rainfall_mm)
+summary(data_coverage_cumulative_rainfall_mm) 
+                # Get more details on character variables
+                
+detach(dt5)               
+         
+
+inUrl6  <- "https://pasta.lternet.edu/package/data/eml/knb-lter-mcr/9/50/2738f2c96013f0ffdb00eea519233b56" 
+infile6 <- tempfile()
+try(download.file(inUrl6,infile6,method="curl"))
+if (is.na(file.size(infile6))) download.file(inUrl6,infile6,method="auto")
+
+                   
+ dt6 <-read.csv(infile6,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "time_local",     
+                    "time_utc",     
+                    "air_temp_C",     
+                    "data_coverage_air_temp_C",     
+                    "wind_stress_pa",     
+                    "data_coverage_wind_stress_pa",     
+                    "wind_direction_degtrue",     
+                    "data_coverage_wind_direction_degtrue",     
+                    "wind_U_mps",     
+                    "data_coverage_wind_U_mps",     
+                    "wind_V_mps",     
+                    "data_coverage_wind_V_mps",     
+                    "mean_solar_rad_kwpm2",     
+                    "data_coverage_mean_solar_rad_kwpm2",     
+                    "atm_press_mbar",     
+                    "data_coverage_atm_press_mbar",     
+                    "cumulative_rainfall_mm",     
+                    "data_coverage_cumulative_rainfall_mm"    ), check.names=TRUE)
+               
+unlink(infile6)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                                                   
+# attempting to convert dt6$time_local dateTime string to R date structure (date or POSIXct)                                
+tmpDateFormat<-"%Y-%m-%d %H:%M:%S" 
+tmp6time_local<-as.POSIXct(dt6$time_local,format=tmpDateFormat)
+# Keep the new dates only if they all converted correctly
+if(nrow(dt6[dt6$time_local != "",]) == length(tmp6time_local[!is.na(tmp6time_local)])){dt6$time_local <- tmp6time_local } else {print("Date conversion failed for dt6$time_local. Please inspect the data and do the date conversion yourself.")}                                                                    
+                                                                   
+# attempting to convert dt6$time_utc dateTime string to R date structure (date or POSIXct)                                
+tmpDateFormat<-"%Y-%m-%d %H:%M:%S" 
+tmp6time_utc<-as.POSIXct(dt6$time_utc,format=tmpDateFormat)
+# Keep the new dates only if they all converted correctly
+if(nrow(dt6[dt6$time_utc != "",]) == length(tmp6time_utc[!is.na(tmp6time_utc)])){dt6$time_utc <- tmp6time_utc } else {print("Date conversion failed for dt6$time_utc. Please inspect the data and do the date conversion yourself.")}                                                                    
+                                
+if (class(dt6$air_temp_C)=="factor") dt6$air_temp_C <-as.numeric(levels(dt6$air_temp_C))[as.integer(dt6$air_temp_C) ]               
+if (class(dt6$air_temp_C)=="character") dt6$air_temp_C <-as.numeric(dt6$air_temp_C)
+if (class(dt6$data_coverage_air_temp_C)=="factor") dt6$data_coverage_air_temp_C <-as.numeric(levels(dt6$data_coverage_air_temp_C))[as.integer(dt6$data_coverage_air_temp_C) ]               
+if (class(dt6$data_coverage_air_temp_C)=="character") dt6$data_coverage_air_temp_C <-as.numeric(dt6$data_coverage_air_temp_C)
+if (class(dt6$wind_stress_pa)=="factor") dt6$wind_stress_pa <-as.numeric(levels(dt6$wind_stress_pa))[as.integer(dt6$wind_stress_pa) ]               
+if (class(dt6$wind_stress_pa)=="character") dt6$wind_stress_pa <-as.numeric(dt6$wind_stress_pa)
+if (class(dt6$data_coverage_wind_stress_pa)=="factor") dt6$data_coverage_wind_stress_pa <-as.numeric(levels(dt6$data_coverage_wind_stress_pa))[as.integer(dt6$data_coverage_wind_stress_pa) ]               
+if (class(dt6$data_coverage_wind_stress_pa)=="character") dt6$data_coverage_wind_stress_pa <-as.numeric(dt6$data_coverage_wind_stress_pa)
+if (class(dt6$wind_direction_degtrue)=="factor") dt6$wind_direction_degtrue <-as.numeric(levels(dt6$wind_direction_degtrue))[as.integer(dt6$wind_direction_degtrue) ]               
+if (class(dt6$wind_direction_degtrue)=="character") dt6$wind_direction_degtrue <-as.numeric(dt6$wind_direction_degtrue)
+if (class(dt6$data_coverage_wind_direction_degtrue)=="factor") dt6$data_coverage_wind_direction_degtrue <-as.numeric(levels(dt6$data_coverage_wind_direction_degtrue))[as.integer(dt6$data_coverage_wind_direction_degtrue) ]               
+if (class(dt6$data_coverage_wind_direction_degtrue)=="character") dt6$data_coverage_wind_direction_degtrue <-as.numeric(dt6$data_coverage_wind_direction_degtrue)
+if (class(dt6$wind_U_mps)=="factor") dt6$wind_U_mps <-as.numeric(levels(dt6$wind_U_mps))[as.integer(dt6$wind_U_mps) ]               
+if (class(dt6$wind_U_mps)=="character") dt6$wind_U_mps <-as.numeric(dt6$wind_U_mps)
+if (class(dt6$data_coverage_wind_U_mps)=="factor") dt6$data_coverage_wind_U_mps <-as.numeric(levels(dt6$data_coverage_wind_U_mps))[as.integer(dt6$data_coverage_wind_U_mps) ]               
+if (class(dt6$data_coverage_wind_U_mps)=="character") dt6$data_coverage_wind_U_mps <-as.numeric(dt6$data_coverage_wind_U_mps)
+if (class(dt6$wind_V_mps)=="factor") dt6$wind_V_mps <-as.numeric(levels(dt6$wind_V_mps))[as.integer(dt6$wind_V_mps) ]               
+if (class(dt6$wind_V_mps)=="character") dt6$wind_V_mps <-as.numeric(dt6$wind_V_mps)
+if (class(dt6$data_coverage_wind_V_mps)=="factor") dt6$data_coverage_wind_V_mps <-as.numeric(levels(dt6$data_coverage_wind_V_mps))[as.integer(dt6$data_coverage_wind_V_mps) ]               
+if (class(dt6$data_coverage_wind_V_mps)=="character") dt6$data_coverage_wind_V_mps <-as.numeric(dt6$data_coverage_wind_V_mps)
+if (class(dt6$mean_solar_rad_kwpm2)=="factor") dt6$mean_solar_rad_kwpm2 <-as.numeric(levels(dt6$mean_solar_rad_kwpm2))[as.integer(dt6$mean_solar_rad_kwpm2) ]               
+if (class(dt6$mean_solar_rad_kwpm2)=="character") dt6$mean_solar_rad_kwpm2 <-as.numeric(dt6$mean_solar_rad_kwpm2)
+if (class(dt6$data_coverage_mean_solar_rad_kwpm2)=="factor") dt6$data_coverage_mean_solar_rad_kwpm2 <-as.numeric(levels(dt6$data_coverage_mean_solar_rad_kwpm2))[as.integer(dt6$data_coverage_mean_solar_rad_kwpm2) ]               
+if (class(dt6$data_coverage_mean_solar_rad_kwpm2)=="character") dt6$data_coverage_mean_solar_rad_kwpm2 <-as.numeric(dt6$data_coverage_mean_solar_rad_kwpm2)
+if (class(dt6$atm_press_mbar)=="factor") dt6$atm_press_mbar <-as.numeric(levels(dt6$atm_press_mbar))[as.integer(dt6$atm_press_mbar) ]               
+if (class(dt6$atm_press_mbar)=="character") dt6$atm_press_mbar <-as.numeric(dt6$atm_press_mbar)
+if (class(dt6$data_coverage_atm_press_mbar)=="factor") dt6$data_coverage_atm_press_mbar <-as.numeric(levels(dt6$data_coverage_atm_press_mbar))[as.integer(dt6$data_coverage_atm_press_mbar) ]               
+if (class(dt6$data_coverage_atm_press_mbar)=="character") dt6$data_coverage_atm_press_mbar <-as.numeric(dt6$data_coverage_atm_press_mbar)
+if (class(dt6$cumulative_rainfall_mm)=="factor") dt6$cumulative_rainfall_mm <-as.numeric(levels(dt6$cumulative_rainfall_mm))[as.integer(dt6$cumulative_rainfall_mm) ]               
+if (class(dt6$cumulative_rainfall_mm)=="character") dt6$cumulative_rainfall_mm <-as.numeric(dt6$cumulative_rainfall_mm)
+if (class(dt6$data_coverage_cumulative_rainfall_mm)=="factor") dt6$data_coverage_cumulative_rainfall_mm <-as.numeric(levels(dt6$data_coverage_cumulative_rainfall_mm))[as.integer(dt6$data_coverage_cumulative_rainfall_mm) ]               
+if (class(dt6$data_coverage_cumulative_rainfall_mm)=="character") dt6$data_coverage_cumulative_rainfall_mm <-as.numeric(dt6$data_coverage_cumulative_rainfall_mm)
+                
+# Convert Missing Values to NA for non-dates
+                
+dt6$air_temp_C <- ifelse((trimws(as.character(dt6$air_temp_C))==trimws("-999")),NA,dt6$air_temp_C)               
+suppressWarnings(dt6$air_temp_C <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt6$air_temp_C))==as.character(as.numeric("-999"))),NA,dt6$air_temp_C))
+dt6$wind_stress_pa <- ifelse((trimws(as.character(dt6$wind_stress_pa))==trimws("-999")),NA,dt6$wind_stress_pa)               
+suppressWarnings(dt6$wind_stress_pa <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt6$wind_stress_pa))==as.character(as.numeric("-999"))),NA,dt6$wind_stress_pa))
+dt6$wind_direction_degtrue <- ifelse((trimws(as.character(dt6$wind_direction_degtrue))==trimws("-999")),NA,dt6$wind_direction_degtrue)               
+suppressWarnings(dt6$wind_direction_degtrue <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt6$wind_direction_degtrue))==as.character(as.numeric("-999"))),NA,dt6$wind_direction_degtrue))
+dt6$wind_U_mps <- ifelse((trimws(as.character(dt6$wind_U_mps))==trimws("-999")),NA,dt6$wind_U_mps)               
+suppressWarnings(dt6$wind_U_mps <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt6$wind_U_mps))==as.character(as.numeric("-999"))),NA,dt6$wind_U_mps))
+dt6$wind_V_mps <- ifelse((trimws(as.character(dt6$wind_V_mps))==trimws("-999")),NA,dt6$wind_V_mps)               
+suppressWarnings(dt6$wind_V_mps <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt6$wind_V_mps))==as.character(as.numeric("-999"))),NA,dt6$wind_V_mps))
+dt6$mean_solar_rad_kwpm2 <- ifelse((trimws(as.character(dt6$mean_solar_rad_kwpm2))==trimws("-999")),NA,dt6$mean_solar_rad_kwpm2)               
+suppressWarnings(dt6$mean_solar_rad_kwpm2 <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt6$mean_solar_rad_kwpm2))==as.character(as.numeric("-999"))),NA,dt6$mean_solar_rad_kwpm2))
+dt6$atm_press_mbar <- ifelse((trimws(as.character(dt6$atm_press_mbar))==trimws("-999")),NA,dt6$atm_press_mbar)               
+suppressWarnings(dt6$atm_press_mbar <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt6$atm_press_mbar))==as.character(as.numeric("-999"))),NA,dt6$atm_press_mbar))
+dt6$cumulative_rainfall_mm <- ifelse((trimws(as.character(dt6$cumulative_rainfall_mm))==trimws("-999")),NA,dt6$cumulative_rainfall_mm)               
+suppressWarnings(dt6$cumulative_rainfall_mm <- ifelse(!is.na(as.numeric("-999")) & (trimws(as.character(dt6$cumulative_rainfall_mm))==as.character(as.numeric("-999"))),NA,dt6$cumulative_rainfall_mm))
+
+
+# Here is the structure of the input data frame:
+str(dt6)                            
+attach(dt6)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(time_local)
+summary(time_utc)
+summary(air_temp_C)
+summary(data_coverage_air_temp_C)
+summary(wind_stress_pa)
+summary(data_coverage_wind_stress_pa)
+summary(wind_direction_degtrue)
+summary(data_coverage_wind_direction_degtrue)
+summary(wind_U_mps)
+summary(data_coverage_wind_U_mps)
+summary(wind_V_mps)
+summary(data_coverage_wind_V_mps)
+summary(mean_solar_rad_kwpm2)
+summary(data_coverage_mean_solar_rad_kwpm2)
+summary(atm_press_mbar)
+summary(data_coverage_atm_press_mbar)
+summary(cumulative_rainfall_mm)
+summary(data_coverage_cumulative_rainfall_mm) 
+                # Get more details on character variables
+                
+detach(dt6)               
+```
+
+dt4 contains daily summarized data, which we will use for this application. 
+```{r}
+str(dt4)
+```
+
+The metrics we will use are: 
+
+- mean_solar_rad_kwpm2 (sunlight) - mean and standard deviation 
+- cumulative_rainfall_mm (rainfall) - mean and standard deviation 
+
+We will use mean and standard deviation of temperature from 
+
+```{r}
+data<-dt4%>%
+  select(time_local, mean_solar_rad_kwpm2, cumulative_rainfall_mm)%>%
+  filter(time_local > as.POSIXct("2019-12-01"))%>%
+  filter(time_local < as.POSIXct("2021-01-01")) #select data from Dec 2019 to Dec 2020
+```
+
+Generate timepoint average light and rainfall as the 4 weeks leading up to the end of the sampling period. 
+
+Timepoint 1 sampling = 28 Dec 2019 - 14 Jan 2020 [use data from 15 Dec-15 Jan]
+Timepoint 2 sampling = 27 Feb - 14 March [use data from 15 Feb-14 Mar] - no data available for this range, using April 1-30 for light and rain fall, using correct range for temp 
+Timepoint 3 sampling = 8 Sept - 28 Sept [use data from 29 Aug-28 Sept]
+Timepoint 4 sampling = 30 Oct - 21 Nov [use data from 22 Oct-21 Nov]
+
+Calculate mean and sd of each metric for the specified date ranges.  
+
+```{r}
+# Define time ranges
+tp_ranges <- list(
+  timepoint1 = as.POSIXct(c("2019-12-05", "2020-01-15")),
+  timepoint2 = as.POSIXct(c("2020-02-15", "2020-04-30")),
+  timepoint3 = as.POSIXct(c("2020-08-29", "2020-09-28")),
+  timepoint4 = as.POSIXct(c("2020-10-22", "2020-11-21"))
+)
+
+# Initialize a list to store results
+results <- list()
+
+# Calculate mean and standard deviation for each time range
+for (tp in names(tp_ranges)) {
+  start_date <- tp_ranges[[tp]][1]
+  end_date <- tp_ranges[[tp]][2]
+  
+  # Filter data for the current time range
+  tp_data <- data %>%
+    filter(time_local >= start_date & time_local <= end_date) %>%
+    select(-time_local) # Remove the time_local column for calculations
+  
+  # Compute mean and standard deviation for all columns
+  stats <- tp_data %>%
+    summarise(across(everything(), 
+                     list(mean = ~mean(.x, na.rm = TRUE), 
+                          sd = ~sd(.x, na.rm = TRUE))))
+  
+  # Store results with time period label
+  results[[tp]] <- stats
+}
+
+# Combine results into a single dataframe for easy viewing
+final_results <- bind_rows(results, .id = "Time_Period")
+
+# View results
+print(final_results)
+
+```
+
+Calculate monthly average temperature from our data set for the same date ranges as above and add to the data frame.  
+
+```{r}
+temp<-read_csv("Output/environmental_timeseries.csv")%>%
+  select(Date.Time, FullTemp)%>%
+  filter(!is.na(FullTemp))
+```
+
+Summarize by day and then generate time period means. 
+
+```{r}
+# Summarize mean Temp for each day
+daily_mean_temp <- temp %>%
+  mutate(Date = as.Date(Date.Time)) %>%  # Extract the date from the Date.Time column
+  group_by(Date) %>%                     # Group by day
+  summarise(mean_Temp = mean(FullTemp, na.rm = TRUE))%>%  # Calculate mean Temp for each day
+  mutate(Date = as.POSIXct(Date, tz="UTC")) 
+
+str(daily_mean_temp)
+daily_mean_temp$Date
+```
+
+Run a loop to calculate temperatures for each time period. 
+
+```{r}
+tp_ranges <- list(
+  timepoint1 = as.POSIXct(c("2019-12-05", "2020-01-15")),
+  timepoint2 = as.POSIXct(c("2020-02-15", "2020-03-14")),
+  timepoint3 = as.POSIXct(c("2020-08-29", "2020-09-28")),
+  timepoint4 = as.POSIXct(c("2020-10-22", "2020-11-21"))
+)
+
+# Initialize a list to store results
+results2 <- list()
+
+# Calculate mean and standard deviation for each time range
+for (tp in names(tp_ranges)) {
+  start_date <- tp_ranges[[tp]][1]
+  end_date <- tp_ranges[[tp]][2]
+  
+  # Filter data for the current time range
+  tp_data2 <- daily_mean_temp %>%
+    filter(Date >= start_date & Date <= end_date) %>%
+    select(-Date) # Remove the Date column for calculations
+  
+  # Compute mean and standard deviation for all columns
+  stats2 <- tp_data2 %>%
+    summarise(across(everything(), 
+                     list(mean = ~mean(.x, na.rm = TRUE), 
+                          sd = ~sd(.x, na.rm = TRUE))))
+  
+  # Store results with time period label
+  results2[[tp]] <- stats2
+}
+
+# Combine results into a single dataframe for easy viewing
+final_results2 <- bind_rows(results2, .id = "Time_Period")
+
+# View results
+print(final_results2)
+
+```
+
+Merge results. 
+
+```{r}
+results<-merge(final_results, final_results2)
+```
+
+Scale the data and output for RDA analyses. 
+```{r}
+str(results)
+
+scaled_results<-results%>%select(!Time_Period)
+
+scaled_results<-scale(scaled_results)%>%as.data.frame()%>%mutate(timepoint=c("timepoint1", "timepoint2", "timepont3", "timepoint4"))
+
+#output
+write_csv(scaled_results, "Output/environment_characteristics_RDA.csv")
+```
+
+# Display plot of characteristics 
+
+```{r}
+plot1<-results%>%
+  rename(solar_mean=mean_solar_rad_kwpm2_mean, solar_sd=mean_solar_rad_kwpm2_sd, rain_mean=cumulative_rainfall_mm_mean, rain_sd=cumulative_rainfall_mm_sd, temp_mean=mean_Temp_mean, temp_sd=mean_Temp_sd)%>%
+  
+  ggplot(aes(x=Time_Period, y=solar_mean))+
+    geom_point(size=4, shape=19)+
+    geom_errorbar(aes(ymin=solar_mean-solar_sd, ymax=solar_mean+solar_sd), width=0.01)+
+    ylab(expression(bold(paste("Solar Radiation (kWh m" ^-2, ")"))))+
+    ylim(0,0.25)+
+    xlab("Time Point")+
+    ggtitle("C) Solar Radiation")+
+    theme_classic()+
+    theme(
+      axis.text.x = element_blank(), 
+      axis.title.y = element_text(face="bold", size=14), 
+      axis.title.x = element_text(face="bold", size=14), 
+      plot.title = element_text(face="bold", size=14), 
+      axis.text.y=element_text(size=12)
+      );plot1
+```
+
+```{r}
+plot2<-results%>%
+  rename(solar_mean=mean_solar_rad_kwpm2_mean, solar_sd=mean_solar_rad_kwpm2_sd, rain_mean=cumulative_rainfall_mm_mean, rain_sd=cumulative_rainfall_mm_sd, temp_mean=mean_Temp_mean, temp_sd=mean_Temp_sd)%>%
+  
+  ggplot(aes(x=Time_Period, y=rain_mean))+
+    geom_point(size=4, shape=19)+
+    geom_errorbar(aes(ymin=rain_mean-rain_sd, ymax=rain_mean+rain_sd), width=0.01)+
+    ylab(expression(bold(paste("Average Cumulative Rainfall (mm)"))))+
+    ylim(-10,200)+
+    xlab("Time Point")+
+    ggtitle("D) Rainfall")+
+    theme_classic()+
+    theme(
+      axis.text.x = element_blank(), 
+      axis.title.y = element_text(face="bold", size=14), 
+      axis.title.x = element_text(face="bold", size=14), 
+      plot.title = element_text(face="bold", size=14), 
+      axis.text.y=element_text(size=12)
+      );plot2
+```
+
+```{r}
+plot3<-results%>%
+  rename(solar_mean=mean_solar_rad_kwpm2_mean, solar_sd=mean_solar_rad_kwpm2_sd, rain_mean=cumulative_rainfall_mm_mean, rain_sd=cumulative_rainfall_mm_sd, temp_mean=mean_Temp_mean, temp_sd=mean_Temp_sd)%>%
+  
+  ggplot(aes(x=Time_Period, y=temp_mean))+
+    geom_point(size=4, shape=19)+
+    geom_errorbar(aes(ymin=temp_mean-temp_sd, ymax=temp_mean+temp_sd), width=0.01)+
+    ylab(expression(bold(paste("Water Temperature (°C)"))))+
+    ylim(25,32)+
+    xlab("Time Point")+
+    ggtitle("B) Temperature")+
+    theme_classic()+
+    theme(
+      axis.text.x = element_blank(), 
+      axis.title.y = element_text(face="bold", size=14), 
+      axis.title.x = element_text(face="bold", size=14), 
+      plot.title = element_text(face="bold", size=14), 
+      axis.text.y=element_text(size=12)
+      );plot3
+```
+
+Arrange plots
+```{r}
+library(cowplot)
+
+plots<-plot_grid(plot3, plot1, plot2, nrow=1, ncol=3, align="vh", rel_widths=c(1,1,1))
+
+ggsave(plots, filename="Figures/Environmental/Seasonal_averages.png", width=10, height=4)
+```
+
+
+
