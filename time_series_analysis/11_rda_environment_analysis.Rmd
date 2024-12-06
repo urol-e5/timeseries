@@ -203,7 +203,7 @@ acr_host_temp<-2.25
 acr_host_light<-7.53
 ```
 
-#Acropora RDA- Symbiont metrics 
+# Acropora RDA- Symbiont metrics 
 
 ```{r}
 names(acr_data_temp)
@@ -352,7 +352,7 @@ por_host_temp<-9.99
 por_host_light<-2.40
 ```
 
-#Porites RDA- Symbiont metrics 
+# Porites RDA- Symbiont metrics 
 ```{r}
 names(por_data_temp)
 por.comm.rda.sym<-rda(por_data_temp[, c(6,7,9,11,12,14,15,17,18)] ~ temp_mean + solar_mean + Condition(haplotype), 
@@ -612,6 +612,177 @@ var_plot<-var_data%>%
   );var_plot
 
 ggsave(var_plot, filename="Figures/Multivariate/environment_variance_partioning.png", width=10, height=4)
+```
+
+
+
+# Plot physiological metric correlations with light and temperature 
+
+Plot correlations between host metrics and light and temperature. 
+
+```{r}
+library(Hmisc)
+
+res1.r<-outer(data_temp[, c(19,23)], data_temp[, c(5,8,10,13,16)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$estimate,
+           X, Y)
+})
+
+res1.p<-outer(data_temp[, c(19,23)], data_temp[, c(5,8,10,13,16)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$p.value,
+           X, Y)
+})
+
+pdf("Figures/Correlations/allspecies-host-correlation-light-temp.pdf", width=6, height=4)
+
+host_plot<-corrplot(res1.r, method="color", hclust.method="complete", insig="blank", p.mat = res1.p, sig.level = 0.05, tl.col = "black", tl.srt = 45, addCoef.col ='black', col=colorRampPalette(c("blue","white","red"))(50))
+
+dev.off()
+```
+
+Plot correlations between symbiont metrics and light and temperature. 
+
+```{r}
+
+res1.r<-outer(data_temp[, c(19,23)], data_temp[, c(6,7,9,11,12,14,15,17,18)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$estimate,
+           X, Y)
+})
+
+res1.p<-outer(data_temp[, c(19,23)], data_temp[, c(6,7,9,11,12,14,15,17,18)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$p.value,
+           X, Y)
+})
+
+pdf("Figures/Correlations/allspecies-symbiont-correlation-light-temp.pdf", width=8, height=4)
+
+sym_plot<-corrplot(res1.r, method="color", hclust.method="complete", insig="blank", p.mat = res1.p, sig.level = 0.05, tl.col = "black", tl.srt = 45, addCoef.col ='black', col=colorRampPalette(c("blue","white","red"))(50))
+
+dev.off()
+```
+
+## Plot for Acropora 
+
+```{r}
+res1.r<-outer(acr_data_temp[, c(19,23)], acr_data_temp[, c(5,8,10,13,16)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$estimate,
+           X, Y)
+})
+
+res1.p<-outer(acr_data_temp[, c(19,23)], acr_data_temp[, c(5,8,10,13,16)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$p.value,
+           X, Y)
+})
+
+pdf("Figures/Correlations/acr-host-correlation-light-temp.pdf", width=6, height=4)
+
+acr_host_plot<-corrplot(res1.r, method="color", hclust.method="complete", insig="blank", p.mat = res1.p, sig.level = 0.05, tl.col = "black", tl.srt = 45, addCoef.col ='black', col=colorRampPalette(c("blue","white","red"))(50))
+
+dev.off()
+```
+
+Plot correlations between symbiont metrics and light and temperature. 
+
+```{r}
+
+res1.r<-outer(acr_data_temp[, c(19,23)], acr_data_temp[, c(6,7,9,11,12,14,15,17,18)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$estimate,
+           X, Y)
+})
+
+res1.p<-outer(acr_data_temp[, c(19,23)], acr_data_temp[, c(6,7,9,11,12,14,15,17,18)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$p.value,
+           X, Y)
+})
+
+pdf("Figures/Correlations/acr-sym-correlation-light-temp.pdf", width=8, height=4)
+
+acr_sym_plot<-corrplot(res1.r, method="color", hclust.method="complete", insig="blank", p.mat = res1.p, sig.level = 0.05, tl.col = "black", tl.srt = 45, addCoef.col ='black', col=colorRampPalette(c("blue","white","red"))(50))
+
+dev.off()
+```
+
+## Plot for Pocillopora 
+
+```{r}
+res1.r<-outer(poc_data_temp[, c(19,23)], poc_data_temp[, c(5,8,10,13,16)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$estimate,
+           X, Y)
+})
+
+res1.p<-outer(poc_data_temp[, c(19,23)], poc_data_temp[, c(5,8,10,13,16)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$p.value,
+           X, Y)
+})
+
+pdf("Figures/Correlations/poc-host-correlation-light-temp.pdf", width=6, height=4)
+
+poc_host_plot<-corrplot(res1.r, method="color", hclust.method="complete", insig="blank", p.mat = res1.p, sig.level = 0.05, tl.col = "black", tl.srt = 45, addCoef.col ='black', col=colorRampPalette(c("blue","white","red"))(50))
+
+dev.off()
+
+```
+
+Plot correlations between symbiont metrics and light and temperature. 
+
+```{r}
+
+res1.r<-outer(poc_data_temp[, c(19,23)], poc_data_temp[, c(6,7,9,11,12,14,15,17,18)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$estimate,
+           X, Y)
+})
+
+res1.p<-outer(poc_data_temp[, c(19,23)], poc_data_temp[, c(6,7,9,11,12,14,15,17,18)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$p.value,
+           X, Y)
+})
+
+pdf("Figures/Correlations/poc-sym-correlation-light-temp.pdf", width=8, height=4)
+
+poc_sym_plot<-corrplot(res1.r, method="color", hclust.method="complete", insig="blank", p.mat = res1.p, sig.level = 0.05, tl.col = "black", tl.srt = 45, addCoef.col ='black', col=colorRampPalette(c("blue","white","red"))(50))
+
+dev.off()
+```
+
+## Plot for Porites 
+
+```{r}
+res1.r<-outer(por_data_temp[, c(19,23)], por_data_temp[, c(5,8,10,13,16)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$estimate,
+           X, Y)
+})
+
+res1.p<-outer(por_data_temp[, c(19,23)], por_data_temp[, c(5,8,10,13,16)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$p.value,
+           X, Y)
+})
+
+pdf("Figures/Correlations/por-host-correlation-light-temp.pdf", width=6, height=4)
+
+por_host_plot<-corrplot(res1.r, method="color", hclust.method="complete", insig="blank", p.mat = res1.p, sig.level = 0.05, tl.col = "black", tl.srt = 45, addCoef.col ='black', col=colorRampPalette(c("blue","white","red"))(50))
+dev.off()
+
+```
+
+Plot correlations between symbiont metrics and light and temperature. 
+
+```{r}
+
+res1.r<-outer(por_data_temp[, c(19,23)], por_data_temp[, c(6,7,9,11,12,14,15,17,18)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$estimate,
+           X, Y)
+})
+
+res1.p<-outer(por_data_temp[, c(19,23)], por_data_temp[, c(6,7,9,11,12,14,15,17,18)], function(X, Y){
+    mapply(function(...) cor.test(..., na.action = "na.exclude")$p.value,
+           X, Y)
+})
+
+pdf("Figures/Correlations/por-sym-correlation-light-temp.pdf", width=8, height=4)
+
+por_sym_plot<-corrplot(res1.r, method="color", hclust.method="complete", insig="blank", p.mat = res1.p, sig.level = 0.05, tl.col = "black", tl.srt = 45, addCoef.col ='black', col=colorRampPalette(c("blue","white","red"))(50))
+
+dev.off()
 ```
 
 
