@@ -1663,21 +1663,94 @@ emm<-emmeans(por_model, ~ site | Profile)
 pairs(emm)
 ```
 
-Assemble plots. 
-```{r}
-its2_plots<-plot_grid(plot_species_site_acr, plot_species_site_poc, plot_species_site_por, ncol=1, nrow=3, align="vh")
-
-ggsave(its2_plots, filename="Figures/ITS2/species_site_panel.jpeg", width=8, height=20)
-ggsave(its2_plots, filename="Figures/ITS2/species_site_panel.pdf", width=8, height=20)
-```
-
 Assemble haplotype plots. 
 ```{r}
 its2_plots2<-plot_grid(plot_species_site_acr, plot_species_site_poc_haplotypes, plot_species_site_por_haplotype, ncol=3, nrow=1, align="vh", rel_widths=c(0.7 ,1.1,1.1))
 
+ggsave(its2_plots2, filename="Figures/ITS2/haplotype_site_panel.jpeg", width=20, height=8)
+ggsave(its2_plots2, filename="Figures/ITS2/haplotype_site_panel.pdf", width=20, height=8)
+```
+
+# Plot summarized by species and not by site 
+
+```{r}
+plot_species_site_df_acr<-output_matrix%>%
+  filter(species=="Acropora")%>%
+  group_by(species, haplotype)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(species,haplotype), values_to="Abundance", names_to="Profile")
+  
+plot_species_site_acr<-ggplot(plot_species_site_df_acr, aes(x = haplotype, y = Abundance)) + 
+  geom_bar(position="stack", stat="identity", aes(fill = Profile), color = "black") +
+  scale_fill_manual(values = sapply(plot_species_df$Profile, get_custom_color_acr))+
+  theme_classic() +
+  theme(axis.text.y = element_text(colour = 'black', size = 10), 
+        axis.title = element_text(colour = 'black', size = 12, face="bold"), 
+        axis.text.x = element_text(colour = 'black', size = 10, angle = 60, hjust=1),
+        strip.text =element_text(colour="black", face="italic", size=8), 
+        ) + 
+  ggtitle(expression(italic("A. Acropora")))+
+  
+  #facet_nested(~ species, scales = "free_x", space = "free_x") +
+  labs(x="", fill="ITS2 Profile", y="Relative Abundance");plot_species_site_acr
+```
+
+```{r}
+#create custom color palette 
+plot_species_site_df_poc<-output_matrix%>%
+  filter(species=="Pocillopora")%>%
+  #filter(!haplotype=="Reseq")%>%
+  group_by(species, haplotype)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(species, haplotype), values_to="Abundance", names_to="Profile")
+  
+plot_species_site_poc_haplotypes<-ggplot(plot_species_site_df_poc, aes(x = haplotype, y = Abundance)) +
+  geom_bar(position="stack", stat="identity", aes(fill = Profile), color = "black") +
+  scale_fill_manual(values = sapply(plot_species_df$Profile, get_custom_color_poc))+
+  theme_classic() +
+  theme(axis.text.y = element_text(colour = 'black', size = 10), 
+        axis.title = element_text(colour = 'black', size = 12, face="bold"), 
+        axis.text.x = element_text(colour = 'black', size = 10, angle = 60, hjust=1),
+        strip.text =element_text(colour="black", face="italic", size=8))+ 
+  ggtitle(expression(italic("B. Pocillopora")))+
+  
+  #facet_grid(~site + timepoint, scales = "free") +
+  #facet_nested(~ species, scales = "free_x", space = "free_x") +
+  labs(x="", fill="ITS2 Profile", y="Relative Abundance");plot_species_site_poc_haplotypes
+```
+
+```{r}
+plot_species_site_df_por<-output_matrix%>%
+  filter(species=="Porites")%>%
+  filter(!haplotype=="Reseq")%>%
+  group_by(species, haplotype)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(species, haplotype), values_to="Abundance", names_to="Profile")
+  
+plot_species_site_por_haplotype<-ggplot(plot_species_site_df_por, aes(x = haplotype, y = Abundance)) + 
+  geom_bar(position="stack", stat="identity", aes(fill = Profile), color = "black") +
+  scale_fill_manual(values = sapply(plot_species_df$Profile, get_custom_color_por))+
+  theme_classic() +
+  theme(axis.text.y = element_text(colour = 'black', size = 10), 
+        axis.title = element_text(colour = 'black', size = 12, face="bold"), 
+        axis.text.x = element_text(colour = 'black', size = 10, angle = 60, hjust=1),
+        strip.text =element_text(colour="black", face="italic", size=8))+ 
+  ggtitle(expression(italic("C. Porites")))+
+  labs(x="", fill="ITS2 Profile", y="Relative Abundance");plot_species_site_por_haplotype
+```
+
+Arrange plots 
+
+Assemble haplotype plots. 
+```{r}
+its2_plots2<-plot_grid(plot_species_site_acr, plot_species_site_poc_haplotypes, plot_species_site_por_haplotype, ncol=3, nrow=1, align="vh", rel_widths=c(0.9,1,1))
+
 ggsave(its2_plots2, filename="Figures/ITS2/haplotype_panel.jpeg", width=20, height=8)
 ggsave(its2_plots2, filename="Figures/ITS2/haplotype_panel.pdf", width=20, height=8)
 ```
-
-
-
