@@ -1754,3 +1754,13 @@ its2_plots2<-plot_grid(plot_species_site_acr, plot_species_site_poc_haplotypes, 
 ggsave(its2_plots2, filename="Figures/ITS2/haplotype_panel.jpeg", width=20, height=8)
 ggsave(its2_plots2, filename="Figures/ITS2/haplotype_panel.pdf", width=20, height=8)
 ```
+
+Calculate sample sizes. 
+```{r}
+head(output_matrix)
+
+output_matrix%>%
+  group_by(species, haplotype)%>%
+  summarise(n=length(unique(colony_id_corr)))
+```
+
