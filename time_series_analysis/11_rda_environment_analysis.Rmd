@@ -559,27 +559,213 @@ poc_sym_light<-25.12
 # Plot ordination plots 
 
 ```{r}
-ordiplot(acr.comm.rda.host, scaling = 2, main = "ACR Host RDA")
+ordiplot(acr.comm.rda.host, scaling = 2, main = "ACR Host RDA", display=c("site", "species"))
+
+#add labels 
+var_scores <- acr.comm.rda.host$CCA$v
+text(var_scores[,1], var_scores[,2], labels = rownames(var_scores), col = "red", pos = 3)
+
+# Extract site scores (sample points)
+site_scores <- scores(acr.comm.rda.host, display = "sites")  # Rows correspond to sample names
+
+# Define colors based on sample name patterns
+sample_names <- rownames(site_scores)
+colors <- rep("black", length(sample_names))  # Default color
+
+colors[grep("TP1", sample_names)] <- "blue"   # Blue for TP1 samples
+colors[grep("TP2", sample_names)] <- "orange" # Orange for TP2 samples
+colors[grep("TP3", sample_names)] <- "purple" # Orange for TP3 samples
+colors[grep("TP4", sample_names)] <- "green" # Orange for TP4 samples
+
+print(site_scores)  # Make sure there are multiple rows
+print(data.frame(Sample = sample_names, Color = colors))  # Verify color assignments
+
+# Add points with colors
+for (i in 1:nrow(site_scores)) {
+  points(site_scores[i,1], site_scores[i,2], col = colors[i], pch = 16, cex = 1)
+}
+
+# Add a legend
+legend("topright", legend = c("TP1", "TP2", "TP3", "TP4"), col = c("blue", "orange", "purple", "green"), pch = 16)
+
+env_scores <- acr.comm.rda.host$CCA$biplot
+arrows(0, 0, env_scores[,1], env_scores[,2], length = 0.2, col = "black")
+text(env_scores[, 1], env_scores[, 2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
 ```
 
 ```{r}
-ordiplot(acr.comm.rda.sym, scaling = 2, main = "ACR Symbiont RDA")
+ordiplot(acr.comm.rda.sym, scaling = 2, main = "ACR Symbiont RDA", display=c("site", "species"))
+
+#add labels 
+var_scores <- acr.comm.rda.sym$CCA$v
+text(var_scores[,1], var_scores[,2], labels = rownames(var_scores), col = "red", pos = 3)
+
+# Extract site scores (sample points)
+site_scores <- scores(acr.comm.rda.sym, display = "sites")  # Rows correspond to sample names
+
+# Define colors based on sample name patterns
+sample_names <- rownames(site_scores)
+colors <- rep("black", length(sample_names))  # Default color
+
+colors[grep("TP1", sample_names)] <- "blue"   # Blue for TP1 samples
+colors[grep("TP2", sample_names)] <- "orange" # Orange for TP2 samples
+colors[grep("TP3", sample_names)] <- "purple" # Orange for TP3 samples
+colors[grep("TP4", sample_names)] <- "green" # Orange for TP4 samples
+
+print(site_scores)  # Make sure there are multiple rows
+print(data.frame(Sample = sample_names, Color = colors))  # Verify color assignments
+
+# Add points with colors
+for (i in 1:nrow(site_scores)) {
+  points(site_scores[i,1], site_scores[i,2], col = colors[i], pch = 16, cex = 1)
+}
+
+# Add a legend
+legend("topright", legend = c("TP1", "TP2", "TP3", "TP4"), col = c("blue", "orange", "purple", "green"), pch = 16)
+
+env_scores <- acr.comm.rda.sym$CCA$biplot
+arrows(0, 0, env_scores[,1], env_scores[,2], length = 0.2, col = "black")
+text(env_scores[, 1], env_scores[, 2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
 ```
 
 ```{r}
-ordiplot(por.comm.rda.host, scaling = 2, main = "POR Host RDA")
+ordiplot(por.comm.rda.host, scaling = 2, main = "POR Host RDA", display=c("site", "species"))
+
+#add labels 
+var_scores <- por.comm.rda.host$CCA$v
+text(var_scores[,1], var_scores[,2], labels = rownames(var_scores), col = "red", pos = 3)
+
+# Extract site scores (sample points)
+site_scores <- scores(por.comm.rda.host, display = "sites")  # Rows correspond to sample names
+
+# Define colors based on sample name patterns
+sample_names <- rownames(site_scores)
+colors <- rep("black", length(sample_names))  # Default color
+
+colors[grep("TP1", sample_names)] <- "blue"   # Blue for TP1 samples
+colors[grep("TP2", sample_names)] <- "orange" # Orange for TP2 samples
+colors[grep("TP3", sample_names)] <- "purple" # Orange for TP3 samples
+colors[grep("TP4", sample_names)] <- "green" # Orange for TP4 samples
+
+print(site_scores)  # Make sure there are multiple rows
+print(data.frame(Sample = sample_names, Color = colors))  # Verify color assignments
+
+# Add points with colors
+for (i in 1:nrow(site_scores)) {
+  points(site_scores[i,1], site_scores[i,2], col = colors[i], pch = 16, cex = 1)
+}
+
+# Add a legend
+legend("topright", legend = c("TP1", "TP2", "TP3", "TP4"), col = c("blue", "orange", "purple", "green"), pch = 16)
+
+env_scores <- por.comm.rda.host$CCA$biplot
+arrows(0, 0, env_scores[,1], env_scores[,2], length = 0.2, col = "black")
+text(env_scores[, 1], env_scores[, 2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
 ```
 
 ```{r}
-ordiplot(por.comm.rda.sym, scaling = 2, main = "POR Symbiont RDA")
+ordiplot(por.comm.rda.sym, scaling = 2, main = "POR Symbiont RDA", display=c("site", "species"))
+
+#add labels 
+var_scores <- por.comm.rda.sym$CCA$v
+text(var_scores[,1], var_scores[,2], labels = rownames(var_scores), col = "red", pos = 3)
+
+# Extract site scores (sample points)
+site_scores <- scores(por.comm.rda.sym, display = "sites")  # Rows correspond to sample names
+
+# Define colors based on sample name patterns
+sample_names <- rownames(site_scores)
+colors <- rep("black", length(sample_names))  # Default color
+
+colors[grep("TP1", sample_names)] <- "blue"   # Blue for TP1 samples
+colors[grep("TP2", sample_names)] <- "orange" # Orange for TP2 samples
+colors[grep("TP3", sample_names)] <- "purple" # Orange for TP3 samples
+colors[grep("TP4", sample_names)] <- "green" # Orange for TP4 samples
+
+print(site_scores)  # Make sure there are multiple rows
+print(data.frame(Sample = sample_names, Color = colors))  # Verify color assignments
+
+# Add points with colors
+for (i in 1:nrow(site_scores)) {
+  points(site_scores[i,1], site_scores[i,2], col = colors[i], pch = 16, cex = 1)
+}
+
+# Add a legend
+legend("topright", legend = c("TP1", "TP2", "TP3", "TP4"), col = c("blue", "orange", "purple", "green"), pch = 16)
+
+env_scores <- por.comm.rda.sym$CCA$biplot
+arrows(0, 0, env_scores[,1], env_scores[,2], length = 0.2, col = "black")
+text(env_scores[, 1], env_scores[, 2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
 ```
 
 ```{r}
-ordiplot(poc.comm.rda.host, scaling = 2, main = "POC Host RDA")
+ordiplot(poc.comm.rda.host, scaling = 2, main = "POC Host RDA", display=c("site", "species"))
+
+#add labels 
+var_scores <- poc.comm.rda.host$CCA$v
+text(var_scores[,1], var_scores[,2], labels = rownames(var_scores), col = "red", pos = 3)
+
+# Extract site scores (sample points)
+site_scores <- scores(poc.comm.rda.host, display = "sites")  # Rows correspond to sample names
+
+# Define colors based on sample name patterns
+sample_names <- rownames(site_scores)
+colors <- rep("black", length(sample_names))  # Default color
+
+colors[grep("TP1", sample_names)] <- "blue"   # Blue for TP1 samples
+colors[grep("TP2", sample_names)] <- "orange" # Orange for TP2 samples
+colors[grep("TP3", sample_names)] <- "purple" # Orange for TP3 samples
+colors[grep("TP4", sample_names)] <- "green" # Orange for TP4 samples
+
+print(site_scores)  # Make sure there are multiple rows
+print(data.frame(Sample = sample_names, Color = colors))  # Verify color assignments
+
+# Add points with colors
+for (i in 1:nrow(site_scores)) {
+  points(site_scores[i,1], site_scores[i,2], col = colors[i], pch = 16, cex = 1)
+}
+
+# Add a legend
+legend("topright", legend = c("TP1", "TP2", "TP3", "TP4"), col = c("blue", "orange", "purple", "green"), pch = 16)
+
+env_scores <- poc.comm.rda.host$CCA$biplot
+arrows(0, 0, env_scores[,1], env_scores[,2], length = 0.2, col = "black")
+text(env_scores[, 1], env_scores[, 2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
 ```
 
 ```{r}
-ordiplot(poc.comm.rda.sym, scaling = 2, main = "POC Symbiont RDA")
+ordiplot(poc.comm.rda.sym, scaling = 2, main = "POC Symbiont RDA", display=c("site", "species"))
+
+#add labels 
+var_scores <- poc.comm.rda.sym$CCA$v
+text(var_scores[,1], var_scores[,2], labels = rownames(var_scores), col = "red", pos = 3)
+
+# Extract site scores (sample points)
+site_scores <- scores(poc.comm.rda.sym, display = "sites")  # Rows correspond to sample names
+
+# Define colors based on sample name patterns
+sample_names <- rownames(site_scores)
+colors <- rep("black", length(sample_names))  # Default color
+
+colors[grep("TP1", sample_names)] <- "blue"   # Blue for TP1 samples
+colors[grep("TP2", sample_names)] <- "orange" # Orange for TP2 samples
+colors[grep("TP3", sample_names)] <- "purple" # Orange for TP3 samples
+colors[grep("TP4", sample_names)] <- "green" # Orange for TP4 samples
+
+print(site_scores)  # Make sure there are multiple rows
+print(data.frame(Sample = sample_names, Color = colors))  # Verify color assignments
+
+# Add points with colors
+for (i in 1:nrow(site_scores)) {
+  points(site_scores[i,1], site_scores[i,2], col = colors[i], pch = 16, cex = 1)
+}
+
+# Add a legend
+legend("topright", legend = c("TP1", "TP2", "TP3", "TP4"), col = c("blue", "orange", "purple", "green"), pch = 16)
+
+env_scores <- poc.comm.rda.sym$CCA$biplot
+arrows(0, 0, env_scores[,1], env_scores[,2], length = 0.2, col = "black")
+text(env_scores[, 1], env_scores[, 2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
 ```
 
 # Plot variance explained by temp and light 
@@ -617,6 +803,17 @@ ggsave(var_plot, filename="Figures/Multivariate/environment_variance_partioning.
 
 
 # Plot physiological metric correlations with light and temperature 
+
+
+
+
+
+
+
+
+
+
+
 
 Plot correlations between host metrics and light and temperature. 
 
