@@ -5324,6 +5324,8 @@ plot_biomass<-apulchra%>%
   ggtitle("Acropora pulchra Molecular Samples")+
   ylim(0, 5)+
   ylab(expression(paste("Host Biomass (mg AFDW cm"^-2, ")")));plot_biomass
+
+ggsave(plot_biomass, filename="Figures/Univariate/apulchra_molecular_biomass.png", width=5, height=4)
 ```
 
 Plot protein 
@@ -5338,5 +5340,7 @@ plot_respiration<-apulchra%>%
   ggtitle("Acropora pulchra Molecular Samples")+
   ylim(0, 2)+
   ylab(expression(paste("Host Respiration (µmol O2 cm"^-2, "hr" ^-1)));plot_respiration
+
+ggsave(plot_respiration, filename="Figures/Univariate/apulchra_molecular_respiration.png", width=5, height=4)
 ```
 
