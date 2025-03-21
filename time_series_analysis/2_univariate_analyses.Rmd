@@ -5301,3 +5301,42 @@ model_summaries
 write.csv(model_summaries, file="Output/univariate_model_results.csv")
 ```
 
+# Plot respiration, biomass, and protein for time series molecular A. pulchra testing 
+
+Make a list of samples used in molecular time series. 
+
+```{r}
+list<-c("ACR-225", "ACR-229", "ACR-237", "ACR-244", "AcR-265", "ACR-139", "ACR-145", "ACR-150", "ACR-173", "ACR-186")
+
+apulchra<-master%>%
+  filter(colony_id_corr %in% list)
+```
+
+Plot biomass. 
+
+```{r}
+plot_biomass<-apulchra%>%
+  
+  ggplot(aes(x=timepoint, y=Host_AFDW.mg.cm2))+
+  geom_boxplot()+
+  geom_point()+
+  theme_classic()+
+  ggtitle("Acropora pulchra Molecular Samples")+
+  ylim(0, 5)+
+  ylab(expression(paste("Host Biomass (mg AFDW cm"^-2, ")")));plot_biomass
+```
+
+Plot protein 
+
+```{r}
+plot_respiration<-apulchra%>%
+  
+  ggplot(aes(x=timepoint, y=Rd))+
+  geom_boxplot()+
+  geom_point()+
+  theme_classic()+
+  ggtitle("Acropora pulchra Molecular Samples")+
+  ylim(0, 2)+
+  ylab(expression(paste("Host Respiration (µmol O2 cm"^-2, "hr" ^-1)));plot_respiration
+```
+
