@@ -139,7 +139,7 @@ Rain and solar are correlated, temperature is not correlated with rain or solar.
 # Acropora RDA- Host metrics 
 ```{r}
 names(acr_data_temp)
-acr.comm.rda.host<-rda(acr_data_temp[, c(5,8,11,13,18)] ~ solar_mean + temp_mean, 
+acr.comm.rda.host<-rda(acr_data_temp[, c(5,8,10,13,16)] ~ solar_mean + temp_mean, 
                        data=acr_data_temp, scale=TRUE)
 
 ##Check model significance
@@ -184,7 +184,7 @@ anova(acr.comm.rda.host, by="terms")
 # Residual   81   4.0724  
 
 ##Run varpart function with responses and explanatory variables of interest
-varpart_acr.comm.rda.host<-varpart(acr_data_temp[, c(5,8,11,13,18)], acr_data_temp$temp_mean, acr_data_temp$solar_mean)
+varpart_acr.comm.rda.host<-varpart(acr_data_temp[, c(5,8,10,13,16)], acr_data_temp$temp_mean, acr_data_temp$solar_mean)
 
 ##Check variance explained by individual fractions
 varpart_acr.comm.rda.host$part
@@ -558,215 +558,264 @@ poc_sym_light<-25.12
 
 # Plot ordination plots 
 
+## Acropora 
+
+### Host 
+
+Try with Ordiellipse
+
 ```{r}
-ordiplot(acr.comm.rda.host, scaling = 2, main = "ACR Host RDA", display=c("site", "species"))
+pdf("figures/Multivariate/RDA-plots/acr_host_rda.pdf", width=6, height=6)
 
-#add labels 
-var_scores <- acr.comm.rda.host$CCA$v
-text(var_scores[,1], var_scores[,2], labels = rownames(var_scores), col = "red", pos = 3)
-
-# Extract site scores (sample points)
-site_scores <- scores(acr.comm.rda.host, display = "sites")  # Rows correspond to sample names
-
-# Define colors based on sample name patterns
-sample_names <- rownames(site_scores)
-colors <- rep("black", length(sample_names))  # Default color
-
-colors[grep("TP1", sample_names)] <- "blue"   # Blue for TP1 samples
-colors[grep("TP2", sample_names)] <- "orange" # Orange for TP2 samples
-colors[grep("TP3", sample_names)] <- "purple" # Orange for TP3 samples
-colors[grep("TP4", sample_names)] <- "green" # Orange for TP4 samples
-
-print(site_scores)  # Make sure there are multiple rows
-print(data.frame(Sample = sample_names, Color = colors))  # Verify color assignments
-
-# Add points with colors
-for (i in 1:nrow(site_scores)) {
-  points(site_scores[i,1], site_scores[i,2], col = colors[i], pch = 16, cex = 1)
-}
-
-# Add a legend
-legend("topright", legend = c("TP1", "TP2", "TP3", "TP4"), col = c("blue", "orange", "purple", "green"), pch = 16)
-
+# Extract site and species scores
+site_scores <- scores(acr.comm.rda.host, display = "sites", scaling = 2)
+species_scores <- scores(acr.comm.rda.host, display = "species", scaling = 2)
 env_scores <- acr.comm.rda.host$CCA$biplot
+
+sample_names <- rownames(site_scores)
+group_var <- factor(gsub(".*(TP[1-4]).*", "\\1", sample_names),
+                    levels = c("TP1", "TP2", "TP3", "TP4"),
+                    labels = c("January", "March", "September", "November"))
+
+# Manually start the plot
+plot(site_scores[,1], site_scores[,2], type = "n",
+     xlim = c(-3, 2), ylim = c(-3, 3),
+     xlab = "RDA1", ylab = "RDA2", main = "ACR Host RDA")
+
+# Ellipses
+ordiellipse(site_scores, group = group_var, kind = "sd", 
+            conf = 0.95, draw = "polygon", border = NA,
+            col = c("orange", "red", "blue", "lightblue"), alpha = 80)
+
+# Species points and labels
+points(species_scores[,1], species_scores[,2], pch = 3, col = "black", cex = 1.2)
+text(species_scores[,1], species_scores[,2], labels = rownames(species_scores), col = "black", pos = 3, cex = 0.8)
+
+# Environmental vectors
 arrows(0, 0, env_scores[,1], env_scores[,2], length = 0.2, col = "black")
-text(env_scores[, 1], env_scores[, 2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
+text(env_scores[,1], env_scores[,2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
+
+# Legend
+legend("topright", legend = levels(group_var), 
+       fill = c("orange", "red", "blue", "lightblue"), bty = "n")
+
+dev.off()
 ```
 
+### Symbiont
+
+Try with Ordiellipse
+
 ```{r}
-ordiplot(acr.comm.rda.sym, scaling = 2, main = "ACR Symbiont RDA", display=c("site", "species"))
 
-#add labels 
-var_scores <- acr.comm.rda.sym$CCA$v
-text(var_scores[,1], var_scores[,2], labels = rownames(var_scores), col = "red", pos = 3)
+pdf("figures/Multivariate/RDA-plots/acr_sym_rda.pdf", width=6, height=6)
 
-# Extract site scores (sample points)
-site_scores <- scores(acr.comm.rda.sym, display = "sites")  # Rows correspond to sample names
-
-# Define colors based on sample name patterns
-sample_names <- rownames(site_scores)
-colors <- rep("black", length(sample_names))  # Default color
-
-colors[grep("TP1", sample_names)] <- "blue"   # Blue for TP1 samples
-colors[grep("TP2", sample_names)] <- "orange" # Orange for TP2 samples
-colors[grep("TP3", sample_names)] <- "purple" # Orange for TP3 samples
-colors[grep("TP4", sample_names)] <- "green" # Orange for TP4 samples
-
-print(site_scores)  # Make sure there are multiple rows
-print(data.frame(Sample = sample_names, Color = colors))  # Verify color assignments
-
-# Add points with colors
-for (i in 1:nrow(site_scores)) {
-  points(site_scores[i,1], site_scores[i,2], col = colors[i], pch = 16, cex = 1)
-}
-
-# Add a legend
-legend("topright", legend = c("TP1", "TP2", "TP3", "TP4"), col = c("blue", "orange", "purple", "green"), pch = 16)
-
+# Extract site and species scores
+site_scores <- scores(acr.comm.rda.sym, display = "sites", scaling = 2)
+species_scores <- scores(acr.comm.rda.sym, display = "species", scaling = 2)
 env_scores <- acr.comm.rda.sym$CCA$biplot
+
+sample_names <- rownames(site_scores)
+group_var <- factor(gsub(".*(TP[1-4]).*", "\\1", sample_names),
+                    levels = c("TP1", "TP2", "TP3", "TP4"),
+                    labels = c("January", "March", "September", "November"))
+
+# Manually start the plot
+plot(site_scores[,1], site_scores[,2], type = "n",
+     xlim = c(-1.5, 2), ylim = c(-2, 1.5),
+     xlab = "RDA1", ylab = "RDA2", main = "ACR Sym RDA")
+
+# Ellipses
+ordiellipse(site_scores, group = group_var, kind = "sd", 
+            conf = 0.95, draw = "polygon", border = NA,
+            col = c("orange", "red", "blue", "lightblue"), alpha = 80)
+
+# Species points and labels
+points(species_scores[,1], species_scores[,2], pch = 3, col = "black", cex = 1.2)
+text(species_scores[,1], species_scores[,2], labels = rownames(species_scores), col = "black", pos = 3, cex = 0.8)
+
+# Environmental vectors
 arrows(0, 0, env_scores[,1], env_scores[,2], length = 0.2, col = "black")
-text(env_scores[, 1], env_scores[, 2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
+text(env_scores[,1], env_scores[,2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
+
+# Legend
+legend("topright", legend = levels(group_var), 
+       fill = c("orange", "red", "blue", "lightblue"), bty = "n")
+
+dev.off()
 ```
 
-```{r}
-ordiplot(por.comm.rda.host, scaling = 2, main = "POR Host RDA", display=c("site", "species"))
+## Pocillopora
 
-#add labels 
-var_scores <- por.comm.rda.host$CCA$v
-text(var_scores[,1], var_scores[,2], labels = rownames(var_scores), col = "red", pos = 3)
-
-# Extract site scores (sample points)
-site_scores <- scores(por.comm.rda.host, display = "sites")  # Rows correspond to sample names
-
-# Define colors based on sample name patterns
-sample_names <- rownames(site_scores)
-colors <- rep("black", length(sample_names))  # Default color
-
-colors[grep("TP1", sample_names)] <- "blue"   # Blue for TP1 samples
-colors[grep("TP2", sample_names)] <- "orange" # Orange for TP2 samples
-colors[grep("TP3", sample_names)] <- "purple" # Orange for TP3 samples
-colors[grep("TP4", sample_names)] <- "green" # Orange for TP4 samples
-
-print(site_scores)  # Make sure there are multiple rows
-print(data.frame(Sample = sample_names, Color = colors))  # Verify color assignments
-
-# Add points with colors
-for (i in 1:nrow(site_scores)) {
-  points(site_scores[i,1], site_scores[i,2], col = colors[i], pch = 16, cex = 1)
-}
-
-# Add a legend
-legend("topright", legend = c("TP1", "TP2", "TP3", "TP4"), col = c("blue", "orange", "purple", "green"), pch = 16)
-
-env_scores <- por.comm.rda.host$CCA$biplot
-arrows(0, 0, env_scores[,1], env_scores[,2], length = 0.2, col = "black")
-text(env_scores[, 1], env_scores[, 2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
-```
+### Host 
 
 ```{r}
-ordiplot(por.comm.rda.sym, scaling = 2, main = "POR Symbiont RDA", display=c("site", "species"))
 
-#add labels 
-var_scores <- por.comm.rda.sym$CCA$v
-text(var_scores[,1], var_scores[,2], labels = rownames(var_scores), col = "red", pos = 3)
+pdf("figures/Multivariate/RDA-plots/poc_host_rda.pdf", width=6, height=6)
 
-# Extract site scores (sample points)
-site_scores <- scores(por.comm.rda.sym, display = "sites")  # Rows correspond to sample names
-
-# Define colors based on sample name patterns
-sample_names <- rownames(site_scores)
-colors <- rep("black", length(sample_names))  # Default color
-
-colors[grep("TP1", sample_names)] <- "blue"   # Blue for TP1 samples
-colors[grep("TP2", sample_names)] <- "orange" # Orange for TP2 samples
-colors[grep("TP3", sample_names)] <- "purple" # Orange for TP3 samples
-colors[grep("TP4", sample_names)] <- "green" # Orange for TP4 samples
-
-print(site_scores)  # Make sure there are multiple rows
-print(data.frame(Sample = sample_names, Color = colors))  # Verify color assignments
-
-# Add points with colors
-for (i in 1:nrow(site_scores)) {
-  points(site_scores[i,1], site_scores[i,2], col = colors[i], pch = 16, cex = 1)
-}
-
-# Add a legend
-legend("topright", legend = c("TP1", "TP2", "TP3", "TP4"), col = c("blue", "orange", "purple", "green"), pch = 16)
-
-env_scores <- por.comm.rda.sym$CCA$biplot
-arrows(0, 0, env_scores[,1], env_scores[,2], length = 0.2, col = "black")
-text(env_scores[, 1], env_scores[, 2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
-```
-
-```{r}
-ordiplot(poc.comm.rda.host, scaling = 2, main = "POC Host RDA", display=c("site", "species"))
-
-#add labels 
-var_scores <- poc.comm.rda.host$CCA$v
-text(var_scores[,1], var_scores[,2], labels = rownames(var_scores), col = "red", pos = 3)
-
-# Extract site scores (sample points)
-site_scores <- scores(poc.comm.rda.host, display = "sites")  # Rows correspond to sample names
-
-# Define colors based on sample name patterns
-sample_names <- rownames(site_scores)
-colors <- rep("black", length(sample_names))  # Default color
-
-colors[grep("TP1", sample_names)] <- "blue"   # Blue for TP1 samples
-colors[grep("TP2", sample_names)] <- "orange" # Orange for TP2 samples
-colors[grep("TP3", sample_names)] <- "purple" # Orange for TP3 samples
-colors[grep("TP4", sample_names)] <- "green" # Orange for TP4 samples
-
-print(site_scores)  # Make sure there are multiple rows
-print(data.frame(Sample = sample_names, Color = colors))  # Verify color assignments
-
-# Add points with colors
-for (i in 1:nrow(site_scores)) {
-  points(site_scores[i,1], site_scores[i,2], col = colors[i], pch = 16, cex = 1)
-}
-
-# Add a legend
-legend("topright", legend = c("TP1", "TP2", "TP3", "TP4"), col = c("blue", "orange", "purple", "green"), pch = 16)
-
+# Extract site and species scores
+site_scores <- scores(poc.comm.rda.host, display = "sites", scaling = 2)
+species_scores <- scores(poc.comm.rda.host, display = "species", scaling = 2)
 env_scores <- poc.comm.rda.host$CCA$biplot
+
+sample_names <- rownames(site_scores)
+group_var <- factor(gsub(".*(TP[1-4]).*", "\\1", sample_names),
+                    levels = c("TP1", "TP2", "TP3", "TP4"),
+                    labels = c("January", "March", "September", "November"))
+
+# Manually start the plot
+plot(site_scores[,1], site_scores[,2], type = "n",
+     xlim = c(-1, 1.5), ylim = c(-3, 2.5),
+     xlab = "RDA1", ylab = "RDA2", main = "POC Host RDA")
+
+# Ellipses
+ordiellipse(site_scores, group = group_var, kind = "sd", 
+            conf = 0.95, draw = "polygon", border = NA,
+            col = c("orange", "red", "blue", "lightblue"), alpha = 80)
+
+# Species points and labels
+points(species_scores[,1], species_scores[,2], pch = 3, col = "black", cex = 1.2)
+text(species_scores[,1], species_scores[,2], labels = rownames(species_scores), col = "black", pos = 3, cex = 0.8)
+
+# Environmental vectors
 arrows(0, 0, env_scores[,1], env_scores[,2], length = 0.2, col = "black")
-text(env_scores[, 1], env_scores[, 2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
+text(env_scores[,1], env_scores[,2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
+
+# Legend
+legend("topright", legend = levels(group_var), 
+       fill = c("orange", "red", "blue", "lightblue"), bty = "n")
+
+dev.off()
 ```
+
+### Symbiont 
 
 ```{r}
-ordiplot(poc.comm.rda.sym, scaling = 2, main = "POC Symbiont RDA", display=c("site", "species"))
 
-#add labels 
-var_scores <- poc.comm.rda.sym$CCA$v
-text(var_scores[,1], var_scores[,2], labels = rownames(var_scores), col = "red", pos = 3)
+pdf("figures/Multivariate/RDA-plots/poc_sym_rda.pdf", width=6, height=6)
 
-# Extract site scores (sample points)
-site_scores <- scores(poc.comm.rda.sym, display = "sites")  # Rows correspond to sample names
-
-# Define colors based on sample name patterns
-sample_names <- rownames(site_scores)
-colors <- rep("black", length(sample_names))  # Default color
-
-colors[grep("TP1", sample_names)] <- "blue"   # Blue for TP1 samples
-colors[grep("TP2", sample_names)] <- "orange" # Orange for TP2 samples
-colors[grep("TP3", sample_names)] <- "purple" # Orange for TP3 samples
-colors[grep("TP4", sample_names)] <- "green" # Orange for TP4 samples
-
-print(site_scores)  # Make sure there are multiple rows
-print(data.frame(Sample = sample_names, Color = colors))  # Verify color assignments
-
-# Add points with colors
-for (i in 1:nrow(site_scores)) {
-  points(site_scores[i,1], site_scores[i,2], col = colors[i], pch = 16, cex = 1)
-}
-
-# Add a legend
-legend("topright", legend = c("TP1", "TP2", "TP3", "TP4"), col = c("blue", "orange", "purple", "green"), pch = 16)
-
+# Extract site and species scores
+site_scores <- scores(poc.comm.rda.sym, display = "sites", scaling = 2)
+species_scores <- scores(poc.comm.rda.sym, display = "species", scaling = 2)
 env_scores <- poc.comm.rda.sym$CCA$biplot
+
+sample_names <- rownames(site_scores)
+group_var <- factor(gsub(".*(TP[1-4]).*", "\\1", sample_names),
+                    levels = c("TP1", "TP2", "TP3", "TP4"),
+                    labels = c("January", "March", "September", "November"))
+
+# Manually start the plot
+plot(site_scores[,1], site_scores[,2], type = "n",
+     xlim = c(-2, 2), ylim = c(-2, 2),
+     xlab = "RDA1", ylab = "RDA2", main = "POC Sym RDA")
+
+# Ellipses
+ordiellipse(site_scores, group = group_var, kind = "sd", 
+            conf = 0.95, draw = "polygon", border = NA,
+            col = c("orange", "red", "blue", "lightblue"), alpha = 80)
+
+# Species points and labels
+points(species_scores[,1], species_scores[,2], pch = 3, col = "black", cex = 1.2)
+text(species_scores[,1], species_scores[,2], labels = rownames(species_scores), col = "black", pos = 3, cex = 0.8)
+
+# Environmental vectors
 arrows(0, 0, env_scores[,1], env_scores[,2], length = 0.2, col = "black")
-text(env_scores[, 1], env_scores[, 2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
+text(env_scores[,1], env_scores[,2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
+
+# Legend
+legend("topright", legend = levels(group_var), 
+       fill = c("orange", "red", "blue", "lightblue"), bty = "n")
+
+dev.off()
 ```
+
+## Porites
+
+### Host 
+
+```{r}
+
+pdf("figures/Multivariate/RDA-plots/por_host_rda.pdf", width=6, height=6)
+
+# Extract site and species scores
+site_scores <- scores(por.comm.rda.host, display = "sites", scaling = 2)
+species_scores <- scores(por.comm.rda.host, display = "species", scaling = 2)
+env_scores <- por.comm.rda.host$CCA$biplot
+
+sample_names <- rownames(site_scores)
+group_var <- factor(gsub(".*(TP[1-4]).*", "\\1", sample_names),
+                    levels = c("TP1", "TP2", "TP3", "TP4"),
+                    labels = c("January", "March", "September", "November"))
+
+# Manually start the plot
+plot(site_scores[,1], site_scores[,2], type = "n",
+     xlim = c(-1, 1.5), ylim = c(-3.5, 3.5),
+     xlab = "RDA1", ylab = "RDA2", main = "POR Host RDA")
+
+# Ellipses
+ordiellipse(site_scores, group = group_var, kind = "sd", 
+            conf = 0.95, draw = "polygon", border = NA,
+            col = c("orange", "red", "blue", "lightblue"), alpha = 80)
+
+# Species points and labels
+points(species_scores[,1], species_scores[,2], pch = 3, col = "black", cex = 1.2)
+text(species_scores[,1], species_scores[,2], labels = rownames(species_scores), col = "black", pos = 3, cex = 0.8)
+
+# Environmental vectors
+arrows(0, 0, env_scores[,1], env_scores[,2], length = 0.2, col = "black")
+text(env_scores[,1], env_scores[,2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
+
+# Legend
+legend("topright", legend = levels(group_var), 
+       fill = c("orange", "red", "blue", "lightblue"), bty = "n")
+
+dev.off()
+```
+
+### Symbiont 
+
+```{r}
+
+pdf("figures/Multivariate/RDA-plots/por_sym_rda.pdf", width=6, height=6)
+
+# 1. Extract group info (from sample names, assuming TP1–TP4 are in names)
+site_scores <- scores(por.comm.rda.sym, display = "sites", scaling = 2)
+
+# Extract site and species scores
+site_scores <- scores(por.comm.rda.sym, display = "sites", scaling = 2)
+species_scores <- scores(por.comm.rda.sym, display = "species", scaling = 2)
+env_scores <- por.comm.rda.sym$CCA$biplot
+
+sample_names <- rownames(site_scores)
+group_var <- factor(gsub(".*(TP[1-4]).*", "\\1", sample_names),
+                    levels = c("TP1", "TP2", "TP3", "TP4"),
+                    labels = c("January", "March", "September", "November"))
+
+# Manually start the plot
+plot(site_scores[,1], site_scores[,2], type = "n",
+     xlim = c(-2.5,2.5), ylim = c(-2, 2),
+     xlab = "RDA1", ylab = "RDA2", main = "POR Sym RDA")
+
+# Ellipses
+ordiellipse(site_scores, group = group_var, kind = "sd", 
+            conf = 0.95, draw = "polygon", border = NA,
+            col = c("orange", "red", "blue", "lightblue"), alpha = 80)
+
+# Species points and labels
+points(species_scores[,1], species_scores[,2], pch = 3, col = "black", cex = 1.2)
+text(species_scores[,1], species_scores[,2], labels = rownames(species_scores), col = "black", pos = 3, cex = 0.8)
+
+# Environmental vectors
+arrows(0, 0, env_scores[,1], env_scores[,2], length = 0.2, col = "black")
+text(env_scores[,1], env_scores[,2], labels = rownames(env_scores), col = "black", pos = 3, cex = 0.8)
+
+# Legend
+legend("topright", legend = levels(group_var), 
+       fill = c("orange", "red", "blue", "lightblue"), bty = "n")
+
+dev.off()
+```
+
 
 # Plot variance explained by temp and light 
 

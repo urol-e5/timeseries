@@ -1058,7 +1058,7 @@ library(cowplot)
 
 plots<-plot_grid(plot3, plot1, plot2, nrow=1, ncol=3, align="vh", rel_widths=c(1,1,1))
 
-ggsave(plots, filename="Figures/Environmental/Seasonal_averages.png", width=10, height=4)
+ggsave(plots, filename="Figures/Environmental/Seasonal_averages.pdf", width=10, height=4)
 ```
 
 
