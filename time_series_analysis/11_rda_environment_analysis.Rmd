@@ -849,20 +849,7 @@ var_plot<-var_data%>%
 ggsave(var_plot, filename="Figures/Multivariate/environment_variance_partioning.png", width=10, height=4)
 ```
 
-
-
 # Plot physiological metric correlations with light and temperature 
-
-
-
-
-
-
-
-
-
-
-
 
 Plot correlations between host metrics and light and temperature. 
 
