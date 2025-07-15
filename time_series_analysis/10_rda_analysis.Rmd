@@ -54,6 +54,18 @@ master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "
 #reorder site levels 
 master$site<-as.factor(master$site)
 master$site<-fct_relevel(master$site, "Mahana", "Hilton", "Manava")
+
+its_colonies<-its2_rel_abund%>%
+  filter(species=="Acropora")%>%
+  pull(colony_id_corr)%>%
+  unique()
+
+phys_colonies<-master%>%
+  filter(species=="Acropora")%>%
+  pull(colony_id_corr)%>%
+  unique()
+
+setdiff(its_colonies, phys_colonies)
 ```
 
 Add in haplotype information

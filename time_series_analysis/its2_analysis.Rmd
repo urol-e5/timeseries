@@ -429,8 +429,6 @@ pmdf_heatmap_plot <- pmdf_heatmap %>% subset(species == "Acropora") %>% ## CHANG
 
 Below is on relative abundance. 
 
-I'm removing the samples that we don't know a timepoint or site. 
-
 ```{r}
 permanova_matrix <- pmdf_heatmap %>%
   mutate(Abundance = coalesce(Abundance, 0)) %>%
@@ -592,6 +590,7 @@ permanova_matrix_acr <- pmdf_heatmap %>%
   filter(species=="Acropora")%>%
   filter(!timepoint=="TP2a")%>%
   filter(!timepoint=="TP2b")%>%
+   filter(!colony_id %in% c("ACR-178", "ACR-210", "ACR-213", "ACR-218", "ACR-220", "ACR-241", "ACR-247", "ACR-267", "ACR-347", "ACR-360"))%>% #remove colonies not present in phys dataset or with single timepoint samples 
   droplevels()
 
 permanova_meta_acr <- permanova_matrix_acr %>% 
@@ -599,6 +598,7 @@ permanova_meta_acr <- permanova_matrix_acr %>%
   filter(species=="Acropora")%>%
   filter(!timepoint=="TP2a")%>%
   filter(!timepoint=="TP2b")%>%
+   filter(!colony_id %in% c("ACR-178", "ACR-210", "ACR-213", "ACR-218", "ACR-220", "ACR-241", "ACR-247", "ACR-267", "ACR-347", "ACR-360"))%>% #remove colonies not present in phys dataset or with single timepoint samples 
   droplevels()
 
 rownames(permanova_matrix_acr) <- permanova_matrix_acr[,1]
@@ -609,11 +609,11 @@ adonis2(permanova_matrix_acr ~ site*timepoint,
 
 # adonis2(formula = permanova_matrix_acr ~ site * timepoint, data = permanova_meta_acr, method = "eu", na.rm = TRUE)
 #                 Df SumOfSqs      R2      F Pr(>F)
-# site             2   0.1860 0.00791 0.4396  0.783
-# timepoint        3   0.2992 0.01273 0.4715  0.805
-# site:timepoint   6   0.3832 0.01630 0.3018  0.983
+# site             2   0.1860 0.00791 0.4396  0.770
+# timepoint        3   0.2992 0.01273 0.4715  0.853
+# site:timepoint   6   0.3832 0.01630 0.3018  0.986
 # Residual       107  22.6385 0.96306              
-# Total          118  23.5069 1.00000  
+# Total          118  23.5069 1.00000 
 ```
 
 ## NMDS 
@@ -890,6 +890,7 @@ output_matrix$site<-factor(output_matrix$site, levels=c("Mahana", "Hilton", "Man
 
 plot_species_df<-output_matrix%>%
   group_by(species)%>%
+   filter(!colony_id_corr %in% c("ACR-178", "ACR-210", "ACR-213", "ACR-218", "ACR-220", "ACR-241", "ACR-247", "ACR-267", "ACR-347", "ACR-360"))%>% #remove colonies not present in phys dataset or with single timepoint samples 
   summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
   pivot_longer(-species, values_to="Abundance", names_to="Profile")
   
@@ -912,6 +913,7 @@ plot_species<-ggplot(plot_species_df, aes(x = species, y = Abundance)) +
 ```{r}
 plot_species_site_df<-output_matrix%>%
   group_by(species, site)%>%
+   filter(!colony_id_corr %in% c("ACR-178", "ACR-210", "ACR-213", "ACR-218", "ACR-220", "ACR-241", "ACR-247", "ACR-267", "ACR-347", "ACR-360"))%>% #remove colonies not present in phys dataset or with single timepoint samples 
   summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
   pivot_longer(-c(species,site), values_to="Abundance", names_to="Profile")
   
@@ -956,6 +958,7 @@ get_custom_color_acr <- function(Profile) {
 
 plot_species_site_df_acr<-output_matrix%>%
   filter(species=="Acropora")%>%
+   filter(!colony_id_corr %in% c("ACR-178", "ACR-210", "ACR-213", "ACR-218", "ACR-220", "ACR-241", "ACR-247", "ACR-267", "ACR-347", "ACR-360"))%>% #remove colonies not present in phys dataset or with single timepoint samples 
   group_by(species, site, haplotype)%>%
   summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
   select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
@@ -995,6 +998,7 @@ Run model of relative abundance for Acropora.
 ```{r}
 acr_model<-output_matrix%>%
   filter(species=="Acropora")%>%
+   filter(!colony_id_corr %in% c("ACR-178", "ACR-210", "ACR-213", "ACR-218", "ACR-220", "ACR-241", "ACR-247", "ACR-267", "ACR-347", "ACR-360"))%>% #remove colonies not present in phys dataset or with single timepoint samples 
   group_by(colony_id, species, site)%>%
   summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
   select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
@@ -1185,6 +1189,7 @@ Acropora
 ```{r}
 nmds_df_acr<-output_matrix%>%
   filter(species=="Acropora")%>%
+   filter(!colony_id_corr %in% c("ACR-178", "ACR-210", "ACR-213", "ACR-218", "ACR-220", "ACR-241", "ACR-247", "ACR-267", "ACR-347", "ACR-360"))%>% #remove colonies not present in phys dataset or with single timepoint samples 
   group_by(colony_id, species, site, haplotype)%>%
     summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")#%>%
   #select_if(~ !is.numeric(.) || sum(.) >= 0.01) #remove taxa that are below 1% relative abundance
@@ -1340,16 +1345,17 @@ ggsave(file="Figures/ITS2/NMDS_Por.png", NMDS_plot_por, width = 6, height = 5, u
 ```{r}
 pca_df_acr<-output_matrix%>%
   filter(species=="Acropora")%>%
+   filter(!colony_id_corr %in% c("ACR-178", "ACR-210", "ACR-213", "ACR-218", "ACR-220", "ACR-241", "ACR-247", "ACR-267", "ACR-347", "ACR-360"))%>% #remove colonies not present in phys dataset or with single timepoint samples 
   group_by(colony_id, species, site, haplotype)%>%
     summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
   select_if(~ !is.numeric(.) || sum(.) >= 0.01) #remove taxa that are below 1% relative abundance
 
-scaled_acr<-prcomp(pca_df_acr[c(5:9)], scale=TRUE, center=TRUE) 
+scaled_acr<-prcomp(pca_df_acr[c(5:8)], scale=TRUE, center=TRUE) 
 ```
 
 ```{r}
 # scale data
-vegan_acr <- scale(pca_df_acr[ ,5:9])
+vegan_acr <- scale(pca_df_acr[ ,5:8])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 permanova<-adonis2(vegan_acr ~ site, data = pca_df_acr, method='eu')
@@ -1490,15 +1496,16 @@ ggsave(filename="Figures/ITS2/POR_ITS2_PCA.pdf", plot=pca_por, dpi=300, width=7,
 ```{r}
 pca_df_all<-output_matrix%>%
   group_by(colony_id, species, site, haplotype)%>%
+   filter(!colony_id_corr %in% c("ACR-178", "ACR-210", "ACR-213", "ACR-218", "ACR-220", "ACR-241", "ACR-247", "ACR-267", "ACR-347", "ACR-360"))%>% #remove colonies not present in phys dataset or with single timepoint samples 
     summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
   select_if(~ !is.numeric(.) || sum(.) >= 0.01) #remove taxa that are below 1% relative abundance
 
-scaled_all<-prcomp(pca_df_all[c(5:40)], scale=TRUE, center=TRUE) 
+scaled_all<-prcomp(pca_df_all[c(5:39)], scale=TRUE, center=TRUE) 
 ```
 
 ```{r}
 # scale data
-vegan_all <- scale(pca_df_all[ ,5:40])
+vegan_all <- scale(pca_df_all[ ,5:39])
 
 # PerMANOVA - partitioning the euclidean distance matrix by species
 permanova<-adonis2(vegan_all ~ species/haplotype, data = pca_df_all, method='eu')
@@ -1551,6 +1558,7 @@ Run model of relative abundance for Acropora
 ```{r}
 acr_model<-output_matrix%>%
   filter(species=="Acropora")%>%
+  filter(!colony_id_corr %in% c("ACR-178", "ACR-210", "ACR-213", "ACR-218", "ACR-220", "ACR-241", "ACR-247", "ACR-267", "ACR-347", "ACR-360"))%>% #remove colonies not present in phys dataset or with single timepoint samples 
   group_by(colony_id, species, site, haplotype)%>%
   summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
   select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
@@ -1676,6 +1684,7 @@ ggsave(its2_plots2, filename="Figures/ITS2/haplotype_site_panel.pdf", width=20, 
 ```{r}
 plot_species_site_df_acr<-output_matrix%>%
   filter(species=="Acropora")%>%
+ filter(!colony_id_corr %in% c("ACR-178", "ACR-210", "ACR-213", "ACR-218", "ACR-220", "ACR-241", "ACR-247", "ACR-267", "ACR-347", "ACR-360"))%>% #remove colonies not present in phys dataset or with single timepoint samples 
   group_by(species, haplotype)%>%
   summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
   select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
@@ -1695,6 +1704,11 @@ plot_species_site_acr<-ggplot(plot_species_site_df_acr, aes(x = haplotype, y = A
   
   #facet_nested(~ species, scales = "free_x", space = "free_x") +
   labs(x="", fill="ITS2 Profile", y="Relative Abundance");plot_species_site_acr
+
+plot_species_site_df_acr<-output_matrix%>%
+  filter(species=="Acropora")%>%
+  pull(colony_id_corr)%>%
+  unique()
 ```
 
 ```{r}
@@ -1760,7 +1774,7 @@ Calculate sample sizes.
 head(output_matrix)
 
 output_matrix%>%
-  group_by(species, haplotype)%>%
+  group_by(species, haplotype, timepoint)%>%
   summarise(n=length(unique(colony_id_corr)))
 ```
 
