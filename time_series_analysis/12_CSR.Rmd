@@ -1,0 +1,413 @@
+---
+title: "CSR strategy analysis"
+author: "Hollie Putnam, Ariana S Huffmyer"
+date: "2025"
+output: 
+  html_document:
+    code_folding: hide
+    toc: yes
+    toc_depth: 6
+    toc_float: yes
+editor_options: 
+  chunk_output_type: console
+--- 
+
+Trialing analysis of CSR strategies via Grimes et al. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# load libraries
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(tidyr)
+library(ggtern)
+
+```
+
+# Single time point (TP1) trial with one metric 
+
+## load data and normalize metrics
+```{r}
+df <- read.csv("output/master_timeseries.csv")
+
+df <- df %>%
+  filter(timepoint=="timepoint1")
+
+df <- df %>%
+  select(!colony_id)%>%
+  select(!species)%>%
+  select(!timepoint)%>%
+  select(!month)%>%
+  select(!site)%>%
+  select(!site_code)%>%
+  select(!nutrient)%>%
+  select(!code)%>%
+  select(!haplotype)
+
+# Normalizing all metric columns (excluding 'ids')
+metrics <- names(df)[!names(df) %in% "colony_id_corr"]
+df_norm <- df
+str(df_norm)
+
+for (m in metrics) {
+  min_val <- min(df[[m]], na.rm = TRUE)
+  max_val <- max(df[[m]], na.rm = TRUE)
+  df_norm[[m]] <- (df[[m]] - min_val) / (max_val - min_val)
+}
+
+
+# Extract first 3 letters from colony_id_corr
+df_norm$Group <- substr(df_norm$colony_id_corr, 1, 3)
+
+# Optional: convert to factor for consistent coloring
+df_norm$Group <- as.factor(df_norm$Group)
+
+
+ggplot(df_norm, aes(x = Am, fill = Group)) +
+  geom_histogram(bins = 30, alpha = 0.6, position = "identity") +
+  theme_minimal() +
+  labs(title = "Histogram of Am by Species", x = "Normalized Am", y = "Count") +
+  scale_fill_brewer(palette = "Set2")
+
+ggplot(df_norm, aes(x = Am, fill = Group)) +
+  geom_histogram(bins = 30, alpha = 0.7, color = "black") +
+  facet_wrap(~ Group, scales = "free_y") +
+  theme_minimal() +
+  labs(title = "Histogram of Am by Species", x = "Normalized Am", y = "Count") +
+  scale_fill_brewer(palette = "Set2")
+```
+
+## Set up Triangular membership function
+```{r}
+# Triangular membership function
+#triangular <- function(x, a, b, c) {
+#  ifelse(
+#    x <= a | x >= c, 0,
+#    ifelse(x < b, (x - a) / (b - a), (c - x) / (c - b))
+#  )
+#}
+
+
+# Use the safer triangular function
+triangular <- function(x, a, b, c) {
+  sapply(x, function(xi) {
+    if (xi <= a || xi >= c) return(0)
+    if (xi == b) return(1)
+    if (xi < b) return(ifelse(b != a, (xi - a) / (b - a), 1))
+    return(ifelse(c != b, (c - xi) / (c - b), 1))
+  })
+}
+
+
+```
+
+🟦 Competative (Am_C): highest membership when Am is very low
+
+🟩 Ruderal (Am_R): highest membership when Am is mid-range
+
+🟥 Stress Tolerant (Am_S): highest membership when Am is very high
+```{r}
+# Custom fuzzy coding for Am
+# Example Assignment of one metric CRS membership
+df_norm$Am_C <- triangular(df_norm$Am, a = 0.00, b = 0.20, c = 0.60)
+df_norm$Am_R <- triangular(df_norm$Am, a = 0.20, b = 0.50, c = 0.80)
+df_norm$Am_S <- triangular(df_norm$Am, a = 0.40, b = 0.80, c = 1.00)
+
+
+#Use percentiles for wider fuzzy spans
+qs <- quantile(df_norm$Am, probs = c(0.10, 0.5, 0.90), na.rm = TRUE)
+
+df_norm$Am_C <- triangular(df_norm$Am, a = 0.00, b = qs[1], c = qs[2])
+df_norm$Am_R <- triangular(df_norm$Am, a = qs[1], b = qs[2], c = qs[3])
+df_norm$Am_S <- triangular(df_norm$Am, a = qs[2], b = qs[3], c = 1.00)
+
+
+```
+
+
+## Plot triangle plot
+```{r}
+
+
+# Select fuzzy membership columns
+df_tern <- df_norm[, c("colony_id_corr", "Am_C", "Am_R", "Am_S")]
+
+# Optional: renaming for plot clarity
+names(df_tern) <- c("colony_id", "Am_C", "Am_R", "Am_S")
+
+# Extract first 3 letters from colony_id_corr
+df_tern$Group <- substr(df_tern$colony_id, 1, 3)
+
+# Optional: convert to factor for consistent coloring
+df_tern$Group <- as.factor(df_tern$Group)
+
+
+ggtern(data = df_tern, aes(x = Am_C, y = Am_R, z = Am_S, color = Group)) +
+  geom_point(alpha = 0.8, size = 3) +
+  theme_bw() +
+  labs(
+    T = "Competative",
+    L = "Ruderal",
+    R = "Stress Tolerant",
+    color = "Species"
+  ) +
+  theme(legend.position = "right")
+
+```
+
+
+# Variance 
+
+Generate a list of responses 
+```{r}
+responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ik", "Ic", "Ratio_AFDW.mg.cm2", "cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd", "calc.umol.cm2.hr")
+```
+
+```{r}
+# Load full time series data
+df <- read.csv("output/master_timeseries.csv")
+
+# Keep only relevant metadata + metrics
+df <- df %>%
+  select(colony_id_corr, timepoint, species, all_of(responses)) # adjust starts_with if needed
+
+# Get metric columns (exclude ID and metadata)
+metrics <- names(df)[names(df) %in% responses]
+
+```
+
+Normalize across time points. 
+
+```{r}
+df_norm <- df
+for (m in metrics) {
+  min_val <- min(df[[m]], na.rm = TRUE)
+  max_val <- max(df[[m]], na.rm = TRUE)
+  df_norm[[m]] <- (df[[m]] - min_val) / (max_val - min_val)
+}
+```
+
+Compute CV for each metric 
+```{r}
+
+# Compute CV (coefficient of variation) per colony per metric
+df_cv <- df_norm %>%
+  pivot_longer(cols = all_of(metrics), names_to = "metric", values_to = "value") %>%
+  group_by(colony_id_corr, metric) %>%
+  summarize(mean_val = mean(value, na.rm = TRUE),
+            sd_val = sd(value, na.rm = TRUE),
+            CV = sd_val / mean_val, .groups = "drop")
+
+
+# Pivot wider so each metric has its CV column
+df_cv_wide <- df_cv %>%
+  select(colony_id_corr, metric, CV) %>%
+  pivot_wider(names_from = metric, values_from = CV)
+
+#remove colonies with NA for some metrics 
+df_cv_wide <- df_cv_wide %>% drop_na()
+```
+
+Make a membership function. 
+```{r}
+# Triangular membership function
+triangular <- function(x, a, b, c) {
+  sapply(x, function(xi) {
+    if (xi <= a || xi >= c) return(0)
+    if (xi == b) return(1)
+    if (xi < b) return(ifelse(b != a, (xi - a) / (b - a), 1))
+    return(ifelse(c != b, (c - xi) / (c - b), 1))
+  })
+}
+
+# Apply fuzzy membership for all metrics
+csr_memberships <- list()
+for (m in metrics) {
+  metric_vals <- df_cv_wide[[m]]
+  qs <- quantile(metric_vals, probs = c(0.10, 0.5, 0.90), na.rm = TRUE)
+  csr_memberships[[paste0(m, "_C")]] <- triangular(metric_vals, a = 0, b = qs[1], c = qs[2])
+  csr_memberships[[paste0(m, "_R")]] <- triangular(metric_vals, a = qs[1], b = qs[2], c = qs[3])
+  csr_memberships[[paste0(m, "_S")]] <- triangular(metric_vals, a = qs[2], b = qs[3], c = 1)
+}
+
+# Combine with CV table
+df_csr <- bind_cols(df_cv_wide, as_tibble(csr_memberships))
+
+# Add group ID
+df_csr$Group <- substr(df_csr$colony_id_corr, 1, 3)
+df_csr$Group <- as.factor(df_csr$Group)
+```
+
+Summarise for each colony - calculate mean CSR value from all metric calculations. 
+```{r}
+# Select only C/R/S columns
+csr_cols <- df_csr %>%
+  select(colony_id_corr, Group, ends_with("_C"), ends_with("_R"), ends_with("_S"))
+
+# Pivot to long format to separate metric and strategy type
+df_csr_long <- csr_cols %>%
+  pivot_longer(
+    cols = -c(colony_id_corr, Group),
+    names_to = "name",
+    values_to = "value"
+  ) %>%
+  separate(name, into = c("metric", "strategy"), sep = "_(?=[^_]+$)")
+
+# Average across all metrics per colony for each strategy
+df_csr_summary <- df_csr_long %>%
+  group_by(colony_id_corr, Group, strategy) %>%
+  summarize(mean_score = mean(value, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = strategy, values_from = mean_score)  # gives columns C, R, S
+```
+
+Add groupings and make plots. 
+```{r}
+# Plot ternary CSR triangle
+ggtern(data = df_csr_summary, aes(x = C, y = R, z = S, color = Group)) +
+  geom_point(size = 3, alpha = 0.85) +
+  theme_bw() +
+  labs(
+    title = "Summary CSR Strategy per Colony (All Metrics)",
+    T = "Competitor",
+    L = "Ruderal",
+    R = "Stress Tolerant"
+  ) +
+  theme(legend.position = "right")
+```
+
+
+
+
+
+
+
+
+
+
+
+# Calculate for each time point using all metrics with trait specific assignments  
+
+Generate a list of responses 
+```{r}
+responses<-c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ik", "Ic", "Ratio_AFDW.mg.cm2", "cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd", "calc.umol.cm2.hr")
+```
+
+```{r}
+# Load full time series data
+df <- read.csv("output/master_timeseries.csv")
+
+# Keep only relevant metadata + metrics
+df <- df %>%
+  select(colony_id_corr, timepoint, species, all_of(responses)) # adjust starts_with if needed
+
+# Get metric columns (exclude ID and metadata)
+metrics <- names(df)[names(df) %in% responses]
+
+```
+
+Normalize across time points. 
+
+```{r}
+df_norm <- df
+for (m in metrics) {
+  min_val <- min(df[[m]], na.rm = TRUE)
+  max_val <- max(df[[m]], na.rm = TRUE)
+  df_norm[[m]] <- (df[[m]] - min_val) / (max_val - min_val)
+}
+```
+
+Assign traits 
+```{r}
+# 3. Define trait-to-CSR category logic
+csr_trait_map <- list(
+  "Am" = c("C", "R", "S"),
+  "calc.umol.cm2.hr" = c("S", "R", "C"),
+  "Host_AFDW.mg.cm2" = c("C", "R", "S"),
+  "cells.mgAFDW" = c("S", "R", "C"),
+  "Rd" = c("C", "R", "S"),
+  "prot_mg.mgafdw" = c("C", "R", "S"),
+  "cre.umol.mgafdw" = c("C", "R", "S"),
+  "Sym_AFDW.mg.cm2" = c("S", "R", "C"),
+  "Total_Chl_cell" = c("C", "R", "S"),
+  "Total_Chl" = c("C", "R", "S"),
+  "AQY" = c("C", "R", "S"),
+  "Ik" = c("C", "R", "S"),
+  "Ic" = c("C", "R", "S"),
+  "Ratio_AFDW.mg.cm2" = c("C", "R", "S")
+)
+
+```
+
+Compute metrics and assign strategy. 
+```{r}
+# 4. Compute quantile-based memberships and assign strategy per metric
+csr_rows <- list()
+
+for (m in responses) {
+  strategy_order <- csr_trait_map[[m]]
+  vals <- df_norm[[m]]
+  qs <- quantile(vals, probs = c(0.33, 0.66), na.rm = TRUE)
+  
+  # Assign C, R, or S based on normalized value
+  assignment <- case_when(
+    vals <= qs[1] ~ strategy_order[1],
+    vals <= qs[2] ~ strategy_order[2],
+    TRUE ~ strategy_order[3]
+  )
+  
+  df_norm[[paste0(m, "_CSR")]] <- assignment
+}
+```
+
+```{r}
+# 5. Count C/R/S membership per colony across all metrics at each timepoint
+df_long <- df_norm %>%
+  select(colony_id_corr, timepoint, ends_with("_CSR")) %>%
+  pivot_longer(-c(colony_id_corr, timepoint), names_to = "metric", values_to = "strategy") %>%
+  mutate(metric = sub("_CSR$", "", metric))
+```
+
+```{r}
+# 6. Compute mean CSR strategy per colony across metrics
+df_csr_summary <- df_long %>%
+  group_by(colony_id_corr, strategy) %>%
+  summarize(n = n(), .groups = "drop") %>%
+  pivot_wider(names_from = strategy, values_from = n, values_fill = 0)
+
+```
+
+```{r}
+# Normalize counts to proportions
+df_csr_summary <- df_csr_summary %>%
+  rowwise() %>%
+  mutate(total = sum(c_across(c("C", "R", "S")), na.rm = TRUE)) %>%
+  mutate(C = C / total, R = R / total, S = S / total) %>%
+  select(-total)
+```
+
+```{r}
+# Add Group (species) info for plotting
+df_csr_summary <- df_csr_summary %>%
+  left_join(df %>% select(colony_id_corr, species) %>% distinct(), by = "colony_id_corr") %>%
+  rename(Group = species)
+```
+
+```{r}
+# 7. Plot
+ggtern(data = df_csr_summary, aes(x = C, y = R, z = S, color = Group)) +
+  geom_point(size = 3, alpha = 0.85) +
+  theme_bw() +
+  labs(
+    title = "Summary CSR Strategy per Colony (Trait-Based)",
+    T = "Competitor",
+    L = "Ruderal",
+    R = "Stress Tolerant"
+  ) +
+  theme(legend.position = "right")
+```
+
+
+
