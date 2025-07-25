@@ -410,5 +410,158 @@ ggtern(data = df_csr_summary, aes(x = C, y = R, z = S, color = Group)) +
   theme(legend.position = "right")
 ```
 
+# Make a plot for each season 
+
+Load and normalize data 
+
+```{r}
+# 1. Set metric list
+responses <- c("cells.mgAFDW", "Sym_AFDW.mg.cm2", "Total_Chl", "Total_Chl_cell", "Am", "AQY", "Ik", "Ic",
+               "Ratio_AFDW.mg.cm2", "cre.umol.mgafdw", "Host_AFDW.mg.cm2", "prot_mg.mgafdw", "Rd", "calc.umol.cm2.hr")
+
+# 2. Load data
+df <- read.csv("output/master_timeseries.csv")
+
+# 3. Keep relevant columns
+df <- df %>%
+  select(colony_id_corr, timepoint, species, all_of(responses))
+
+# 4. Normalize across *all* timepoints
+df_norm <- df
+for (m in responses) {
+  min_val <- min(df[[m]], na.rm = TRUE)
+  max_val <- max(df[[m]], na.rm = TRUE)
+  df_norm[[m]] <- (df[[m]] - min_val) / (max_val - min_val)
+}
+
+```
+
+
+Map traits 
+
+```{r}
+# 5. Trait-to-CSR mapping
+csr_trait_map <- list(
+  "Am" = c("C", "R", "S"),
+  "calc.umol.cm2.hr" = c("S", "R", "C"),
+  "Host_AFDW.mg.cm2" = c("C", "R", "S"),
+  "cells.mgAFDW" = c("S", "R", "C"),
+  "Rd" = c("C", "R", "S"),
+  "prot_mg.mgafdw" = c("C", "R", "S"),
+  "cre.umol.mgafdw" = c("C", "R", "S"),
+  "Sym_AFDW.mg.cm2" = c("S", "R", "C"),
+  "Total_Chl_cell" = c("C", "R", "S"),
+  "Total_Chl" = c("C", "R", "S"),
+  "AQY" = c("C", "R", "S"),
+  "Ik" = c("C", "R", "S"),
+  "Ic" = c("C", "R", "S"),
+  "Ratio_AFDW.mg.cm2" = c("C", "R", "S")
+)
+
+# 6. Assign CSR per metric
+for (m in responses) {
+  strategy_order <- csr_trait_map[[m]]
+  vals <- df_norm[[m]]
+  qs <- quantile(vals, probs = c(0.33, 0.66), na.rm = TRUE)
+  
+  df_norm[[paste0(m, "_CSR")]] <- case_when(
+    vals <= qs[1] ~ strategy_order[1],
+    vals <= qs[2] ~ strategy_order[2],
+    TRUE ~ strategy_order[3]
+  )
+}
+```
+
+Change to long format
+```{r}
+# 7. Long format CSR assignments
+df_long <- df_norm %>%
+  select(colony_id_corr, timepoint, ends_with("_CSR")) %>%
+  pivot_longer(-c(colony_id_corr, timepoint), names_to = "metric", values_to = "strategy") %>%
+  mutate(metric = sub("_CSR$", "", metric))
+```
+
+Create a dataset for each time point. 
+
+```{r}
+# 8. Loop over each timepoint and make plots
+timepoints <- unique(df$timepoint)
+
+plot_list <- list()
+
+for (tp in timepoints) {
+  df_tp <- df_long %>% filter(timepoint == tp)
+  
+  # Summarize C/R/S counts per colony
+  df_summary <- df_tp %>%
+    group_by(colony_id_corr, strategy) %>%
+    summarize(n = n(), .groups = "drop") %>%
+    pivot_wider(names_from = strategy, values_from = n, values_fill = 0) %>%
+    rowwise() %>%
+    mutate(total = sum(c_across(c("C", "R", "S")), na.rm = TRUE)) %>%
+    mutate(C = C / total, R = R / total, S = S / total) %>%
+    select(-total)
+  
+  # Add species
+  df_summary <- df_summary %>%
+    left_join(df %>% select(colony_id_corr, species) %>% distinct(), by = "colony_id_corr") %>%
+    rename(Group = species)
+  
+   # Create plot
+  p <- ggtern(data = df_summary, aes(x = C, y = R, z = S, color = Group)) +
+    geom_point(size = 3, alpha = 0.85) +
+    theme_bw() +
+    scale_color_manual(values = c("darkgray", "orange", "purple")) +
+    labs(
+      title = paste("CSR Strategy per Colony -", tp),
+      T = "Competitor",
+      L = "Ruderal",
+      R = "Stress Tolerant"
+    ) +
+    theme(legend.position = "right")
+  
+  plot_list[[tp]] <- p
+}
+```
+
+View plots
+```{r}
+# View plots one by one
+plot_list[["timepoint1"]]
+plot_list[["timepoint2"]]
+plot_list[["timepoint3"]]
+plot_list[["timepoint4"]]
+```
+
+show all at once
+
+```{r}
+df_all <- bind_rows(lapply(timepoints, function(tp) {
+  df_tp <- df_long %>% filter(timepoint == tp)
+  df_summary <- df_tp %>%
+    group_by(colony_id_corr, strategy) %>%
+    summarize(n = n(), .groups = "drop") %>%
+    pivot_wider(names_from = strategy, values_from = n, values_fill = 0) %>%
+    rowwise() %>%
+    mutate(total = sum(c_across(c("C", "R", "S")), na.rm = TRUE)) %>%
+    mutate(C = C / total, R = R / total, S = S / total) %>%
+    select(-total) %>%
+    left_join(df %>% select(colony_id_corr, species) %>% distinct(), by = "colony_id_corr") %>%
+    mutate(timepoint = tp)
+}))
+
+ggtern(df_all, aes(x = C, y = R, z = S, color = species)) +
+  geom_point(size = 2.5, alpha = 0.85) +
+  facet_wrap(~timepoint) +
+  scale_color_manual(values = c("darkgray", "orange", "purple")) +
+  theme_bw() +
+  labs(
+    title = "CSR Strategy Across Timepoints",
+    T = "Competitor",
+    L = "Ruderal",
+    R = "Stress Tolerant"
+  )
+```
+
 
 
