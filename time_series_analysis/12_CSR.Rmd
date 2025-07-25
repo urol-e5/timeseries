@@ -400,6 +400,7 @@ df_csr_summary <- df_csr_summary %>%
 ggtern(data = df_csr_summary, aes(x = C, y = R, z = S, color = Group)) +
   geom_point(size = 3, alpha = 0.85) +
   theme_bw() +
+  scale_color_manual(values=c("darkgray", "orange", "purple"))+
   labs(
     title = "Summary CSR Strategy per Colony (Trait-Based)",
     T = "Competitor",
