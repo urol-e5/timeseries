@@ -1037,8 +1037,8 @@ Generate a Type III Anova of model.
 anova(shAFDW_model, type="III")
 summary(shAFDW_model)
 
-emm<-emmeans(shAFDW_model, ~ species)
-pairs(emm)
+#emm<-emmeans(shAFDW_model, ~ species)
+#pairs(emm)
 ```
 
 *Acropora*   
@@ -2678,8 +2678,8 @@ Generate a Type II Anova of model.
 anova(rd_model, type="III")
 summary(rd_model)
 
-emm<-emmeans(rd_model, ~ species)
-pairs(emm)
+#emm<-emmeans(rd_model, ~ species)
+#pairs(emm)
 ```
 
 *Acropora*  
