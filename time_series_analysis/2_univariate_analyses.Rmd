@@ -5185,14 +5185,44 @@ timeseries<-master%>%
   filter(Sym_AFDW.mg.cm2<20)%>%
   filter(Ratio_AFDW.mg.cm2>0)%>%
   filter(Ic<1000)%>%
-  mutate(across(c(6:19), ~log(. + 1)))%>%# log transform all data 
+  #mutate(across(c(6:19), ~log(. + 1)))%>%# log transform all data 
   gather(key="Metric", value="Value", -species, -site, -month, -colony_id_corr, -timepoint)%>%
   group_by(Metric, colony_id_corr, timepoint)%>%
   arrange(colony_id_corr, .by_group = TRUE)%>%
   group_by(colony_id_corr, Metric)%>%
   mutate(rel_change=100*((Value-first(Value))/abs(first(Value))))
+  #mutate(impact=(max(Value)/min(Value))*first(Value))
 
-head(timeseries)
+test<-master%>%
+    select(species, site, month, colony_id_corr, timepoint, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2,  cells.mgAFDW, Total_Chl_cell, Total_Chl, prot_mg.mgafdw, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, Ratio_AFDW.mg.cm2, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(prot_mg.mgafdw<1.5)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(Ic<1000)%>%
+  #mutate(across(c(6:19), ~log(. + 1)))%>%# log transform all data 
+  gather(key="Metric", value="Value", -species, -site, -month, -colony_id_corr, -timepoint)%>%
+  
+  mutate(month = as.character(month)) %>%           # ensure comparisons work
+  group_by(colony_id_corr, Metric, species) %>%
+  # pick baseline at March 2020 (first match if there are duplicates)
+  mutate(init_val = Value[month == "March 2020"][1]) %>%
+  # drop groups without a March 2020 measurement or with a zero baseline
+  filter(!is.na(init_val) & init_val != 0) %>%
+  # compute relative deviation from March 2020 for each row
+  mutate(rel_dev = (Value - init_val) / init_val) %>%
+  summarise(
+    init_val     = first(init_val),
+    max_dev      = max(rel_dev, na.rm = TRUE),     # largest proportional increase
+    min_dev      = min(rel_dev, na.rm = TRUE),     # largest proportional decrease (negative)
+    impact_max   = init_val * max_dev,             # absolute cells change for largest gain
+    impact_min   = init_val * min_dev,             # absolute cells change for largest loss
+    impact_score = max(abs(impact_max), abs(impact_min)), # single-number biggest swing (absolute)
+    .groups = "drop"
+  )
+
+head(test)
 ```
 
 Make a color palette. 
@@ -5298,6 +5328,28 @@ perc_change<-timeseries%>%
 write.csv(perc_change, "Output/percent_change_symbiosis_metrics.csv")
 ```
 
+Plot impact score 
+
+```{r}
+impact1<-test%>%
+  filter(Metric %in% c("Host_AFDW.mg.cm2", "Ratio_AFDW.mg.cm2", "Sym_AFDW.mg.cm2", "cells.mgAFDW", "Am"))%>%
+  filter(!impact_score=="Inf")%>%
+  filter(!impact_score=="NaN")%>%
+  #group_by(Metric, species)%>%
+  #summarise(impact_mean=mean(impact_score, na.rm=TRUE))%>%
+  
+  ggplot(., aes(x=species, y=impact_score, colour=species))+
+  facet_wrap(~Metric, scales="free")+
+  scale_color_manual(values=c("orange", "gray", "purple")) +
+  geom_boxplot()+
+  geom_point()+
+  #geom_hline(yintercept=0)+
+  #geom_line(aes(group=species), linewidth=1)+
+  ylab("Percent Change")+
+  xlab("Time Point")+
+  #geom_smooth(inherit.aes=T, method="loess", aes(group = species), se=FALSE)+
+  theme_classic(); impact1
+```
 
 
 # Run and summarize models for all metrics and generate output table 
