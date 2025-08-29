@@ -436,6 +436,26 @@ summary_stats_temp<-master_qc%>%
 write_csv(master_qc, "Output/environmental_timeseries.csv")
 ```
 
+# Output temperature data for MOSAIC 
+
+```{r}
+head(master_qc)
+dim(master_qc)
+
+temp_molecular<-master_qc%>%
+  mutate(site=if_else(site=="site2", "Mahana", 
+                      if_else(site=="site3", "Hilton", 
+                              if_else(site=="site1", "Manava", NA))))%>%
+  select(Date.Time, site, FullTemp)%>%
+  rename(date.time=Date.Time, temp.C=FullTemp)%>%
+  filter(!is.na(temp.C))
+
+dim(temp_molecular)
+
+write_csv(temp_molecular, "Output/temperature_timeseries.csv")
+  
+```
+
 # Time series plots 
 ## Temperature timeseries plot 
 
