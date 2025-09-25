@@ -5272,6 +5272,17 @@ time_plot2<-timeseries%>%
 ggsave(plot=time_plot2, "Figures/Univariate/Relative_Change_EachSpecies.png", width=15, height=6, unit="in", dpi=300)
 ```
 
+View percent change. 
+```{r}
+change_metrics<-timeseries%>%
+  filter(!Metric=="calc.umol.cm2.hr")%>%
+  group_by(Metric, month, species)%>%
+  summarise(rel_change=mean(rel_change, na.rm=TRUE))%>%
+  pivot_wider(names_from=Metric, values_from=rel_change)%>%
+  arrange(species, month)%>%
+  filter(!month=="January 2020");change_metrics
+```
+
 Calcification is not displayed due to relative change being beyond the scale we can display here. 
 
 Display calcification separately here. 
