@@ -386,6 +386,15 @@ master$haplotype<-haplotype$Genus.Species[match(master$colony_id_corr, haplotype
  
 Write master file to csv.  
 ```{r}
+master<-master%>%
+  mutate(time=if_else(timepoint=="timepoint1", "TP1", 
+                      if_else(timepoint=="timepoint2", "TP2", 
+                              if_else(timepoint=="timepoint3", "TP3", 
+                                      if_else(timepoint=="timepoint4", "TP4", NA)))))%>%
+  mutate(sample_id=paste0(colony_id_corr, "_", time))
+
+head(master)
+
 write_csv(master, "Output/master_timeseries.csv")
 ```
 
