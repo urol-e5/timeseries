@@ -1207,9 +1207,10 @@ TukeyHSD(beta_haplotype)
  
 Groupings by haplotype:  
 ```{r}
-pcaHaplotype_afdw<-ggplot2::autoplot(scaled_data_species, data=pca_data_species, frame.colour="haplotype", loadings=FALSE,  colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
-  scale_colour_manual(values=c("darkgray", "yellow3", "orange", "pink3", "purple2")) +
-  scale_fill_manual(values=c("darkgray", "yellow3", "orange", "pink3", "purple2")) + 
+pcaHaplotype_afdw<-ggplot2::autoplot(scaled_data_species, data=pca_data_species, frame.colour="haplotype", loadings=FALSE,  colour="haplotype", shape="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  scale_colour_manual(values=c("darkgray", "orange", "orange", "purple2", "purple2")) +
+  scale_fill_manual(values=c("darkgray", "orange", "orange", "purple2", "purple2")) + 
+  scale_shape_manual(values=c(16, 16, 15, 16, 17))+
   theme_classic()+
   #geom_text(x=0, y=0.28, label=paste("PERMANOVA p =", z_species$`Pr(>F)`[1]), size=6, color=ifelse(z_species$`Pr(>F)`[1] < 0.05, "black", "darkgray")) + 
   #geom_text(x=0.01, y=0.24, label="PERMANOVA POC posthoc p=0.551", size=4, color="darkgray") + 
@@ -1237,8 +1238,10 @@ ggsave(filename="Figures/NormalizerPCA/Haplotype_Overall_PCA.pdf", plot=pcaHaplo
 Generate a biplot for this PCA. 
 ```{r}
 pcaHaplotype_afdw_biplot<-ggplot2::autoplot(scaled_data_species, data=pca_data_species, frame.colour="haplotype", loadings=TRUE,  colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.0) + 
-  scale_colour_manual(values=c("darkgray", "yellow3", "orange", "pink3", "purple2")) +
-  scale_fill_manual(values=c("darkgray", "yellow3", "orange", "pink3", "purple2")) + 
+  scale_colour_manual(values=c("darkgray", "orange", "orange", "purple2", "purple2")) +
+  scale_fill_manual(values=c("darkgray", "orange", "orange", "purple2", "purple2")) + 
+  scale_shape_manual(values=c(16, 16, 15, 16, 17))+
+  
   theme_classic()+
   xlab("PC1")+
   ylab("PC2")+
@@ -1441,9 +1444,10 @@ No differences in beta dispersion in host of POC or POR haplotypes
 
 Groupings by haplotype:  
 ```{r}
-pcaHaplotype_afdw_host<-ggplot2::autoplot(scaled_data_haplotype_host, data=pca_data_haplotype_host, frame.colour="haplotype", loadings=FALSE,  colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
-  scale_colour_manual(values=c("darkgray", "yellow3", "orange", "pink3", "purple2")) +
-  scale_fill_manual(values=c("darkgray", "yellow3", "orange", "pink3", "purple2")) + 
+pcaHaplotype_afdw_host<-ggplot2::autoplot(scaled_data_haplotype_host, data=pca_data_haplotype_host, frame.colour="haplotype", loadings=FALSE,  shape="haplotype", colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  scale_colour_manual(values=c("darkgray", "orange", "orange", "purple2", "purple2")) +
+  scale_fill_manual(values=c("darkgray", "orange", "orange", "purple2", "purple2")) + 
+  scale_shape_manual(values=c(16, 16, 15, 16, 17))+
   theme_classic()+
   #geom_text(x=0.05, y=0.26, label="PERMDISP posthoc POR p=0.16, POC p=0.99", size=4, color="darkgray") +
   #geom_text(x=0.05, y=0.22, label="PERMANOVA posthoc POR p=0.64, POC p=0.54", size=4, color="darkgray") +
@@ -1466,9 +1470,10 @@ ggsave(filename="Figures/NormalizerPCA/Haplotype_Host_PCA.pdf", plot=pcaHaplotyp
 
 Generate a biplot for this PCA. 
 ```{r}
-pcaHaplotype_afdw_host_biplot<-ggplot2::autoplot(scaled_data_haplotype_host, data=pca_data_haplotype_host, frame.colour="haplotype", loadings=TRUE,  colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.0) + 
-  scale_colour_manual(values=c("darkgray", "yellow3", "orange", "pink3", "purple2")) +
-  scale_fill_manual(values=c("darkgray", "yellow3", "orange", "pink3", "purple2")) + 
+pcaHaplotype_afdw_host_biplot<-ggplot2::autoplot(scaled_data_haplotype_host, data=pca_data_haplotype_host, frame.colour="haplotype", shape="haplotype", loadings=TRUE,  colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=TRUE, frame=FALSE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.0) + 
+  scale_colour_manual(values=c("darkgray", "orange", "orange", "purple2", "purple2")) +
+  scale_fill_manual(values=c("darkgray", "orange", "orange", "purple2", "purple2")) + 
+  scale_shape_manual(values=c(16, 16, 15, 16, 17))+
   theme_classic()+
   #xlim(-0.3,0.5)+
   #ylim(-0.3, 0.5)+
@@ -1677,9 +1682,10 @@ No difference in dispersion between POC haplotypes, no difference in dispersion 
 
 Groupings by haplotype:  
 ```{r}
-pcaHaplotype_afdw_sym<-ggplot2::autoplot(scaled_data_haplotype_sym, data=pca_data_haplotype_sym, frame.colour="haplotype", loadings=FALSE,  colour="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
-  scale_colour_manual(values=c("darkgray", "yellow3", "orange", "pink3", "purple2")) +
-  scale_fill_manual(values=c("darkgray", "yellow3", "orange", "pink3", "purple2")) + 
+pcaHaplotype_afdw_sym<-ggplot2::autoplot(scaled_data_haplotype_sym, data=pca_data_haplotype_sym, frame.colour="haplotype", loadings=FALSE,  colour="haplotype", shape="haplotype", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm', alpha=0.5) + 
+  scale_colour_manual(values=c("darkgray", "orange", "orange", "purple2", "purple2")) +
+  scale_fill_manual(values=c("darkgray", "orange", "orange", "purple2", "purple2")) + 
+  scale_shape_manual(values=c(16, 16, 15, 16, 17))+ 
   theme_classic()+
   #geom_text(x=0, y=0.18, label="PERMANOVA posthoc POC p=1.00, POR p=0.01", size=4, color="black") +
     #geom_text(x=0, y=0.14, label="PERMDISP posthoc POC p=0.99, POR p=0.15", size=4, color="darkgray") +

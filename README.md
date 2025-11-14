@@ -4,9 +4,10 @@
 
 ### Abstract  
 
-**Holobiont composition and seasonal plasticity in physiology are key to understanding reef building coral performance** 
+**Seasonal plasticity of symbiotic strategies clarifies coral holobiont resistance and resilience** 
 
-The symbiotic relationship between corals and Symbiodiniaceae generates holobiont sensitivity to fluctuations in temperature, light, and nutrients, which change seasonally in tropical oceans. However, prior work examining coral stress response has occurred primarily without consideration of the current physiological state due to seasonal timing. Here, we tested the effect of seasonal variation on three dominant and ecologically important genera, *Acropora, Pocillopora*, and *Porites* (n=15 tagged colonies per site) in Mo’orea French Polynesia across three lagoon sites on the North shore in January, March, September, and December of 2020. We quantified physiological variables for the coral and Symbiodiniaceae, as well as molecular identification of the Symbiodiniaceae community and host species. Physiology of the three genera differed significantly. Variance partitioning analyses identified seasonal timepoint as the dominant explanatory factor for both host and symbiont responses, with a small influence of site. Acropora colonies were composed of *A. pulchra*, but we found cryptic haplotypes in *Pocillopora* (*P. meandrina, P. tuahiniensis*) and *Porites* (*P. evermanni, P. lobata/lutea*). Although physiology did not vary strongly between *Pocillopora* haplotypes, Porites haplotypes exhibited strong differences in physiological responses and were associated with distinct Symbiodiniaceae communities. Overall, across functional groups of dominant coral genera, seasonality is the strongest driver of physiological state and particular attention should be paid to cryptic species variation. These data provide an essential picture of the need for considering physiological state and its seasonality, particularly in light of the plethora of climate change related stress test assays taking place throughout the year. 
+As coral reefs face unprecedented declines driven by thermal stress and the breakdown of coral symbiosis (i.e., coral bleaching), restoration efforts increasingly rely on coral health and resilience rankings. However, seasonal plasticity in symbiosis and holobiont metabolism, along with the presence of cryptic species, can complicate data interpretation. Therefore, quantifying seasonal plasticity in coral physiology and incorporating genetic identification are essential for accurately interpreting and drawing conclusions from trait-based and fitness-based analyses. To test the effect of seasonal and site variation on physiological plasticity we sampled three ecologically dominant genera, *Acropora*, *Pocillopora*, and *Porites* across three lagoon sites (n=15 tagged colonies genus-1 site-1) on the north shore of Mo’orea French Polynesia in January, March, September, and December of 2020. We identified coral host and intracellular symbiotic Symbiodiniaceae to the highest taxonomic resolution possible and quantified 13 physiological variables within the holobiont. Genetic analyses identified *A. pulchra* along with cryptic lineages in *Pocillopora* (*P. meandrina*, *P. tuahiniensis*) and *Porites* (*P. evermanni*, *P. lobata/lutea*). *A. pulchra* was dominated by *Durusdinium trenchii* and also contained Symbiodinium microadriaticum. Symbiont communities differed between cryptic congeners, with *P. meandrina* hosting *Cladocopium latusorum* and *P. tuahiniensis* hosting *Cladocopium pacificum*, whereas *P. evermanni* and *P. lobata/lutea* both hosted *Cladocopium* (C15), but each with unique C15 profiles. Weedy taxa such as *Acropora* and *Pocillopora* displayed a cycle of symbiont boom and bust in response to seasonally variable light and temperature, likely contributing to the high stress sensitivity of these taxa. In contrast, despite seasonal environmental variability, *Porites* displayed greater symbiont stability, with temperature—rather than light—serving as the stronger explanatory variable of seasonal variation in host physiology. Increased host biomass under cooler conditions, which provides energy reserves, may serve as an important stabilizing factor in massive *Porites* well-documented stress resilience. Collectively, our data provide essential evidence of the need for integrative analyses considering baseline physiological states across seasons along with host and symbiont genetics, particularly in light of the plethora of climate change related stress test assays taking place throughout the year across coral taxa with cryptic lineages. 
+
 
 ### Experimental Design 
 
@@ -15,6 +16,12 @@ The symbiotic relationship between corals and Symbiodiniaceae generates holobion
 ## Navigating this repository 
 
 This repository is organized such that each sampling time point (1 = January 2020, 2 = March 2020, 3 = September 2020, 4 = November 2020) has a dedicated folder with all metadata, data files, and scripts necessary for calculating physiological responses. All data output in these individual time points is then read in, assembled, and analyzed in the `time_series_analysis` directory. 
+
+Sites are referred to with the following identifiers: 
+
+- 'site1' = Manava (referred to as Orovau in the manuscript) 
+- 'site2' = Mahana (referred to as Matotia in the manuscript)
+- 'site3' = Hilton (referred to as Vaipahu in the manuscript)
 
 ### Contents 
 
@@ -102,9 +109,9 @@ Use the `colony_id_corr` column for the corrected colony_id.
 #### Data standards
 
 - 'site'  *(site where sample was collected)*
-	- 'site1' = Manava
-	- 'site2' = Mahana
-	- 'site3' = Hilton
+	- 'site1' = Manava (referred to as Orovau in the manuscript)
+	- 'site2' = Mahana (referred to as Matotia in the manuscript)
+	- 'site3' = Hilton (referred to as Vaipahu in the manuscript)
 
 - 'lon' *(longitude coordinate)*
 	- Use decimal degrees: *dd.ddddd°*
