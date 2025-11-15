@@ -999,7 +999,7 @@ plot1<-results%>%
     ylab(expression(bold(paste("Solar Radiation (kWh m" ^-2, ")"))))+
     ylim(0,0.25)+
     xlab("Time Point")+
-    ggtitle("C) Solar Radiation")+
+    ggtitle("C")+
     theme_classic()+
     theme(
       axis.text.x = element_blank(), 
@@ -1020,7 +1020,7 @@ plot2<-results%>%
     ylab(expression(bold(paste("Average Cumulative Rainfall (mm)"))))+
     ylim(-10,200)+
     xlab("Time Point")+
-    ggtitle("D) Rainfall")+
+    ggtitle("D")+
     theme_classic()+
     theme(
       axis.text.x = element_blank(), 
@@ -1038,10 +1038,10 @@ plot3<-results%>%
   ggplot(aes(x=Time_Period, y=temp_mean))+
     geom_point(size=4, shape=19)+
     geom_errorbar(aes(ymin=temp_mean-temp_sd, ymax=temp_mean+temp_sd), width=0.01)+
-    ylab(expression(bold(paste("Water Temperature (°C)"))))+
+    ylab(expression(bold(paste("Temperature (°C)"))))+
     ylim(25,32)+
     xlab("Time Point")+
-    ggtitle("B) Temperature")+
+    ggtitle("B")+
     theme_classic()+
     theme(
       axis.text.x = element_blank(), 

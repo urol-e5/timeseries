@@ -466,8 +466,8 @@ temp_summary_plot <- master_qc %>%
   ggplot(., aes(x=Date.Time, y=FullTemp)) + 
   geom_point(colour="gray", size=0.5, alpha=0.05) + 
   geom_smooth(aes(colour=site), se=FALSE, method="gam") + 
-  scale_colour_manual(name="Site", values=c("#374d7c", "#00cccc", "#ff6633"), labels=c("Mahana", "Hilton", "Manava")) +
-  ylab("Temperature °C") + 
+  scale_colour_manual(name="Site", values=c("#374d7c", "#00cccc", "#ff6633"), labels=c("Orovau", "Vaipahu", "Matotia")) +
+  ylab("Temperature (°C)") + 
   xlab("Date") +
   scale_x_datetime(date_breaks = "1 months", date_labels = "%b %Y")+
   geom_vline(xintercept = as.POSIXct("2020-01-01"), linetype="dashed")+ 

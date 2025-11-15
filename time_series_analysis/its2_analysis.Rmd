@@ -1812,10 +1812,16 @@ plot_species_site_acr<-ggplot(plot_species_site_df_acr, aes(x = haplotype, y = A
   ggtitle(expression("B"))+
   
   #facet_nested(~ species, scales = "free_x", space = "free_x") +
-  labs(x="", fill="ITS2 Profile", y="Relative Abundance");plot_species_site_acr
+  labs(x="", fill="ITS2 Profile", y="Relative Abundance")+
+  theme(text=element_text(size=20), 
+        strip.text=element_text(size=20), 
+        axis.text=element_text(size=20), 
+        axis.title=element_text(size=20), 
+        legend.position="right", 
+        legend.title=element_blank());plot_species_site_acr
 
-ggsave(plot_species_site_acr, filename="Figures/ITS2/acr-summary.jpeg", width=5, height=6)
-ggsave(plot_species_site_acr, filename="Figures/ITS2/acr-summary.pdf", width=5, height=6)
+ggsave(plot_species_site_acr, filename="Figures/ITS2/acr-summary.jpeg", width=6, height=6)
+ggsave(plot_species_site_acr, filename="Figures/ITS2/acr-summary.pdf", width=6, height=6)
 
 plot_species_site_df_acr<-output_matrix%>%
   filter(species=="Acropora")%>%
@@ -1848,14 +1854,20 @@ plot_species_site_poc_haplotypes<-ggplot(plot_species_site_df_poc, aes(x = haplo
   
   #facet_grid(~site + timepoint, scales = "free") +
   #facet_nested(~ species, scales = "free_x", space = "free_x") +
-  labs(x="", fill="ITS2 Profile", y="Relative Abundance");plot_species_site_poc_haplotypes
+  labs(x="", fill="ITS2 Profile", y="Relative Abundance")+
+  theme(text=element_text(size=20), 
+        strip.text=element_text(size=20), 
+        axis.text=element_text(size=20), 
+        axis.title=element_text(size=20), 
+        legend.position="right", 
+        legend.title=element_blank());plot_species_site_poc_haplotypes
 
-ggsave(plot_species_site_poc_haplotypes, filename="Figures/ITS2/poc-summary.jpeg", width=8, height=6)
-ggsave(plot_species_site_poc_haplotypes, filename="Figures/ITS2/poc-summary.pdf", width=8, height=6)
+ggsave(plot_species_site_poc_haplotypes, filename="Figures/ITS2/poc-summary.jpeg", width=10, height=6)
+ggsave(plot_species_site_poc_haplotypes, filename="Figures/ITS2/poc-summary.pdf", width=10, height=6)
 ```
 
 ```{r}
-plot_species_site_df_por<-output_matrix%>%
+plot_species_site_df_por<-output_matrix%>% 
   filter(species=="Porites")%>%
   filter(!haplotype=="Reseq")%>%
   group_by(colony_id, species, haplotype)%>%
@@ -1875,25 +1887,31 @@ plot_species_site_por_haplotype<-ggplot(plot_species_site_df_por, aes(x = haplot
         axis.text.x = element_text(colour = 'black', size = 10, angle = 60, hjust=1),
         strip.text =element_text(colour="black", face="italic", size=8))+ 
   ggtitle(expression("F"))+
-  labs(x="", fill="ITS2 Profile", y="Relative Abundance");plot_species_site_por_haplotype
+  labs(x="", fill="ITS2 Profile", y="Relative Abundance")+
+  theme(text=element_text(size=20), 
+        strip.text=element_text(size=20), 
+        axis.text=element_text(size=20), 
+        axis.title=element_text(size=20), 
+        legend.position="right", 
+        legend.title=element_blank());plot_species_site_por_haplotype
 
-ggsave(plot_species_site_por_haplotype, filename="Figures/ITS2/por-summary.jpeg", width=9.5, height=6)
-ggsave(plot_species_site_por_haplotype, filename="Figures/ITS2/por-summary.pdf", width=9.5, height=6)
+ggsave(plot_species_site_por_haplotype, filename="Figures/ITS2/por-summary.jpeg", width=13, height=6)
+ggsave(plot_species_site_por_haplotype, filename="Figures/ITS2/por-summary.pdf", width=13, height=6)
 ```
 
 Arrange plots 
 
 Assemble haplotype plots. 
 ```{r}
-ind_plot1a<-ind_plot1+theme(legend.position="none")
+ind_plot1a<-ind_plot1+theme(legend.position="none")+theme(text=element_text(size=20), strip.text=element_text(size=20), axis.text=element_text(size=20), axis.title=element_text(size=20))
 ggsave(ind_plot1a, filename="Figures/ITS2/acr-panel.jpeg", width=12, height=6)
 ggsave(ind_plot1a, filename="Figures/ITS2/acr-panel.pdf", width=12, height=6)
 
-ind_plot2a<-ind_plot2+theme(legend.position="none")
+ind_plot2a<-ind_plot2+theme(legend.position="none")+theme(text=element_text(size=20), strip.text=element_text(size=20), axis.text=element_text(size=20), axis.title=element_text(size=20))
 ggsave(ind_plot2a, filename="Figures/ITS2/poc-panel.jpeg", width=12, height=6)
 ggsave(ind_plot2a, filename="Figures/ITS2/poc-panel.pdf", width=12, height=6)
 
-ind_plot3a<-ind_plot3+theme(legend.position="none")
+ind_plot3a<-ind_plot3+theme(legend.position="none")+theme(text=element_text(size=20), strip.text=element_text(size=20), axis.text=element_text(size=20), axis.title=element_text(size=20))
 ggsave(ind_plot3a, filename="Figures/ITS2/por_panel.jpeg", width=12, height=6)
 ggsave(ind_plot3a, filename="Figures/ITS2/por_panel.pdf", width=12, height=6)
 
