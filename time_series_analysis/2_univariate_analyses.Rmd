@@ -3080,7 +3080,7 @@ ggsave(filename="Figures/Univariate/Calcification_Figure.pdf", plot=calc_figure,
 
 ### Analysis 
 
-Build a mixed model for univariate analysis and examine data distribution of surface area normalized antioxidant capacity. 
+Build a mixed model for univariate analysis and examine data distribution of surface area normalized calcification.. 
 
 ```{r}
 calc_model<-lmer(calc.umol.mgAFDW.hr~timepoint*species*site+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=master)
@@ -5440,4 +5440,72 @@ plot_respiration<-apulchra%>%
 
 ggsave(plot_respiration, filename="Figures/Univariate/apulchra_molecular_respiration.png", width=5, height=4)
 ```
+
+
+# Plot calcification for time series molecular project separately 
+
+Bring in a list of colonies for E5 time series molecular project 
+
+```{r}
+molecular<-read_csv(file="https://raw.githubusercontent.com/urol-e5/timeseries_molecular/refs/heads/main/master-molecular-metadata.csv")%>%pull(colony)%>%unique()
+
+length(molecular)
+```
+
+```{r}
+molecular<-master%>%
+  filter(colony_id_corr %in% molecular)
+
+length(unique(molecular$colony_id_corr))
+```
+
+Plot 
+
+```{r}
+calc_molecular<-molecular %>%
+  filter(!is.na(calc.umol.cm2.hr)) %>% 
+  filter(!is.na(haplotype))%>%
+  select(colony_id_corr, haplotype, site, timepoint, calc.umol.cm2.hr)%>%
+  
+  ggplot(., aes(x = timepoint, y = log(1+calc.umol.cm2.hr), fill = haplotype, colour=haplotype, group=haplotype)) +
+    geom_point(pch = 21, size=2, position = position_jitterdodge(0.2)) + 
+    xlab("Time Point") + 
+  scale_fill_manual(values=c("darkgray", "orange", "purple"))+
+  scale_colour_manual(values=c("darkgray", "orange", "purple"))+
+    scale_x_discrete(labels=c("timepoint1"="January 2020", "timepoint2"="March 2020", "timepoint3"="September 2020", "timepoint4"="November 2020"))+
+    ylab(expression(bold(paste("log Calcification (", mu,"mol Ca", CO[3], " cm"^-2, " hr"^-1, ")"))))+
+  geom_smooth(aes(group=haplotype), method="loess")+
+    theme_classic() + 
+    theme(
+      legend.position="right",
+      legend.title=element_blank(),
+      legend.text=element_text(size=12),
+      axis.title=element_text(face="bold", size=12),
+      axis.text=element_text(size=10, color="black"), 
+      axis.text.x=element_text(size=10, color="black", angle=45, hjust=1), 
+      strip.text.x=element_text(face="italic", size=12)
+      );calc_molecular
+
+ggsave(calc_molecular, filename="Figures/Univariate/calcification_timeseries_molecular.png", width=6, height=5)
+```
+
+Analysis 
+
+Build a mixed model for univariate analysis and examine data distribution of surface area normalized antioxidant capacity. 
+
+```{r}
+calc_model<-lmer(log(1+calc.umol.cm2.hr)~timepoint*site*species+(1|species/haplotype/colony_id_corr), na.action=na.omit, data=molecular)
+qqPlot(residuals(calc_model))
+```
+
+Generate a Type III Anova of model.    
+
+```{r}
+anova(calc_model, type="III")
+summary(calc_model)
+
+emm<-emmeans(calc_model, ~ species|timepoint)
+pairs(emm)
+```
+
 

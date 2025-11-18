@@ -1927,3 +1927,105 @@ output_matrix%>%
   summarise(n=length(unique(colony_id_corr)))
 ```
 
+# Plot ITS2 profiles for E5 timeseries molecular project 
+
+Bring in a list of colonies for E5 time series molecular project 
+
+```{r}
+molecular<-read_csv(file="https://raw.githubusercontent.com/urol-e5/timeseries_molecular/refs/heads/main/master-molecular-metadata.csv")%>%pull(colony)%>%unique()
+```
+
+Plot colony ITS2 profiles. 
+
+Acropora
+```{r}
+molecular_plot1<-output_matrix%>%
+ filter(colony_id_corr %in% molecular)%>% 
+  filter(species=="Acropora")%>%
+  
+  group_by(colony_id, species, haplotype)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(colony_id, species,haplotype), values_to="Abundance", names_to="Profile")%>%
+  
+  ggplot(aes(x = colony_id, y = Abundance)) + 
+  facet_grid(~haplotype)+
+  geom_bar(position="stack", stat="identity", aes(fill = Profile), color = "black") +
+  scale_fill_manual(values = sapply(plot_species_df$Profile, get_custom_color_acr))+
+  theme_classic() +
+  theme(axis.text.y = element_text(colour = 'black', size = 10), 
+        axis.title = element_text(colour = 'black', size = 12, face="bold"), 
+        axis.text.x = element_text(colour = 'black', size = 10, angle = 60, hjust=1),
+        strip.text =element_text(colour="black", face="italic", size=8), 
+        ) + 
+  ggtitle(expression("A"))+
+  
+  #facet_nested(~ species, scales = "free_x", space = "free_x") +
+  labs(x="", fill="ITS2 Profile", y="Relative Abundance")+theme(text=element_text(size=20), strip.text=element_text(size=20), axis.text=element_text(size=20), axis.title=element_text(size=20), legend.position="right");molecular_plot1
+
+ggsave(molecular_plot1, filename="Figures/ITS2/molecular_timeseries_its2_acr.png", width=8, height=6)
+```
+
+Pocillopora
+```{r}
+molecular_plot2<- output_matrix%>%
+  filter(colony_id_corr %in% molecular)%>% 
+  filter(species=="Pocillopora")%>%
+  group_by(colony_id, species, haplotype)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(colony_id, species,haplotype), values_to="Abundance", names_to="Profile")%>%
+  
+  ggplot(aes(x = colony_id, y = Abundance)) + 
+  facet_grid(~haplotype, scales = "free_x", space="free_x")+
+  geom_bar(position="stack", stat="identity", aes(fill = Profile), color = "black") +
+  scale_fill_manual(values = sapply(plot_species_df$Profile, get_custom_color_poc))+
+  theme_classic() +
+  theme(axis.text.y = element_text(colour = 'black', size = 10), 
+        axis.title = element_text(colour = 'black', size = 12, face="bold"), 
+        axis.text.x = element_text(colour = 'black', size = 10, angle = 60, hjust=1),
+        strip.text =element_text(colour="black", face="italic", size=8), 
+        ) + 
+  ggtitle(expression("B"))+
+  
+  #facet_nested(~ species, scales = "free_x", space = "free_x") +
+  labs(x="", fill="ITS2 Profile", y="Relative Abundance")+theme(text=element_text(size=20), strip.text=element_text(size=20), axis.text=element_text(size=20), axis.title=element_text(size=20), legend.position="right");molecular_plot2
+
+ggsave(molecular_plot2, filename="Figures/ITS2/molecular_timeseries_its2_poc.png", width=12, height=6)
+```
+
+Porites 
+```{r}
+molecular_plot3<- output_matrix%>%
+  filter(colony_id_corr %in% molecular)%>% 
+  filter(species=="Porites")%>%
+  group_by(colony_id, species, haplotype)%>%
+  summarise_if(is.numeric, mean, na.rm = TRUE, .groups = "drop")%>%
+  select_if(~ !is.numeric(.) || sum(.) >= 0.01) %>% #remove taxa that are below 1% relative abundance
+  droplevels()%>%
+  pivot_longer(-c(colony_id, species,haplotype), values_to="Abundance", names_to="Profile")%>%
+  
+  ggplot(aes(x = colony_id, y = Abundance)) + 
+  facet_grid(~haplotype, scales = "free_x", space="free_x")+
+  geom_bar(position="stack", stat="identity", aes(fill = Profile), color = "black") +
+  scale_fill_manual(values = sapply(plot_species_df$Profile, get_custom_color_por))+
+  theme_classic() +
+  theme(axis.text.y = element_text(colour = 'black', size = 10), 
+        axis.title = element_text(colour = 'black', size = 12, face="bold"), 
+        axis.text.x = element_text(colour = 'black', size = 10, angle = 60, hjust=1),
+        strip.text =element_text(colour="black", face="italic", size=8), 
+        ) + 
+  ggtitle(expression("C"))+
+  
+  #facet_nested(~ species, scales = "free_x", space = "free_x") +
+  labs(x="", fill="ITS2 Profile", y="Relative Abundance")+theme(text=element_text(size=20), strip.text=element_text(size=20), axis.text=element_text(size=20), axis.title=element_text(size=20), legend.position="right");molecular_plot3
+
+ggsave(molecular_plot3, filename="Figures/ITS2/molecular_timeseries_its2_por.png", width=10, height=6)
+```
+
+
+
+
+
