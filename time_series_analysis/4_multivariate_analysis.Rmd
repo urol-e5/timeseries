@@ -78,6 +78,11 @@ master$site_code<-fct_relevel(master$site_code, "Mahana Low", "Hilton Medium", "
 master$site<-fct_relevel(master$site, "Mahana", "Hilton", "Manava")
 
 master<-master%>%
+  mutate(site=if_else(site=="Mahana", "Orovau",
+                      if_else(site=="Hilton", "Vaipahu", 
+                              if_else(site=="Manava", "Matotia", NA))))
+
+master<-master%>%
   select(!code)
 ```
 

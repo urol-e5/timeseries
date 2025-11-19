@@ -81,6 +81,11 @@ master$site<-fct_relevel(master$site, "Mahana", "Hilton", "Manava")
 
 master$month<-as.factor(master$month)
 master$month<-fct_relevel(master$month, "January 2020", "March 2020", "September 2020", "November 2020")
+
+master<-master%>%
+  mutate(site=if_else(site=="Mahana", "Orovau",
+                      if_else(site=="Hilton", "Vaipahu", 
+                              if_else(site=="Manava", "Matotia", NA))))
 ```
 
 # Filter to colonies that are present throughout entire time series
@@ -2031,7 +2036,7 @@ Generate a Type III Anova of model.
 anova(prot_model, type="III")
 summary(prot_model)
 
-emm<-emmeans(prot_model, ~ species)
+#emm<-emmeans(prot_model, ~ species)
 pairs(emm)
 ```
 
@@ -3229,11 +3234,11 @@ protplot_afdw<-protplot_afdw+theme(axis.text.x=element_blank()) + theme(axis.tit
 rd_plot<-rd_plot+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank())+ theme(axis.title.y=element_text(size=12))
 calcplot_cm2<-calcplot_cm2+ theme(axis.title.y=element_text(size=12))
  
-host_univ<-plot_grid(tacplot_afdw, hAFDWplot, protplot_afdw, rd_plot, calcplot_cm2, ncol=1, nrow=5, rel_heights = c(0.8, 0.8, 0.8, 0.8, 1), align="v", label_y=1, labels=c("A", "B", "C", "D", "E"), label_size=20)
+host_univ<-plot_grid(tacplot_afdw, hAFDWplot, protplot_afdw, rd_plot, calcplot_cm2, ncol=2, nrow=3, align="vh", label_y=1, labels=c("A", "B", "C", "D", "E"), label_size=20)
 
 host_univ2<-plot_grid(host_univ, legend, ncol=2, nrow=1, rel_widths = c(1, .2))
 
-ggsave(filename="Figures/Univariate/Host_Univariate_Panel.png", plot=host_univ2, dpi=150, width=8, height=22, units="in")
+ggsave(filename="Figures/Univariate/Host_Univariate_Panel.png", plot=host_univ2, dpi=150, width=14, height=14, units="in")
 ```
 
 # Generate a panel of responses for Porites haplotypes 
@@ -3258,8 +3263,8 @@ tacplot_afdw_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) +
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     xlab("") + 
     ylab(expression(bold(paste("Antioxidant Capacity (", mu, "mol CRE mg afdw"^-1,")"))))+
@@ -3324,8 +3329,8 @@ symbplot_afdw_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(1e+04, 6e+05)+
   
@@ -3392,8 +3397,8 @@ hAFDWplot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) +
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 10)+
   
@@ -3461,8 +3466,8 @@ sAFDWplot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 5)+
   
@@ -3531,8 +3536,8 @@ ratioAFDWplot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) +  
   
     ylim(0, 0.6)+
   
@@ -3602,8 +3607,8 @@ chlplot_total_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 7)+
   
@@ -3670,8 +3675,8 @@ chlplot_total_cell_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) +  
   
     ylim(0, 3e-05)+
   
@@ -3740,8 +3745,8 @@ protplot_afdw_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
 
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) +  
   
     ylim(0, 0.75)+
   
@@ -3812,8 +3817,8 @@ am_plot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 4)+
   
@@ -3878,8 +3883,8 @@ aqy_plot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 0.02)+
   
@@ -3943,8 +3948,8 @@ rd_plot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 2)+
   
@@ -4007,8 +4012,8 @@ Ik_plot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 800)+
   
@@ -4073,8 +4078,8 @@ Ic_plot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 800)+
   
@@ -4144,8 +4149,8 @@ calcplot_cm2_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 2)+
   
@@ -4245,14 +4250,14 @@ legend_haplotype <- get_legend(
 tacplot_afdw_haplotype<-tacplot_afdw_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank()) + theme(axis.title.y=element_text(size=12))
 hAFDWplot_haplotype<-hAFDWplot_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank())+ theme(axis.title.y=element_text(size=12))
 protplot_afdw_haplotype<-protplot_afdw_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank()) + theme(axis.title.y=element_text(size=12))
-rd_plot_haplotype<-rd_plot_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank())+ theme(axis.title.y=element_text(size=12))
+rd_plot_haplotype<-rd_plot_haplotype+theme(axis.title.x=element_blank())+ theme(axis.title.y=element_text(size=12))
 calcplot_cm2_haplotype<-calcplot_cm2_haplotype+ theme(axis.title.y=element_text(size=12))
  
-host_univ_haplotype<-plot_grid(tacplot_afdw_haplotype, hAFDWplot_haplotype, protplot_afdw_haplotype, rd_plot_haplotype, calcplot_cm2_haplotype, ncol=1, nrow=5, rel_heights = c(0.8, 0.8, 0.8, 0.8, 1), align="v", label_y=1, labels=c("A", "B", "C", "D", "E"), label_size=20)
+host_univ_haplotype<-plot_grid(tacplot_afdw_haplotype, hAFDWplot_haplotype, protplot_afdw_haplotype, rd_plot_haplotype, calcplot_cm2_haplotype, ncol=3, nrow=2, align="vh", label_y=1, labels=c("A", "B", "C", "D", "E"), label_size=20)
 
 host_univ2_haplotype<-plot_grid(host_univ_haplotype, legend_haplotype, ncol=2, nrow=1, rel_widths = c(1, .5))
 
-ggsave(filename="Figures/Univariate/Host_Univariate_Panel_HaplotypePOR.png", plot=host_univ2_haplotype, dpi=150, width=8, height=22, units="in")
+ggsave(filename="Figures/Univariate/Host_Univariate_Panel_HaplotypePOR.png", plot=host_univ2_haplotype, dpi=150, width=18, height=11, units="in")
 ```
 
 # Generate a panel of responses for Pocillopora haplotypes 
@@ -4277,8 +4282,8 @@ tacplot_afdw_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) +
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0,0.1)+
     xlab("") + 
@@ -4318,8 +4323,8 @@ symbplot_afdw_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(1e+04, 6e+05)+
   
@@ -4361,8 +4366,8 @@ hAFDWplot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) +
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 10)+
   
@@ -4404,8 +4409,8 @@ sAFDWplot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 5)+
   
@@ -4446,8 +4451,8 @@ ratioAFDWplot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+     scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 0.6)+
   
@@ -4489,8 +4494,8 @@ chlplot_total_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 7)+
   
@@ -4530,8 +4535,8 @@ chlplot_total_cell_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 3e-05)+
   
@@ -4574,8 +4579,8 @@ protplot_afdw_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
 
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 0.75)+
   
@@ -4617,8 +4622,8 @@ am_plot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 4)+
   
@@ -4657,8 +4662,8 @@ aqy_plot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 0.02)+
   
@@ -4697,8 +4702,8 @@ rd_plot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 2)+
   
@@ -4736,8 +4741,8 @@ Ik_plot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 800)+
   
@@ -4777,8 +4782,8 @@ Ic_plot_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 800)+
   
@@ -4821,8 +4826,8 @@ calcplot_cm2_haplotype<-master %>%
   
     labs(fill = "Haplotype") +
   
-    scale_colour_manual(values=c("darkgray", "black")) +
-    scale_fill_manual(values=c("darkgray", "black")) + 
+    scale_colour_manual(values=c("black", "darkgray")) +
+    scale_fill_manual(values=c("black", "darkgray")) + 
   
     ylim(0, 2)+
   
@@ -4875,7 +4880,7 @@ symbiont_univ_haplotype<-plot_grid(symbplot_afdw_haplotype, sAFDWplot_haplotype,
 
 symbiont_univ2_haplotype<-plot_grid(symbiont_univ_haplotype, legend_haplotype, ncol=2, nrow=1, rel_widths = c(1, .25))
 
-ggsave(filename="Figures/Univariate/Symbiont_Univariate_Panel_HaplotypePOC.png", plot=symbiont_univ2_haplotype, dpi=150, width=13, height=15, units="in")
+ggsave(filename="Figures/Univariate/Symbiont_Univariate_Panel_HaplotypePOC.png", plot=symbiont_univ2_haplotype, dpi=150, width=13, height=14, units="in")
 ```
  
 Generate a panel of responses for host/holobiont metrics.  
@@ -4895,14 +4900,14 @@ legend_haplotype <- get_legend(
 tacplot_afdw_haplotype<-tacplot_afdw_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank()) + theme(axis.title.y=element_text(size=12))
 hAFDWplot_haplotype<-hAFDWplot_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank())+ theme(axis.title.y=element_text(size=12))
 protplot_afdw_haplotype<-protplot_afdw_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank()) + theme(axis.title.y=element_text(size=12))
-rd_plot_haplotype<-rd_plot_haplotype+theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank())+ theme(axis.title.y=element_text(size=12))
+rd_plot_haplotype<-rd_plot_haplotype+theme(axis.title.x=element_blank())+ theme(axis.title.y=element_text(size=12))
 calcplot_cm2_haplotype<-calcplot_cm2_haplotype+ theme(axis.title.y=element_text(size=12))
  
-host_univ_haplotype<-plot_grid(tacplot_afdw_haplotype, hAFDWplot_haplotype, protplot_afdw_haplotype, rd_plot_haplotype, calcplot_cm2_haplotype, ncol=1, nrow=5, rel_heights = c(0.8, 0.8, 0.8, 0.8, 1), align="v", label_y=1, labels=c("A", "B", "C", "D", "E"), label_size=20)
+host_univ_haplotype<-plot_grid(tacplot_afdw_haplotype, hAFDWplot_haplotype, protplot_afdw_haplotype, rd_plot_haplotype, calcplot_cm2_haplotype, ncol=3, nrow=2, align="vh", label_y=1, labels=c("A", "B", "C", "D", "E"), label_size=20)
 
 host_univ2_haplotype<-plot_grid(host_univ_haplotype, legend_haplotype, ncol=2, nrow=1, rel_widths = c(1, .5))
 
-ggsave(filename="Figures/Univariate/Host_Univariate_Panel_HaplotypePOC.png", plot=host_univ2_haplotype, dpi=150, width=8, height=22, units="in")
+ggsave(filename="Figures/Univariate/Host_Univariate_Panel_HaplotypePOC.png", plot=host_univ2_haplotype, dpi=150, width=18, height=11, units="in")
 ```
 
 # Correlations  

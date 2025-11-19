@@ -1455,7 +1455,6 @@ pcaHaplotype_afdw_host<-ggplot2::autoplot(scaled_data_haplotype_host, data=pca_d
   #ylim(-0.3, 0.5)+
   xlab("PC1")+
   ylab("PC2")+
-  ggtitle("A. Host Responses")+
    theme(legend.text = element_text(size=18, face="italic"), 
          legend.position="none",
         plot.background = element_blank(),
@@ -1487,6 +1486,7 @@ pcaHaplotype_afdw_host_biplot<-ggplot2::autoplot(scaled_data_haplotype_host, dat
         axis.title = element_text(size=18, color="black"));pcaHaplotype_afdw_host_biplot
 
 ggsave(filename="Figures/NormalizerPCA/Haplotype_Host_BiPlot.jpeg", plot=pcaHaplotype_afdw_host_biplot, dpi=300, width=5, height=5, units="in")
+ggsave(filename="Figures/NormalizerPCA/Haplotype_Host_BiPlot.pdf", plot=pcaHaplotype_afdw_host_biplot, dpi=300, width=5, height=5, units="in")
 ```
 
 ## Symbiont 
@@ -1693,7 +1693,6 @@ pcaHaplotype_afdw_sym<-ggplot2::autoplot(scaled_data_haplotype_sym, data=pca_dat
   ylim(-0.22, 0.18)+
   xlab("PC1")+
   ylab("PC2")+
-  ggtitle("B. Symbiont Responses")+
    theme(legend.text = element_text(size=18, face="italic"), 
          legend.position="right",
         plot.background = element_blank(),
@@ -1723,4 +1722,5 @@ pcaHaplotype_afdw_sym_biplot<-ggplot2::autoplot(scaled_data_haplotype_sym, data=
         axis.title = element_text(size=18, color="black"));pcaHaplotype_afdw_sym_biplot
 
 ggsave(filename="Figures/NormalizerPCA/Haplotype_Sym_BiPlot.jpeg", plot=pcaHaplotype_afdw_sym_biplot, dpi=300, width=5, height=5, units="in")
+ggsave(filename="Figures/NormalizerPCA/Haplotype_Sym_BiPlot.pdf", plot=pcaHaplotype_afdw_sym_biplot, dpi=300, width=5, height=5, units="in")
 ```
