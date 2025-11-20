@@ -86,6 +86,8 @@ master<-master%>%
   mutate(site=if_else(site=="Mahana", "Orovau",
                       if_else(site=="Hilton", "Vaipahu", 
                               if_else(site=="Manava", "Matotia", NA))))
+
+master$site<-fct_relevel(master$site, "Orovau", "Vaipahu", "Matotia")
 ```
 
 # Filter to colonies that are present throughout entire time series
