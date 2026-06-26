@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE, cache = TRUE, message = FALSE, warning = FALS
 ```
 
 ```{r load_packages}
-## install packages if you dont already have them in your library
+## install packages if you don't already have them in your library
 if ("devtools" %in% rownames(installed.packages()) == 'FALSE') install.packages('devtools') 
 if ("segmented" %in% rownames(installed.packages()) == 'FALSE') install.packages('segmented') 
 if ("plotrix" %in% rownames(installed.packages()) == 'FALSE') install.packages('plotrix') 
@@ -63,16 +63,16 @@ Data<-Data%>%
 
 
 
-# Define PI curve function as a nonlinear Least Squares regression of a quadratic fit, test nls fit
-Aquatic Photosynthesis, Falkowski   
+# Define PI curve function as a nonlinear least-squares quadratic fit and test the nls model
+Aquatic photosynthesis, Falkowski   
 Pmax = max photosynthesis (AKA Am from Bayesian script)  
-alpha = quantum yeild (AKA AQY from Bayesian script)  
+alpha = quantum yield (AKA AQY from Bayesian script)  
 I/E = irradiance (AKA PAR from Bayesian script)  
 Rd = dark respiration   
 
 Run models 
 
-Using fixed initial values (not used, kept for reference):
+Using fixed initial values (not used; kept for reference):
 
 ```{r}
 #nls_data <- Data %>% 
@@ -113,9 +113,9 @@ nls_data <- Data %>%
   write_csv(., "output/2_pi_curve_pars_nls.csv")
 ```
 
-Equation for Ic derived from quadratic equation by Ferdi P. Ic = Par when Pc = 0 (x intercept). AH confirmed it matches expected values from each colony plot. Ic = light compensation point; point at which photosynthesis is released from carbon limitation. 
+Equation for Ic derived from the quadratic equation by Ferdi P. Ic = PAR when Pc = 0 (x intercept). This matches expected values from each colony plot. Ic = light compensation point, the point at which photosynthesis is released from carbon limitation. 
 
-Ik (saturating irradiance) is the point at which photosynthesis reaches the max of initial slope = Am/AQY
+Ik (saturating irradiance) is the point at which photosynthesis reaches the maximum of the initial slope: Am/AQY.
 
 Plot curve over data points.  
 ```{r}
@@ -149,7 +149,6 @@ by(augmented,augmented$colony_id, function(i) {
 })
 
 ```
-
 
 
 
