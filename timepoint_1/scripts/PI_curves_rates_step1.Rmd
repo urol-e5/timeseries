@@ -28,7 +28,6 @@ library(furrr)
 ```
 
 
-Need to find a way to load all data files, remove row with Channel = delta_t to get rid of artifact line, then convert time column back into hms???
 
 
 
@@ -47,7 +46,6 @@ sample.info <- read_csv(file = "data/1_pi_curves/1_pi_curves_sample_metadata.csv
 run.info <- read_csv(file = "data/1_pi_curves/1_pi_curves_run_metadata.csv")
 
 
-#test.file<-read_csv(file="data/1_pi_curves/POC-391_20200107.csv", skip=1, col_types = cols(.default = "d", Time = "t")) #do this to correct time format issue
 
 
 # Join all coral and run metadata

@@ -301,7 +301,6 @@ pH_plotQC<-master_qc%>%
   xlab("Date");pH_plotQC
 ```
 
-Need to see if the lower site 2 values are valid after 2020-05-16.  
 
 ## Light  
 

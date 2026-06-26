@@ -126,14 +126,12 @@ if ("tidyverse" %in% rownames(installed.packages()) == 'FALSE') install.packages
 if ("ggpubr" %in% rownames(installed.packages()) == 'FALSE') install.packages('ggpubr') 
 if ("rstatix" %in% rownames(installed.packages()) == 'FALSE') install.packages('rstatix') 
 if ("xml2" %in% rownames(installed.packages()) == 'FALSE') install.packages('xml2') 
-install.packages("xml2")
 
 library(tidyverse)
 library(ggpubr)
 library(rstatix)
 
 Blch %>% group_by(Species, Site, Timepoint) %>% get_summary_stats(Bleaching.Score, type = "mean_sd")
-## this can also be seen with the All.Means table created in previous steps
 ```
 
 

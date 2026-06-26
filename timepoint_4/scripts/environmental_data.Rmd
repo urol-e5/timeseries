@@ -26,8 +26,6 @@ library(lubridate)
 
 
 
-WE NEED TO FIND TEMP/PH FILES FOR THIS TIMEPOINT 
-Script below not updated: 
 
 pH1 <- read.csv("data/3_environmental/3_20200922_SN20697597_Site1_pH.csv", header=T, sep=",", na.strings="NA",skip=1) #load  data
 colnames(pH1) <- c("Date.Time", "Temp", "mV", "pH")

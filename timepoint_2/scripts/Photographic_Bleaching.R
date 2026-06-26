@@ -50,13 +50,6 @@ Data$Red.Norm.Coral <- Data$Red.Coral/Data$Red.Standard #normalize to color stan
 Data$Green.Norm.Coral <- Data$Green.Coral/Data$Green.Standard #normalize to color standard
 Data$Blue.Norm.Coral <- Data$Blue.Coral/Data$Blue.Standard #normalize to color standard
 
-# xxx <- subset(Data, Timepoint=="Time5")
-# xxx <- subset(xxx, Species.x=="Pocillopora")
-# xxx <- subset(xxx, Treatment.x=="ATHC")
-# par(mfrow=c(1,3))
-# plot(xxx$Red.Norm.Coral ~ xxx$Tank)
-# plot(xxx$Green.Norm.Coral ~ xxx$Tank)
-# plot(xxx$Blue.Norm.Coral ~ xxx$Tank)
 
 
 #Red.Norm.Coral <- Data$Red.Coral/Data$Red.Standard #normalize to color standard

@@ -64,7 +64,6 @@ blanks <- left_join(blanks,initial)
 
 Calculate delta TA and mean blank values.  
 ```{r}
-#figure out delta TA, initial-final
 blanks<-blanks%>%
   mutate(delta.TA.blank = Ta.norm_initial - Ta.norm)
 
@@ -75,7 +74,6 @@ mean.blanks <- blanks %>%
 
 calc.data <- left_join(calc.data, mean.blanks) #bring in mean blanks to calc.data
 
-#need to join in SA, time data by colony ID, before calculating NEC
 ```
 
 Read in metadata and surface area data.  
@@ -98,9 +96,7 @@ time.data <- resp.data%>%
 full.calc.data <- left_join(calc.data2, time.data)
 ```
 
-We dont have time information in the resp.data or full.calc.data above. 
 
-Errors in this chunk below: Site is not included in datasheet (need to populate) and getting NA's in data calculations.  
 
 
 Calculate Net Ecosystem Calcification (NEC) from total alkalinity method.  .  
