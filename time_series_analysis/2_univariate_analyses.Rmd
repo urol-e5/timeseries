@@ -923,7 +923,7 @@ anova(hAFDW_model_por, type="III")
 summary(hAFDW_model_por)
 rand(hAFDW_model_por)
 
-emm<-emmeans(hAFDW_model_por, ~ site)
+emm<-emmeans(hAFDW_model_por, ~ site | timepoint)
 pairs(emm)
 ```
 
@@ -997,10 +997,7 @@ rand(sAFDW_model_poc)
 emm<-emmeans(sAFDW_model_poc, ~ timepoint)
 pairs(emm)
 
-emm<-emmeans(sAFDW_model_poc, ~ timepoint | site)
-pairs(emm)
-
-emm<-emmeans(sAFDW_model_poc, ~ site | timepoint)
+emm<-emmeans(sAFDW_model_poc, ~ site)
 pairs(emm)
 ```
 
@@ -1781,9 +1778,6 @@ rand(chltotal_model_poc)
 emm<-emmeans(chltotal_model_poc, ~ timepoint)
 pairs(emm)
 
-emm<-emmeans(chltotal_model_poc, ~ site)
-pairs(emm)
-
 emm<-emmeans(chltotal_model_poc, ~ timepoint | site)
 pairs(emm)
 
@@ -2061,12 +2055,6 @@ pairs(emm)
 
 emm<-emmeans(prot_model_acr, ~ site)
 pairs(emm)
-
-emm<-emmeans(prot_model_acr, ~ timepoint | site)
-pairs(emm)
-
-emm<-emmeans(prot_model_acr, ~ site | timepoint)
-pairs(emm)
 ```
 
 *Pocillopora*  
@@ -2087,12 +2075,6 @@ emm<-emmeans(prot_model_poc, ~ timepoint)
 pairs(emm)
 
 emm<-emmeans(prot_model_poc, ~ site)
-pairs(emm)
-
-emm<-emmeans(prot_model_poc, ~ timepoint | site)
-pairs(emm)
-
-emm<-emmeans(prot_model_poc, ~ site | timepoint)
 pairs(emm)
 ```
 
@@ -3127,9 +3109,6 @@ anova(calc_model_acr, type="III")
 summary(calc_model_acr)
 rand(calc_model_acr)
 
-emm<-emmeans(calc_model_acr, ~ timepoint)
-pairs(emm)
-
 emm<-emmeans(calc_model_acr, ~ timepoint | site)
 pairs(emm)
 
@@ -3142,7 +3121,6 @@ pairs(emm)
 ```{r}
 calc_model_poc<-lmer(log(1+calc.umol.cm2.hr)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Pocillopora"))
 qqPlot(residuals(calc_model_poc))
-#hist(residuals(calc_model_poc))
 ```
 
 Generate a Type III Anova of model.    
@@ -3163,7 +3141,6 @@ rand(calc_model_poc)
 ```{r}
 calc_model_por<-lmer(log(1+calc.umol.cm2.hr)~timepoint*site+(1|haplotype/colony_id_corr), na.action=na.omit, data=master, subset=c(species=="Porites"))
 qqPlot(residuals(calc_model_por))
-#hist(residuals(calc_model_por))
 ```
 
 Generate a Type III Anova of model.    
