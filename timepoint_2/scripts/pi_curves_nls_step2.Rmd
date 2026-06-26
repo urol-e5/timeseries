@@ -148,9 +148,7 @@ by(augmented,augmented$colony_id, function(i) {
                title = paste0("1_", augmented$colony_id))
 })
 
-#NEED TO FIND A WAY TO SAVE INDIVIDUALS 
 ```
-
 
 
 
