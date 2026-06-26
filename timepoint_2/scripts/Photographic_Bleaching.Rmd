@@ -139,7 +139,6 @@ library(car)
 library(lmerTest)
 
 Blch %>% group_by(Species, Site, Timepoint) %>% get_summary_stats(Bleaching.Score, type = "mean_sd")
-## this can also be seen with the All.Means table created in previous steps
 ```
 
 

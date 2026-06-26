@@ -520,7 +520,6 @@ density_model<-lmer(log(cells.mgAFDW)~timepoint*site*species+(1|species/haplotyp
 qqPlot(residuals(density_model))
 ```
 
-Residuals are improved, but we need to revisit this model to improve fit.  
 
 Generate a Type III Anova of model.    
 

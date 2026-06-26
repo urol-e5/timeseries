@@ -75,7 +75,6 @@ data <- full_join(data, SA, by = "colony_id")
 data <- data %>% mutate(Ta.norm = TA * Salinity.lab/36)
 
 # Calculate initial TA norm averages for each run
-# Taking out initial 2 run 2 b/c it seems to be an outlier (value of 2217.185)
 initial <- data %>% subset(sample.type == "Initial") %>% filter(!Ta.norm < 2300) %>% dplyr::group_by(Run.Number) %>%
   mutate(Ta.norm_initial_avg = mean(Ta.norm)) %>% select(Run.Number, Ta.norm_initial_avg) %>% distinct()
 
@@ -130,7 +129,6 @@ NEC %>% filter(is.na(umol.cm2.hr)) # missing calc rates
 #### Check sample variation one more time post normalizing to surface area
 #### TA as a function of chamber temperature, salinity, pH, initial measurements temperature and pH
 
-Do we need to do any correction for this? 
 
 ```{r}
 NEC %>% filter(!is.na(umol.cm2.hr)) %>%

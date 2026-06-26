@@ -150,7 +150,6 @@ NEC %>% filter(is.na(umol.cm2.hr)) # missing calc rates
 #### Check sample variation one more time post normalizing to surface area
 #### TA as a function of chamber temperature, salinity, pH, initial measurements temperature and pH
 
-Do we need to do any correction for this? 
 
 ```{r}
 NEC %>% filter(!is.na(umol.cm2.hr)) %>%
