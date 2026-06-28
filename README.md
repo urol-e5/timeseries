@@ -139,7 +139,7 @@ Use the `colony_id_corr` column for the corrected colony_id.
 
 # Contact 
 
-If you have any questions, contact Ariana Huffmyer at ashuffmyer (at) uri.edu. 
+If you have any questions, contact Ariana Huffmyer at ashuffmyer (at) gmail (dot) com. 
 	
 
 	
