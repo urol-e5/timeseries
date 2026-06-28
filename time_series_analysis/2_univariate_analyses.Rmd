@@ -90,7 +90,7 @@ master<-master%>%
 master$site<-fct_relevel(master$site, "Orovau", "Vaipahu", "Matotia")
 ```
 
-# Filter to colonies that are present throughout entire time series
+# Filter to colonies present in ultivariate analyses
 
 Filter our data set to only analyze colonies that had all physiological metrics measured. This will show univariate responses that match the same data sets that are analyzed in our multivariate work. The full data set including colonies that did not have all metrics measured can be run by removing this filtering step. 
 
@@ -127,11 +127,359 @@ n_after<-master%>%
 
 Some groups have low sample size (mainly ACR at certain sites and times) due to mortality and loss of tags.  
 
+# Missingness tally 
+
+```{r}
+library(dplyr)
+library(tidyr)
+
+tp_levels <- c("timepoint1", "timepoint2", "timepoint3", "timepoint4")
+
+# Step 1: define each colony's identity (species + site + colony)
+colony_meta <- master %>%
+  distinct(species, site, colony_id_corr)
+
+obs <- master %>%
+  distinct(species, site, colony_id_corr, timepoint) %>%
+  mutate(present = 1)
+
+# Step 2: build full time series per colony (ONLY expand timepoints here)
+presence <- obs %>%
+  select(colony_id_corr, timepoint, present) %>%
+  complete(
+    colony_id_corr,
+    timepoint = tp_levels,
+    fill = list(present = 0)
+  ) %>%
+  
+  # Step 3: re-attach metadata (safe join)
+  left_join(
+    obs %>% distinct(colony_id_corr, species, site),
+    by = "colony_id_corr"
+  ) %>%
+  
+  arrange(species, site, colony_id_corr, timepoint)
+
+classify_colony <- function(x, tp_levels){
+
+  n_tp <- length(tp_levels)
+
+  # 1. never missing
+  if(all(x == 1)){
+    return("Never missing")
+  }
+
+  last_obs <- max(which(x == 1))
+
+  # 2. if last observation is final timepoint → NOT lost
+  if(last_obs == n_tp){
+    # still may have gaps earlier
+    if(any(diff(which(x == 1)) > 1)){
+      return("Temporary absence(s), recovered")
+    } else {
+      return("Never missing")
+    }
+  }
+
+  # 3. check recovery after gaps
+  recovered <- any(diff(which(x == 1)) > 1)
+
+  if(recovered){
+    return("Temporary absence(s), recovered")
+  }
+
+  # 4. true permanent loss (stopped before final timepoint)
+  paste0("Permanently lost after ", tp_levels[last_obs])
+}
+
+classification <- presence %>%
+  group_by(species, site, colony_id_corr) %>%
+  summarise(
+    history = paste0(present, collapse = ""),
+    category = classify_colony(present, tp_levels),
+    .groups = "drop"
+  )
+
+summary_table <- classification %>%
+  count(species, site, category) %>%
+  arrange(species, site, category)
+
+summary_table
+
+summary_table2 <- classification %>%
+  count(species, category) %>%
+  arrange(species,  category)
+
+summary_table2
+```
+
+```{r}
+missing_summary <- classification %>%
+  count(species, site, category) %>%
+  group_by(species, site) %>%
+  mutate(prop = n / sum(n)) %>%
+  ungroup()
+
+missing_summary
+
+missing_summary2 <- classification %>%
+  count(species, category) %>%
+  group_by(species) %>%
+  mutate(prop = n / sum(n)) %>%
+  ungroup()
+
+missing_summary2
+```
+
+```{r}
+ggplot(classification, aes(x = site, fill = category)) +
+  geom_bar(position = "fill") +
+  facet_wrap(~species) +
+  ylab("Proportion of colonies") +
+  xlab("Site") +
+  theme_bw()
+```
+
+Test for effects of species on missingness patterns. 
+```{r}
+tab_species <- table(classification$species, classification$category)
+
+chisq_species <- chisq.test(tab_species)
+
+chisq_species
+
+fisher.test(tab_species, simulate.p.value=TRUE)
+```
+Missingness differs among taxa 
+
+Overall effect of site
+```{r}
+tab_site <- table(classification$site, classification$category)
+
+chisq_site <- chisq.test(tab_site)
+
+chisq_site
+
+fisher.test(tab_site)
+```
+Missingness is not different between environments 
+
+Site within each species - Acropora
+```{r}
+acropora_dat <- classification %>%
+  filter(species == "Acropora")
+
+tab_acropora <- table(acropora_dat$site, acropora_dat$category)
+
+chisq_acropora <- chisq.test(tab_acropora)
+
+chisq_acropora
+
+fisher.test(tab_acropora)
+```
+Missingness not different by site for Acropora 
+
+Pocillopora
+```{r}
+pocillopora_dat <- classification %>%
+  filter(species == "Pocillopora")
+
+tab_pocillopora <- table(pocillopora_dat$site, pocillopora_dat$category)
+
+chisq_pocillopora <- chisq.test(tab_pocillopora)
+
+chisq_pocillopora
+
+fisher.test(tab_pocillopora)
+```
+Missingness not different by site for Pocillopora
+
+Porites
+```{r}
+porites_dat <- classification %>%
+  filter(species == "Porites")
+
+tab_porites <- table(porites_dat$site, porites_dat$category)
+
+chisq_porites <- chisq.test(tab_porites)
+
+chisq_porites
+
+fisher.test(tab_porites)
+```
+Missingness not different by site for Porites 
+
+Make a list of colonies that went missing vs those that stayed in the entire study. 
+
+```{r}
+retained_colonies <- classification %>%
+  filter(category %in% c("Never missing",
+                         "Temporary absence(s), recovered")) %>%
+  arrange(species, site, colony_id_corr)%>%
+  pull(colony_id_corr)
+
+retained_colonies
+
+permanently_lost_colonies <- classification %>%
+  filter(grepl("^Permanently lost", category)) %>%
+  arrange(species, site, colony_id_corr)%>%
+  pull(colony_id_corr)
+
+permanently_lost_colonies
+```
+
+PERMANOVA of all host and symbiont responses of Acropora missing vs retained. This code creates the same PERMANOVA as in 4_multivariate_analysis.Rmd.  
+
+```{r}
+master_flagged <- master %>%
+  left_join(
+    classification %>%
+      mutate(
+        colony_status = ifelse(
+          grepl("^Permanently lost", category),
+          "Permanently lost",
+          "Retained through study"
+        )
+      ) %>%
+      select(colony_id_corr, colony_status),
+    by = "colony_id_corr"
+  )
+```
+
+Acropora 
+```{r}
+acr_data_afdw<-master_flagged%>%
+  filter(timepoint=="timepoint1")%>%
+  select(colony_id_corr, timepoint, species, site, colony_status, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Acropora")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
+
+acr_data_afdw<-acr_data_afdw[complete.cases(acr_data_afdw), ]
+
+acr_data_afdw[,-c(1:5)]<-log(acr_data_afdw[,-c(1:5)]+1)
+
+scaled_acr_afdw<-prcomp(acr_data_afdw[c(6:19)], scale=TRUE, center=TRUE) 
+
+# scale data
+vegan <- scale(acr_data_afdw[ ,6:19])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis2(vegan ~ colony_status, data = acr_data_afdw, method='eu')
+z_acr<-permanova
+z_acr
+```
+
+Not significant. Plot. 
+
+```{r}
+pcaACR<-ggplot2::autoplot(scaled_acr_afdw, data=acr_data_afdw, frame.colour="colony_status", loadings=FALSE,  colour="colony_status", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  theme_classic()+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pcaACR
+```
+No separation.
+
+Pocillopora 
+```{r}
+poc_data_afdw<-master_flagged%>%
+  filter(timepoint=="timepoint1")%>%
+  select(colony_id_corr, timepoint, species, site, colony_status, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Pocillopora")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
+
+poc_data_afdw<-poc_data_afdw[complete.cases(poc_data_afdw), ]
+
+poc_data_afdw[,-c(1:5)]<-log(poc_data_afdw[,-c(1:5)]+1)
+
+scaled_poc_afdw<-prcomp(poc_data_afdw[c(6:19)], scale=TRUE, center=TRUE) 
+
+# scale data
+vegan <- scale(poc_data_afdw[ ,6:19])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis2(vegan ~ colony_status, data = poc_data_afdw, method='eu')
+z_poc<-permanova
+z_poc
+```
+
+Not significant. Plot. 
+
+```{r}
+pcaPOC<-ggplot2::autoplot(scaled_poc_afdw, data=poc_data_afdw, frame.colour="colony_status", loadings=FALSE,  colour="colony_status", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  theme_classic()+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pcaPOC
+```
+No separation.
+
+Porites 
+```{r}
+por_data_afdw<-master_flagged%>%
+  filter(timepoint=="timepoint1")%>%
+  select(colony_id_corr, timepoint, species, site, colony_status, Host_AFDW.mg.cm2, Sym_AFDW.mg.cm2, Ratio_AFDW.mg.cm2, Total_Chl, Total_Chl_cell, prot_mg.mgafdw, cells.mgAFDW, cre.umol.mgafdw, Am, AQY, Rd, Ik, Ic, calc.umol.cm2.hr)%>%
+  filter(Host_AFDW.mg.cm2>0)%>%
+  filter(Sym_AFDW.mg.cm2>0)%>%
+  filter(Ratio_AFDW.mg.cm2>0)%>%
+  filter(species=="Porites")%>%
+  filter(Sym_AFDW.mg.cm2<20)%>%
+  filter(Ic<1000)%>%
+  filter(prot_mg.mgafdw<1.5)%>% #remove outliers
+  rename(Host_Biomass=Host_AFDW.mg.cm2, Symbiont_Biomass=Sym_AFDW.mg.cm2, S_H_Biomass_Ratio=Ratio_AFDW.mg.cm2, Host_Protein=prot_mg.mgafdw, Symbiont_Density=cells.mgAFDW, Antiox_Capacity=cre.umol.mgafdw, Calc=calc.umol.cm2.hr)
+
+por_data_afdw<-por_data_afdw[complete.cases(por_data_afdw), ]
+
+por_data_afdw[,-c(1:5)]<-log(por_data_afdw[,-c(1:5)]+1)
+
+scaled_por_afdw<-prcomp(por_data_afdw[c(6:19)], scale=TRUE, center=TRUE) 
+
+# scale data
+vegan <- scale(por_data_afdw[ ,6:19])
+
+# PerMANOVA - partitioning the euclidean distance matrix by species
+permanova<-adonis2(vegan ~ colony_status, data = por_data_afdw, method='eu')
+z_por<-permanova
+z_por
+```
+
+Not significant. Plot. 
+
+```{r}
+pcaPOR<-ggplot2::autoplot(scaled_por_afdw, data=por_data_afdw, frame.colour="colony_status", loadings=FALSE,  colour="colony_status", loadings.label.colour="black", loadings.colour="black", loadings.label=FALSE, frame=TRUE, loadings.label.size=5, loadings.label.vjust=-1, size=5, frame.type = 'norm') + 
+  theme_classic()+
+   theme(legend.text = element_text(size=18), 
+         legend.position="right",
+        plot.background = element_blank(),
+        legend.title = element_text(size=18, face="bold"), 
+        axis.text = element_text(size=18), 
+        axis.title = element_text(size=18,  face="bold"));pcaPOR
+```
+No separation.
+
 # Univariate Responses  
 
 Plot univariate response plots and then generate panel of all plots at the end of this section. Individual plots will not be displayed.
 
-Haplotype will be included as a random effect in models. We will include haplotype as a random effect with colony ID nested within haplotype (each colony is assigned to only one haplotype always and always within a species). This will be denoted as `+(1|species/haplotype/colony_id_corr)`. Multiple haplotypes only occur in POC and POR, so models analyzing individual species will not include haplotype for ACR. 
+Haplotype will be included as a random effect in models. Multiple haplotypes only occur in POC and POR, so models analyzing individual species will not include haplotype for ACR. 
 
 ## Antioxidant capacity  
 
